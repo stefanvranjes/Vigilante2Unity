@@ -1,0 +1,1098 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public enum _WHEELS
+{
+    Ground,
+    Air,
+    Sea,
+    Snow
+};
+
+public enum _VEHICLE
+{
+    Wonderwagon,
+    Thunderbolt,
+    DakotaCycle,
+    SamsonTow,
+    Livingston,
+    Xanadu,
+    Palomino,
+    ElGuerrero,
+    BlueBurro,
+    Excelsior,
+    Tsunami,
+    Marathon,
+    Trekker,
+    Loader,
+    Stinger,
+    Vertigo,
+    Goliath,
+    Wapiti
+};
+
+public class Vehicle : MonoBehaviour
+{
+    public VigObject vObject;
+
+    public VigObject target;
+    public short turning;
+    public short acceleration;
+    public _WHEELS wheelsType;
+    public sbyte direction;
+    public byte weaponSlot;
+    public byte DAT_AF; //0xAF
+    public byte DAT_B1; //0xB1
+    public byte DAT_B2; //0xB2
+    public byte DAT_B3; //0xB3
+    public ushort DAT_B4; //0xB4
+    public short ignition;
+    public byte DAT_C0; //0xC0
+    public byte breaking;
+    public byte DAT_C3; //0xC3
+    public byte DAT_C4; //0xC4
+    public byte DAT_C5; //0xC5
+    public _VEHICLE vehicle;
+    public byte DAT_DE; //0xDE
+    public byte DAT_DF; //0xDF
+    public short DAT_E0; //0xE0
+    public int DAT_E4; //0xE4
+    public int lightness; //0xE8
+    public Camera cam;
+    public ushort unk2;
+    public VigObject[] body;
+    public VigObject[] wheels;
+    public ushort doubleDamage;
+    public ushort shield;
+    public ushort jammer;
+
+    private VehicleConfig config;
+
+    
+    void Awake()
+    {
+        vObject = GetComponent<VigObject>();
+        config = GetComponent<VehicleConfig>();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        VigObject currentObj = config.FUN_2C17C(0, 308, 0); //r20
+        int configID = config.dataID;
+        int iVar1 = GameManager.vehicleConfigs[configID].unk0xC;
+
+        if ((iVar1 & 240) == 0)
+            iVar1 |= 48;
+
+        currentObj.id = 0;
+        currentObj.type = 2;
+        currentObj.maxHalfHealth = GameManager.vehicleConfigs[configID].maxHalfHealth;
+        vehicle = GameManager.vehicleConfigs[configID].vehicleID;
+        DAT_E0 = 0x400;
+        lightness = GameManager.vehicleConfigs[configID].lightness;
+        int iVar2 = iVar1 & 255; //r30
+
+        if (config.pointerUnk1 != 0)
+            currentObj.flags |= 4;
+
+        VigObject child2 = currentObj.child2; //r16
+        DAT_E4 = -currentObj.screen.y;
+
+        while (child2 != null)
+        {
+            VigObject child = child2.child; //r17
+
+            if ((ushort)child2.id < 4)
+            {
+                body[(child2.id << 16 >> 14) / 4] = child2;
+                child2.ai = (byte)(child2.FUN_4DCD8() + 1);
+                child2.maxHalfHealth = GameManager.vehicleConfigs[configID].maxHalfHealth;
+            }
+
+            child2 = child;
+        }
+
+        int iVar3 = 0; //r18
+        VigObject wheelObject; //r16
+        VehicleConfigContainer nextContainer; //r19
+        VehicleConfigContainer previousContainer; //r17
+        GameManager.instance.commonWheelConfiguration.currentID = 0;
+        wheels.CopyTo(GameManager.instance.commonWheelConfiguration.obj, 0);
+
+        for (int i = 0; i < wheels.Length; i++)
+        {
+            nextContainer = config.FUN_2C590(0, iVar3 - 0x8000 & 0xFFFF);
+
+            if (nextContainer != null)
+            {
+                previousContainer = config.FUN_2C6D0(nextContainer, 0);
+
+                if (previousContainer == null)
+                {
+                    int iVar = 12; //r16
+
+                    if ((GameManager.instance.unk8 & 1) == 0)
+                        iVar = GameManager.vehicleConfigs[configID].unk0x0[(((iVar3 < 2 ? 1 : 0) ^ 1) << 1) / 2];
+                    
+                    wheelObject = GameManager.instance.commonWheelConfiguration.FUN_2C17C(iVar, 156, 8); //r16
+                    int configIndex = (iVar << 3) - iVar << 2;
+                    wheelObject.physics2.X = -GameManager.instance.commonWheelConfiguration.configContainers[configIndex / 0x1C].v3_1.y;
+                    wheelObject.vr = new Vector3Int((int)Utilities.FUN_2AC5C(), 0, (iVar3 & 1) << 11);
+                }
+                else
+                {
+                    wheelObject = config.FUN_2C17C(config.FUN_2C73C(previousContainer) & 0xFFFF, 156, 8);
+                    wheelObject.physics2.X = -(currentObj.screen.y + previousContainer.v3_1.y + nextContainer.v3_1.y);
+                }
+
+                wheelObject.id = wheelObject.unk2;
+                wheelObject.screen = nextContainer.v3_1;
+                Utilities.FUN_2CC48(currentObj, wheelObject);
+                wheels[i] = wheelObject;
+                nextContainer = config.FUN_2C5CC(nextContainer, 0x8000);
+                wheelObject.type = 9;
+
+                if (nextContainer == null)
+                    wheelObject.physics1.X = 0;
+                else
+                    wheelObject.physics1.X = nextContainer.v3_1.y;
+
+                wheelObject.physics1.Y = wheelObject.screen.y;
+                int index = (iVar3 >> 1 << 1) / 2;
+                wheelObject.phy1Unk1 = GameManager.vehicleConfigs[configID].unk0x0[index + 2];
+                wheelObject.phy1Unk2 = GameManager.vehicleConfigs[configID].unk0x0[index + 4];
+
+                if (wheelObject.vMesh != null)
+                {
+                    if ((wheelObject.flags & 16) == 0)
+                    {
+                        int iVar5 = wheelObject.physics2.X * 0x6486;
+
+                        if (iVar5 < 0)
+                            iVar5 += 0xFFF;
+
+                        wheelObject.physics2.Y = 0x1000000 / (iVar5 >> 12);
+                    }
+                    else
+                    {
+                        wheelObject.flags &= 0xffffffef;
+                        wheelObject.physics2.Y = 0;
+                    }
+                }
+
+                if ((GameManager.instance.unk8 & 0x40000) != 0)
+                    wheelObject.physics1.Y += 0x2800;
+
+                wheelObject.physics1.Z = wheelObject.physics2.X;
+
+                if (wheelObject.unk3 != 0)
+                {
+                    //...
+                }
+
+                iVar1 = (iVar2 >> iVar3 & 1) << 24;
+                int iVar4;
+
+                if ((iVar2 & 16 << iVar3) == 0)
+                    iVar4 = iVar3 << 28 | 48;
+                else
+                    iVar4 = iVar3 << 28 | 0x2000020;
+
+                iVar4 = iVar1 | iVar4;
+                wheelObject.flags |= (uint)iVar4;
+                wheelObject.ApplyTransformation();
+            }
+
+            iVar3++;
+        }
+
+        currentObj.vectorUnk1 = GameManager.vehicleConfigs[configID].vectorUnk;
+        currentObj.unk1 = GameManager.vehicleConfigs[configID].unk0x2A;
+        wheelsType = _WHEELS.Ground;
+        direction = 1;
+        DAT_B3 = GameManager.vehicleConfigs[configID].unk0x13;
+        DAT_B1 = GameManager.vehicleConfigs[configID].unk0xE;
+        DAT_B2 = GameManager.vehicleConfigs[configID].unk0xF;
+        DAT_AF = GameManager.vehicleConfigs[configID].unk0x15;
+        DAT_C3 = GameManager.vehicleConfigs[configID].unk0x10;
+        DAT_C4 = GameManager.vehicleConfigs[configID].unk0x11;
+        DAT_C5 = GameManager.vehicleConfigs[configID].unk0x12;
+        byte[] local_28 = new byte[4]; //sp+10h
+        Array.Copy(GameManager.DAT_6B204, local_28, 4);
+        int iVar6;
+
+        do
+        {
+            iVar3 = 0;
+            iVar6 = iVar3;
+
+            do
+            {
+                int iVar5 = iVar3 + 1;
+                byte bVar1 = GameManager.vehicleConfigs[configID].unk0x2C[local_28[iVar3]];
+                byte bVar2 = GameManager.vehicleConfigs[configID].unk0x2C[local_28[iVar5]];
+                byte bVar3 = local_28[iVar3];
+                byte bVar4 = local_28[iVar5];
+
+                if (bVar1 < bVar2)
+                {
+                    iVar6 = 1;
+                    local_28[iVar3] = bVar4;
+                    local_28[iVar5] = bVar3;
+                }
+
+                iVar3 = iVar5;
+            } while (iVar3 < 3);
+        } while (iVar6 != 0);
+
+        DAT_C0 = (byte)(local_28[0] | local_28[1] << 2 | local_28[2] << 4 | local_28[3] << 6);
+        currentObj.pointerUnk3 = currentObj.FUN_2CA1C();
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
+        if (vObject.ai < 0 && GameManager.instance.mode != _MODE.Demo)
+        {
+            Tile tile = GameManager.instance.terrain.GetTileByPosition((uint)vObject.position.x, (uint)vObject.position.z);
+
+            if (tile.unk2[3] == 7)
+                ; //FUN_3BFC0
+
+            if ((vObject.flags & 0x20000000) == 0)
+            {
+                if (DAT_DF != 0)
+                {
+                    //sound effect FUN_1DE78
+                    DAT_DE = 0;
+                    DAT_DF = 0;
+                }
+            }
+            else
+            {
+                if (tile.unk2[4] != DAT_DE)
+                {
+                    //sound effect FUN_1DE78
+                    DAT_DE = (byte)tile.unk2[4];
+
+                    if ((byte)tile.unk2[4] == 0)
+                        DAT_DF = 0;
+                    else
+                    {
+                        //function call by register
+                    }
+                }
+            }
+
+
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        FUN_41AE8();
+    }
+
+    public void FUN_41AE8()
+    {
+        FUN_41B0C();
+    }
+    
+    private void FUN_41B0C()
+    {
+        short sVar1 = 84; //r17
+
+        if (-1 < acceleration)
+        {
+            sVar1 = 85;
+
+            if (-1 < direction)
+            {
+                sVar1 = 0;
+
+                if ((unk2 & 0x80) != 0)
+                {
+                    sVar1 = 86;
+                }
+            }
+        }
+
+        if (body[0] != null)
+        {
+            if (body[0].pointerUnk1 != 0)
+            {
+                //...
+            }
+
+            if (body[0].pointerUnk2 != 0)
+            {
+                //...
+            }
+
+            if (sVar1 != 0)
+            {
+                //...
+            }
+        }
+
+        vObject.flags = vObject.flags & 0x8fffffff;
+        int iVar = Utilities.FUN_29E84
+            (new Vector3Int(vObject.physics1.X, vObject.physics1.Y, vObject.physics1.Z)); //r2
+
+        if (iVar < 0)
+            iVar += 127;
+        
+        vObject.phy1Unk1 = (short)(iVar >> 7);
+        vObject.phy1Unk2 = (short)(iVar >> 7 >> 16);
+
+        int x = vObject.physics1.X;
+        if (x < 0)
+            x += 127;
+
+        int y = vObject.physics1.Y;
+        if (y < 0)
+            y += 127;
+
+        int z = vObject.physics1.Z;
+        if (z < 0)
+            z += 127;
+
+        int sum = vObject.rotation.V02 * (x >> 7) +
+                  vObject.rotation.V12 * (y >> 7) +
+                  vObject.rotation.V22 * (z >> 7);
+
+        if (sum < 0)
+            sum += 4095;
+
+        vObject.phy2Unk1 = (short)(sum >> 12);
+
+        if (DAT_B4 == 0)
+        {
+            if (wheelsType == _WHEELS.Air)
+                ; //FUN_3FCC4
+            else
+            {
+                if (wheelsType < _WHEELS.Sea)
+                {
+                    sVar1 = 0;
+
+                    if (wheelsType != _WHEELS.Ground)
+                        goto LAB_41E08;
+
+                    PhyGround();
+                }
+                else
+                {
+                    if (wheelsType == _WHEELS.Sea)
+                        ; //FUN_40598
+                    else
+                    {
+                        sVar1 = 0;
+
+                        if (wheelsType == _WHEELS.Snow)
+                            goto LAB_41E08;
+
+                        //FUN_40F10
+                    }
+                }
+            }
+        }
+        else
+        {
+            //FUN_3E774
+            //FUN_3E8C0
+        }
+
+        sVar1 = 0;
+
+        LAB_41E08:
+        ;
+    }
+
+    //FUN_3EDC4
+    public void PhyGround()
+    {
+        if (vObject.rotation.V11 < 0)
+        {
+            FUN_3E8C0();
+        }
+        else
+        {
+            if (GameManager.instance.unk2 != 0 && vObject.position.z < GameManager.instance.unk1)
+            {
+
+            }
+        }
+
+        Matrix3x3 rotation;
+        Vector3Int position;
+        vObject.FUN_2AEAC(out rotation, out position);
+
+        List<Vector3Int> positions = new List<Vector3Int>();
+        List<Vector3Int> normals = new List<Vector3Int>();
+        List<int> positions_y = new List<int>();
+        List<Tile> tiles = new List<Tile>();
+
+        Vector3Int local_v1 = new Vector3Int(0, 0, 0); //sp+10
+        Vector3Int local_v2 = new Vector3Int(0, 0, 0); //sp+20
+
+        for (int i = 0; i < wheels.Length; i++)
+        {
+            if (wheels[i] != null)
+            {
+                int wheel_x = wheels[i].screen.x;
+                int wheel_y = wheels[i].screen.y + wheels[i].physics2.X;
+                int wheel_z = wheels[i].screen.z;
+                Vector3Int pos = Utilities.FUN_24148(vObject.rotation, vObject.position, new Vector3Int(wheel_x, wheel_y, wheel_z));
+                int pos_y = pos.y; //r18
+                Tile tile;
+                Vector3Int normal;
+                pos.y = vObject.FUN_2CFBC(pos, out normal, out tile);
+                positions.Add(pos); //1F800000h
+                normals.Add(normal); //1F800014h
+                positions_y.Add(pos_y); //1F80000Ch
+                tiles.Add(tile); //1F800010h
+            }
+        }
+
+        int local_4c = 0; //sp+BCh
+        int local_48 = 0; //sp+C0h
+
+        for (int i = 0; i < wheels.Length; i++)
+        {
+            if (wheels[i] != null)
+            {
+                if ((wheels[i].flags & 0x2000000) == 0)
+                {
+                    local_4c = 0;
+                    local_48 = 0x1000;
+                }
+                else
+                {
+                    int turn = turning;
+
+                    if (1 < i)
+                        turn = -turn;
+
+                    wheels[i].vr.z = (short)turn;
+                    int j = (turn & 0xFFF << 2) / 2;
+                    local_4c = GameManager.DAT_65C90[j];
+                    local_48 = GameManager.DAT_65C90[j + 1];
+                }
+
+                Vector3Int wheel_pos = new Vector3Int
+                    (wheels[i].screen.x, wheels[i].screen.y + wheels[i].physics2.X, wheels[i].screen.z); //sp+60
+                Vector3Int v1 = Utilities.FUN_24148(rotation, position, wheel_pos); //sp+98
+                int pos_x = positions[i].x; //sp+70h
+                int pos_y = positions[i].y; //sp+74h
+                int pos_z = positions[i].z; //r25 //sp+78h
+                int height = positions_y[i]; //r9 //sp+7Ch
+                int normal_x = normals[i].x; //sp+90h
+                int normal_y = normals[i].y; //sp+92h
+                int normal_z = normals[i].z; //sp+94h
+                Tile onTile = tiles[i]; //sp+C4h
+
+                if (1 < i && GameManager.instance.unk6 != 0)
+                {
+                    //...
+                }
+
+                Vector3Int v2 = Utilities.FUN_24304(vObject.rotation, vObject.position, new Vector3Int(pos_x, pos_y, pos_z)); //sp+80
+                v2.y = v2.y - wheels[i].physics2.X;
+
+                if (v2.y < wheels[i].physics1.Y)
+                {
+                    if (i < 4)
+                    {
+                        uint f = 0x10000000;
+
+                        if (onTile != null)
+                            f = 0x30000000;
+
+                        vObject.flags = vObject.flags | f;
+                        int iVar3 = (ushort)normal_x << 16 >> 16; //r20
+                        int iVar4 = (ushort)normal_x << 16 >> 31; //r21
+                        int iVar5 = vObject.physics1.X >> 31; //r19
+                        uint uVar1 = (uint)vObject.physics1.X;
+                        long lVar1 = (long)((ulong)(uint)iVar3 * uVar1); //r14,r15
+                        int iVar6 = (ushort)normal_y << 16 >> 16; //sp+D8h
+                        int iVar7 = (ushort)normal_y << 16 >> 31; //sp+DCh
+                        int iVar8 = vObject.physics1.Y; //r10
+                        int iVar9 = vObject.physics1.Y >> 31; //r11
+                        long lVar2 = (long)((ulong)(uint)iVar6 * (uint)iVar8); //r16,r17
+                        int iVar10 = (ushort)normal_z << 16; //r6
+                        int iVar14 = iVar10 >> 16; //r4
+                        int iVar16 = iVar10 >> 31; //r5
+                        iVar10 = vObject.physics1.Z;
+                        long lVar3 = (long)((ulong)(uint)iVar14 * (uint)iVar10); //sp+D0h,sp+D4h
+                        iVar10 = iVar10 >> 31; //r3
+                        int iVar11 = iVar3 * iVar5; //sp+E8h
+                        int iVar12 = vObject.physics1.X * iVar4; //r7
+                        int iVar13 = iVar6 * iVar9; //r18
+                        iVar8 = iVar8 * iVar7;
+                        iVar9 = iVar14 * iVar10;
+                        int iVar15 = (int)(lVar2 >> 32); //r17
+                        iVar15 += iVar13;
+                        int iVar17 = (int)(lVar1 >> 32); //r15
+                        iVar17 += iVar11;
+                        iVar17 += iVar12;
+                        iVar15 += iVar8;
+                        int iVar18 = (int)(lVar3 >> 32); //sp+D4h
+                        iVar18 += iVar9;
+                        iVar18 += vObject.physics1.Z * iVar16;
+                        int iVar19 = (int)lVar3; //sp+D0h
+                        int iVar20 = (int)lVar1; //r14
+                        int iVar21 = (int)lVar2; //r16
+                        iVar20 += iVar21;
+                        iVar17 += iVar15;
+                        if ((uint)iVar20 < (uint)iVar21) iVar17++;
+                        iVar20 += iVar19;
+                        iVar17 += iVar18;
+                        if ((uint)iVar20 < (uint)iVar19) iVar17++;
+                        iVar20 = (int)((uint)iVar20 >> 15);
+                        iVar20 = iVar20 | (iVar17 << 17);
+                        iVar17 = iVar17 >> 15;
+                        iVar21 = iVar20;
+
+                        Vector3Int v3 = Utilities.FUN_24210(vObject.rotation, new Vector3Int(normal_x, normal_y, normal_z)); //sp+A8
+                        iVar14 = (-v3.x * iVar21);
+                        iVar16 = 0;
+
+                        if (iVar14 < 0)
+                            iVar14 += 0xFFF;
+
+                        iVar14 = iVar14 >> 12;
+
+                        if (wheel_pos.x - v2.x < 0)
+                            iVar16 = wheel_pos.x - v2.x;
+
+                        iVar20 = -v3.z * iVar21;
+                        int iVar22 = iVar14 - iVar16; //sp+50h
+
+                        if (iVar20 < 0)
+                            iVar20 += 0xFFF;
+
+                        iVar14 = 0;
+                        iVar20 = iVar20 >> 12;
+
+                        if (wheel_pos.z - v2.z < 0)
+                            iVar14 = wheel_pos.z - v2.z;
+
+                        int iVar23 = iVar20 - iVar14; //sp+58h
+                        iVar14 = wheels[i].physics1.X;
+                        iVar16 = v2.y;
+
+                        if (iVar14 < iVar16)
+                            iVar14 = iVar16;
+
+                        int iVar24 = (wheels[i].physics1.Y - iVar14) * wheels[i].phy1Unk1; //r8
+                        int iVar25 = (iVar24 << 7) / v3.y; //sp+54h, r4
+
+                        if (wheels[i].physics1.X < iVar16 || wheels[i].screen.y < iVar16)
+                        {
+                            int iVar = (iVar16 - wheels[i].screen.y) * wheels[i].phy1Unk2;
+
+                            if (iVar < 0)
+                                iVar += 31;
+
+                            iVar25 = iVar25 + (iVar >> 5);
+                        }
+                        else
+                        {
+                            int iVar = iVar16 - wheels[i].screen.y;
+                            iVar25 = iVar25 + (iVar << 4);
+                            vObject.flags = vObject.flags | 0x40000000;
+                        }
+
+                        wheels[i].screen.y = v2.y;
+
+                        if ((wheels[i].flags & 0x4000000) == 0)
+                        {
+                            if (onTile == null || onTile.unk2[0] == 0)
+                                iVar9 = -iVar25 << 1;
+                            else
+                                iVar9 = -iVar25 * (256 - onTile.unk2[0]) >> 7;
+
+                            if (local_4c == 0)
+                            {
+                                iVar12 = v1.x >> 5;
+                                iVar16 = v1.z >> 2;
+                            }
+                            else
+                            {
+                                long lVar4 = (long)v1.x * local_48; //r6,r7
+                                long lVar5 = (long)v1.z * local_4c; //sp+E0h,sp+E4h
+                                long lVar6 = (long)v1.x * local_4c; //sp+D0h,sp+D4h
+                                long lVar7 = (long)v1.z * local_48; //r4,r5
+                                iVar8 = (uint)lVar4 < (uint)lVar5 ? 1 : 0;
+                                int iVar26 = (int)lVar4 - (int)lVar5; //r2
+                                int iVar27 = (int)(lVar4 >> 32) - (int)(lVar5 >> 5); //r3
+                                iVar27 -= iVar8;
+                                iVar26 = (int)((uint)iVar26 >> 11);
+                                iVar10 = iVar27 << 15;
+                                iVar26 |= iVar10;
+                                iVar27 = iVar27 >> 11;
+                                iVar12 = iVar26;
+                                iVar26 = (int)lVar6 + (int)lVar7;
+                                iVar27 = (int)(lVar6 >> 32) + (int)(lVar7 >> 32);
+                                iVar10 = (uint)iVar26 < (uint)lVar7 ? 1 : 0;
+                                iVar27 += iVar10;
+                                iVar26 = iVar26 >> 14;
+                                iVar14 = iVar27 << 18;
+                                iVar26 |= iVar14;
+                                iVar27 = iVar27 >> 14;
+                                iVar16 = iVar26;
+                            }
+
+                            int a = acceleration;
+
+                            if (acceleration < 0)
+                                a = -a;
+
+                            iVar20 = iVar9;
+
+                            if (a << 6 < iVar9)
+                                iVar20 = a << 6;
+
+                            iVar21 = iVar20;
+
+                            if (acceleration < 0)
+                            {
+                                iVar21 = -iVar16;
+
+                                if (iVar16 <= 0)
+                                {
+                                    if (iVar20 < -iVar16)
+                                        iVar21 = iVar20;
+                                }
+                                else
+                                {
+                                    iVar20 = -iVar20;
+
+                                    if (iVar20 <= iVar21)
+                                        goto LAB_3F738;
+                                }
+
+                                iVar21 = iVar20;
+                            }
+                            else
+                            {
+                                if ((wheels[i].flags & 0x1000000) == 0)
+                                    iVar21 = 0;
+                                else
+                                {
+                                    if (direction <= 0)
+                                        iVar21 = -iVar21;
+                                    else
+                                    {
+                                        if (iVar20 < -iVar16 >> 2)
+                                            iVar21 = -iVar16 >> 2;
+                                    }
+                                }
+                            }
+
+                            LAB_3F738:
+                            if ((wheels[i].flags & 0x1000000) != 0)
+                            {
+                                if (breaking != 0 && breaking <= 0)
+                                    iVar21 -= (breaking << 1) + breaking;
+                                else
+                                {
+                                    iVar21 += breaking << 6;
+                                    iVar9 = (iVar9 + (int)((uint)iVar9 >> 31)) >> 1;
+                                    iVar25 = iVar25 - (breaking << 7);
+                                }
+                            }
+
+                            if ((wheels[i].flags & 0x40000000) != 0)
+                            {
+                                int iVar;
+
+                                if (iVar16 >> 8 < 0)
+                                    iVar = (iVar16 >> 8) * -(iVar16 >> 8);
+                                else
+                                    iVar = (iVar16 >> 8) * (iVar16 >> 8);
+
+                                iVar21 -= iVar >> 5;
+                            }
+
+                            if (onTile != null)
+                            {
+                                if (onTile.unk2[1] != 0)
+                                {
+                                    int iVar;
+
+                                    if (iVar16 >> 8 < 0)
+                                        iVar = (iVar16 >> 8) * -(iVar16 >> 8);
+                                    else
+                                        iVar = (iVar16 >> 8) * (iVar16 >> 8);
+
+                                    iVar21 -= iVar * onTile.unk2[1] >> 12;
+                                }
+                            }
+
+                            iVar16 = -iVar12;
+
+                            if (iVar12 <= 0)
+                            {
+                                if (iVar9 < -iVar12)
+                                    iVar16 = iVar9;
+                            }
+                            else
+                            {
+                                if (iVar16 < -iVar9)
+                                    iVar16 = -iVar9;
+                            }
+
+                            if (local_4c != 0)
+                            {
+                                int iVar = local_4c * iVar21 + local_48 * iVar16 >> 12;
+                                iVar22 = iVar22 + iVar;
+                                iVar = local_48 * iVar21 - local_4c * iVar16 >> 12;
+                                iVar23 = iVar23 + iVar;
+                            }
+                            else
+                            {
+                                iVar22 = iVar22 + iVar16;
+                                iVar23 = iVar23 + iVar21;
+                            }
+                        }
+
+                        int wheel_pos_x = wheel_pos.x >> 3;
+                        int wheel_pos_y = wheel_pos.y >> 3;
+                        int wheel_pos_z = wheel_pos.z >> 3;
+                        Coprocessor.rotationMatrix.rt11 = (short)wheel_pos_x;
+                        Coprocessor.rotationMatrix.rt12 = (short)(wheel_pos_x >> 16);
+                        Coprocessor.rotationMatrix.rt22 = (short)wheel_pos_y;
+                        Coprocessor.rotationMatrix.rt23 = (short)(wheel_pos_y >> 16);
+                        Coprocessor.rotationMatrix.rt33 = (short)wheel_pos_z;
+
+                        int iVar29 = iVar22 >> 3; //r3
+
+                        if (iVar29 < -0x8000)
+                            iVar10 = -0x8000;
+                        else
+                        {
+                            iVar10 = 0x7fff;
+
+                            if (iVar29 < 0x8000)
+                                iVar10 = iVar29;
+                        }
+
+                        iVar29 = iVar25 >> 3;
+
+                        if (iVar29 < -0x8000)
+                            iVar16 = -0x8000;
+                        else
+                        {
+                            iVar16 = 0x7fff;
+
+                            if (iVar29 < 0x8000)
+                                iVar16 = iVar29;
+                        }
+
+                        iVar29 = iVar23 >> 3;
+
+                        if (iVar29 < -0x8000)
+                            iVar14 = -0x8000;
+                        else
+                        {
+                            iVar14 = 0x7fff;
+
+                            if (iVar29 < 0x8000)
+                                iVar14 = iVar29;
+                        }
+
+                        Coprocessor.accumulator.ir1 = (short)iVar10;
+                        Coprocessor.accumulator.ir2 = (short)iVar16;
+                        Coprocessor.accumulator.ir3 = (short)iVar14;
+                        Coprocessor.ExecuteOP(12, false);
+                        local_v2.x += iVar22;
+                        local_v2.y += iVar25;
+                        local_v2.z += iVar23;
+                        local_v1.x += Coprocessor.mathsAccumulator.mac1;
+                        local_v1.y += Coprocessor.mathsAccumulator.mac2;
+                        local_v1.z += Coprocessor.mathsAccumulator.mac3;
+
+                        if (onTile != null)
+                        {
+                            if (onTile.unk2[3] != 0 && onTile.unk2[3] != 7)
+                            {
+                                //function call by register
+                            }
+                        }
+                    }
+                    else
+                    {
+                        wheels[i].screen.y = v2.y;
+                    }
+                }
+                else
+                {
+                    wheels[i].screen.y = wheels[i].physics1.Y;
+                }
+
+                int iVar30 = local_4c * v1.x + local_48 * v1.z; //r2
+                int iVar31 = 0; //r5
+
+                if (iVar30 < 0)
+                    iVar30 += 0xFFF;
+
+                iVar30 = iVar30 >> 12;
+                wheels[i].physics2.Z = iVar30;
+
+                if (wheels[i].physics2.Y != 0)
+                {
+                    iVar30 = iVar30 * wheels[i].physics2.Y;
+
+                    if (iVar30 < 0)
+                        iVar30 += 0x7ffff;
+
+                    iVar31 = iVar30 >> 19;
+
+                    if ((wheels[i].flags & 0x1000000) != 0)
+                    {
+                        if (0 < breaking)
+                        {
+                            iVar31 = iVar31 + breaking * 2;
+                        }
+                    }
+
+                    wheels[i].vr.x = (short)(wheels[i].vr.x - iVar31);
+                }
+            }
+        }
+
+        for (int i = 0; i < wheels.Length; i++)
+            if (wheels[i] != null)
+                wheels[i].ApplyTransformation();
+        
+        local_v2 = Utilities.FUN_24094(vObject.rotation, local_v2);
+        int iVar32 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * lightness; //r18
+        local_v2.y += GameManager.instance.gravityFactor;
+        long lVar8 = (long)vObject.physics1.X * iVar32; //sp+E0, sp+E4
+        local_v2.x -= (int)(lVar8 >> 32 >> 0);
+        lVar8 = (long)vObject.physics1.Y * iVar32;
+        local_v2.y -= (int)(lVar8 >> 32 >> 0);
+        lVar8 = (long)vObject.physics1.Z * iVar32;
+        local_v2.z -= (int)(lVar8 >> 32 >> 0);
+        vObject.FUN_2AFF8(local_v2, local_v1);
+        int iVar33 = vObject.physics2.X; //r2
+
+        if (vObject.physics2.X < 0)
+            iVar33 += 31;
+
+        vObject.physics2.X -= iVar33 >> 5;
+        iVar33 = vObject.physics2.Y;
+
+        if (vObject.physics2.Y < 0)
+            iVar33 += 31;
+
+        vObject.physics2.Y -= iVar33 >> 5;
+        iVar33 = vObject.physics2.Z;
+
+        if (vObject.physics2.Z < 0)
+            iVar33 += 31;
+
+        vObject.physics2.Z -= iVar33 >> 5;
+    }
+
+    private void FUN_3E8C0()
+    {
+        int iVar1 = 0; //r22
+
+        if (DAT_B4 == 0)
+            iVar1 = (weaponSlot == 0 ? 1 : 0) << 2;
+
+        int iVar2 = 0; //r17
+        Vector3Int local_v1 = new Vector3Int(0, 0, 0); //sp+10h
+        Vector3Int local_v2 = new Vector3Int(0, GameManager.instance.gravityFactor, 0); //sp+20h
+        Vector3Int rect1 = new Vector3Int(0, 0, 0); //sp+30h
+        Vector3Int rect2 = new Vector3Int(0, 0, 0); //sp+40h
+        Tile onTile; //sp+50h
+
+        do
+        {
+            if ((iVar2 & iVar1) == 0)
+            {
+                if ((iVar2 & 1) == 0)
+                    rect1.x = vObject.vCollider.min.x;
+                else
+                    rect1.x = vObject.vCollider.max.x;
+
+                if ((iVar2 & 4) == 0)
+                    rect1.y = vObject.vCollider.min.y;
+                else
+                    rect1.y = vObject.vCollider.max.y;
+
+                if ((iVar2 & 2) == 0)
+                    rect1.z = vObject.vCollider.min.z;
+                else
+                    rect1.z = vObject.vCollider.max.z;
+
+                FUN_3EA0C();
+            }
+            else
+            {
+                if (wheels[iVar2 - 4] != null)
+                {
+                    rect1.x = wheels[iVar2 - 4].screen.x;
+                    rect1.y = wheels[iVar2 - 4].screen.y + wheels[iVar2 - 4].physics2.X;
+                    rect1.z = wheels[iVar2 - 4].screen.z;
+                    FUN_3EA0C();
+                }
+            }
+
+            iVar2++;
+
+            if (7 < iVar2)
+            {
+                local_v1 = Utilities.FUN_2426C(vObject.rotation, new Matrix2x3(local_v1));
+                int iVar3 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * lightness; //r5
+                long lVar1 = (long)vObject.physics1.X * iVar3; //sp+58h, sp+5Ch
+                local_v2.x -= (int)(lVar1 >> 32 >> 0);
+                lVar1 = (long)vObject.physics1.Y * iVar3;
+                local_v2.y -= (int)(lVar1 >> 32 >> 0);
+                lVar1 = (long)vObject.physics1.Z * iVar3;
+                local_v2.z -= (int)(lVar1 >> 32 >> 0);
+                vObject.FUN_2AFF8(local_v2, local_v1);
+                int iVar4 = vObject.physics2.X;
+                iVar3 = iVar4;
+
+                if (iVar4 < 0)
+                    iVar3 = iVar4 + 31;
+
+                int iVar5 = vObject.physics2.Y;
+                vObject.physics2.X = iVar4 - (iVar3 >> 5);
+                iVar3 = iVar5;
+
+                if (iVar5 < 0)
+                    iVar3 = iVar5 + 31;
+
+                iVar4 = vObject.physics2.Z;
+                vObject.physics2.Y = iVar5 - (iVar3 >> 5);
+                iVar3 = iVar4;
+
+                if (iVar4 < 0)
+                    iVar3 = iVar4 + 31;
+
+                vObject.physics2.Z = iVar4 - (iVar3 >> 5);
+
+                if ((vObject.flags & 0x40000000) != 0)
+                {
+                    long lVar2 = (long)vObject.physics1.Y * 0x6BCA0000;
+                    bool isPlayer = 0 < vObject.id;
+                    FUN_3A020((int)-((lVar2 >> 32 >> 13) - (vObject.physics1.Y >> 31)), 0, isPlayer);
+                }
+
+                return;
+            }
+        } while(true);
+
+        void FUN_3EA0C()
+        {
+            rect1 = Utilities.FUN_24148(vObject.rotation, vObject.position, rect1);
+            int h = vObject.FUN_2CFBC(rect1, out onTile);
+
+            if (0 < rect1.y - h)
+            {
+                int iVar3 = -vObject.physics1.X;
+
+                if (0 < vObject.physics1.X)
+                    iVar3 += 3;
+
+                iVar3 = iVar3 >> 2;
+
+                if (iVar3 < -0xB40)
+                    rect2.x = -0xB40;
+                else
+                {
+                    rect2.x = 0xB40;
+
+                    if (iVar3 < 0xB41)
+                        rect2.x = iVar3;
+                }
+
+                iVar3 = -vObject.physics1.Z;
+
+                if (0 < vObject.physics1.Z)
+                    iVar3 += 3;
+
+                iVar3 = iVar3 >> 2;
+
+                if (iVar3 < -0xB40)
+                    rect2.z = -0xB40;
+                else
+                {
+                    rect2.z = 0xB40;
+
+                    if (iVar3 < 0xB41)
+                        rect2.z = iVar3;
+                }
+
+                rect2.y = rect1.y - h;
+
+                if (0 < vObject.physics1.Y)
+                    rect2.y -= vObject.physics1.Y >> 2;
+
+                int cop2r32 = rect1.x - (vObject.position.x >> 3);
+                int cop2r34 = rect1.y - (vObject.position.y >> 3);
+                int cop2r36 = rect1.z - (vObject.position.z >> 3);
+                Coprocessor.rotationMatrix.rt11 = (short)cop2r32;
+                Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
+                Coprocessor.rotationMatrix.rt22 = (short)cop2r34;
+                Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
+                Coprocessor.rotationMatrix.rt33 = (short)cop2r36;
+                Coprocessor.accumulator.ir1 = (short)(rect2.x >> 3);
+                Coprocessor.accumulator.ir2 = (short)(rect2.y >> 3);
+                Coprocessor.accumulator.ir3 = (short)(rect2.z >> 3);
+                Coprocessor.ExecuteOP(12, false);
+                local_v2.x += rect2.x;
+                local_v2.y += rect2.y;
+                local_v2.z += rect2.z;
+                local_v1.x += Coprocessor.mathsAccumulator.mac1;
+                local_v1.y += Coprocessor.mathsAccumulator.mac2;
+                local_v1.z += Coprocessor.mathsAccumulator.mac3;
+
+                if (onTile != null)
+                {
+                    if (onTile.unk2[3] != 0 && onTile.unk2[3] != 7)
+                    {
+                        //call function by register
+                    }
+                }
+
+                if (0x4C00 < vObject.physics1.Y)
+                    vObject.flags |= 0x40000000;
+            }
+        }
+    }
+
+    private int FUN_3A020(int pInt1, int pInt2, bool isPlayer)
+    {
+        int iVar1;
+
+        if (shield == 0)
+            iVar1 = FUN_39DCC(pInt1, pInt2, isPlayer);
+        else
+        {
+            FUN_393F8();
+            iVar1 = 0;
+        }
+
+        return iVar1;
+    }
+
+    private int FUN_39DCC(int pInt1, int pInt2, bool isPlayer)
+    {
+        return 0;
+    }
+
+    private void FUN_393F8()
+    {
+
+    }
+}

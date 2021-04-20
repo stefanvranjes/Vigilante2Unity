@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8204700133090266596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8204700133090266599}
+  - component: {fileID: 8204700133090266597}
+  m_Layer: 0
+  m_Name: COLLECTION
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8204700133090266599
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8204700133090266596}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &8204700133090266597
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8204700133090266596}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: c1f89fcf1e8c9ef4fa41f46eca020a7d, type: 2}
+  - {fileID: 2100000, guid: b3cd01500193abf428dda6c9ebb418d5, type: 2}
+  - {fileID: 2100000, guid: 00d5f82335228834c80ac71c8077ccf9, type: 2}
+  - {fileID: 2100000, guid: 746ce705d38da834c8ee26f4d3e68724, type: 2}
+  - {fileID: 2100000, guid: 6295044ad44b03449a3209464b3a43ae, type: 2}
+  - {fileID: 2100000, guid: 8022f28299647a647a0b6c8247a767d7, type: 2}
+  - {fileID: 2100000, guid: 24a4c9c9f6f8c884f8f7a29c4c11a499, type: 2}
+  - {fileID: 2100000, guid: cb282fe18fb30854badd6783375a668e, type: 2}
+  - {fileID: 2100000, guid: dbfa69eed3cec324d997de2e21189f12, type: 2}
+  - {fileID: 2100000, guid: b8cb0c7e0896244449bae758742aa48d, type: 2}
+  - {fileID: 2100000, guid: 8039875ac0702d8469d3370759f7ff39, type: 2}
+  - {fileID: 2100000, guid: f55bfcefc6c206242bca08a8998571df, type: 2}
+  - {fileID: 2100000, guid: 88417d05fee83614c97817a7bdb02dd1, type: 2}
+  - {fileID: 2100000, guid: 1c4274c761900b046b656c91a938271a, type: 2}
+  - {fileID: 2100000, guid: 22c7e93260ba2d141b38495eafe915b6, type: 2}
+  - {fileID: 2100000, guid: e416c24a0ef7c3e4b9c43816fe43ef6e, type: 2}
+  - {fileID: 2100000, guid: 35cb02ee3358c834aaac79b7d5bdc281, type: 2}
+  - {fileID: 2100000, guid: 90dd2d1fab18dbb45b7ec00630f54082, type: 2}
+  - {fileID: 2100000, guid: 45b51ee5a1fc32147a919ba3744aa16e, type: 2}
+  - {fileID: 2100000, guid: 0cc06dda4ed2d694a9a1cdc3dd490dfb, type: 2}
+  - {fileID: 2100000, guid: 29c462a752cf31c478edd281dc43285b, type: 2}
+  - {fileID: 2100000, guid: f261f6623f152d040ae64dc81526004e, type: 2}
+  - {fileID: 2100000, guid: c232b64188a49414f8420be5da145c0f, type: 2}
+  - {fileID: 2100000, guid: 9a5abe585d1faa44bbe9a1533c1e0479, type: 2}
+  - {fileID: 2100000, guid: cee884d6100e94645881b086b032e2e7, type: 2}
+  - {fileID: 2100000, guid: 01a9396bc7d556548a064d4a9c297f78, type: 2}
+  - {fileID: 2100000, guid: cc0a9bd231690e74588e405a2519ce4c, type: 2}
+  - {fileID: 2100000, guid: deae2b33adf767b4fbf4edf909021f2e, type: 2}
+  - {fileID: 2100000, guid: 324654afadcec574f83803e7b0d7a9c7, type: 2}
+  - {fileID: 2100000, guid: fbcc8d6793bda0245923e11808f138a0, type: 2}
+  - {fileID: 2100000, guid: 18ef2bea9e371d54f9149cb8af13ab47, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
