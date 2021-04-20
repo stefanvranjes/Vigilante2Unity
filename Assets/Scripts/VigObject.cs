@@ -696,10 +696,10 @@ public class VigObject : MonoBehaviour
         rotation = Utilities.MatrixNormal(rotation);
     }
 
-    public int FUN_2CFBC(Vector3Int pos, out Vector3Int normalVector3, out Tile normalTile)
+    public int FUN_2CFBC(Vector3Int pos, out Vector3Int normalVector3, out TileData normalTile)
     {
         GameManager gameManager = GameManager.instance;
-        Tile tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
+        TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
         int vertexHeight = 0x2f0000; //r16
 
         if ((tile.unk1 & 4) == 0)
@@ -719,10 +719,10 @@ public class VigObject : MonoBehaviour
         return vertexHeight;
     }
 
-    public int FUN_2CFBC(Vector3Int pos, out Tile normalTile)
+    public int FUN_2CFBC(Vector3Int pos, out TileData normalTile)
     {
         GameManager gameManager = GameManager.instance;
-        Tile tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
+        TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
         int vertexHeight = 0x2f0000; //r16
 
         if ((tile.unk1 & 4) == 0)

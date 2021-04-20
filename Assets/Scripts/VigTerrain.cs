@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class Tile
+public class TileData
 {
     public int uv1_x, uv1_y;
     public int uv2_x, uv2_y;
@@ -19,12 +19,21 @@ public class Tile
     public byte unk1; // 0x1F
 }
 
+public class Tile
+{
+    public Tile[] neighbours = new Tile[4];
+    //0 - Up
+    //1 - Down
+    //2 - Left
+    //3 - Right
+}
+
 public class VigTerrain : MonoBehaviour
 {
     public static VigTerrain instance;
     
     public int bitmapID;
-    public List<Tile> tileData;
+    public List<TileData> tileData;
     public ushort[] vertices;
     public byte[] tiles;
     public ushort defaultVertex;
@@ -33,15 +42,108 @@ public class VigTerrain : MonoBehaviour
     public int unk1, unk2, unk3, unk4;
     public int tileXZ;
     public int tileY;
-
     public int zoneCount;
 
-    // Start is called before the first frame update
+    private Dictionary<int, List<int>> verticesDict;
+    private Dictionary<int, Tile> tilesDict;
+
     void Awake()
     {
         if (instance == null)
         {
             instance = this;
+        }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        verticesDict = new Dictionary<int, List<int>>();
+        tilesDict = new Dictionary<int, Tile>();
+
+        for (int i = 0, k = 0; i < chunks.Length; i++)
+        {
+            if (chunks[i] == 0 || zoneCount <= chunks[i])
+                continue;
+
+            int zone = chunks[i];
+
+            for (int x = 0; x < 64; x++)
+            {
+                for (int y = 0; y < 64; y++)
+                {
+                    int index1 = zone * 4096 + x * 64 + y;
+
+                    int nextZone = x + 1 < 64 ? zone : chunks[i + 32];
+                    int nextX = x + 1 < 64 ? x + 1 : 0;
+                    int index2 = nextZone * 4096 + nextX * 64 + y;
+
+                    nextZone = y + 1 < 64 ? zone : chunks[i + 1];
+                    int nextY = y + 1 < 64 ? y + 1 : 0;
+                    int index3 = nextZone * 4096 + x * 64 + nextY;
+
+                    if (x + 1 >= 64 && y + 1 >= 64)
+                    {
+                        nextZone = chunks[i + 33];
+                        nextX = 0;
+                        nextY = 0;
+                    }
+                    else if (x + 1 >= 64)
+                    {
+                        nextZone = chunks[i + 32];
+                        nextX = 0;
+                        nextY = y + 1;
+                    }
+                    else if (y + 1 >= 64)
+                    {
+                        nextZone = chunks[i + 1];
+                        nextX = x + 1;
+                        nextY = 0;
+                    }
+                    else
+                    {
+                        nextZone = zone;
+                        nextX = x + 1;
+                        nextY = y + 1;
+                    }
+                    int index4 = nextZone * 4096 + nextX * 64 + nextY;
+
+                    if (verticesDict.ContainsKey(index1))
+                    {
+                        verticesDict.Add(index1, new List<int>());
+                        tilesDict.Add(index1, new Tile());
+                    }
+                    verticesDict[index1].Add((k * 4096 + x * 64 + y) * 4);
+
+                    if (verticesDict.ContainsKey(index2))
+                    {
+                        verticesDict.Add(index2, new List<int>());
+                        tilesDict.Add(index2, new Tile());
+                    }
+                    verticesDict[index2].Add((k * 4096 + x * 64 + y) * 4 + 1);
+
+                    if (verticesDict.ContainsKey(index3))
+                    {
+                        verticesDict.Add(index3, new List<int>());
+                        tilesDict.Add(index3, new Tile());
+                    }
+                    verticesDict[index3].Add((k * 4096 + x * 64 + y) * 4 + 2);
+
+                    if (verticesDict.ContainsKey(index4))
+                    {
+                        verticesDict.Add(index4, new List<int>());
+                        tilesDict.Add(index4, new Tile());
+                    }
+                    verticesDict[index4].Add((k * 4096 + x * 64 + y) * 4 + 3);
+
+                    tilesDict[index1].neighbours[0] = tilesDict[index3];
+                    tilesDict[index1].neighbours[3] = tilesDict[index2];
+                    tilesDict[index3].neighbours[1] = tilesDict[index1];
+                    tilesDict[index2].neighbours[2] = tilesDict[index1];
+                }
+            }
+
+            k++;
         }
     }
 
@@ -116,7 +218,7 @@ public class VigTerrain : MonoBehaviour
     }
 
     // 8001B944
-    public Tile GetTileByPosition(uint x, uint z)
+    public TileData GetTileByPosition(uint x, uint z)
     {
         uint uVar1 = z >> 16;
         z = z >> 22 << 2;

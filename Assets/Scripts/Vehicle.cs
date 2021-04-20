@@ -257,7 +257,7 @@ public class Vehicle : MonoBehaviour
     {
         if (vObject.ai < 0 && GameManager.instance.mode != _MODE.Demo)
         {
-            Tile tile = GameManager.instance.terrain.GetTileByPosition((uint)vObject.position.x, (uint)vObject.position.z);
+            TileData tile = GameManager.instance.terrain.GetTileByPosition((uint)vObject.position.x, (uint)vObject.position.z);
 
             if (tile.unk2[3] == 7)
                 ; //FUN_3BFC0
@@ -434,7 +434,7 @@ public class Vehicle : MonoBehaviour
         List<Vector3Int> positions = new List<Vector3Int>();
         List<Vector3Int> normals = new List<Vector3Int>();
         List<int> positions_y = new List<int>();
-        List<Tile> tiles = new List<Tile>();
+        List<TileData> tiles = new List<TileData>();
 
         Vector3Int local_v1 = new Vector3Int(0, 0, 0); //sp+10
         Vector3Int local_v2 = new Vector3Int(0, 0, 0); //sp+20
@@ -448,7 +448,7 @@ public class Vehicle : MonoBehaviour
                 int wheel_z = wheels[i].screen.z;
                 Vector3Int pos = Utilities.FUN_24148(vObject.rotation, vObject.position, new Vector3Int(wheel_x, wheel_y, wheel_z));
                 int pos_y = pos.y; //r18
-                Tile tile;
+                TileData tile;
                 Vector3Int normal;
                 pos.y = vObject.FUN_2CFBC(pos, out normal, out tile);
                 positions.Add(pos); //1F800000h
@@ -493,7 +493,7 @@ public class Vehicle : MonoBehaviour
                 int normal_x = normals[i].x; //sp+90h
                 int normal_y = normals[i].y; //sp+92h
                 int normal_z = normals[i].z; //sp+94h
-                Tile onTile = tiles[i]; //sp+C4h
+                TileData onTile = tiles[i]; //sp+C4h
 
                 if (1 < i && GameManager.instance.unk6 != 0)
                 {
@@ -912,7 +912,7 @@ public class Vehicle : MonoBehaviour
         Vector3Int local_v2 = new Vector3Int(0, GameManager.instance.gravityFactor, 0); //sp+20h
         Vector3Int rect1 = new Vector3Int(0, 0, 0); //sp+30h
         Vector3Int rect2 = new Vector3Int(0, 0, 0); //sp+40h
-        Tile onTile; //sp+50h
+        TileData onTile; //sp+50h
 
         do
         {

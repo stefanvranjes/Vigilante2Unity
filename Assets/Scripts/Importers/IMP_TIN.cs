@@ -17,9 +17,9 @@ public class IMP_TIN
         0x00, 0x00, 0x00, 0x1F
     };
 
-    public static List<Tile> LoadAsset(string assetPath1)
+    public static List<TileData> LoadAsset(string assetPath1)
     {
-        List<Tile> output = new List<Tile>();
+        List<TileData> output = new List<TileData>();
         GameManager gameManager = GameObject.FindObjectOfType<GameManager>();
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath1, FileMode.Open)))
@@ -77,7 +77,7 @@ public class IMP_TIN
                 reader.BaseStream.Seek(chunkStart, SeekOrigin.Begin);
                 uint uVar2 = reader.ReadUInt16(); //r7
 
-                Tile newTile = new Tile();
+                TileData newTile = new TileData();
                 newTile.uv1_x = gameManager.unk3 + uv & 0xFF;
                 newTile.uv1_y = gameManager.unk3 + uv >> 8;
                 uv = (aVar1[arrayIndex + 2] + iVar6) | (aVar1[arrayIndex + 3] + (int)uVar1 << 8);
