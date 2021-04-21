@@ -26,6 +26,9 @@ public class Tile
     //1 - Down
     //2 - Left
     //3 - Right
+
+    public int[] indices = new int[4];
+    public float x, y;
 }
 
 public class VigTerrain : MonoBehaviour
@@ -43,9 +46,11 @@ public class VigTerrain : MonoBehaviour
     public int tileXZ;
     public int tileY;
     public int zoneCount;
+    public float drawDistance;
 
     private Dictionary<int, List<int>> verticesDict;
     private Dictionary<int, Tile> tilesDict;
+    private MeshRenderer[] meshes;
 
     void Awake()
     {
@@ -53,6 +58,8 @@ public class VigTerrain : MonoBehaviour
         {
             instance = this;
         }
+
+        meshes = GetComponentsInChildren<MeshRenderer>();
     }
 
     // Start is called before the first frame update
@@ -108,38 +115,49 @@ public class VigTerrain : MonoBehaviour
                     }
                     int index4 = nextZone * 4096 + nextX * 64 + nextY;
 
+                    int tileIndex1 = k * 4096 + x * 64 + y;
+                    int vertexIndex = (k * 4096 + x * 64 + y) * 4;
+
                     if (verticesDict.ContainsKey(index1))
                     {
                         verticesDict.Add(index1, new List<int>());
                         tilesDict.Add(index1, new Tile());
                     }
-                    verticesDict[index1].Add((k * 4096 + x * 64 + y) * 4);
+                    verticesDict[index1].Add(vertexIndex);
 
                     if (verticesDict.ContainsKey(index2))
                     {
                         verticesDict.Add(index2, new List<int>());
                         tilesDict.Add(index2, new Tile());
                     }
-                    verticesDict[index2].Add((k * 4096 + x * 64 + y) * 4 + 1);
+                    verticesDict[index2].Add(vertexIndex + 1);
 
                     if (verticesDict.ContainsKey(index3))
                     {
                         verticesDict.Add(index3, new List<int>());
                         tilesDict.Add(index3, new Tile());
                     }
-                    verticesDict[index3].Add((k * 4096 + x * 64 + y) * 4 + 2);
+                    verticesDict[index3].Add(vertexIndex + 2);
 
                     if (verticesDict.ContainsKey(index4))
                     {
                         verticesDict.Add(index4, new List<int>());
                         tilesDict.Add(index4, new Tile());
                     }
-                    verticesDict[index4].Add((k * 4096 + x * 64 + y) * 4 + 3);
+                    verticesDict[index4].Add(vertexIndex + 3);
 
                     tilesDict[index1].neighbours[0] = tilesDict[index3];
                     tilesDict[index1].neighbours[3] = tilesDict[index2];
                     tilesDict[index3].neighbours[1] = tilesDict[index1];
                     tilesDict[index2].neighbours[2] = tilesDict[index1];
+
+                    tilesDict[index1].indices[0] = vertexIndex;
+                    tilesDict[index1].indices[1] = vertexIndex + 1;
+                    tilesDict[index1].indices[2] = vertexIndex + 2;
+                    tilesDict[index1].indices[3] = vertexIndex + 3;
+
+                    tilesDict[index1].x = x + i / 32 * 64;
+                    tilesDict[index1].y = y + i % 32 * 64;
                 }
             }
 
@@ -150,7 +168,46 @@ public class VigTerrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        for (int i = 0; i < GameManager.instance.players.Length; i++)
+        {
+            Vector3Int cameraPosition = GameManager.instance.players[i].vCamera.vObject.position;
+            Tile onTile = GetTileByPosition2((uint)cameraPosition.x, (uint)cameraPosition.y);
+            List<Tile> closeTiles = BreadthFirstSearch(onTile, drawDistance);
+
+        }
+    }
+
+    private bool InsideCircle(Tile center, Tile tile, float radius)
+    {
+        float dx = center.x - tile.x,
+              dy = center.y - tile.y;
+        float distance = dx * dx + dy * dy;
+        return distance <= radius * radius;
+    }
+
+    private List<Tile> BreadthFirstSearch(Tile start, float radius)
+    {
+        var frontier = new Queue<Tile>();
+        frontier.Enqueue(start);
+
+        var reached = new List<Tile>();
+        reached.Add(start);
         
+        while (frontier.Count > 0)
+        {
+            var current = frontier.Dequeue();
+
+            foreach(var next in current.neighbours)
+            {
+                if (!reached.Contains(next) && InsideCircle(start, next, radius))
+                {
+                    frontier.Enqueue(next);
+                    reached.Add(next);
+                }
+            }
+        }
+
+        return reached;
     }
 
     public void SetNumberOfZones()
@@ -228,6 +285,18 @@ public class VigTerrain : MonoBehaviour
         int chunkID = chunks[z / 4];
         uVar1 += x;
         return tileData[tiles[chunkID * 4096 + uVar1]];
+    }
+
+    public Tile GetTileByPosition2(uint x, uint z)
+    {
+        uint uVar1 = z >> 16;
+        z = z >> 22 << 2;
+        z += x >> 22 << 7;
+        uVar1 = uVar1 & 0x3F;
+        x = x >> 10 & 0xFC0;
+        int chunkID = chunks[z / 4];
+        uVar1 += x;
+        return tilesDict[chunkID * 4096 + (int)uVar1];
     }
 
     public int FUN_1B750(uint x, uint z)

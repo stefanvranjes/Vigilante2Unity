@@ -7,8 +7,8 @@ public struct VehicleData
     public short[] unk0x0; //0x00
     public byte unk0xC; //0x0C
     public _VEHICLE vehicleID; //0x0D
-    public byte unk0xE; //0x0E
-    public byte unk0xF; //0x0F
+    public sbyte unk0xE; //0x0E
+    public sbyte unk0xF; //0x0F
     public byte unk0x10; //0x10
     public byte unk0x11; //0x11
     public byte unk0x12; //0x12
@@ -897,7 +897,7 @@ public class GameManager : MonoBehaviour
             unk0xC=12,
             vehicleID=_VEHICLE.Thunderbolt,
             unk0xE=18,
-            unk0xF=254,
+            unk0xF=-2,
             unk0x10=19,
             unk0x11=32,
             unk0x12=57,
@@ -975,6 +975,7 @@ public class GameManager : MonoBehaviour
 
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
+    public Vehicle[] players;
     
     public int unk1; //gp+DA0h
     public int unk2; //gp+DB0h

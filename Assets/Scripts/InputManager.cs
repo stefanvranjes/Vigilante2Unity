@@ -48,10 +48,13 @@ public struct Controller
     public byte steering; //0x09
     public byte buttons; //0x0C
     public byte dpad; //0x0D
+    public byte DAT_E; //0x0E
+    public byte DAT_F; //0x0F
     public byte leftStickX; //0x10
     public byte leftStickY; //0x11
     public byte rightStickX; //0x12
     public byte rightStickY; //0x13
+    public sbyte DAT_15; //0x15
 }
 
 public class InputManager : MonoBehaviour
