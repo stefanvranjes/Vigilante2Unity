@@ -1305,7 +1305,7 @@ public class Vehicle : MonoBehaviour
                     {
                         uVar7 = unaff_s1;
 
-                        if ()
+                        
                     }
                 }
             }
