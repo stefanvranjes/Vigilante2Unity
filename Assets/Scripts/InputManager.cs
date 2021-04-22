@@ -54,7 +54,8 @@ public struct Controller
     public byte leftStickY; //0x11
     public byte rightStickX; //0x12
     public byte rightStickY; //0x13
-    public sbyte DAT_15; //0x15
+    public byte DAT_14; //0x14
+    public byte DAT_15; //0x15
 }
 
 public class InputManager : MonoBehaviour

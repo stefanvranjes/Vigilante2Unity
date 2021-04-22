@@ -238,4 +238,9 @@ public class VigCamera : MonoBehaviour
         vObject.vr.x += (ushort)DAT_94;
         vObject.ApplyTransformation();
     }
+
+    public void FUN_4B898()
+    {
+
+    }
 }

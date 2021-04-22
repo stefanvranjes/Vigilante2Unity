@@ -500,6 +500,7 @@ public class VigObject : MonoBehaviour
     public Vector3Int vr; //0x44
     public ushort unk4; //0x4A
 
+    public int DAT_58; //0x58
     public VehicleConfig vConfig; //0x5C
     public VigCollider vCollider; //0x60
     public int unk3; //0x64

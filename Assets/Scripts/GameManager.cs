@@ -976,7 +976,8 @@ public class GameManager : MonoBehaviour
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
     public Vehicle[] players;
-    
+
+    public int DAT_C74; //gp+C74h
     public int unk1; //gp+DA0h
     public int unk2; //gp+DB0h
     public ushort unk7; //gp+EA0h

@@ -1100,24 +1100,33 @@ public class Vehicle : MonoBehaviour
     {
         _WHEELS cVar1;
         bool bVar2;
+        bool bVar3;
+        short sVar4;
+        short sVar5;
+        ushort uVar6;
         uint uVar7;
         int iVar8;
+        uint uVar9;
         sbyte uVar10;
+        uint uVar11;
         int iVar12;
         uint uVar14;
+        int iVar15;
         uint unaff_s1;
         uint uVar17;
+        bool bVar18;
         uint uVar19;
 
         cVar1 = wheelsType;
         uVar17 = playerController.actions;
+        unaff_s1 = 0; //original code does not contain
 
         if (playerController.type == _CONTROLLER_TYPE.SteeringWheel)
         {
             turning = (short)((playerController.leftStickX - 128) * 5);
             uVar19 = (uint)(playerController.leftStickY < 129 ? 1 : 0) ^ 1;
 
-            if (-1 < playerController.DAT_15)
+            if (-1 < (sbyte)playerController.DAT_15)
                 uVar19 |= 0x10000;
 
             if ((DAT_F6 & 16) == 0)
@@ -1201,8 +1210,6 @@ public class Vehicle : MonoBehaviour
 
                 if (cVar1 == _WHEELS.Ground)
                 {
-                    ; //goto LAB_3DBE8
-
                     iVar8 = ((vObject.phy1Unk2 << 16) | (ushort)vObject.phy1Unk1) * DAT_B2;
 
                     if (iVar8 < 0)
@@ -1257,15 +1264,154 @@ public class Vehicle : MonoBehaviour
                         breaking = uVar10;
                     }
 
-                    if (cVar1 != _WHEELS.Air)
-                    {
-                        if (direction < 0)
-                            iVar8 = vObject.physics2.Y + turning * -2;
-                        else
-                            iVar8 = vObject.physics2.Y + turning * 2;
+                    acceleration = (short)(DAT_B3 * -2);
+                }
+                if (cVar1 != _WHEELS.Air)
+                {
+                    if (direction < 0)
+                        iVar8 = vObject.physics2.Y + turning * -2;
+                    else
+                        iVar8 = vObject.physics2.Y + turning * 2;
 
-                        vObject.physics2.Y = iVar8;
+                    vObject.physics2.Y = iVar8;
+                }
+            }
+
+            iVar8 = breaking + 4;
+
+            if (-1 < breaking)
+                return;
+
+            uVar10 = 0;
+
+            if (iVar8 < 0)
+                uVar10 = (sbyte)iVar8;
+
+            breaking = uVar10;
+            return;
+        }
+
+        if (playerController.type < _CONTROLLER_TYPE.JoystickAnalog)
+        {
+            if (playerController.type != _CONTROLLER_TYPE.JoypadDigital)
+                return;
+
+            uVar19 = 0x100;
+
+            if (direction < 0)
+            {
+                uVar19 = 0x200;
+                uVar7 = 0x100;
+            }
+            else
+                uVar7 = 0x200;
+
+            if ((uVar17 & uVar7) == 0)
+            {
+                unaff_s1 = uVar17 & (uVar19 | uVar19 << 16);
+
+                if ((DAT_F6 & 16) == 0)
+                {
+                    uVar7 = unaff_s1;
+
+                    if (((playerController.DAT_F << 24 | playerController.DAT_E << 16
+                        | playerController.dpad << 8 | playerController.buttons << 0)
+                        & 0xf0000000) != 0)
+                        uVar7 = unaff_s1 & 0xffff;
+
+                    //FUN_3D0F8
+
+                    if ((unaff_s1 & 0xffff) == 0)
+                    {
+                        iVar8 = acceleration - 4;
+                        uVar11 = 0;
+
+                        if (0 < iVar8)
+                            uVar11 = (uint)iVar8;
+
+                        acceleration = (short)uVar11;
                     }
+                    else
+                        acceleration = DAT_B3;
+                }
+                else
+                    ; //FUN_39CEC
+            }
+            else
+            {
+                iVar8 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
+
+                if (iVar8 < 0)
+                    iVar8 = -iVar8;
+
+                if (iVar8 < 474)
+                {
+                    uVar10 = 1;
+
+                    if (-1 < direction)
+                        uVar10 = -1;
+
+                    direction = uVar10;
+                }
+                else
+                    acceleration = (short)-DAT_B3;
+            }
+
+            if ((uVar17 & 0x1800) == 0)
+            {
+                sVar5 = turning;
+                iVar8 = sVar5;
+
+                if (iVar8 != 0)
+                {
+                    iVar12 = iVar8 * (vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1);
+
+                    if (iVar12 < 0)
+                        iVar12 += 0x7fff;
+
+                    sVar4 = (short)(sVar5 - (iVar12 >> 15));
+
+                    if (iVar12 >> 15 == 0)
+                    {
+                        sVar4 = (short)(sVar5 - 1);
+
+                        if (iVar8 < 0)
+                            sVar4 = (short)(sVar5 + 1);
+                    }
+
+                    turning = sVar4;
+                }
+
+                if ((uVar17 & 0x400) == 0)
+                {
+                    if (0 < breaking)
+                        breaking = (sbyte)-breaking;
+                }
+                else
+                {
+                    if ((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 2370)
+                    {
+                        uVar10 = 127;
+
+                        if (unaff_s1 == 0)
+                        {
+                            uVar10 = 0;
+                            iVar8 = breaking - 3;
+                            bVar2 = 0 < iVar8;
+                        }
+                        else
+                        {
+                            iVar8 = breaking + 2;
+                            bVar2 = iVar8 < 127;
+                        }
+
+                        if (bVar2)
+                            uVar10 = (sbyte)iVar8;
+
+                        breaking = uVar10;
+                    }
+
+                    acceleration = (short)(DAT_B3 * -2);
                 }
 
                 iVar8 = breaking + 4;
@@ -1282,33 +1428,537 @@ public class Vehicle : MonoBehaviour
                 return;
             }
 
-            if (playerController.type < _CONTROLLER_TYPE.JoystickAnalog)
+            if (0 < vObject.rotation.V11)
             {
-                if (playerController.type != _CONTROLLER_TYPE.JoypadDigital)
-                    return;
+                uVar7 = 0;
 
-                uVar19 = 0x100;
-
-                if (direction < 0)
+                if (direction < 1)
                 {
-                    uVar19 = 0x200;
-                    uVar7 = 0x100;
+                    if ((uVar17 & 0x18000000) != 0)
+                    {
+                        uVar7 = vObject.flags & 0x7fffffff;
+
+                        if (direction < 0 && ((uVar17 & uVar19) != 0 ||
+                            (vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1) < -4997120))
+                            uVar7 |= 0x80000000;
+
+                        vObject.flags = uVar7;
+                    }
+
+                    uVar7 = vObject.flags >> 31;
                 }
                 else
-                    uVar7 = 0x200;
+                    vObject.flags &= 0x7fffffff;
 
-                if ((uVar17 & uVar7) == 0)
+                if ((uVar17 & 0x400) == 0 || wheelsType == _WHEELS.Air)
                 {
-                    unaff_s1 = uVar17 & (uVar19 | uVar19 << 16);
-
-                    if ((DAT_F6 & 16) == 0)
+                    if ((uVar17 & 0x800) == 0)
                     {
-                        uVar7 = unaff_s1;
+                        iVar12 = turning;
+                        iVar8 = 0;
 
-                        
+                        if (0 < iVar12)
+                            iVar8 = iVar12;
+
+                        if (iVar8 < 0)
+                            iVar8 += 63;
+
+                        iVar15 = (iVar12 + 16) - (iVar8 >> 6);
+                        iVar12 = 0x2aa0000;
+                        iVar8 = 0x2aa;
+
+                        if (iVar15 < 0x2aa)
+                        {
+                            iVar12 = iVar15 * 0x10000;
+                            iVar8 = iVar15;
+                        }
+
+                        iVar12 = iVar12 >> 16;
+                        turning = (short)iVar8;
+
+                        if (iVar12 < 1)
+                            return;
+                    }
+                    else
+                    {
+                        iVar12 = turning;
+                        iVar8 = 0;
+
+                        if (iVar12 < 0)
+                            iVar8 = iVar12;
+
+                        if (iVar8 < 0)
+                            iVar8 += 63;
+
+                        iVar15 = (iVar12 - 16) - (iVar8 >> 6);
+                        iVar12 = -0x2aa0000;
+                        iVar8 = -0x2aa;
+
+                        if (-0x2aa < iVar15)
+                        {
+                            iVar12 = iVar15 * 0x10000;
+                            iVar8 = iVar15;
+                        }
+
+                        iVar12 = iVar12 >> 16;
+                        turning = (short)iVar8;
+
+                        if (-1 < iVar12)
+                            return;
+                    }
+
+                    if (wheelsType != _WHEELS.Ground)
+                        return;
+
+                    iVar8 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * DAT_B2;
+
+                    if (iVar8 < 0)
+                        iVar8 += 4095;
+
+                    iVar15 = DAT_B1 + (iVar8 >> 12);
+                    iVar8 = 0;
+
+                    if (0 < iVar15)
+                        iVar8 = iVar15;
+
+                    iVar8 = (int)(uVar7 * 2 - 1) * iVar12 * iVar8;
+
+                    if (iVar8 < 0)
+                        iVar8 += 15;
+
+                    vObject.physics2.Y -= iVar8 >> 4;
+                    return;
+                }
+
+                if ((uVar17 & 0x800) == 0)
+                {
+                    iVar8 = 0x2aa;
+
+                    if (turning + 32 < 0x2aa)
+                        iVar8 = turning + 32;
+
+                    turning = (short)iVar8;
+                    iVar8 = vObject.physics2.Y;
+
+                    if (uVar7 == 0)
+                    {
+                        vObject.physics2.Y = iVar8 + 1280;
+                        return;
                     }
                 }
+                else
+                {
+                    iVar8 = -0x2aa;
+
+                    if (-0x2aa < turning - 32)
+                        iVar8 = turning - 32;
+
+                    turning = (short)iVar8;
+                    iVar8 = vObject.physics2.Y;
+
+                    if (uVar7 != 0)
+                    {
+                        vObject.physics2.Y = iVar8 + 1280;
+                        return;
+                    }
+                }
+
+                vObject.physics2.Y = iVar8 - 1280;
+                return;
+            }
+
+            if ((uVar17 & 0x8000000) == 0)
+            {
+                if ((uVar17 & 0x10000000) == 0)
+                    return;
+
+                iVar12 = vObject.physics2.Z;
+                iVar8 = 0x8000;
+
+                if (wheelsType == _WHEELS.Sea)
+                    iVar8 = 0x10000;
+            }
+            else
+            {
+                iVar12 = vObject.physics2.Z;
+                iVar8 = -0x8000;
+
+                if (wheelsType == _WHEELS.Sea)
+                    iVar8 = -0x10000;
+            }
+
+            vObject.physics2.Z = iVar12 + iVar8;
+            return;
+        }
+
+        if (_CONTROLLER_TYPE.JoypadAnalog < playerController.type)
+            return;
+
+        uVar19 = playerController.leftStickX;
+        uVar7 = uVar19 - 128;
+        iVar12 = 128 - playerController.leftStickY;
+        iVar8 = iVar12;
+
+        if (iVar12 < 0)
+            iVar8 = -iVar12;
+
+        iVar15 = 0;
+
+        if (8 < iVar8)
+            iVar15 = iVar12;
+
+        bVar2 = false;
+
+        if (((uVar17 & 0x400) != 0 && iVar15 <= -64) || (uVar17 & 0x200) != 0)
+            bVar2 = true;
+
+        bVar18 = false;
+
+        if ((uVar17 & 0x400) != 0 && (-1 < direction || -64 < iVar15))
+            bVar18 = true;
+
+        bVar3 = false;
+
+        if ((uVar17 & 0x1800) == 0)
+        {
+            uVar14 = uVar7;
+
+            if ((int)uVar7 < 0)
+                uVar14 = (uint)-(int)uVar7;
+
+            if (7 < (int)uVar14)
+                bVar3 = true;
+        }
+        else
+            bVar3 = true;
+
+        if ((uVar17 & 0x1800) == 0)
+        {
+            uVar14 = uVar7;
+
+            if ((int)uVar7 < 0)
+                uVar14 = (uint)-(int)uVar7;
+
+            if ((int)uVar14 < 8)
+            {
+                iVar8 = turning * (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1);
+
+                if (iVar8 < 0)
+                    iVar8 += 0x7fff;
+
+                sVar5 = (short)(turning - (iVar8 >> 15));
+            }
+            else
+            {
+                iVar8 = 16;
+
+                if (bVar18)
+                    iVar8 = 32;
+
+                uVar14 = (uint)(int)turning;
+
+                sVar5 = 0; //tmp
+                //...
+            }
+
+            turning = sVar5;
+        }
+        else
+        {
+            if (bVar18)
+            {
+                if ((uVar17 & 0x800) == 0)
+                {
+                    iVar8 = turning + 32;
+                    iVar12 = 0x2aa;
+
+                    if (iVar8 < 0x2aa)
+                        iVar12 = iVar8;
+
+                    turning = (short)iVar12;
+                    goto LAB_3DE3C;
+                }
+
+                iVar8 = turning * -32;
+            }
+            else
+            {
+                if ((uVar17 & 0x800) == 0)
+                {
+                    iVar12 = turning;
+                    iVar8 = 0;
+
+                    if (0 < iVar12)
+                        iVar8 = iVar12;
+
+                    if (iVar8 < 0)
+                        iVar8 += 63;
+
+                    iVar8 = (iVar12 + 16) - (iVar8 >> 6);
+                    iVar12 = 0x2aa;
+
+                    if (iVar8 < 0x2aa)
+                        iVar12 = iVar8;
+
+                    turning = (short)iVar12;
+                    goto LAB_3DE3C;
+                }
+
+                iVar12 = turning;
+                iVar8 = 0;
+
+                if (iVar12 < 0)
+                    iVar8 = iVar12;
+
+                if (iVar8 < 0)
+                    iVar8 += 63;
+
+                iVar8 = (iVar12 - 16) - (iVar8 >> 6);
+            }
+
+            iVar12 = -0x2aa;
+
+            if (-0x2aa < iVar8)
+                iVar12 = iVar8;
+
+            turning = (short)iVar12;
+        }
+
+        LAB_3DE3C:
+        uVar14 = 0;
+
+        if (64 < iVar15)
+            uVar14 = (uint)(128 - (byte)playerController.DAT_15 < 65 ? 1 : 0);
+
+        uVar9 = uVar17 & 0x1000100;
+
+        if (64 < iVar15)
+            uVar9 |= 1;
+
+        uVar9 = uVar14 << 16 | uVar9;
+
+        if ((DAT_F6 & 16) == 0)
+        {
+            sVar5 = -1;
+
+            if (-1 < direction)
+                sVar5 = 1;
+
+            if ((uVar17 & 0x100) == 0)
+            {
+                if (bVar2)
+                    uVar6 = (ushort)-DAT_B3;
+                else
+                {
+                    iVar15 = iVar15 * DAT_B3;
+
+                    if (iVar15 < 0)
+                        iVar15 += 127;
+
+                    uVar6 = (ushort)(iVar15 >> 7);
+                }
+            }
+            else
+                uVar6 = DAT_B3;
+
+            acceleration = (short)(sVar5 * uVar6);
+            iVar8 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
+
+            if (iVar8 < 0)
+                iVar8 = -iVar8;
+
+            if (iVar8 < 474 && acceleration < -16)
+            {
+                if (direction < 0)
+                    direction = 1;
+                else if (bVar2)
+                    direction = -1;
+            }
+
+            //FUN_3D0F8
+        }
+        else
+            ; //FUN_39CEC
+
+        iVar8 = 1;
+
+        if (direction < 0)
+        {
+            iVar8 = -1;
+
+            if (!bVar2)
+            {
+                iVar12 = vObject.physics2.X;
+
+                if (iVar12 < 0)
+                    iVar12 += 127;
+
+                iVar15 = vObject.physics2.Z;
+
+                if (iVar15 < 0)
+                    iVar15 += 127;
+
+                iVar8 = -1;
+
+                if (-1941505 <
+                    vObject.rotation.V02 * (iVar12 >> 7) +
+                    vObject.rotation.V22 * (iVar15 >> 7))
+                    iVar8 = 1;
             }
         }
+
+        if (vObject.rotation.V11 < 0)
+        {
+            uVar19 -= playerController.DAT_14;
+
+            if ((uVar19 ^ uVar7) < 0)
+                uVar19 = 0;
+
+            uVar7 = uVar17 >> 28 & 1;
+
+            if ((uVar17 & 0x8000000) == 0)
+                iVar8 = (int)(uVar7 << 15);
+            else
+                iVar8 = (int)(uVar7 - 1) * 0x8000;
+
+            iVar8 = (int)(uVar19 * 512) + iVar8;
+
+            if (wheelsType == _WHEELS.Sea)
+                vObject.physics2.Z += iVar8 * 4;
+            else
+                vObject.physics2.Z += iVar8;
+        }
+        else
+        {
+            if (bVar18)
+            {
+                iVar12 = turning;
+
+                if (iVar12 < 0)
+                    iVar12 = -iVar12;
+
+                if (iVar12 < 170)
+                {
+                    if ((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 2370)
+                    {
+                        if (uVar9 == 0)
+                        {
+                            iVar12 = breaking - 3;
+                            uVar10 = 0;
+
+                            if (0 < iVar12)
+                                uVar10 = (sbyte)iVar12;
+
+                            breaking = uVar10;
+                        }
+                        else
+                        {
+                            iVar15 = breaking + 2;
+                            iVar12 = 127;
+
+                            if (iVar15 < 127)
+                                iVar12 = iVar15;
+
+                            breaking = (sbyte)iVar12;
+                        }
+                    }
+
+                    acceleration = (short)(DAT_B3 * -2);
+                }
+
+                if (!bVar3 || wheelsType == _WHEELS.Air)
+                    goto LAB_3E1C8;
+
+                iVar12 = vObject.physics2.Y;
+                iVar8 = iVar8 * turning * 2;
+            }
+            else
+            {
+                if (0 < breaking)
+                    breaking = (sbyte)-breaking;
+
+                if (!bVar3 || wheelsType != _WHEELS.Ground)
+                    goto LAB_3E1C8;
+
+                iVar12 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * DAT_B2;
+
+                if (iVar12 < 0)
+                    iVar12 += 4095;
+
+                iVar15 = DAT_B1 * (iVar12 >> 12);
+                iVar12 = 0;
+
+                if (0 < iVar15)
+                    iVar12 = iVar15;
+
+                iVar8 = (iVar8 * turning * iVar12) / 14;
+                iVar12 = vObject.physics2.Y;
+            }
+
+            vObject.physics2.Y = iVar12 + iVar8;
+        }
+
+        LAB_3E1C8:
+        iVar8 = breaking + 4;
+
+        if (breaking < 0)
+        {
+            uVar10 = 0;
+
+            if (iVar8 < 0)
+                uVar10 = (sbyte)iVar8;
+
+            breaking = uVar10;
+        }
+
+        iVar12 = playerController.rightStickX - 128;
+        iVar8 = iVar12;
+
+        if (iVar12 < 0)
+            iVar8 = -iVar12;
+
+        if (32 < iVar8)
+        {
+            if (iVar12 < 0)
+                iVar12 = playerController.rightStickX - 125;
+
+            vCamera.DAT_92 -= (short)(iVar12 >> 2);
+        }
+
+        iVar12 = playerController.rightStickY - 128;
+        iVar8 = iVar12;
+
+        if (32 < iVar8)
+        {
+            iVar12 = iVar12 * 3051;
+
+            if (iVar12 < 0)
+                iVar12 += 127;
+
+            iVar12 = vCamera.DAT_9C + (iVar12 >> 7);
+            iVar8 = vObject.DAT_58 << 1;
+
+            if (iVar8 <= iVar12)
+            {
+                iVar8 = 0x140000;
+
+                if (iVar12 < 0x140001)
+                    iVar8 = iVar12;
+            }
+
+            vCamera.DAT_9C = iVar8;
+        }
+
+        if ((uVar17 & 0x20000000) == 0)
+            return;
+
+        if ((vObject.flags & 0x2000000) != 0)
+            return;
+
+        if (GameManager.instance.DAT_C74 != 0)
+            return;
+
+        vCamera.FUN_4B898();
+        return;
     }
 }
