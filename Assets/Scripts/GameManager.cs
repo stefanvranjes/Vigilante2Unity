@@ -979,9 +979,12 @@ public class GameManager : MonoBehaviour
     public VehicleConfig commonWheelConfiguration;
     public Vehicle[] players; //6B8D8
 
+    public bool DAT_83B; //gp+83Bh
     public Vector3Int DAT_A18; //gp+A18h
     public Vector3Int DAT_A24; //gp+A24h
+    public short DAT_E1C; //gp+E1Ch
     public Matrix3x3 DAT_F00; //gp+F00h
+    public Vector3Int DAT_F14; //gp+F14h
     public int DAT_C74; //gp+C74h
     public int unk1; //gp+DA0h
     public int unk2; //gp+DB0h
@@ -1007,6 +1010,105 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private int FUN_1E354(Vector3Int v3)
+    {
+        int iVar1;
+        int iVar2;
+
+        iVar1 = Utilities.FUN_29E84(v3);
+        iVar2 = iVar1 + 0x200000;
+
+        if (iVar2 < 0)
+            iVar2 = iVar1 + 0x200fff;
+
+        return (DAT_E1C << 9) / (iVar2 >> 12);
+    }
+
+    private int FUN_1E39C(Vector3Int v3)
+    {
+        int iVar1;
+        int iVar2;
+        uint uVar3;
+        int iVar4;
+
+        iVar1 = Utilities.FUN_29E84(v3);
+        iVar2 = iVar1 + 0x200000;
+
+        if (iVar2 < 0)
+            iVar2 = iVar1 + 0x200fff;
+
+        iVar4 = (DAT_E1C << 9) / (iVar2 >> 12);
+        iVar2 = Utilities.LeadingZeros(iVar1);
+        uVar3 = 12;
+
+        if ((int)(iVar2 - 1U) < 12)
+            uVar3 = (uint)(iVar2 - 1U);
+
+        if (iVar1 == 0)
+            iVar1 = 0;
+        else
+            iVar1 = (v3.x << (int)(uVar3 & 31)) / (iVar1 >> (int)(12 - uVar3 & 31));
+
+        iVar2 = (4096 - iVar1) * iVar4;
+
+        if (iVar2 < 0)
+            iVar2 += 8191;
+
+        iVar4 = (iVar1 + 4096) * iVar4;
+
+        if (iVar4 < 0)
+            iVar4 += 8191;
+
+        return iVar2 >> 13 | (iVar4 >> 13) << 16;
+    }
+
+    public uint FUN_1E478(Vector3Int pos)
+    {
+        short sVar1;
+        short sVar2;
+        int iVar3;
+        uint uVar4;
+        Vector3Int auStack24;
+        Vector3Int auStack8;
+
+        auStack24 = Utilities.FUN_24148(DAT_F00, DAT_F14, pos);
+
+        if (DAT_2C == 0)
+        {
+            if (!DAT_83B)
+                uVar4 = (uint)FUN_1E39C(auStack24);
+            else
+            {
+                iVar3 = FUN_1E354(auStack24);
+                uVar4 = (uint)((iVar3 * 0x10000 >> 16) + iVar3 * 0x10000);
+            }
+        }
+        else
+        {
+            auStack8 = Utilities.FUN_24148(terrain.DAT_BDFF0, terrain.DAT_BE004, pos);
+
+            if (!DAT_83B) 
+            {
+                iVar3 = FUN_1E354(auStack24);
+                sVar1 = (short)FUN_1E354(auStack8);
+                uVar4 = (uint)(iVar3 << 16 | (int)sVar1);
+            }
+            else
+            {
+                sVar1 = (short)FUN_1E354(auStack24);
+                sVar2 = (short)FUN_1E354(auStack8);
+                iVar3 = DAT_E1C;
+
+                if (sVar1 + sVar2 < DAT_E1C)
+                    iVar3 = sVar1 + sVar2;
+
+                uVar4 = (uint)(iVar3 * 0x10001);
+            }
+        }
+
+        return uVar4;
     }
 
     public static uint FUN_2AC5C()

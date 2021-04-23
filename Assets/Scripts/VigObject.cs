@@ -484,6 +484,7 @@ public class VigObject : MonoBehaviour
     public VigObject child2; //0x10
     public VigObject parent; //0x14
 
+    public sbyte DAT_18; //0x18
     public short unk2; //0x1A
 
     public ushort maxHalfHealth;
@@ -764,7 +765,7 @@ public class VigObject : MonoBehaviour
         }
 
         normalVector3 = gameManager.terrain.FUN_1B998((uint)pos.x, (uint)pos.z);
-        normalVector3 = Utilities.VectorNormalSS(normalVector3);
+        normalVector3 = Utilities.VectorNormal(normalVector3);
         normalTile = tile;
 
         return vertexHeight;
@@ -805,6 +806,57 @@ public class VigObject : MonoBehaviour
         }
 
         return uVar1;
+    }
+
+    public void FUN_3BFC0()
+    {
+        int iVar1;
+        int iVar2;
+        uint uVar3;
+        uint uVar4;
+        Vector3Int local_18;
+
+        iVar1 = physics1.X;
+        iVar2 = -iVar1;
+        physics1.X = iVar2;
+        physics1.Z = -physics1.Z;
+        physics1.Y = -physics1.Y;
+
+        if (0 < iVar1)
+            iVar2 += 63;
+
+        iVar1 = physics1.Y;
+        position.x += iVar2 >> 6;
+
+        if (iVar1 < 0)
+            iVar1 += 63;
+
+        iVar2 = physics1.Z;
+        position.y += iVar1 >> 6;
+
+        if (iVar2 < 0)
+            iVar2 += 63;
+
+        position.z += iVar2 >> 6;
+        TileData tile = VigTerrain.instance.GetTileByPosition((uint)position.x, (uint)position.z);
+
+        if (tile.unk2[3] == 7)
+        {
+            uVar3 = (uint)position.x;
+            uVar4 = (uint)position.z;
+            local_18 = new Vector3Int(-(int)uVar3, 0, -(int)uVar4);
+            local_18 = Utilities.VectorNormal(local_18);
+
+            do
+            {
+                uVar3 += (uint)local_18.x;
+                uVar4 += (uint)local_18.z;
+                tile = VigTerrain.instance.GetTileByPosition(uVar3, uVar4);
+            } while (tile.unk2[3] == 7);
+
+            position.x = (int)((uVar3 & 0xffff0000) + 0x8000);
+            position.z = (int)((uVar4 & 0xffff0000) + 0x8000);
+        }
     }
 
     public void FUN_4BAFC(Vector3Int position)

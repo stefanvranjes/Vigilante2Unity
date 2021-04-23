@@ -908,7 +908,7 @@ public class Utilities
         return m33;
     }
 
-    public static Vector3Int VectorNormalSS(Vector3Int n1)
+    public static Vector3Int VectorNormal(Vector3Int n1)
     {
         int normal_x = n1.x;
         int normal_y = n1.y;

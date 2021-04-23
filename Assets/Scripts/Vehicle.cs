@@ -263,7 +263,7 @@ public class Vehicle : MonoBehaviour
             TileData tile = GameManager.instance.terrain.GetTileByPosition((uint)vObject.position.x, (uint)vObject.position.z);
 
             if (tile.unk2[3] == 7)
-                ; //FUN_3BFC0
+                vObject.FUN_3BFC0();
 
             if ((vObject.flags & 0x20000000) == 0)
             {
@@ -1136,9 +1136,14 @@ public class Vehicle : MonoBehaviour
 
     private void FUN_3A844()
     {
+        sbyte cVar1;
         byte bVar2;
+        byte uVar3;
+        uint uVar4;
         int iVar6;
         int iVar7;
+        uint uVar8;
+        uint unaff_s1;
 
         if ((DAT_F6 & 16) == 0)
         {
@@ -1195,33 +1200,110 @@ public class Vehicle : MonoBehaviour
 
                 if (iVar6 < 513)
                     iVar7 = iVar6;
-
-                iVar7 = DAT_E0 + iVar7;
-                DAT_E0 = (short)iVar7;
-                //sound effect
-                Controller playerController = InputManager.controllers[~vObject.id];
-                if (((playerController.DAT_B << 24 | playerController.DAT_A << 16 | 
-                    playerController.steering << 8 | playerController.actions) & 0x100) == 0)
-                {
-                    iVar7 = DAT_E2 - 128;
-                    iVar6 = 2048;
-
-                    if (2048 < iVar7)
-                        iVar6 = iVar7;
-
-                    DAT_E2 = (short)iVar6;
-                }
-                else
-                {
-                    iVar7 = DAT_E2 + 128;
-                    iVar6 = 4096;
-
-                    if (iVar7 < 4096)
-                        iVar6 = iVar7;
-
-                    DAT_E2 = (short)iVar6;
-                }
             }
+
+            iVar7 = DAT_E0 + iVar7;
+            DAT_E0 = (short)iVar7;
+            //sound effect
+            Controller playerController = InputManager.controllers[~vObject.id];
+            if (((playerController.DAT_B << 24 | playerController.DAT_A << 16 | 
+                playerController.steering << 8 | playerController.actions) & 0x100) == 0)
+            {
+                iVar7 = DAT_E2 - 128;
+                iVar6 = 2048;
+
+                if (2048 < iVar7)
+                    iVar6 = iVar7;
+
+                DAT_E2 = (short)iVar6;
+            }
+            else
+            {
+                iVar7 = DAT_E2 + 128;
+                iVar6 = 4096;
+
+                if (iVar7 < 4096)
+                    iVar6 = iVar7;
+
+                DAT_E2 = (short)iVar6;
+            }
+
+            unaff_s1 = GameManager.instance.FUN_1E478(vObject.position);
+            iVar6 = (int)(unaff_s1 & 0xffff) * DAT_E2;
+            cVar1 = vObject.DAT_18;
+
+            if (iVar6 < 0)
+                iVar6 += 4095;
+
+            iVar7 = (int)(unaff_s1 >> 16) * DAT_E2;
+
+            if (iVar7 < 0)
+                iVar7 += 4095;
+
+            uVar4 = (uint)(iVar6 >> 12 | (iVar7 >> 12) << 16);
+        }
+        else
+        {
+            uVar4 = GameManager.instance.FUN_1E478(vObject.position);
+            cVar1 = vObject.DAT_18;
+        }
+
+        //FUN_1E2C8
+
+        if ((vObject.flags & 0x40000000) != 0)
+        {
+            //...
+        }
+
+        if (wheelsType== _WHEELS.Ground && (vObject.flags & 0x10000000) != 0 &&
+            3051 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+        {
+            iVar7 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
+            iVar6 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * 3;
+
+            if (iVar7 < 0)
+                iVar7 = -iVar7;
+
+            if (iVar6 < 0)
+                iVar6 += 3;
+
+            if (iVar7 < iVar6 >> 2)
+            {
+                if ((DAT_F6 & 4) == 0)
+                {
+                    DAT_F6 |= 4;
+                    //...
+                }
+
+                //FUN_3928C
+                goto LAB_3ABC8;
+            }
+        }
+
+        DAT_F6 &= 0xfffb;
+
+        LAB_3ABC8:
+        if (DAT_DF != 0)
+        {
+            uVar4 = (uint)((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) / 2);
+
+            if (uVar4 < 768)
+            {
+                uVar3 = DAT_DF;
+                unaff_s1 = 0;
+            }
+            else
+            {
+                uVar8 = 3072;
+
+                if (uVar4 < 3072)
+                    uVar8 = uVar4;
+
+                //FUN_1E2E8
+                uVar3 = DAT_DF;
+            }
+
+            //FUN_1E2C8
         }
     }
 

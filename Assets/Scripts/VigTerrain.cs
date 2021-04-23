@@ -47,6 +47,8 @@ public class VigTerrain : MonoBehaviour
     public int tileY;
     public int zoneCount;
     public float drawDistance;
+    public Matrix3x3 DAT_BDFF0;
+    public Vector3Int DAT_BE004;
 
     private Dictionary<int, List<int>> verticesDict;
     private Dictionary<int, Tile> tilesDict;
