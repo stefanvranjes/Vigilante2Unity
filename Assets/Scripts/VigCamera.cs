@@ -239,8 +239,59 @@ public class VigCamera : MonoBehaviour
         vObject.ApplyTransformation();
     }
 
+    private void FUN_4B820()
+    {
+        if (GameManager.instance.DAT_2C == 1)
+        {
+            DAT_90 = -160;
+            DAT_94 = 80;
+            return;
+        }
+
+        if (GameManager.instance.DAT_2C < 2)
+        {
+            if (GameManager.instance.DAT_2C != 0)
+                return;
+        }
+        else
+        {
+            if (GameManager.instance.DAT_2C != 2)
+            {
+                if (GameManager.instance.DAT_2C == 3)
+                {
+                    DAT_90 = -192;
+                    DAT_94 = 128;
+                    return;
+                }
+
+                return;
+            }
+        }
+
+        DAT_90 = -256;
+        DAT_94 = 160;
+    }
+
     public void FUN_4B898()
     {
+        int iVar1;
 
+        FUN_4B820();
+        iVar1 = GameManager.instance.DAT_2C;
+        DAT_92 = 0;
+
+        if (iVar1 == 0)
+            iVar1 = 0x10000;
+        else
+        {
+            if (iVar1 == 3)
+                iVar1 = 0x20800;
+            else
+                iVar1 = 0x14000;
+        }
+
+        DAT_9C = target.DAT_58 + iVar1;
+        DAT_98 = 11444;
+        DAT_A0 = 204800;
     }
 }

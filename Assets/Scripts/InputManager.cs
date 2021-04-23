@@ -46,6 +46,8 @@ public struct Controller
     public byte[] sequence; //0x04
     public byte actions; //0x08
     public byte steering; //0x09
+    public byte DAT_A; //0x0A
+    public byte DAT_B; //0x0B
     public byte buttons; //0x0C
     public byte dpad; //0x0D
     public byte DAT_E; //0x0E

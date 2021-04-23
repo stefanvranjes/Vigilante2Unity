@@ -550,6 +550,13 @@ public class VigObject : MonoBehaviour
         padding1 = 0;
     }
 
+    //FUN_2CF44
+    public void ApplyRotationMatrix()
+    {
+        rotation = Utilities.RotMatrixYXZ(vr);
+        padding1 = 0;
+    }
+
     public void FUN_24700(short x, short y, short z)
     {
         Coprocessor.rotationMatrix.rt11 = rotation.V00;
@@ -695,6 +702,49 @@ public class VigObject : MonoBehaviour
         position.z += iVar1 >> 7;
 
         rotation = Utilities.MatrixNormal(rotation);
+    }
+
+    public void FUN_2B1FC(Vector3Int v1, Vector3Int v2)
+    {
+        int iVar1;
+        Vector3Int local_10;
+
+        local_10 = Utilities.FUN_24094(rotation, v1);
+        Coprocessor.rotationMatrix.rt11 = (short)(v2.x >> 4 & 0xFFFF);
+        Coprocessor.rotationMatrix.rt12 = (short)(v2.x >> 4 >> 16);
+        Coprocessor.rotationMatrix.rt22 = (short)(v2.y >> 4 & 0xFFFF);
+        Coprocessor.rotationMatrix.rt23 = (short)(v2.y >> 4 >> 16);
+        Coprocessor.rotationMatrix.rt33 = (short)(v2.z >> 4);
+        Coprocessor.accumulator.ir1 = (short)(v1.x >> 3);
+        Coprocessor.accumulator.ir2 = (short)(v1.y >> 3);
+        Coprocessor.accumulator.ir3 = (short)(v1.z >> 3);
+        Coprocessor.ExecuteOP(12, false);
+
+        physics1.X += local_10.x;
+        physics1.Y += local_10.y;
+        physics1.Z += local_10.z;
+
+        iVar1 = Coprocessor.mathsAccumulator.mac1;
+        iVar1 = iVar1 * vectorUnk1.x;
+
+        if (iVar1 < 0)
+            iVar1 += 63;
+
+        physics2.X += iVar1 >> 6;
+        iVar1 = Coprocessor.mathsAccumulator.mac2;
+        iVar1 = iVar1 * vectorUnk1.y;
+
+        if (iVar1 < 0)
+            iVar1 += 63;
+
+        physics2.Y += iVar1 >> 6;
+        iVar1 = Coprocessor.mathsAccumulator.mac3;
+        iVar1 = iVar1 * vectorUnk1.z;
+
+        if (iVar1 < 0)
+            iVar1 += 63;
+
+        physics2.Z += iVar1 >> 6;
     }
 
     public int FUN_2CFBC(Vector3Int pos, out Vector3Int normalVector3, out TileData normalTile)

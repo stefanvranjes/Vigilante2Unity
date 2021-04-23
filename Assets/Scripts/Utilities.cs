@@ -74,20 +74,6 @@ public class Utilities
         return v2;
     }
 
-    public static uint FUN_2AC5C()
-    {
-        uint uVar1 = GameManager.DAT_63A64; //r8
-        uint uVar2 = (uint)(byte)GameManager.DAT_63A68 << 31; //r9
-        GameManager.DAT_63A68 = (byte)uVar1;
-        uint uVar3 = (uVar1 >> 1) + uVar2;
-        uVar1 = uVar1 << 12;
-        uVar3 = uVar3 ^ uVar1;
-        uVar1 = uVar3 >> 20;
-        uVar3 = uVar3 ^ uVar1;
-        GameManager.DAT_63A64 = uVar3;
-        return uVar3 & 0x7FFF;
-    }
-
     public static int FUN_2A27C(Matrix3x3 m33)
     {
         return Ratan2(m33.V02, m33.V22) << 16 >> 16;
@@ -848,6 +834,7 @@ public class Utilities
         return new Vector3Int(Coprocessor.accumulator.ir1, Coprocessor.accumulator.ir2, Coprocessor.accumulator.ir3);
     }
 
+    //FUN_5A78C
     public static Matrix3x3 RotMatrixYXZ(Vector3Int r)
     {
         Matrix3x3 m33 = new Matrix3x3();

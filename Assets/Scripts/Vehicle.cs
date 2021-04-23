@@ -44,6 +44,7 @@ public class Vehicle : MonoBehaviour
     public sbyte direction;
     public byte weaponSlot;
     public byte DAT_AF; //0xAF
+    public sbyte DAT_B0; //0xB0
     public sbyte DAT_B1; //0xB1
     public sbyte DAT_B2; //0xB2
     public byte DAT_B3; //0xB3
@@ -58,11 +59,13 @@ public class Vehicle : MonoBehaviour
     public byte DAT_DE; //0xDE
     public byte DAT_DF; //0xDF
     public short DAT_E0; //0xE0
+    public short DAT_E2; //0xE2
     public int DAT_E4; //0xE4
     public int lightness; //0xE8
     public VigCamera vCamera;
     public ushort DAT_F6; //0xF6
     public VigObject[] body;
+    public VigObject DAT_100; //0x100
     public VigObject[] wheels;
     public ushort doubleDamage;
     public ushort shield;
@@ -134,13 +137,13 @@ public class Vehicle : MonoBehaviour
                 {
                     int iVar = 12; //r16
 
-                    if ((GameManager.instance.unk8 & 1) == 0)
+                    if ((GameManager.instance.DAT_40 & 1) == 0)
                         iVar = GameManager.vehicleConfigs[configID].unk0x0[(((iVar3 < 2 ? 1 : 0) ^ 1) << 1) / 2];
                     
                     wheelObject = GameManager.instance.commonWheelConfiguration.FUN_2C17C(iVar, 156, 8); //r16
                     int configIndex = (iVar << 3) - iVar << 2;
                     wheelObject.physics2.X = -GameManager.instance.commonWheelConfiguration.configContainers[configIndex / 0x1C].v3_1.y;
-                    wheelObject.vr = new Vector3Int((int)Utilities.FUN_2AC5C(), 0, (iVar3 & 1) << 11);
+                    wheelObject.vr = new Vector3Int((int)GameManager.FUN_2AC5C(), 0, (iVar3 & 1) << 11);
                 }
                 else
                 {
@@ -183,7 +186,7 @@ public class Vehicle : MonoBehaviour
                     }
                 }
 
-                if ((GameManager.instance.unk8 & 0x40000) != 0)
+                if ((GameManager.instance.DAT_40 & 0x40000) != 0)
                     wheelObject.physics1.Y += 0x2800;
 
                 wheelObject.physics1.Z = wheelObject.physics2.X;
@@ -287,7 +290,7 @@ public class Vehicle : MonoBehaviour
                 }
             }
 
-
+            FUN_3D424(InputManager.controllers[~vObject.id]);
         }
     }
 
@@ -1096,7 +1099,308 @@ public class Vehicle : MonoBehaviour
 
     }
 
-    private void FUN_3D424(Controller playerController)
+    private void FUN_39CEC(uint param1)
+    {
+        short sVar2;
+        int iVar3;
+        short uVar4;
+
+        if ((param1 & 0xffff) == 0)
+        {
+            //sound effect
+        }
+        else
+        {
+            acceleration = 0;
+            sVar2 = (short)(ignition - 1);
+            ignition = sVar2;
+
+            if (sVar2 == -1)
+                ; //sound effect
+            else
+            {
+                if ((param1 & 0xffff0000) != 0)
+                {
+                    iVar3 = (int)GameManager.FUN_2AC5C();
+                    uVar4 = 6;
+
+                    if (iVar3 * 5 >> 15 != 0)
+                        uVar4 = 90;
+
+                    ignition = uVar4;
+                    //...
+                }
+            }
+        }
+    }
+
+    private void FUN_3A844()
+    {
+        byte bVar2;
+        int iVar6;
+        int iVar7;
+
+        if ((DAT_F6 & 16) == 0)
+        {
+            if (wheelsType == _WHEELS.Ground)
+            {
+                if ((vObject.flags & 0x10000000) == 0)
+                {
+                    iVar6 = 3072;
+
+                    if (0 < acceleration)
+                        iVar6 = 8192;
+                }
+                else
+                {
+                    iVar7 = breaking << 6;
+
+                    if (breaking < 1)
+                    {
+                        iVar7 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) *
+                            GameManager.DAT_63F68[direction + 1];
+
+                        if (iVar7 < 0)
+                            iVar7 += 4095;
+
+                        iVar7 = iVar7 >> 12;
+
+                        if (iVar7 < 3072 && 1 < direction)
+                            direction -= 1;
+
+                        if (0x2000 < iVar7)
+                        {
+                            bVar2 = (byte)direction;
+
+                            if (bVar2 < 3 && -1 < bVar2 << 24)
+                                direction = (sbyte)(bVar2 + 1);
+                        }
+                    }
+
+                    iVar6 = 3072;
+
+                    if (3072 < iVar7)
+                        iVar6 = iVar7;
+                }
+            }
+            else
+                iVar6 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) / 2;
+
+            iVar6 -= DAT_E0;
+            iVar7 = -512;
+
+            if (-513 < iVar6)
+            {
+                iVar7 = 512;
+
+                if (iVar6 < 513)
+                    iVar7 = iVar6;
+
+                iVar7 = DAT_E0 + iVar7;
+                DAT_E0 = (short)iVar7;
+                //sound effect
+                Controller playerController = InputManager.controllers[~vObject.id];
+                if (((playerController.DAT_B << 24 | playerController.DAT_A << 16 | 
+                    playerController.steering << 8 | playerController.actions) & 0x100) == 0)
+                {
+                    iVar7 = DAT_E2 - 128;
+                    iVar6 = 2048;
+
+                    if (2048 < iVar7)
+                        iVar6 = iVar7;
+
+                    DAT_E2 = (short)iVar6;
+                }
+                else
+                {
+                    iVar7 = DAT_E2 + 128;
+                    iVar6 = 4096;
+
+                    if (iVar7 < 4096)
+                        iVar6 = iVar7;
+
+                    DAT_E2 = (short)iVar6;
+                }
+            }
+        }
+    }
+
+    public void FUN_3AC84(Controller playerController)
+    {
+        Vehicle iVar2;
+        int iVar3;
+        uint uVar5;
+        uint uVar8;
+
+        uVar8 = (uint)(playerController.DAT_B << 24 | playerController.DAT_A << 16 |
+                playerController.steering << 8 | playerController.actions);
+
+        if ((vObject.flags & 0x2000000) == 0)
+        {
+            if ((DAT_F6 & 64) != (uVar8 & 64))
+            {
+                iVar2 = GameManager.instance.players[~vObject.id];
+                DAT_F6 ^= DAT_F6;
+
+                if ((uVar8 & 64) == 0)
+                    iVar2.vObject.physics2.M1 = 0;
+                else
+                    iVar2.vObject.physics2.M1 = 2048;
+
+                DAT_100.vr.y = vObject.physics2.M1;
+                vObject.vectorUnk1.x = -vObject.vectorUnk1.x;
+                DAT_100.ApplyRotationMatrix();
+            }
+        }
+
+        if ((uVar8 & 0x180000) != 0)
+        {
+            uVar5 = 0xffffffff;
+
+            if ((uVar8 & 0x80000) != 0)
+                uVar5 = 1;
+
+            //...
+        }
+    }
+
+    private void FUN_3D0F8(uint param1)
+    {
+        sbyte cVar1;
+        sbyte cVar2;
+        int iVar3;
+        int iVar4;
+        int iVar8;
+
+        if (wheelsType == _WHEELS.Air)
+        {
+            if ((param1 & 0xffff) == 0)
+            {
+                iVar3 = DAT_B0 - 1;
+                cVar1 = 0;
+
+                if (0 < iVar3)
+                    cVar1 = (sbyte)iVar3;
+
+                DAT_B0 = cVar1;
+                return;
+            }
+
+            if ((param1 & 0xffff0000) != 0)
+            {
+                cVar1 = -120;
+
+                if (DAT_B0 == 0)
+                    cVar1 = 15;
+
+                DAT_B0 = cVar1;
+            }
+
+            if (DAT_B0 < 0)
+            {
+                if (0 < direction)
+                {
+                    iVar3 = GameManager.instance.terrain.FUN_1B750
+                        ((uint)vObject.position.x, (uint)vObject.position.z);
+
+                    if ((GameManager.instance.DAT_40 & 0x80000) == 0)
+                        iVar4 = -0x32000;
+                    else
+                        iVar4 = -0x12C000;
+
+                    iVar4 = (iVar3 - vObject.position.y) + iVar4;
+
+                    if (iVar4 < 0)
+                    {
+                        iVar3 = -0x32000;
+
+                        if (-0x32000 < iVar4)
+                            iVar3 = iVar4;
+
+                        if (iVar3 < 0)
+                            iVar3 += 1023;
+
+                        iVar3 = iVar3 >> 10;
+                        iVar4 = vObject.rotation.V01 * iVar3;
+
+                        if (iVar4 < 0)
+                            iVar4 += 31;
+
+                        iVar8 = vObject.rotation.V11 * iVar3;
+                        vObject.physics1.X += iVar4 >> 5;
+
+                        if (iVar8 < 0)
+                            iVar8 += 31;
+
+                        iVar3 = vObject.rotation.V21 * iVar3;
+                        vObject.physics1.Y += (iVar8 >> 5) - GameManager.instance.gravityFactor;
+
+                        if (iVar3 < 0)
+                            iVar3 += 31;
+
+                        vObject.physics1.Z += iVar3 >> 5;
+                    }
+                }
+
+                cVar2 = (sbyte)(DAT_B0 + 1);
+            }
+            else
+            {
+                iVar3 = DAT_B0 - 1;
+                cVar2 = 0;
+
+                if (0 < iVar3)
+                    cVar2 = (sbyte)iVar3;
+            }
+        }
+        else
+        {
+            if ((param1 & 0xffff) != 0)
+            {
+                if ((param1 & 0xffff0000) != 0 && (vObject.flags & 0x10000000) != 0)
+                {
+                    if (DAT_B0 < 1 || (8391 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) || direction < 1))
+                    {
+                        if (2287 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                            goto LAB_3D36C;
+                    }
+                    else
+                    {
+                        vObject.FUN_2B1FC(GameManager.instance.DAT_A18, GameManager.instance.DAT_A24);
+                        DAT_B0 = -39;
+                    }
+
+                    //...
+                }
+
+                LAB_3D36C:
+                cVar2 = (sbyte)(DAT_B0 + 1);
+
+                if (-2 < DAT_B0)
+                    cVar2 = 15;
+
+                DAT_B0 = cVar2;
+
+                if (wheelsType != _WHEELS.Ground)
+                    return;
+
+                if (breaking == 0)
+                    return;
+
+                //...
+                return;
+            }
+
+            cVar2 = (sbyte)(DAT_B0 - 1);
+
+            if (DAT_B0 < 1)
+                return;
+        }
+
+        DAT_B0 = cVar2;
+    }
+
+    public void FUN_3D424(Controller playerController)
     {
         _WHEELS cVar1;
         bool bVar2;
@@ -1176,11 +1480,11 @@ public class Vehicle : MonoBehaviour
                 }
 
                 acceleration = (short)uVar7;
-                //FUN_3D0F8
+                FUN_3D0F8(uVar19);
             }
             else
             {
-                //FUN_39CEC
+                FUN_39CEC(uVar19);
             }
 
             if (vObject.rotation.V11 < 0)
@@ -1319,7 +1623,7 @@ public class Vehicle : MonoBehaviour
                         & 0xf0000000) != 0)
                         uVar7 = unaff_s1 & 0xffff;
 
-                    //FUN_3D0F8
+                    FUN_3D0F8(uVar7);
 
                     if ((unaff_s1 & 0xffff) == 0)
                     {
@@ -1335,7 +1639,7 @@ public class Vehicle : MonoBehaviour
                         acceleration = DAT_B3;
                 }
                 else
-                    ; //FUN_39CEC
+                    FUN_39CEC(unaff_s1);
             }
             else
             {
@@ -1775,10 +2079,10 @@ public class Vehicle : MonoBehaviour
                     direction = -1;
             }
 
-            //FUN_3D0F8
+            FUN_3D0F8(uVar9);
         }
         else
-            ; //FUN_39CEC
+            FUN_39CEC(uVar9);
 
         iVar8 = 1;
 
@@ -1959,6 +2263,5 @@ public class Vehicle : MonoBehaviour
             return;
 
         vCamera.FUN_4B898();
-        return;
     }
 }

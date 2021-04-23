@@ -884,6 +884,8 @@ public class GameManager : MonoBehaviour
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
 
+    public static ushort[] DAT_63F68 = { };
+
     // 18 Characters Data
     public static VehicleData[] vehicleConfigs =
     {
@@ -975,18 +977,22 @@ public class GameManager : MonoBehaviour
 
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
-    public Vehicle[] players;
+    public Vehicle[] players; //6B8D8
 
+    public Vector3Int DAT_A18; //gp+A18h
+    public Vector3Int DAT_A24; //gp+A24h
+    public Matrix3x3 DAT_F00; //gp+F00h
     public int DAT_C74; //gp+C74h
     public int unk1; //gp+DA0h
     public int unk2; //gp+DB0h
     public ushort unk7; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
+    public int DAT_2C; //gp+2Ch; possible an enum?
     public _MODE mode; //gp+31h
     public sbyte unk6; //gp+36h
     public int gravityFactor; //gp+3Ch
-    public int unk8; //gp+40h
+    public int DAT_40; //gp+40h
 
     // Start is called before the first frame update
     void Awake()
@@ -1001,5 +1007,19 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public static uint FUN_2AC5C()
+    {
+        uint uVar1 = DAT_63A64; //r8
+        uint uVar2 = (uint)(byte)DAT_63A68 << 31; //r9
+        DAT_63A68 = (byte)uVar1;
+        uint uVar3 = (uVar1 >> 1) + uVar2;
+        uVar1 = uVar1 << 12;
+        uVar3 = uVar3 ^ uVar1;
+        uVar1 = uVar3 >> 20;
+        uVar3 = uVar3 ^ uVar1;
+        DAT_63A64 = uVar3;
+        return uVar3 & 0x7FFF;
     }
 }
