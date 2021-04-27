@@ -98,6 +98,62 @@ public class Utilities
         }
     }
 
+    public static Matrix3x3 FUN_247C4(Matrix3x3 m1, Matrix3x3 m2)
+    {
+        Coprocessor.rotationMatrix.rt11 = m1.V00;
+        Coprocessor.rotationMatrix.rt12 = m1.V01;
+        Coprocessor.rotationMatrix.rt13 = m1.V02;
+        Coprocessor.rotationMatrix.rt21 = m1.V10;
+        Coprocessor.rotationMatrix.rt22 = m1.V11;
+        Coprocessor.rotationMatrix.rt23 = m1.V12;
+        Coprocessor.rotationMatrix.rt31 = m1.V20;
+        Coprocessor.rotationMatrix.rt32 = m1.V21;
+        Coprocessor.rotationMatrix.rt33 = m1.V22;
+
+        return FUN_247F4(m2);
+    }
+
+    private static Matrix3x3 FUN_247F4(Matrix3x3 m33)
+    {
+        Coprocessor.vector0.vx0 = m33.V00;
+        Coprocessor.vector0.vy0 = m33.V10;
+        Coprocessor.vector0.vz0 = m33.V20;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+
+        Coprocessor.vector1.vx1 = m33.V01;
+        Coprocessor.vector1.vy1 = m33.V12;
+        Coprocessor.vector1.vz1 = m33.V21;
+        short IR1_1 = Coprocessor.accumulator.ir1;
+        short IR2_1 = Coprocessor.accumulator.ir2;
+        short IR3_1 = Coprocessor.accumulator.ir3;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V1, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+
+        Coprocessor.vector0.vx0 = m33.V02;
+        Coprocessor.vector0.vy0 = m33.V12;
+        Coprocessor.vector0.vz0 = m33.V21;
+        short IR1_2 = Coprocessor.accumulator.ir1;
+        short IR2_2 = Coprocessor.accumulator.ir2;
+        short IR3_2 = Coprocessor.accumulator.ir3;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+
+        short IR1_3 = Coprocessor.accumulator.ir1;
+        short IR2_3 = Coprocessor.accumulator.ir2;
+        short IR3_3 = Coprocessor.accumulator.ir3;
+
+        return new Matrix3x3
+        {
+            V00 = IR1_1,
+            V01 = IR1_2,
+            V02 = IR1_3,
+            V10 = IR2_1,
+            V11 = IR2_2,
+            V12 = IR2_3,
+            V20 = IR3_1,
+            V21 = IR3_2,
+            V22 = IR3_3
+        };
+    }
+
     public static Vector3Int FUN_2426C(Matrix3x3 m33, Matrix2x3 m23)
     {
         FUN_243B4(m33);
@@ -195,17 +251,17 @@ public class Utilities
         return new Vector3Int(mac1_2, mac2_2, mac3_2);
     }
 
-    public static Vector3Int FUN_24148(Matrix3x3 rot, Vector3Int pos, Vector3Int v)
+    public static Vector3Int FUN_24148(VigTransform transform, Vector3Int v)
     {
-        Coprocessor.rotationMatrix.rt11 = rot.V00;
-        Coprocessor.rotationMatrix.rt12 = rot.V01;
-        Coprocessor.rotationMatrix.rt13 = rot.V02;
-        Coprocessor.rotationMatrix.rt21 = rot.V10;
-        Coprocessor.rotationMatrix.rt22 = rot.V11;
-        Coprocessor.rotationMatrix.rt23 = rot.V12;
-        Coprocessor.rotationMatrix.rt31 = rot.V20;
-        Coprocessor.rotationMatrix.rt32 = rot.V21;
-        Coprocessor.rotationMatrix.rt33 = rot.V22;
+        Coprocessor.rotationMatrix.rt11 = transform.rotation.V00;
+        Coprocessor.rotationMatrix.rt12 = transform.rotation.V01;
+        Coprocessor.rotationMatrix.rt13 = transform.rotation.V02;
+        Coprocessor.rotationMatrix.rt21 = transform.rotation.V10;
+        Coprocessor.rotationMatrix.rt22 = transform.rotation.V11;
+        Coprocessor.rotationMatrix.rt23 = transform.rotation.V12;
+        Coprocessor.rotationMatrix.rt31 = transform.rotation.V20;
+        Coprocessor.rotationMatrix.rt32 = transform.rotation.V21;
+        Coprocessor.rotationMatrix.rt33 = transform.rotation.V22;
         Coprocessor.accumulator.ir1 = (short)(v.x >> 15);
         Coprocessor.accumulator.ir2 = (short)(v.y >> 15);
         Coprocessor.accumulator.ir3 = (short)(v.z >> 15);
@@ -215,9 +271,9 @@ public class Utilities
         int mac2_1 = Coprocessor.mathsAccumulator.mac2 << 3;
         int mac3_1 = Coprocessor.mathsAccumulator.mac3 << 3;
 
-        Coprocessor.translationVector._trx = pos.x;
-        Coprocessor.translationVector._try = pos.y;
-        Coprocessor.translationVector._trz = pos.z;
+        Coprocessor.translationVector._trx = transform.position.x;
+        Coprocessor.translationVector._try = transform.position.y;
+        Coprocessor.translationVector._trz = transform.position.z;
         Coprocessor.accumulator.ir1 = (short)(v.x & 0x7fff);
         Coprocessor.accumulator.ir2 = (short)(v.y & 0x7fff);
         Coprocessor.accumulator.ir3 = (short)(v.z & 0x7fff);

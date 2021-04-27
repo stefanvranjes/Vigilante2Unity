@@ -986,14 +986,14 @@ public class GameManager : MonoBehaviour
     public Matrix3x3 DAT_F00; //gp+F00h
     public Vector3Int DAT_F14; //gp+F14h
     public int DAT_C74; //gp+C74h
-    public int unk1; //gp+DA0h
-    public int unk2; //gp+DB0h
+    public int DAT_DA0; //gp+DA0h
+    public int DAT_DB0; //gp+DB0h
     public ushort unk7; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
     public int DAT_2C; //gp+2Ch; possible an enum?
     public _MODE mode; //gp+31h
-    public sbyte unk6; //gp+36h
+    public bool DAT_36; //gp+36h
     public int gravityFactor; //gp+3Ch
     public int DAT_40; //gp+40h
 

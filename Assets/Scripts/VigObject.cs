@@ -473,6 +473,60 @@ public struct Matrix2x3
     }
 }
 
+public struct Matrix2x4
+{
+    public short M0, M1;
+    public short M2, M3;
+    public short M4, M5;
+    public short M6, M7;
+
+    public int X
+    {
+        get { return M1 << 16 | (ushort)M0; }
+        set
+        {
+            M0 = (short)(value & 0xFFFF);
+            M1 = (short)(value >> 16);
+        }
+    }
+
+    public int Y
+    {
+        get { return M3 << 16 | (ushort)M2; }
+        set
+        {
+            M2 = (short)(value & 0xFFFF);
+            M3 = (short)(value >> 16);
+        }
+    }
+
+    public int Z
+    {
+        get { return M5 << 16 | (ushort)M4; }
+        set
+        {
+            M4 = (short)(value & 0xFFFF);
+            M5 = (short)(value >> 16);
+        }
+    }
+
+    public int W
+    {
+        get { return M7 << 16 | (ushort)M6; }
+        set
+        {
+            M6 = (short)(value & 0xFFFF);
+            M7 = (short)(value >> 16);
+        }
+    }
+}
+
+public struct VigTransform
+{
+    public Matrix3x3 rotation;
+    public Vector3Int position;
+}
+
 public class VigObject : MonoBehaviour
 {
     public uint flags;
@@ -490,8 +544,7 @@ public class VigObject : MonoBehaviour
     public ushort maxHalfHealth;
     public ushort maxFullHealth;
 
-    public Vector3Int position;
-    public Matrix3x3 rotation;
+    public VigTransform vTransform;
 
     public short padding1; //0x32
 
@@ -506,7 +559,7 @@ public class VigObject : MonoBehaviour
     public VigCollider vCollider; //0x60
     public int unk3; //0x64
     public uint pointerUnk1; //0x74
-    public uint pointerUnk2; //0x78
+    public int DAT_78; //0x78
     public uint pointerUnk3; //0x7C
 
     public Matrix2x3 physics1;
@@ -595,6 +648,30 @@ public class VigObject : MonoBehaviour
         rotation.V02 = Coprocessor.accumulator.ir1;
         rotation.V12 = Coprocessor.accumulator.ir2;
         rotation.V22 = Coprocessor.accumulator.ir3;
+    }
+
+    public VigTransform FUN_2AE18()
+    {
+        VigTransform container = new VigTransform
+        {
+            rotation = new Matrix3x3
+            {
+                V00 = 0,
+                V01 = (short)-physics2.M4,
+                V02 = physics2.M2,
+                V10 = physics2.M4,
+                V11 = 0,
+                V12 = (short)-physics2.M0,
+                V20 = (short)-physics2.M2,
+                V21 = physics2.M0,
+                V22 = 0
+            },
+            position = new Vector3Int
+            (physics1.X, physics1.Y, physics1.Z)
+        };
+
+        container.rotation = Utilities.FUN_247C4(rotation, container.rotation);
+        return container;
     }
 
     public void FUN_2AEAC(out Matrix3x3 m33, out Vector3Int p)
@@ -788,6 +865,25 @@ public class VigObject : MonoBehaviour
         }
 
         normalTile = tile;
+
+        return vertexHeight;
+    }
+
+    public int FUN_2CFBC(Vector3Int pos)
+    {
+        GameManager gameManager = GameManager.instance;
+        TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
+        int vertexHeight = 0x2f0000; //r16
+
+        if ((tile.unk1 & 4) == 0)
+            vertexHeight = gameManager.terrain.FUN_1B750((uint)pos.x, (uint)pos.z);
+        else
+            vertexHeight = 0x2ff800;
+
+        if (pointerUnk1 != 0)
+        {
+            // ...
+        }
 
         return vertexHeight;
     }
