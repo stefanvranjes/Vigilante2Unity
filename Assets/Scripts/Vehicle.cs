@@ -52,6 +52,7 @@ public class Vehicle : MonoBehaviour
     public short ignition;
     public byte DAT_C0; //0xC0
     public sbyte breaking;
+    public byte DAT_C2; //0xC2
     public byte DAT_C3; //0xC3
     public byte DAT_C4; //0xC4
     public byte DAT_C5; //0xC5
@@ -419,14 +420,21 @@ public class Vehicle : MonoBehaviour
     //FUN_40598
     public void PhySea()
     {
+        byte bVar1;
+        long lVar2;
         bool bVar3;
         short sVar4;
         int iVar5;
         int iVar6;
+        uint uVar7;
+        int iVar9;
         uint uVar10;
         int iVar12;
+        int local_1c;
+        int local_20;
         VigTransform local_24;
         TileData local_28;
+        Vector3Int local_40;
         Vector3Int local_60;
         Vector3Int local_70;
         Vector3Int auStack48;
@@ -515,8 +523,200 @@ public class Vehicle : MonoBehaviour
                 local_60 = Utilities.FUN_24148(local_24, local_70);
                 iVar6 = vObject.FUN_2CFBC(local_60, out auStack48, out local_28);
                 auStack80 = Utilities.FUN_24148(auStack144, local_70);
+
+                if (local_60.z < GameManager.instance.DAT_DA0 && GameManager.instance.DAT_DB0 < iVar6)
+                {
+                    bVar3 = true;
+
+                    if (GameManager.instance.DAT_DB0 < local_60.y)
+                    {
+                        if ((int)uVar10 < 2)
+                            local_40 = new Vector3Int(0, 0, 0);
+                        else
+                        {
+                            uVar7 = (uint)((-turning - (-turning >> 31)) * 2 & 0x3ffc);
+                            local_40 = new Vector3Int();
+                            local_40.x = GameManager.DAT_65C90[uVar7 / 2] * iVar12;
+
+                            if (local_40.x < 0)
+                                local_40.x += 63;
+
+                            local_40.x = local_40.x >> 6;
+                            local_40.z = GameManager.DAT_65C90[uVar7 / 2 + 1] * iVar12;
+
+                            if (local_40.z < 0)
+                                local_40.z += 63;
+
+                            local_40.z = local_40.z >> 6;
+                            local_40.y = 0;
+                            local_40 = Utilities.FUN_24094(local_24.rotation, local_40);
+                            iVar9 = (int)GameManager.FUN_2AC5C();
+
+                            if (iVar9 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                                ; //FUN_38F38
+                        }
+
+                        iVar9 = (iVar6 - local_60.y) * 16;
+                        iVar6 = (((GameManager.instance.DAT_DB0 - local_60.y) * 90) / 24576) * 128;
+
+                        if (iVar9 < iVar6)
+                            iVar6 = iVar9;
+
+                        local_40.y += iVar6;
+
+                        if (auStack80.y < 1)
+                        {
+                            iVar6 = auStack80.y;
+
+                            if (auStack80.y < 0)
+                                iVar6 = auStack80.y + 7;
+
+                            local_40.y -= iVar6 >> 3;
+                            wheels[iVar5].flags &= 0xf7ffffff;
+                        }
+                        else
+                        {
+                            if ((int)uVar10 < 2)
+                            {
+                                if (-local_40.y < 2881)
+                                    wheels[iVar5].flags &= 0xf7ffffff;
+                                else
+                                {
+                                    if ((wheels[iVar5].flags & 0x8000000) == 0)
+                                    {
+                                        //FUN_38EF4
+                                        wheels[iVar5].flags |= 0x8000000;
+                                        goto LAB_409F0;
+                                    }
+
+                                    iVar6 = (int)GameManager.FUN_2AC5C();
+
+                                    if (iVar6 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                                    {
+                                        //FUN_38EF4
+                                        wheels[iVar5].flags |= 0x8000000;
+                                    }
+
+                                    LAB_409F0:
+                                    ;
+                                }
+                            }
+                        }
+
+                        if (local_28 != null)
+                        {
+                            uVar7 = vObject.flags | 0x20000000;
+                            vObject.flags = uVar7;
+                        }
+
+                        FUN_40B3C();
+                    }
+                }
+                else
+                {
+                    if (iVar6 < local_60.y)
+                    {
+                        local_40 = new Vector3Int();
+
+                        if ((int)uVar10 < 2)
+                        {
+                            local_40.z = 0;
+                            local_40.x = 0;
+                        }
+                        else
+                        {
+                            uVar7 = (uint)((-turning - (-turning >> 31)) * 2 & 0x3ffc);
+                            local_40.x = GameManager.DAT_65C90[uVar7 / 2] * iVar12;
+
+                            if (local_40.x < 0)
+                                local_40.x += 63;
+
+                            local_40.x = local_40.x >> 6;
+                            local_40.z = GameManager.DAT_65C90[uVar7 / 2 + 1] * iVar12;
+
+                            if (local_40.z < 0)
+                                local_40.z += 63;
+
+                            local_40.z = local_40.z >> 6;
+                            local_40.y = 0;
+                            local_40 = Utilities.FUN_24094(vObject.vTransform.rotation, local_40);
+                        }
+
+                        iVar5 = auStack80.y;
+
+                        if (auStack80.y < 0)
+                            iVar5 = auStack80.y + 3;
+
+                        local_40.y = (iVar6 - local_60.y) * 16 - (iVar5 >> 2);
+                        uVar7 = 0x30000000;
+
+                        if (local_28 != null)
+                            uVar7 = 0x10000000;
+
+                        uVar7 = vObject.flags | uVar7;
+                        vObject.flags = uVar7;
+                        FUN_40B3C();
+                    }
+                }
+            }
+
+            uVar7 = uVar10 + 1;
+            iVar5 = (int)uVar10 + 4;
+            uVar10 = uVar7;
+
+            if (3 < (int)uVar7)
+            {
+                if (bVar3 || (vObject.flags & 0x10000000) == 0)
+                    DAT_C2 = 0;
+                else
+                {
+                    bVar1 = DAT_C2;
+                    DAT_C2 = (byte)(bVar1 + 1);
+
+                    if (60 < bVar1)
+                        ; //FUN_3E32C
+                }
+
+                local_b0 = Utilities.FUN_2426C(
+                    vObject.vTransform.rotation, 
+                    new Matrix2x3(local_b0.x, local_b0.y, local_b0.z));
+                iVar5 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * DAT_E8;
+                local_a0.y -= (int)((ulong)((long)vObject.physics1.Y * iVar5) >> 32);
+                lVar2 = (long)vObject.physics1.Z * iVar5;
+                local_20 = (int)lVar2;
+                local_1c = (int)((ulong)lVar2 >> 32);
             }
         } while (true);
+
+        void FUN_40B3C()
+        {
+            int cop2r32 = local_60.x - vObject.vTransform.position.x >> 3;
+            int cop2r34 = local_60.y - vObject.vTransform.position.y >> 3;
+            int cop2r36 = local_60.z - vObject.vTransform.position.z >> 3;
+            Coprocessor.rotationMatrix.rt11 = (short)(cop2r32 & 0xFFFF);
+            Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
+            Coprocessor.rotationMatrix.rt22 = (short)(cop2r34 & 0xFFFF);
+            Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
+            Coprocessor.rotationMatrix.rt33 = (short)cop2r36;
+            Coprocessor.accumulator.ir1 = (short)(local_40.x >> 3);
+            Coprocessor.accumulator.ir2 = (short)(local_40.y >> 3);
+            Coprocessor.accumulator.ir3 = (short)(local_40.z >> 3);
+            Coprocessor.ExecuteOP(12, false);
+            local_a0.x += local_40.x;
+            local_a0.y += local_40.y;
+            local_a0.z += local_40.z;
+            iVar5 = Coprocessor.mathsAccumulator.mac1;
+            local_b0.x += iVar5;
+            iVar5 = Coprocessor.mathsAccumulator.mac2;
+            local_b0.y += iVar5;
+            iVar5 = Coprocessor.mathsAccumulator.mac3;
+            local_b0.z += iVar5;
+
+            if (local_28 != null)
+                if (local_28.unk2[3] != 0)
+                    if (local_28.unk2[3] != 7)
+                        ; //function call by register
+        }
     }
 
     //FUN_3FCC4
