@@ -47,8 +47,7 @@ public class VigTerrain : MonoBehaviour
     public int tileY;
     public int zoneCount;
     public float drawDistance;
-    public Matrix3x3 DAT_BDFF0;
-    public Vector3Int DAT_BE004;
+    public VigTransform DAT_BDFF0;
 
     private Dictionary<int, List<int>> verticesDict;
     private Dictionary<int, Tile> tilesDict;
@@ -172,7 +171,7 @@ public class VigTerrain : MonoBehaviour
     {
         for (int i = 0; i < GameManager.instance.players.Length; i++)
         {
-            Vector3Int cameraPosition = GameManager.instance.players[i].vCamera.vObject.position;
+            Vector3Int cameraPosition = GameManager.instance.players[i].vCamera.vObject.vTransform.position;
             Tile onTile = GetTileByPosition2((uint)cameraPosition.x, (uint)cameraPosition.y);
             List<Tile> closeTiles = BreadthFirstSearch(onTile, drawDistance);
 

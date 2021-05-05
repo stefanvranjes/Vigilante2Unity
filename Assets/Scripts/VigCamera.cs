@@ -50,7 +50,7 @@ public class VigCamera : MonoBehaviour
         {
             if ((vObject.flags & 0x20000000) == 0)
             {
-                int iVar = Utilities.FUN_2A27C(target.rotation) << 16 >> 16;
+                int iVar = Utilities.FUN_2A27C(target.vTransform.rotation) << 16 >> 16;
                 local_28.x = GameManager.DAT_65C90[((iVar + DAT_92 & 0xFFF) << 2) / 2];
                 local_28.y = -(ushort)GameManager.DAT_65C90[((DAT_90 & 0xFFF) << 2) / 2];
                 local_28.z = GameManager.DAT_65C90[((iVar + DAT_92 & 0xFFF) << 2) / 2 + 1];
@@ -60,7 +60,7 @@ public class VigCamera : MonoBehaviour
                 local_28.x = GameManager.DAT_65C90[((DAT_92 & 0xFFF) << 2) / 2];
                 local_28.y = -(ushort)GameManager.DAT_65C90[((DAT_90 & 0xFFF) << 2) / 2];
                 local_28.z = GameManager.DAT_65C90[((DAT_92 & 0xFFF) << 2) / 2 + 1];
-                local_28 = Utilities.ApplyMatrixSV(target.rotation, local_28);
+                local_28 = Utilities.ApplyMatrixSV(target.vTransform.rotation, local_28);
             }
         }
         else
@@ -88,7 +88,7 @@ public class VigCamera : MonoBehaviour
         int iVar9 = (int)(lVar1 >> 32) + iVar5 + iVar6; //r7
         int iVar10 = (int)((uint)lVar1 >> 12 | (uint)(iVar9 << 20)); //r6
         iVar9 = iVar9 >> 12;
-        int local_20 = target.position.x - iVar10 - vObject.screen.x; //sp+18h
+        int local_20 = target.vTransform.position.x - iVar10 - vObject.screen.x; //sp+18h
         long lVar2 = (long)((ulong)(uint)iVar7 * (uint)DAT_9C); //r2, r3
         iVar5 = iVar7 * (DAT_9C >> 31);
         iVar4 = DAT_9C * iVar8;
@@ -97,14 +97,14 @@ public class VigCamera : MonoBehaviour
         iVar6 = (int)(lVar2 >> 32) + iVar5 + iVar4;
         int iVar11 = (int)((uint)lVar2 >> 12 | (uint)(iVar6 << 20)); //r2
         iVar6 = iVar6 >> 12;
-        int local_1c = target.position.y - iVar11 - vObject.screen.y; //sp+1Ch
+        int local_1c = target.vTransform.position.y - iVar11 - vObject.screen.y; //sp+1Ch
         long lVar3 = (long)((ulong)(uint)iVar7 * (uint)DAT_9C); //r2, r3
         iVar5 = iVar7 * (DAT_9C >> 31);
         iVar4 = DAT_9C * iVar8;
         iVar6 = (int)(lVar3 >> 32) + iVar5 + iVar4;
         iVar11 = (int)((uint)lVar3 >> 12 | (uint)(iVar6 << 20));
         iVar6 = iVar6 >> 12;
-        int local_18 = target.position.z - iVar11 - vObject.screen.z; //sp+20h
+        int local_18 = target.vTransform.position.z - iVar11 - vObject.screen.z; //sp+20h
         iVar10 = Utilities.FUN_29E84(new Vector3Int(local_20, local_1c, local_18));
         iVar9 = iVar10 >> 31;
 
@@ -220,9 +220,10 @@ public class VigCamera : MonoBehaviour
         LAB_4B694:
         if ((vObject.flags & 0x1000000) != 0)
         {
-            int iVar1 = GameManager.instance.terrain.FUN_1B750((uint)target.position.x, (uint)target.position.z);
+            int iVar1 = GameManager.instance.terrain.FUN_1B750
+                ((uint)target.vTransform.position.x, (uint)target.vTransform.position.z);
 
-            if (target.position.y < iVar1)
+            if (target.vTransform.position.y < iVar1)
             {
                 iVar1 = GameManager.instance.terrain.FUN_1B750((uint)vObject.screen.x, (uint)vObject.screen.z);
                 int iVar2 = iVar1 - 0x8000;
@@ -234,7 +235,7 @@ public class VigCamera : MonoBehaviour
             }
         }
 
-        vObject.FUN_4BAFC(target.position);
+        vObject.FUN_4BAFC(target.vTransform.position);
         vObject.vr.x += (ushort)DAT_94;
         vObject.ApplyTransformation();
     }

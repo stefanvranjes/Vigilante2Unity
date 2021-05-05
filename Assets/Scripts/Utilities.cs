@@ -74,9 +74,19 @@ public class Utilities
         return v2;
     }
 
+    public static int FUN_2A248(Matrix3x3 m33)
+    {
+        return -Ratan2(m33.V12, m33.V00) << 16 >> 16;
+    }
+
     public static int FUN_2A27C(Matrix3x3 m33)
     {
         return Ratan2(m33.V02, m33.V22) << 16 >> 16;
+    }
+
+    public static int FUN_2A2AC(Matrix3x3 m33)
+    {
+        return -Ratan2(m33.V10, m33.V11) << 16 >> 16;
     }
 
     public static void FUN_2CC48(VigObject obj1, VigObject obj2)
@@ -220,13 +230,13 @@ public class Utilities
         Coprocessor.rotationMatrix.rt33 = (short)m33.GetValue32(4);
     }
 
-    public static Vector3Int FUN_24304(Matrix3x3 rot, Vector3Int pos, Vector3Int v)
+    public static Vector3Int FUN_24304(VigTransform transform, Vector3Int v)
     {
-        FUN_243B4(rot);
+        FUN_243B4(transform.rotation);
 
-        int iVar1 = v.x - pos.x;
-        int iVar2 = v.y - pos.y;
-        int iVar3 = v.z - pos.z;
+        int iVar1 = v.x - transform.position.x;
+        int iVar2 = v.y - transform.position.y;
+        int iVar3 = v.z - transform.position.z;
         Coprocessor.accumulator.ir1 = (short)(iVar1 >> 15);
         Coprocessor.accumulator.ir2 = (short)(iVar2 >> 15);
         Coprocessor.accumulator.ir3 = (short)(iVar3 >> 15);
@@ -962,6 +972,24 @@ public class Utilities
         iVar11 = iVar1 + iVar11 << 16 | iVar13;
         m33.SetValue32(3, iVar11);
         return m33;
+    }
+
+    public static Matrix3x3 FUN_5A78C(Vector3Int r)
+    {
+        uint uVar1;
+        uint uVar10;
+        uint uVar12;
+        uint uVar14;
+        int iVar16;
+        int index;
+
+        iVar16 = r.x;
+        uVar14 = (uint)(r.z >> 31);
+        uVar12 = (uint)(iVar16 >> 31);
+        uVar10 = (uint)((short)iVar16 >> 31);
+        index = ((r.z + (int)uVar14 ^ (int)uVar14) & 0xfff) * 2;
+        uVar1 = (uint)((GameManager.DAT_65C90[index + 1] << 16 | (ushort)GameManager.DAT_65C90[index])
+                        * 0x10000 + uVar14 ^ uVar14);
     }
 
     public static Vector3Int VectorNormal(Vector3Int n1)

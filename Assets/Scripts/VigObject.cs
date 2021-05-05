@@ -19,7 +19,7 @@ public struct Matrix3x3
             double fV10, fV11, fV12;
             double fV20, fV21, fV22;
 
-            const int SHRT_MAX = 0x7FFF;
+            const int SHRT_MAX = 4096;
             fV00 = Math.Round((double)V00 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
             fV01 = Math.Round((double)V01 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
             fV02 = Math.Round((double)V02 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
@@ -36,9 +36,9 @@ public struct Matrix3x3
             {
                 if (fV02 > -1)
                 {
-                    y = Math.Asin(fV02);
-                    x = Math.Atan2(-fV12, fV22);
-                    z = Math.Atan2(-fV01, fV00);
+                    y = Math.Atan2(fV02, fV22);
+                    x = -Math.Atan2(fV12, fV22);
+                    z = -Math.Atan2(-fV10, fV00);
                 }
                 else
                 {
@@ -54,7 +54,7 @@ public struct Matrix3x3
                 z = 0;
             }
 
-            return new Vector3((float)x, (float)y, (float)z) * Mathf.Rad2Deg;
+            return new Vector3((float)0, (float)y, (float)0) * Mathf.Rad2Deg;
         }
     }
 
@@ -160,7 +160,7 @@ public struct Matrix3x3
             double fV10, fV11, fV12;
             double fV20, fV21, fV22;
 
-            const int SHRT_MAX = 0x7FFF;
+            const int SHRT_MAX = 4096;
             fV00 = Math.Round((double)V00 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
             fV01 = Math.Round((double)V01 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
             fV02 = Math.Round((double)V02 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
@@ -177,9 +177,9 @@ public struct Matrix3x3
             {
                 if (fV10 > -1)
                 {
-                    z = Math.Asin(fV10);
-                    y = Math.Atan2(-fV20, fV00);
-                    x = Math.Atan2(-fV12, fV11);
+                    z = Math.Asin(-fV10);
+                    y = Math.Atan2(fV02, fV00);
+                    x = Math.Atan2(fV12, fV11);
                 }
                 else
                 {
@@ -194,7 +194,7 @@ public struct Matrix3x3
                 y = Math.Atan2(fV21, fV22);
                 x = 0;
             }
-
+            
             return new Vector3((float)x, (float)y, (float)z) * Mathf.Rad2Deg;
         }
     }
@@ -301,7 +301,7 @@ public struct Matrix3x3
             double fV10, fV11, fV12;
             double fV20, fV21, fV22;
 
-            const int SHRT_MAX = 0x7FFF;
+            const int SHRT_MAX = 4095;
             fV00 = Math.Round((double)V00 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
             fV01 = Math.Round((double)V01 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
             fV02 = Math.Round((double)V02 / SHRT_MAX, 4, MidpointRounding.AwayFromZero);
@@ -321,6 +321,65 @@ public struct Matrix3x3
             z = Math.Asin(fV10);
 
             return new Vector3((float)x, (float)y, (float)z) * Mathf.Rad2Deg;
+        }
+    }
+
+    public Quaternion Matrix2Quaternion
+    {
+        get
+        {
+            double fV00, fV01, fV02;
+            double fV10, fV11, fV12;
+            double fV20, fV21, fV22;
+
+            const int SHRT_MAX = 4096;
+            fV00 = (double)V00 / SHRT_MAX;
+            fV01 = (double)V01 / SHRT_MAX;
+            fV02 = (double)V02 / SHRT_MAX;
+            fV10 = (double)V10 / SHRT_MAX;
+            fV11 = (double)V11 / SHRT_MAX;
+            fV12 = (double)V12 / SHRT_MAX;
+            fV20 = (double)V20 / SHRT_MAX;
+            fV21 = (double)V21 / SHRT_MAX;
+            fV22 = (double)V22 / SHRT_MAX;
+
+            float tr = (float)(fV00 + fV11 + fV22);
+            double qw, qx, qy, qz;
+
+            if (tr > 0)
+            {
+                float S = 0.5f / (float)Math.Sqrt(tr + 1f);
+                qw = 0.25 / S;
+                qx = (fV21 - fV12) * S;
+                qy = (fV02 - fV20) * S;
+                qz = (fV10 - fV01) * S;
+            }
+            else if ((fV00 > fV11) & (fV00 > fV22))
+            {
+                float S = (float)Math.Sqrt(1.0 + fV00 - fV11 - fV22) * 2; // S=4*qx 
+                qw = (fV21 - fV12) / S;
+                qx = 0.25 * S;
+                qy = (fV01 + fV10) / S;
+                qz = (fV02 + fV20) / S;
+            }
+            else if (fV11 > fV22)
+            {
+                float S = (float)Math.Sqrt(1.0 + fV11 - fV00 - fV22) * 2; // S=4*qy
+                qw = (fV02 - fV20) / S;
+                qx = (fV01 + fV10) / S;
+                qy = 0.25 * S;
+                qz = (fV12 + fV21) / S;
+            }
+            else
+            {
+                float S = (float)Math.Sqrt(1.0 + fV22 - fV00 - fV11) * 2; // S=4*qz
+                qw = (fV10 - fV01) / S;
+                qx = (fV02 + fV20) / S;
+                qy = (fV12 + fV21) / S;
+                qz = 0.25 * S;
+            }
+
+            return new Quaternion((float)qx, (float)qy, (float)qz, (float)qw);
         }
     }
 
@@ -521,6 +580,7 @@ public struct Matrix2x4
     }
 }
 
+[Serializable]
 public struct VigTransform
 {
     public Matrix3x3 rotation;
@@ -575,13 +635,13 @@ public class VigObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
-        position = new Vector3Int(
+
+        vTransform.position = new Vector3Int(
             (int)(transform.localPosition.x * GameManager.translateFactor), 
             (int)(-transform.localPosition.y * GameManager.translateFactor), 
             (int)(transform.localPosition.z * GameManager.translateFactor));
 
-        rotation.Euler2Matrix(transform.localRotation.eulerAngles * Mathf.Deg2Rad);
+        vTransform.rotation.Euler2Matrix(transform.localRotation.eulerAngles * Mathf.Deg2Rad);
         //screen = position;
     }
 
@@ -589,65 +649,93 @@ public class VigObject : MonoBehaviour
     void Update()
     {
         transform.localPosition = new Vector3(
-            (float)position.x / GameManager.translateFactor, 
-            (float)-position.y / GameManager.translateFactor, 
-            (float)position.z / GameManager.translateFactor);
+            (float)vTransform.position.x / GameManager.translateFactor, 
+            (float)-vTransform.position.y / GameManager.translateFactor, 
+            (float)vTransform.position.z / GameManager.translateFactor);
 
-        transform.localRotation = Quaternion.Euler(rotation.Euler);
+        //transform.localRotation = vTransform.rotation.Matrix2Quaternion;
+        transform.localRotation = Quaternion.Euler(vTransform.rotation.EulerXYZ);
+        /*float x = (float)Utilities.FUN_2A248(vTransform.rotation) / 4096;
+        float y = (float)Utilities.FUN_2A27C(vTransform.rotation) / 4096;
+        float z = (float)Utilities.FUN_2A2AC(vTransform.rotation) / 4096;
+
+        int iVar = x;
+
+        if (iVar < 0)
+            iVar = -iVar;
+
+        if (0x400 < iVar)
+            x = 0x800 - x;
+
+        iVar = z;
+
+        if (iVar < 0)
+            iVar = -iVar;
+
+        if (0x400 < iVar)
+            z = 0x800 - z;
+
+        transform.localRotation = Quaternion.Euler(new Vector3(0, y, 0) * 360f);*/
     }
 
     // FUN_2CF74
     public void ApplyTransformation()
     {
-        position = screen;
-        rotation = Utilities.RotMatrixYXZ(vr);
+        vTransform.position = screen;
+        vTransform.rotation = Utilities.RotMatrixYXZ(vr);
+        /*Vector3 eulerAngles = new Vector3
+            ((float)-vr.x / 4096, (float)vr.y / 4096, (float)vr.z / 4096);
+        transform.localRotation = Quaternion.Euler(eulerAngles * 360f);*/
         padding1 = 0;
     }
 
     //FUN_2CF44
     public void ApplyRotationMatrix()
     {
-        rotation = Utilities.RotMatrixYXZ(vr);
+        vTransform.rotation = Utilities.RotMatrixYXZ(vr);
+        /*Vector3 eulerAngles = new Vector3
+            ((float)-vr.x / 4096, (float)vr.y / 4096, (float)vr.z / 4096);
+        transform.localRotation = Quaternion.Euler(eulerAngles * 360f);*/
         padding1 = 0;
     }
 
     public void FUN_24700(short x, short y, short z)
     {
-        Coprocessor.rotationMatrix.rt11 = rotation.V00;
-        Coprocessor.rotationMatrix.rt12 = rotation.V01;
-        Coprocessor.rotationMatrix.rt13 = rotation.V02;
-        Coprocessor.rotationMatrix.rt21 = rotation.V10;
-        Coprocessor.rotationMatrix.rt22 = rotation.V11;
-        Coprocessor.rotationMatrix.rt23 = rotation.V12;
-        Coprocessor.rotationMatrix.rt31 = rotation.V20;
-        Coprocessor.rotationMatrix.rt32 = rotation.V21;
-        Coprocessor.rotationMatrix.rt33 = rotation.V22;
+        Coprocessor.rotationMatrix.rt11 = vTransform.rotation.V00;
+        Coprocessor.rotationMatrix.rt12 = vTransform.rotation.V01;
+        Coprocessor.rotationMatrix.rt13 = vTransform.rotation.V02;
+        Coprocessor.rotationMatrix.rt21 = vTransform.rotation.V10;
+        Coprocessor.rotationMatrix.rt22 = vTransform.rotation.V11;
+        Coprocessor.rotationMatrix.rt23 = vTransform.rotation.V12;
+        Coprocessor.rotationMatrix.rt31 = vTransform.rotation.V20;
+        Coprocessor.rotationMatrix.rt32 = vTransform.rotation.V21;
+        Coprocessor.rotationMatrix.rt33 = vTransform.rotation.V22;
         Coprocessor.accumulator.ir1 = 0x1000;
         Coprocessor.accumulator.ir2 = z;
         Coprocessor.accumulator.ir3 = (short)-y;
         Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
 
-        rotation.V00 = Coprocessor.accumulator.ir1;
-        rotation.V10 = Coprocessor.accumulator.ir2;
-        rotation.V20 = Coprocessor.accumulator.ir3;
+        vTransform.rotation.V00 = Coprocessor.accumulator.ir1;
+        vTransform.rotation.V10 = Coprocessor.accumulator.ir2;
+        vTransform.rotation.V20 = Coprocessor.accumulator.ir3;
 
         Coprocessor.vector0.vx0 = (short)-z;
         Coprocessor.vector0.vy0 = 0x1000;
         Coprocessor.vector0.vz0 = x;
         Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
 
-        rotation.V01 = Coprocessor.accumulator.ir1;
-        rotation.V11 = Coprocessor.accumulator.ir2;
-        rotation.V21 = Coprocessor.accumulator.ir3;
+        vTransform.rotation.V01 = Coprocessor.accumulator.ir1;
+        vTransform.rotation.V11 = Coprocessor.accumulator.ir2;
+        vTransform.rotation.V21 = Coprocessor.accumulator.ir3;
 
         Coprocessor.vector1.vx1 = y;
         Coprocessor.vector1.vy1 = (short)-x;
         Coprocessor.vector1.vz1 = 0x1000;
         Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V1, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
 
-        rotation.V02 = Coprocessor.accumulator.ir1;
-        rotation.V12 = Coprocessor.accumulator.ir2;
-        rotation.V22 = Coprocessor.accumulator.ir3;
+        vTransform.rotation.V02 = Coprocessor.accumulator.ir1;
+        vTransform.rotation.V12 = Coprocessor.accumulator.ir2;
+        vTransform.rotation.V22 = Coprocessor.accumulator.ir3;
     }
 
     public VigTransform FUN_2AE18()
@@ -670,23 +758,26 @@ public class VigObject : MonoBehaviour
             (physics1.X, physics1.Y, physics1.Z)
         };
 
-        container.rotation = Utilities.FUN_247C4(rotation, container.rotation);
+        container.rotation = Utilities.FUN_247C4(vTransform.rotation, container.rotation);
         return container;
     }
 
-    public void FUN_2AEAC(out Matrix3x3 m33, out Vector3Int p)
+    public VigTransform FUN_2AEAC()
     {
-        m33.V22 = 0;
-        m33.V11 = 0;
-        m33.V00 = 0;
-        m33.V21 = physics2.M0;
-        m33.V12 = (short)-physics2.M0;
-        m33.V02 = physics2.M2;
-        m33.V20 = (short)-physics2.M2;
-        m33.V10 = physics2.M4;
-        m33.V01 = (short)-physics2.M4;
+        VigTransform output = new VigTransform();
 
-        p = Utilities.FUN_2426C(rotation, physics1);
+        output.rotation.V22 = 0;
+        output.rotation.V11 = 0;
+        output.rotation.V00 = 0;
+        output.rotation.V21 = physics2.M0;
+        output.rotation.V12 = (short)-physics2.M0;
+        output.rotation.V02 = physics2.M2;
+        output.rotation.V20 = (short)-physics2.M2;
+        output.rotation.V10 = physics2.M4;
+        output.rotation.V01 = (short)-physics2.M4;
+
+        output.position = Utilities.FUN_2426C(vTransform.rotation, physics1);
+        return output;
     }
 
     public void FUN_2AFF8(Vector3Int v1, Vector3Int v2)
@@ -760,26 +851,27 @@ public class VigObject : MonoBehaviour
             iVar1 += 127;
 
         FUN_24700((short)(iVar2 >> 7), (short)(iVar3 >> 7), (short)(iVar1 >> 7));
+
         iVar1 = physics1.X;
 
         if (iVar1 < 0)
             iVar1 += 127;
 
-        position.x += iVar1 >> 7;
+        vTransform.position.x += iVar1 >> 7;
         iVar2 = physics1.Y;
 
         if (iVar2 < 0)
             iVar2 += 127;
 
-        position.y += iVar2 >> 7;
+        vTransform.position.y += iVar2 >> 7;
         iVar1 = physics1.Z;
 
         if (iVar1 < 0)
             iVar1 += 127;
 
-        position.z += iVar1 >> 7;
+        vTransform.position.z += iVar1 >> 7;
 
-        rotation = Utilities.MatrixNormal(rotation);
+        vTransform.rotation = Utilities.MatrixNormal(vTransform.rotation);
     }
 
     public void FUN_2B1FC(Vector3Int v1, Vector3Int v2)
@@ -787,7 +879,7 @@ public class VigObject : MonoBehaviour
         int iVar1;
         Vector3Int local_10;
 
-        local_10 = Utilities.FUN_24094(rotation, v1);
+        local_10 = Utilities.FUN_24094(vTransform.rotation, v1);
         Coprocessor.rotationMatrix.rt11 = (short)(v2.x >> 4 & 0xFFFF);
         Coprocessor.rotationMatrix.rt12 = (short)(v2.x >> 4 >> 16);
         Coprocessor.rotationMatrix.rt22 = (short)(v2.y >> 4 & 0xFFFF);
@@ -922,24 +1014,25 @@ public class VigObject : MonoBehaviour
             iVar2 += 63;
 
         iVar1 = physics1.Y;
-        position.x += iVar2 >> 6;
+        vTransform.position.x += iVar2 >> 6;
 
         if (iVar1 < 0)
             iVar1 += 63;
 
         iVar2 = physics1.Z;
-        position.y += iVar1 >> 6;
+        vTransform.position.y += iVar1 >> 6;
 
         if (iVar2 < 0)
             iVar2 += 63;
 
-        position.z += iVar2 >> 6;
-        TileData tile = VigTerrain.instance.GetTileByPosition((uint)position.x, (uint)position.z);
+        vTransform.position.z += iVar2 >> 6;
+        TileData tile = VigTerrain.instance.GetTileByPosition
+            ((uint)vTransform.position.x, (uint)vTransform.position.z);
 
         if (tile.unk2[3] == 7)
         {
-            uVar3 = (uint)position.x;
-            uVar4 = (uint)position.z;
+            uVar3 = (uint)vTransform.position.x;
+            uVar4 = (uint)vTransform.position.z;
             local_18 = new Vector3Int(-(int)uVar3, 0, -(int)uVar4);
             local_18 = Utilities.VectorNormal(local_18);
 
@@ -950,8 +1043,8 @@ public class VigObject : MonoBehaviour
                 tile = VigTerrain.instance.GetTileByPosition(uVar3, uVar4);
             } while (tile.unk2[3] == 7);
 
-            position.x = (int)((uVar3 & 0xffff0000) + 0x8000);
-            position.z = (int)((uVar4 & 0xffff0000) + 0x8000);
+            vTransform.position.x = (int)((uVar3 & 0xffff0000) + 0x8000);
+            vTransform.position.z = (int)((uVar4 & 0xffff0000) + 0x8000);
         }
     }
 

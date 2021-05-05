@@ -983,8 +983,7 @@ public class GameManager : MonoBehaviour
     public Vector3Int DAT_A18; //gp+A18h
     public Vector3Int DAT_A24; //gp+A24h
     public short DAT_E1C; //gp+E1Ch
-    public Matrix3x3 DAT_F00; //gp+F00h
-    public Vector3Int DAT_F14; //gp+F14h
+    public VigTransform DAT_F00; //gp+F00h
     public int DAT_C74; //gp+C74h
     public int DAT_DA0; //gp+DA0h
     public int DAT_DB0; //gp+DB0h
@@ -1073,7 +1072,7 @@ public class GameManager : MonoBehaviour
         Vector3Int auStack24;
         Vector3Int auStack8;
 
-        auStack24 = Utilities.FUN_24148(DAT_F00, DAT_F14, pos);
+        auStack24 = Utilities.FUN_24148(DAT_F00, pos);
 
         if (DAT_2C == 0)
         {
@@ -1087,7 +1086,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            auStack8 = Utilities.FUN_24148(terrain.DAT_BDFF0, terrain.DAT_BE004, pos);
+            auStack8 = Utilities.FUN_24148(terrain.DAT_BDFF0, pos);
 
             if (!DAT_83B) 
             {
