@@ -166,8 +166,8 @@ public class Vehicle : MonoBehaviour
 
                 wheelObject.physics1.Y = wheelObject.screen.y;
                 int index = (iVar3 >> 1 << 1) / 2;
-                wheelObject.phy1Unk1 = GameManager.vehicleConfigs[configID].unk0x0[index + 2];
-                wheelObject.phy1Unk2 = GameManager.vehicleConfigs[configID].unk0x0[index + 4];
+                wheelObject.physics1.M6 = GameManager.vehicleConfigs[configID].unk0x0[index + 2];
+                wheelObject.physics1.M7 = GameManager.vehicleConfigs[configID].unk0x0[index + 4];
 
                 if (wheelObject.vMesh != null)
                 {
@@ -350,8 +350,8 @@ public class Vehicle : MonoBehaviour
         if (iVar < 0)
             iVar += 127;
         
-        vObject.phy1Unk1 = (short)(iVar >> 7);
-        vObject.phy1Unk2 = (short)(iVar >> 7 >> 16);
+        vObject.physics1.M6 = (short)(iVar >> 7);
+        vObject.physics1.M7 = (short)(iVar >> 7 >> 16);
 
         int x = vObject.physics1.X;
         if (x < 0)
@@ -372,7 +372,7 @@ public class Vehicle : MonoBehaviour
         if (sum < 0)
             sum += 4095;
 
-        vObject.phy2Unk1 = (short)(sum >> 12);
+        vObject.physics2.M6 = (short)(sum >> 12);
 
         if (DAT_B4 == 0)
         {
@@ -513,7 +513,7 @@ public class Vehicle : MonoBehaviour
                     {
                         acceleration = -120;
 
-                        if (bVar3 == 0 && (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 1525)
+                        if (bVar3 == 0 && vObject.physics1.W < 1525)
                             ; //FUN_39BC4
                         else
                         {
@@ -602,7 +602,7 @@ public class Vehicle : MonoBehaviour
 
                             iVar12 = (int)GameManager.FUN_2AC5C();
 
-                            if ((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) <= iVar12)
+                            if (vObject.physics1.W <= iVar12)
                                 goto LAB_41360;
 
                             //FUN_38EF4
@@ -632,13 +632,13 @@ public class Vehicle : MonoBehaviour
                                 iVar12 = auStack144.y;
 
                             iVar7 = wheels[i].physics1.Y;
-                            sVar1 = wheels[i].phy1Unk1;
+                            sVar1 = wheels[i].physics1.M6;
 
                             local_c0 = new Vector3Int();
 
                             if (wheels[i].physics1.X < auStack144.y || wheels[i].screen.y < auStack144.y)
                             {
-                                local_c0.y = (auStack144.y - wheels[i].screen.y) * wheels[i].phy1Unk2;
+                                local_c0.y = (auStack144.y - wheels[i].screen.y) * wheels[i].physics1.M7;
 
                                 if (local_c0.y < 0)
                                     local_c0.y += 31;
@@ -818,7 +818,7 @@ public class Vehicle : MonoBehaviour
             iVar12 = iVar5;
 
             if (iVar5 < 0)
-                iVar6 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
+                iVar6 = vObject.physics2.W;
             else
             {
                 iVar6 = direction;
@@ -895,7 +895,7 @@ public class Vehicle : MonoBehaviour
                             local_40 = Utilities.FUN_24094(local_24.rotation, local_40);
                             iVar9 = (int)GameManager.FUN_2AC5C();
 
-                            if (iVar9 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                            if (iVar9 < vObject.physics1.W)
                                 ; //FUN_38F38
                         }
 
@@ -934,7 +934,7 @@ public class Vehicle : MonoBehaviour
 
                                     iVar6 = (int)GameManager.FUN_2AC5C();
 
-                                    if (iVar6 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                                    if (iVar6 < vObject.physics1.W)
                                     {
                                         //FUN_38EF4
                                         wheels[iVar5].flags |= 0x8000000;
@@ -1022,8 +1022,8 @@ public class Vehicle : MonoBehaviour
 
                 local_b0 = Utilities.FUN_2426C(
                     vObject.vTransform.rotation, 
-                    new Matrix2x3(local_b0.x, local_b0.y, local_b0.z));
-                iVar5 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * lightness;
+                    new Matrix2x4(local_b0.x, local_b0.y, local_b0.z, 0));
+                iVar5 = vObject.physics1.W * lightness;
                 local_a0.y -= (int)((ulong)((long)vObject.physics1.Y * iVar5) >> 32);
                 lVar2 = (long)vObject.physics1.Z * iVar5;
                 local_20 = (int)lVar2;
@@ -1198,7 +1198,7 @@ public class Vehicle : MonoBehaviour
                 {
                     acceleration = -120;
 
-                    if (bVar2 == 0 && (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 1525)
+                    if (bVar2 == 0 && vObject.physics1.W < 1525)
                         ; //sound effect
                     else
                     {
@@ -1227,7 +1227,7 @@ public class Vehicle : MonoBehaviour
                     {
                         iVar7 = (int)GameManager.FUN_2AC5C();
 
-                        if (iVar7 << 1 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                        if (iVar7 << 1 < vObject.physics1.W)
                             ; //FUN_38EF4
                     }
                 }
@@ -1337,7 +1337,7 @@ public class Vehicle : MonoBehaviour
         iVar8 = iVar5;
 
         if (iVar5 < 0)
-            iVar6 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
+            iVar6 = vObject.physics2.W;
         else
         {
             iVar6 = direction;
@@ -1397,9 +1397,9 @@ public class Vehicle : MonoBehaviour
         local_78.z += iVar7 / 24 - (iVar10 >> 12);
         local_78.y += GameManager.instance.gravityFactor;
 
-        if (3051 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+        if (3051 < vObject.physics1.W)
         {
-            iVar5 = (int)((vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1) >> 31 & 8U) / 4;
+            iVar5 = (int)(vObject.physics2.W >> 31 & 8U) / 4;
             local_48 = new Vector3Int(0, wheels[iVar5].screen.y, wheels[iVar5].screen.z);
             local_48 = Utilities.FUN_24148(vObject.vTransform, local_48);
             iVar5 = vObject.physics1.X;
@@ -1425,7 +1425,7 @@ public class Vehicle : MonoBehaviour
             {
                 iVar8 = iVar5 + 31;
 
-                if (-1 < (vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1))
+                if (-1 < vObject.physics2.W)
                 {
                     iVar8 = -iVar5;
 
@@ -1437,7 +1437,7 @@ public class Vehicle : MonoBehaviour
             }
         }
 
-        iVar5 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * lightness;
+        iVar5 = vObject.physics1.W * lightness;
         local_78.x -= (int)((ulong)((long)vObject.physics1.X * iVar5) >> 32);
         local_78.y -= (int)((ulong)((long)vObject.physics1.Y * iVar5) >> 32);
         lVar1 = (long)vObject.physics1.Z * iVar5;
@@ -1602,7 +1602,7 @@ public class Vehicle : MonoBehaviour
                     {
                         acceleration = -120;
 
-                        if (bVar4 == 0 && (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 1525)
+                        if (bVar4 == 0 && vObject.physics1.W < 1525)
                             ; //FUN_39BC4
                         else
                         {
@@ -1678,7 +1678,7 @@ public class Vehicle : MonoBehaviour
                         {
                             iVar9 = (int)GameManager.FUN_2AC5C();
 
-                            if (iVar9 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                            if (iVar9 < vObject.physics1.W)
                                 ; //FUN_38EF4
                         }
                     }
@@ -1749,11 +1749,11 @@ public class Vehicle : MonoBehaviour
                                 iVar9 = local_88.y;
 
                             iVar7 = wheels[i].physics1.Y;
-                            sVar3 = wheels[i].phy1Unk1;
+                            sVar3 = wheels[i].physics1.M6;
 
                             if (wheels[i].physics1.X < local_88.y || wheels[i].screen.y < local_88.y)
                             {
-                                local_b8.y = (local_88.y - wheels[i].screen.y) * wheels[i].phy1Unk2;
+                                local_b8.y = (local_88.y - wheels[i].screen.y) * wheels[i].physics1.M7;
 
                                 if (local_b8.y < 0)
                                     local_b8.y += 31;
@@ -2018,7 +2018,7 @@ public class Vehicle : MonoBehaviour
                     wheels[i].ApplyTransformation();
 
             local_e8 = Utilities.FUN_24094(vObject.vTransform.rotation, local_e8);
-            iVar14 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * lightness;
+            iVar14 = vObject.physics1.W * lightness;
             local_e8.x -= (int)((ulong)((long)vObject.physics1.X * iVar14) >> 32);
             local_e8.y = (local_e8.y + 11520) -
                          (int)((ulong)((long)vObject.physics1.Y * iVar14) >> 32);
@@ -2101,8 +2101,10 @@ public class Vehicle : MonoBehaviour
 
             if (7 < iVar2)
             {
-                local_v1 = Utilities.FUN_2426C(vObject.vTransform.rotation, new Matrix2x3(local_v1));
-                int iVar3 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * lightness; //r5
+                local_v1 = Utilities.FUN_2426C
+                    (vObject.vTransform.rotation, 
+                    new Matrix2x4(local_v1.x, local_v1.y, local_v1.z, 0));
+                int iVar3 = vObject.physics1.W * lightness; //r5
                 long lVar1 = (long)vObject.physics1.X * iVar3; //sp+58h, sp+5Ch
                 local_v2.x -= (int)(lVar1 >> 32 >> 0);
                 lVar1 = (long)vObject.physics1.Y * iVar3;
@@ -2310,8 +2312,7 @@ public class Vehicle : MonoBehaviour
 
                     if (breaking < 1)
                     {
-                        iVar7 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) *
-                            GameManager.DAT_63F68[direction + 1];
+                        iVar7 = vObject.physics1.W * GameManager.DAT_63F68[direction + 1];
 
                         if (iVar7 < 0)
                             iVar7 += 4095;
@@ -2337,7 +2338,7 @@ public class Vehicle : MonoBehaviour
                 }
             }
             else
-                iVar6 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) / 2;
+                iVar6 = vObject.physics1.W / 2;
 
             iVar6 -= DAT_E0;
             iVar7 = -512;
@@ -2403,11 +2404,10 @@ public class Vehicle : MonoBehaviour
             //...
         }
 
-        if (wheelsType== _WHEELS.Ground && (vObject.flags & 0x10000000) != 0 &&
-            3051 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+        if (wheelsType== _WHEELS.Ground && (vObject.flags & 0x10000000) != 0 && 3051 < vObject.physics1.W)
         {
-            iVar7 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
-            iVar6 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * 3;
+            iVar7 = vObject.physics2.W;
+            iVar6 = vObject.physics1.W * 3;
 
             if (iVar7 < 0)
                 iVar7 = -iVar7;
@@ -2433,7 +2433,7 @@ public class Vehicle : MonoBehaviour
         LAB_3ABC8:
         if (DAT_DF != 0)
         {
-            uVar4 = (uint)((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) / 2);
+            uVar4 = (uint)(vObject.physics1.W / 2);
 
             if (uVar4 < 768)
             {
@@ -2589,9 +2589,9 @@ public class Vehicle : MonoBehaviour
             {
                 if ((param1 & 0xffff0000) != 0 && (vObject.flags & 0x10000000) != 0)
                 {
-                    if (DAT_B0 < 1 || (8391 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) || direction < 1))
+                    if (DAT_B0 < 1 || (8391 < vObject.physics1.W || direction < 1))
                     {
-                        if (2287 < (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1))
+                        if (2287 < vObject.physics1.W)
                             goto LAB_3D36C;
                     }
                     else
@@ -2744,7 +2744,7 @@ public class Vehicle : MonoBehaviour
 
                 if (cVar1 == _WHEELS.Ground)
                 {
-                    iVar8 = ((vObject.phy1Unk2 << 16) | (ushort)vObject.phy1Unk1) * DAT_B2;
+                    iVar8 = vObject.physics1.W * DAT_B2;
 
                     if (iVar8 < 0)
                         iVar8 += 4095;
@@ -2776,7 +2776,7 @@ public class Vehicle : MonoBehaviour
 
                 if (iVar8 < 170)
                 {
-                    if ((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 2370)
+                    if (vObject.physics1.W < 2370)
                     {
                         uVar10 = 127;
 
@@ -2873,7 +2873,7 @@ public class Vehicle : MonoBehaviour
             }
             else
             {
-                iVar8 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
+                iVar8 = vObject.physics2.W;
 
                 if (iVar8 < 0)
                     iVar8 = -iVar8;
@@ -2898,7 +2898,7 @@ public class Vehicle : MonoBehaviour
 
                 if (iVar8 != 0)
                 {
-                    iVar12 = iVar8 * (vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1);
+                    iVar12 = iVar8 * vObject.physics2.W;
 
                     if (iVar12 < 0)
                         iVar12 += 0x7fff;
@@ -2923,7 +2923,7 @@ public class Vehicle : MonoBehaviour
                 }
                 else
                 {
-                    if ((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 2370)
+                    if (vObject.physics1.W < 2370)
                     {
                         uVar10 = 127;
 
@@ -2973,7 +2973,7 @@ public class Vehicle : MonoBehaviour
                         uVar7 = vObject.flags & 0x7fffffff;
 
                         if (direction < 0 && ((uVar17 & uVar19) != 0 ||
-                            (vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1) < -4997120))
+                            vObject.physics2.W < -4997120))
                             uVar7 |= 0x80000000;
 
                         vObject.flags = uVar7;
@@ -3044,7 +3044,7 @@ public class Vehicle : MonoBehaviour
                     if (wheelsType != _WHEELS.Ground)
                         return;
 
-                    iVar8 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * DAT_B2;
+                    iVar8 = vObject.physics1.W * DAT_B2;
 
                     if (iVar8 < 0)
                         iVar8 += 4095;
@@ -3175,7 +3175,7 @@ public class Vehicle : MonoBehaviour
 
             if ((int)uVar14 < 8)
             {
-                iVar8 = turning * (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1);
+                iVar8 = turning * vObject.physics1.W;
 
                 if (iVar8 < 0)
                     iVar8 += 0x7fff;
@@ -3296,7 +3296,7 @@ public class Vehicle : MonoBehaviour
                 uVar6 = DAT_B3;
 
             acceleration = (short)(sVar5 * uVar6);
-            iVar8 = vObject.phy2Unk2 << 16 | (ushort)vObject.phy2Unk1;
+            iVar8 = vObject.physics2.W;
 
             if (iVar8 < 0)
                 iVar8 = -iVar8;
@@ -3373,7 +3373,7 @@ public class Vehicle : MonoBehaviour
 
                 if (iVar12 < 170)
                 {
-                    if ((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 2370)
+                    if (vObject.physics1.W < 2370)
                     {
                         if (uVar9 == 0)
                         {
@@ -3414,7 +3414,7 @@ public class Vehicle : MonoBehaviour
                 if (!bVar3 || wheelsType != _WHEELS.Ground)
                     goto LAB_3E1C8;
 
-                iVar12 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * DAT_B2;
+                iVar12 = vObject.physics1.W * DAT_B2;
 
                 if (iVar12 < 0)
                     iVar12 += 4095;

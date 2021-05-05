@@ -79,9 +79,9 @@ public class Utilities
         return -Ratan2(m33.V12, m33.V00) << 16 >> 16;
     }
 
-    public static int FUN_2A27C(Matrix3x3 m33)
+    public static short FUN_2A27C(Matrix3x3 m33)
     {
-        return Ratan2(m33.V02, m33.V22) << 16 >> 16;
+        return (short)Ratan2(m33.V02, m33.V22);
     }
 
     public static int FUN_2A2AC(Matrix3x3 m33)
@@ -164,13 +164,13 @@ public class Utilities
         };
     }
 
-    public static Vector3Int FUN_2426C(Matrix3x3 m33, Matrix2x3 m23)
+    public static Vector3Int FUN_2426C(Matrix3x3 m33, Matrix2x4 m24)
     {
         FUN_243B4(m33);
 
-        int iVar1 = m23.X; //r8
-        int iVar2 = m23.Y; //r9
-        int iVar3 = m23.Z; //r10
+        int iVar1 = m24.X; //r8
+        int iVar2 = m24.Y; //r9
+        int iVar3 = m24.Z; //r10
         int iVar4 = iVar1 >> 15; //r11
         int iVar5 = iVar2 >> 15; //r12
         int iVar6 = iVar3 >> 15; //r13
@@ -1000,7 +1000,7 @@ public class Utilities
         Matrix3x3 m33;
 
         m33 = new Matrix3x3();
-        iVar16 = r.x;
+        iVar16 = r.y << 16 | (ushort)r.x;
         uVar14 = (uint)(r.z >> 31);
         uVar12 = (uint)(iVar16 >> 31);
         uVar10 = (uint)((short)iVar16 >> 31);

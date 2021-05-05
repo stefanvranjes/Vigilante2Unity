@@ -348,11 +348,11 @@ public struct Matrix3x3
 
             if (tr > 0)
             {
-                float S = 0.5f / (float)Math.Sqrt(tr + 1f);
-                qw = 0.25 / S;
-                qx = (fV21 - fV12) * S;
-                qy = (fV02 - fV20) * S;
-                qz = (fV10 - fV01) * S;
+                float S = (float)Math.Sqrt(tr + 1f) * 2;
+                qw = 0.25 * S;
+                qx = (fV21 - fV12) / S;
+                qy = (fV02 - fV20) / S;
+                qz = (fV10 - fV01) / S;
             }
             else if ((fV00 > fV11) & (fV00 > fV22))
             {
@@ -539,6 +539,18 @@ public struct Matrix2x4
     public short M4, M5;
     public short M6, M7;
 
+    public Matrix2x4(int x, int y, int z, int w)
+    {
+        M0 = (short)(x & 0xFFFF);
+        M1 = (short)(x >> 16);
+        M2 = (short)(y & 0xFFFF);
+        M3 = (short)(y >> 16);
+        M4 = (short)(z & 0xFFFF);
+        M5 = (short)(z >> 16);
+        M6 = (short)(w & 0xFFFF);
+        M7 = (short)(w >> 16);
+    }
+
     public int X
     {
         get { return M1 << 16 | (ushort)M0; }
@@ -622,12 +634,8 @@ public class VigObject : MonoBehaviour
     public int DAT_78; //0x78
     public uint pointerUnk3; //0x7C
 
-    public Matrix2x3 physics1;
-    public short phy1Unk1; //0x8C
-    public short phy1Unk2; //0x8E
-    public Matrix2x3 physics2;
-    public short phy2Unk1; //0x9C
-    public short phy2Unk2; //0x9E
+    public Matrix2x4 physics1;
+    public Matrix2x4 physics2;
 
     public Vector3Int vectorUnk1; //0xA0
     public short unk1; //0xA6
@@ -653,29 +661,8 @@ public class VigObject : MonoBehaviour
             (float)-vTransform.position.y / GameManager.translateFactor, 
             (float)vTransform.position.z / GameManager.translateFactor);
 
-        //transform.localRotation = vTransform.rotation.Matrix2Quaternion;
-        transform.localRotation = Quaternion.Euler(vTransform.rotation.EulerXYZ);
-        /*float x = (float)Utilities.FUN_2A248(vTransform.rotation) / 4096;
-        float y = (float)Utilities.FUN_2A27C(vTransform.rotation) / 4096;
-        float z = (float)Utilities.FUN_2A2AC(vTransform.rotation) / 4096;
-
-        int iVar = x;
-
-        if (iVar < 0)
-            iVar = -iVar;
-
-        if (0x400 < iVar)
-            x = 0x800 - x;
-
-        iVar = z;
-
-        if (iVar < 0)
-            iVar = -iVar;
-
-        if (0x400 < iVar)
-            z = 0x800 - z;
-
-        transform.localRotation = Quaternion.Euler(new Vector3(0, y, 0) * 360f);*/
+        transform.localRotation = vTransform.rotation.Matrix2Quaternion;
+        transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, -transform.localEulerAngles.z);
     }
 
     // FUN_2CF74
@@ -683,9 +670,6 @@ public class VigObject : MonoBehaviour
     {
         vTransform.position = screen;
         vTransform.rotation = Utilities.RotMatrixYXZ_gte(vr);
-        /*Vector3 eulerAngles = new Vector3
-            ((float)-vr.x / 4096, (float)vr.y / 4096, (float)vr.z / 4096);
-        transform.localRotation = Quaternion.Euler(eulerAngles * 360f);*/
         padding1 = 0;
     }
 
@@ -693,9 +677,6 @@ public class VigObject : MonoBehaviour
     public void ApplyRotationMatrix()
     {
         vTransform.rotation = Utilities.RotMatrixYXZ_gte(vr);
-        /*Vector3 eulerAngles = new Vector3
-            ((float)-vr.x / 4096, (float)vr.y / 4096, (float)vr.z / 4096);
-        transform.localRotation = Quaternion.Euler(eulerAngles * 360f);*/
         padding1 = 0;
     }
 
