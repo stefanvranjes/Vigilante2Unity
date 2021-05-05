@@ -901,7 +901,7 @@ public class Utilities
     }
 
     //FUN_5A78C
-    public static Matrix3x3 RotMatrixYXZ(Vector3Int r)
+    /*public static Matrix3x3 RotMatrixYXZ(Vector3Int r)
     {
         Matrix3x3 m33 = new Matrix3x3();
         int z = r.z >> 31; //r11
@@ -972,17 +972,34 @@ public class Utilities
         iVar11 = iVar1 + iVar11 << 16 | iVar13;
         m33.SetValue32(3, iVar11);
         return m33;
-    }
+    }*/
 
-    public static Matrix3x3 FUN_5A78C(Vector3Int r)
+    //FUN_5A78C
+    public static Matrix3x3 RotMatrixYXZ_gte(Vector3Int r)
     {
         uint uVar1;
+        uint uVar2;
+        uint uVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+        int iVar7;
+        int iVar8;
+        int uVar9;
         uint uVar10;
+        int iVar11;
         uint uVar12;
+        int iVar13;
         uint uVar14;
+        int uVar15;
         int iVar16;
+        int iVar17;
+        int iVar18;
+        int iVar19;
         int index;
+        Matrix3x3 m33;
 
+        m33 = new Matrix3x3();
         iVar16 = r.x;
         uVar14 = (uint)(r.z >> 31);
         uVar12 = (uint)(iVar16 >> 31);
@@ -990,6 +1007,62 @@ public class Utilities
         index = ((r.z + (int)uVar14 ^ (int)uVar14) & 0xfff) * 2;
         uVar1 = (uint)((GameManager.DAT_65C90[index + 1] << 16 | (ushort)GameManager.DAT_65C90[index])
                         * 0x10000 + uVar14 ^ uVar14);
+        index = (((iVar16 >> 16) + (int)uVar12 ^ (int)uVar12) & 0xfff) * 2;
+        uVar2 = (uint)((GameManager.DAT_65C90[index + 1] << 16 | (ushort)GameManager.DAT_65C90[index])
+                        * 0x10000 + uVar12 ^ uVar12);
+        index = (((short)iVar16 + (int)uVar10 ^ (int)uVar10) & 0xfff) * 2;
+        uVar3 = (uint)((GameManager.DAT_65C90[index + 1] << 16 | (ushort)GameManager.DAT_65C90[index])
+                        * 0x10000 + uVar10 ^ uVar10);
+        index = (((iVar16 >> 16) + (int)uVar12 ^ (int)uVar12) & 0xfff) * 2;
+        iVar8 = (((GameManager.DAT_65C90[index + 1] << 16 | (ushort)GameManager.DAT_65C90[index])
+                        >> 16) << 16 | (int)(uVar2 >> 16)) >> 16;
+        Coprocessor.accumulator.ir0 = (short)iVar8;
+        iVar7 = (int)uVar3 >> 16;
+        Coprocessor.accumulator.ir1 = (short)iVar7;
+        iVar5 = (int)uVar1 >> 16;
+        Coprocessor.accumulator.ir2 = (short)iVar5;
+        index = ((r.z + (int)uVar14 ^ (int)uVar14) & 0xfff) * 2;
+        iVar4 = (((GameManager.DAT_65C90[index + 1] << 16 | (ushort)GameManager.DAT_65C90[index])
+                        >> 16) << 16 | (int)(uVar1 >> 16)) >> 16;
+        Coprocessor.accumulator.ir3 = (short)iVar4;
+        index = (((short)iVar16 + (int)uVar10 ^ (int)uVar10) & 0xfff) * 2;
+        iVar16 = (((GameManager.DAT_65C90[index + 1] << 16 | (ushort)GameManager.DAT_65C90[index])
+                        >> 16) << 16 | (int)(uVar3 >> 16)) >> 16;
+        Coprocessor.ExecuteGPF(12, false);
+        uVar9 = Coprocessor.accumulator.ir1;
+        iVar11 = Coprocessor.accumulator.ir2;
+        iVar13 = Coprocessor.accumulator.ir3;
+        iVar19 = (int)uVar2 >> 16;
+        Coprocessor.accumulator.ir0 = (short)iVar19;
+        Coprocessor.accumulator.ir1 = (short)iVar7;
+        Coprocessor.accumulator.ir2 = (short)iVar5;
+        Coprocessor.accumulator.ir3 = (short)iVar4;
+        Coprocessor.ExecuteGPF(12, false);
+        m33.SetValue32(4, (short)(iVar16 * iVar8 >> 12));
+        uVar15 = Coprocessor.accumulator.ir1;
+        iVar17 = Coprocessor.accumulator.ir2;
+        iVar18 = Coprocessor.accumulator.ir3;
+        Coprocessor.accumulator.ir0 = (short)iVar4;
+        Coprocessor.accumulator.ir1 = (short)iVar16;
+        Coprocessor.accumulator.ir2 = (short)uVar15;
+        Coprocessor.accumulator.ir3 = (short)uVar9;
+        Coprocessor.ExecuteGPF(12, false);
+        uVar1 = (uint)Coprocessor.accumulator.ir1;
+        iVar8 = Coprocessor.accumulator.ir2;
+        iVar6 = Coprocessor.accumulator.ir3;
+        Coprocessor.accumulator.ir0 = (short)iVar5;
+        Coprocessor.accumulator.ir1 = (short)iVar16;
+        Coprocessor.accumulator.ir2 = (short)uVar15;
+        Coprocessor.accumulator.ir3 = (short)uVar9;
+        Coprocessor.ExecuteGPF(12, false);
+        m33.SetValue32(2, (int)(uVar1 & 0xffff) | iVar7 * -0x10000);
+        iVar4 = Coprocessor.accumulator.ir1;
+        iVar5 = Coprocessor.accumulator.ir2;
+        iVar7 = Coprocessor.accumulator.ir3;
+        m33.SetValue32(0, (iVar8 - iVar17) * 0x10000 | (int)(iVar13 + iVar5 & 0xffffU));
+        m33.SetValue32(1, iVar4 << 16 | (int)(iVar16 * iVar19 >> 12 & 0xffffU));
+        m33.SetValue32(3, (iVar6 + iVar17) * 0x10000 | (int)(iVar7 - iVar18 & 0xffffU));
+        return m33;
     }
 
     public static Vector3Int VectorNormal(Vector3Int n1)

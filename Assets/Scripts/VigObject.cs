@@ -682,7 +682,7 @@ public class VigObject : MonoBehaviour
     public void ApplyTransformation()
     {
         vTransform.position = screen;
-        vTransform.rotation = Utilities.RotMatrixYXZ(vr);
+        vTransform.rotation = Utilities.RotMatrixYXZ_gte(vr);
         /*Vector3 eulerAngles = new Vector3
             ((float)-vr.x / 4096, (float)vr.y / 4096, (float)vr.z / 4096);
         transform.localRotation = Quaternion.Euler(eulerAngles * 360f);*/
@@ -692,7 +692,7 @@ public class VigObject : MonoBehaviour
     //FUN_2CF44
     public void ApplyRotationMatrix()
     {
-        vTransform.rotation = Utilities.RotMatrixYXZ(vr);
+        vTransform.rotation = Utilities.RotMatrixYXZ_gte(vr);
         /*Vector3 eulerAngles = new Vector3
             ((float)-vr.x / 4096, (float)vr.y / 4096, (float)vr.z / 4096);
         transform.localRotation = Quaternion.Euler(eulerAngles * 360f);*/

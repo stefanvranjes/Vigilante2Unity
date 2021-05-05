@@ -387,12 +387,12 @@ public class Vehicle : MonoBehaviour
                     if (wheelsType != _WHEELS.Ground)
                         goto LAB_41E08;
 
-                    FUN_3EDC4();
+                    PhyGround();
                 }
                 else
                 {
                     if (wheelsType == _WHEELS.Sea)
-                        ; //FUN_40598
+                        PhySea();
                     else
                     {
                         sVar1 = 0;
@@ -417,6 +417,349 @@ public class Vehicle : MonoBehaviour
         ;
     }
 
+    //FUN_40F10
+    public void PhySnow()
+    {
+        short sVar1;
+        byte bVar3;
+        int uVar5;
+        uint uVar6;
+        uint uVar8;
+        int iVar7;
+        int iVar9;
+        int iVar10;
+        int iVar11;
+        int iVar12;
+        int iVar13;
+        int iVar14;
+        int uVar15;
+        uint uVar19;
+        TileData iVar16;
+        VigTransform auStack224;
+        Vector3Int auStack144;
+        Vector3Int auStack104;
+        Vector3Int local_100;
+        Vector3Int local_f0;
+        Vector3Int local_c0;
+        Vector3Int local_b0;
+        Vector3Int local_a0;
+        int local_94;
+        Vector3Int local_80;
+        Vector3Int local_78;
+        uint local_20;
+        int local_1c;
+
+        if (vObject.vTransform.rotation.V11 < 0)
+        {
+            FUN_3E8C0();
+            
+            for (int i = 2; i < 6; i++)
+            {
+                if (wheels[i] != null)
+                {
+                    iVar12 = wheels[i].physics2.Z;
+                    wheels[i].screen.y = wheels[i].physics1.Y;
+                    iVar9 = iVar12;
+
+                    if (iVar12 < 0)
+                        iVar9 = iVar12 + 63;
+
+                    iVar12 -= iVar9 >> 6;
+                    wheels[i].physics2.Z = iVar12;
+
+                    if (wheels[i].physics2.Y != 0)
+                    {
+                        if (iVar12 < 0)
+                            iVar12 += 4095;
+
+                        iVar9 = (iVar12 >> 12) * wheels[i].physics2.Y;
+
+                        if (iVar9 < 0)
+                            iVar9 += 0x7ffff;
+
+                        wheels[i].vr.x -= iVar9 >> 19;
+                    }
+
+                    wheels[i].ApplyTransformation();
+                }
+            }
+
+            if (GameManager.instance.DAT_DB0 == 0)
+                return;
+
+            if (GameManager.instance.DAT_DA0 <= vObject.vTransform.position.z)
+                return;
+
+            if (vObject.vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
+                return;
+
+            //FUN_391AC
+        }
+        else
+        {
+            if (GameManager.instance.DAT_DB0 != 0 && vObject.vTransform.position.z < GameManager.instance.DAT_DA0)
+            {
+                if (GameManager.instance.DAT_DB0 < vObject.vTransform.position.y)
+                {
+                    if (GameManager.instance.DAT_DB0 + 0x5000 < vObject.vTransform.position.y)
+                    {
+                        //FUN_391AC
+                        return;
+                    }
+
+                    bVar3 = (byte)GameManager.FUN_2AC5C();
+
+                    if ((bVar3 & 63) == 0)
+                    {
+                        acceleration = -120;
+
+                        if (bVar3 == 0 && (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) < 1525)
+                            ; //FUN_39BC4
+                        else
+                        {
+                            //sound effects
+                        }
+                    }
+                }
+            }
+
+            auStack224 = vObject.FUN_2AEAC();
+            List<Vector3Int> positions = new List<Vector3Int>();
+            List<Vector3Int> normals = new List<Vector3Int>();
+            List<TileData> tiles = new List<TileData>();
+            List<int> heights = new List<int>();
+            local_100 = new Vector3Int(0, 0, 0);
+            local_f0 = new Vector3Int(0, 0, 0);
+
+            for (int i = 0; i < 6; i++)
+            {
+                if (wheels[i] != null)
+                {
+                    if (i < 2)
+                        local_c0 = Utilities.FUN_24148(wheels[i].vTransform, wheels[i].child2.vTransform.position);
+                    else
+                    {
+                        local_c0 = new Vector3Int(
+                            wheels[i].screen.x,
+                            wheels[i].screen.y + wheels[i].physics2.X,
+                            wheels[i].screen.z);
+                    }
+
+                    Vector3Int position = Utilities.FUN_24148(vObject.vTransform, local_c0);
+                    uVar15 = position.y;
+                    TileData tile;
+                    Vector3Int normal;
+                    uVar5 = vObject.FUN_2CFBC(position, out normal, out tile);
+                    position.y = uVar5;
+                    positions.Add(position);
+                    normals.Add(normal);
+                    tiles.Add(tile);
+                    heights.Add(uVar15);
+                }
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                if (wheels[i] != null)
+                {
+                    local_b0 = new Vector3Int(
+                        wheels[i].screen.x,
+                        wheels[i].screen.y + wheels[i].physics2.X,
+                        wheels[i].screen.z);
+                    local_78 = Utilities.FUN_24148(auStack224, local_b0);
+                    local_a0 = positions[i];
+                    local_94 = heights[i];
+                    local_80 = normals[i];
+                    iVar16 = tiles[i];
+
+                    if (i < 2)
+                    {
+                        sVar1 = turning;
+                        iVar9 = (int)(sVar1 & 0xfffU) * 2;
+                        iVar11 = GameManager.DAT_65C90[iVar9];
+                        iVar9 = GameManager.DAT_65C90[iVar9 + 1];
+
+                        if (wheels[i].child2 != null)
+                        {
+                            wheels[i].child2.vr.y = sVar1;
+
+                            if ((i & 1) != 0)
+                                wheels[i].child2.vr.y = sVar1 + 2048;
+
+                            wheels[i].child2.ApplyTransformation();
+                        }
+                    }
+                    else
+                    {
+                        iVar11 = 0;
+
+                        if (GameManager.instance.DAT_DB0 != 0)
+                        {
+                            iVar9 = 4096;
+
+                            if (GameManager.instance.DAT_DA0 <= local_a0.y || local_94 <= GameManager.instance.DAT_DB0)
+                                goto LAB_41360;
+
+                            iVar12 = (int)GameManager.FUN_2AC5C();
+
+                            if ((vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) <= iVar12)
+                                goto LAB_41360;
+
+                            //FUN_38EF4
+                        }
+
+                        iVar9 = 4096;
+                    }
+
+                    LAB_41360:
+                    auStack144 = Utilities.FUN_24304(vObject.vTransform, local_a0);
+                    auStack144.y -= wheels[i].physics2.X;
+
+                    if (auStack144.y < wheels[i].physics1.Y)
+                    {
+                        if (i < 4)
+                        {
+                            uVar6 = 0x10000000;
+
+                            if (iVar16 != null)
+                                uVar6 = 0x30000000;
+
+                            vObject.flags |= uVar6;
+                            auStack104 = Utilities.FUN_24210(vObject.vTransform.rotation, local_80);
+                            iVar12 = wheels[i].physics1.X;
+
+                            if (wheels[i].physics1.X < auStack144.y)
+                                iVar12 = auStack144.y;
+
+                            iVar7 = wheels[i].physics1.Y;
+                            sVar1 = wheels[i].phy1Unk1;
+
+                            local_c0 = new Vector3Int();
+
+                            if (wheels[i].physics1.X < auStack144.y || wheels[i].screen.y < auStack144.y)
+                            {
+                                local_c0.y = (auStack144.y - wheels[i].screen.y) * wheels[i].phy1Unk2;
+
+                                if (local_c0.y < 0)
+                                    local_c0.y += 31;
+
+                                local_c0.y = local_c0.y >> 5;
+                            }
+                            else
+                            {
+                                local_c0.y = (auStack144.y - wheels[i].screen.y) * 16;
+                                vObject.flags |= 0x40000000;
+                            }
+
+                            local_c0.y = ((iVar7 - iVar12) * sVar1 * 128) / auStack104.y + local_c0.y;
+                            wheels[i].screen.y = auStack144.y;
+
+                            if (iVar16 == null)
+                                iVar12 = -local_c0.y;
+                            else if (iVar16.unk2[4] != 2)
+                                iVar12 = -local_c0.y;
+                            else
+                                iVar12 = 0x7fffffff;
+
+                            if (iVar11 == 0)
+                            {
+                                uVar6 = (uint)(local_78.x >> 5);
+                                uVar8 = (uint)(local_78.z >> 2);
+                            }
+                            else
+                            {
+                                uVar6 = (uint)((long)local_78.x * iVar9);
+                                local_20 = (uint)((long)local_78.z * iVar11);
+                                local_1c = (int)((ulong)((long)local_78.z * iVar11) >> 32);
+                                uVar19 = (uint)((long)local_78.z * iVar9);
+                                uVar6 = uVar6 - local_20 >> 17 |
+                                        (uint)((int)((ulong)((long)local_78.x * iVar9) >> 32) -
+                                        local_1c - (uint)(uVar6 < local_20 ? 1 : 0)) * 0x8000;
+                                uVar8 = (uint)(int)((long)local_78.x * iVar11) + uVar19;
+                                uVar8 = uVar8 >> 14 |
+                                        (uint)((int)((ulong)((long)local_78.x * iVar11) >> 32) +
+                                        (int)((ulong)((long)local_78.z * iVar9) >> 32) +
+                                        (uint)(uVar8 < uVar19 ? 1 : 0)) * 0x40000;
+                            }
+
+                            local_c0.z = 0;
+
+                            if (1 < i)
+                            {
+                                iVar13 = acceleration;
+                                iVar7 = iVar13;
+
+                                if (iVar13 < 0)
+                                    iVar7 = -iVar13;
+
+                                iVar7 = iVar7 * DAT_C5;
+                                iVar10 = iVar12;
+
+                                if (iVar7 < iVar12)
+                                    iVar10 = iVar7;
+
+                                if (iVar13 < 0)
+                                {
+                                    local_c0.z = -(int)uVar8;
+
+                                    if (0 < (int)uVar8)
+                                    {
+                                        iVar7 = -iVar10;
+
+                                        if (local_c0.z < iVar7)
+                                            local_c0.z = iVar7;
+                                    }
+
+                                    iVar7 = local_c0.z;
+
+                                    if (iVar10 < local_c0.z)
+                                        iVar7 = iVar10;
+
+                                    local_c0.z = iVar7;
+                                }
+                                else
+                                {
+                                    if (direction < 1)
+                                        local_c0.z = -iVar10;
+                                    else
+                                    {
+                                        iVar7 = -(int)uVar8 >> 2;
+                                        local_c0.z = iVar10;
+
+                                        if (local_c0.z < iVar7)
+                                            local_c0.z = iVar7;
+                                    }
+                                }
+                            }
+
+                            local_c0.x = -(int)uVar6;
+
+                            if ((int)uVar6 < 1)
+                            {
+                                if (iVar12 < local_c0.x)
+                                    local_c0.x = iVar12;
+                            }
+                            else
+                            {
+                                if (local_c0.x < -iVar12)
+                                    local_c0.x = -iVar12;
+                            }
+
+                            if (iVar11 != 0)
+                            {
+                                iVar12 = iVar11 * local_c0.x;
+                                local_c0.x = iVar11 * local_c0.z + iVar9 * local_c0.x >> 12;
+                                local_c0.z = iVar9 * local_c0.z - iVar12 >> 12;
+                            }
+
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     //FUN_40598
     public void PhySea()
     {
@@ -427,6 +770,7 @@ public class Vehicle : MonoBehaviour
         int iVar5;
         int iVar6;
         uint uVar7;
+        int iVar8;
         int iVar9;
         uint uVar10;
         int iVar12;
@@ -454,8 +798,7 @@ public class Vehicle : MonoBehaviour
 
         VigTransform auStack144 = vObject.FUN_2AE18();
         Vector3Int local_b0 = new Vector3Int(0, 0, 0);
-        Vector3Int local_a0 = new Vector3Int(0, 0, 0);
-        int local_9c = 11520;
+        Vector3Int local_a0 = new Vector3Int(0, 11520, 0);
         iVar5 = vObject.vTransform.rotation.V11;
         iVar12 = 0;
 
@@ -685,6 +1028,93 @@ public class Vehicle : MonoBehaviour
                 lVar2 = (long)vObject.physics1.Z * iVar5;
                 local_20 = (int)lVar2;
                 local_1c = (int)((ulong)lVar2 >> 32);
+
+                if (acceleration == 0)
+                {
+                    iVar12 = vObject.physics1.X;
+
+                    if (iVar12 < 0)
+                        iVar12 += 63;
+
+                    iVar12 = -(iVar12 >> 6);
+                    iVar6 = vObject.physics1.Z;
+
+                    if (iVar6 < 0)
+                        iVar6 += 63;
+
+                    iVar6 = -(iVar6 >> 6);
+                }
+                else
+                {
+                    iVar6 = -vObject.physics1.X;
+
+                    if (0 < vObject.physics1.X)
+                        iVar6 += 31;
+
+                    iVar9 = vObject.vTransform.rotation.V02;
+
+                    if (iVar9 < 0)
+                        iVar9 = -iVar9;
+
+                    iVar12 = 0;
+
+                    if (0 < 4096 - iVar9)
+                        iVar12 = 4096 - iVar9;
+
+                    iVar12 = (iVar5 >> 5) * iVar12;
+
+                    if (iVar12 < 0)
+                        iVar12 += 4095;
+
+                    iVar12 = iVar12 >> 12;
+                    iVar9 = -vObject.physics1.Z;
+
+                    if (0 < vObject.physics1.Z)
+                        iVar9 += 31;
+
+                    iVar8 = vObject.vTransform.rotation.V22;
+
+                    if (iVar8 < 0)
+                        iVar8 = -iVar8;
+
+                    iVar6 = 0;
+
+                    if (0 < 4096 - iVar8)
+                        iVar6 = 4096 - iVar8;
+
+                    iVar6 = (iVar9 >> 5) * iVar6;
+
+                    if (iVar6 < 0)
+                        iVar6 += 4095;
+
+                    iVar6 = iVar6 >> 12;
+                }
+
+                local_a0.x = (local_a0.x - (int)((ulong)((long)vObject.physics1.X * iVar5) >> 32)) + iVar12;
+                local_a0.z = (local_a0.z - local_1c) + iVar6;
+                vObject.FUN_2AFF8(local_a0, local_b0);
+                iVar12 = vObject.physics2.X;
+                iVar5 = iVar12;
+
+                if (iVar12 < 0)
+                    iVar5 = iVar12 + 31;
+
+                iVar6 = vObject.physics2.Y;
+                vObject.physics2.X = iVar12 - (iVar5 >> 5);
+                iVar5 = iVar6;
+
+                if (iVar6 < 0)
+                    iVar5 = iVar6 + 31;
+
+                iVar12 = vObject.physics2.Z;
+                vObject.physics2.Y = iVar6 - (iVar5 >> 5);
+                iVar5 = iVar12;
+
+                if (iVar12 < 0)
+                    iVar5 = iVar12 + 31;
+
+                vObject.physics2.Z = iVar12 - (iVar5 >> 5);
+                return;
             }
         } while (true);
 
@@ -1072,491 +1502,6 @@ public class Vehicle : MonoBehaviour
 
     //FUN_3EDC4
     public void PhyGround()
-    {
-        if (vObject.vTransform.rotation.V11 < 0)
-        {
-            FUN_3E8C0();
-        }
-        else
-        {
-            if (GameManager.instance.DAT_DB0 != 0 && vObject.vTransform.position.z < GameManager.instance.DAT_DA0)
-            {
-
-            }
-        }
-
-        VigTransform vTransform = vObject.FUN_2AEAC();
-
-        List<Vector3Int> positions = new List<Vector3Int>();
-        List<Vector3Int> normals = new List<Vector3Int>();
-        List<int> positions_y = new List<int>();
-        List<TileData> tiles = new List<TileData>();
-
-        Vector3Int local_v1 = new Vector3Int(0, 0, 0); //sp+10
-        Vector3Int local_v2 = new Vector3Int(0, 0, 0); //sp+20
-
-        for (int i = 0; i < wheels.Length; i++)
-        {
-            if (wheels[i] != null)
-            {
-                int wheel_x = wheels[i].screen.x;
-                int wheel_y = wheels[i].screen.y + wheels[i].physics2.X;
-                int wheel_z = wheels[i].screen.z;
-                Vector3Int pos = Utilities.FUN_24148(vObject.vTransform, new Vector3Int(wheel_x, wheel_y, wheel_z));
-                int pos_y = pos.y; //r18
-                TileData tile;
-                Vector3Int normal;
-                pos.y = vObject.FUN_2CFBC(pos, out normal, out tile);
-                positions.Add(pos); //1F800000h
-                normals.Add(normal); //1F800014h
-                positions_y.Add(pos_y); //1F80000Ch
-                tiles.Add(tile); //1F800010h
-            }
-        }
-
-        int local_4c = 0; //sp+BCh
-        int local_48 = 0; //sp+C0h
-
-        for (int i = 0; i < wheels.Length; i++)
-        {
-            if (wheels[i] != null)
-            {
-                if ((wheels[i].flags & 0x2000000) == 0)
-                {
-                    local_4c = 0;
-                    local_48 = 0x1000;
-                }
-                else
-                {
-                    int turn = turning;
-
-                    if (1 < i)
-                        turn = -turn;
-
-                    wheels[i].vr.z = (short)turn;
-                    int j = (turn & 0xFFF << 2) / 2;
-                    local_4c = GameManager.DAT_65C90[j];
-                    local_48 = GameManager.DAT_65C90[j + 1];
-                }
-
-                Vector3Int wheel_pos = new Vector3Int
-                    (wheels[i].screen.x, wheels[i].screen.y + wheels[i].physics2.X, wheels[i].screen.z); //sp+60
-                Vector3Int v1 = Utilities.FUN_24148(vTransform, wheel_pos); //sp+98
-                int pos_x = positions[i].x; //sp+70h
-                int pos_y = positions[i].y; //sp+74h
-                int pos_z = positions[i].z; //r25 //sp+78h
-                int height = positions_y[i]; //r9 //sp+7Ch
-                int normal_x = normals[i].x; //sp+90h
-                int normal_y = normals[i].y; //sp+92h
-                int normal_z = normals[i].z; //sp+94h
-                TileData onTile = tiles[i]; //sp+C4h
-
-                if (1 < i && GameManager.instance.DAT_36)
-                {
-                    //...
-                }
-
-                Vector3Int v2 = Utilities.FUN_24304(vObject.vTransform, new Vector3Int(pos_x, pos_y, pos_z)); //sp+80
-                v2.y = v2.y - wheels[i].physics2.X;
-
-                if (v2.y < wheels[i].physics1.Y)
-                {
-                    if (i < 4)
-                    {
-                        uint f = 0x10000000;
-
-                        if (onTile != null)
-                            f = 0x30000000;
-
-                        vObject.flags = vObject.flags | f;
-                        int iVar3 = (ushort)normal_x << 16 >> 16; //r20
-                        int iVar4 = (ushort)normal_x << 16 >> 31; //r21
-                        int iVar5 = vObject.physics1.X >> 31; //r19
-                        uint uVar1 = (uint)vObject.physics1.X;
-                        long lVar1 = (long)((ulong)(uint)iVar3 * uVar1); //r14,r15
-                        int iVar6 = (ushort)normal_y << 16 >> 16; //sp+D8h
-                        int iVar7 = (ushort)normal_y << 16 >> 31; //sp+DCh
-                        int iVar8 = vObject.physics1.Y; //r10
-                        int iVar9 = vObject.physics1.Y >> 31; //r11
-                        long lVar2 = (long)((ulong)(uint)iVar6 * (uint)iVar8); //r16,r17
-                        int iVar10 = (ushort)normal_z << 16; //r6
-                        int iVar14 = iVar10 >> 16; //r4
-                        int iVar16 = iVar10 >> 31; //r5
-                        iVar10 = vObject.physics1.Z;
-                        long lVar3 = (long)((ulong)(uint)iVar14 * (uint)iVar10); //sp+D0h,sp+D4h
-                        iVar10 = iVar10 >> 31; //r3
-                        int iVar11 = iVar3 * iVar5; //sp+E8h
-                        int iVar12 = vObject.physics1.X * iVar4; //r7
-                        int iVar13 = iVar6 * iVar9; //r18
-                        iVar8 = iVar8 * iVar7;
-                        iVar9 = iVar14 * iVar10;
-                        int iVar15 = (int)(lVar2 >> 32); //r17
-                        iVar15 += iVar13;
-                        int iVar17 = (int)(lVar1 >> 32); //r15
-                        iVar17 += iVar11;
-                        iVar17 += iVar12;
-                        iVar15 += iVar8;
-                        int iVar18 = (int)(lVar3 >> 32); //sp+D4h
-                        iVar18 += iVar9;
-                        iVar18 += vObject.physics1.Z * iVar16;
-                        int iVar19 = (int)lVar3; //sp+D0h
-                        int iVar20 = (int)lVar1; //r14
-                        int iVar21 = (int)lVar2; //r16
-                        iVar20 += iVar21;
-                        iVar17 += iVar15;
-                        if ((uint)iVar20 < (uint)iVar21) iVar17++;
-                        iVar20 += iVar19;
-                        iVar17 += iVar18;
-                        if ((uint)iVar20 < (uint)iVar19) iVar17++;
-                        iVar20 = (int)((uint)iVar20 >> 15);
-                        iVar20 = iVar20 | (iVar17 << 17);
-                        iVar17 = iVar17 >> 15;
-                        iVar21 = iVar20;
-
-                        Vector3Int v3 = Utilities.FUN_24210(vObject.vTransform.rotation, new Vector3Int(normal_x, normal_y, normal_z)); //sp+A8
-                        iVar14 = (-v3.x * iVar21);
-                        iVar16 = 0;
-
-                        if (iVar14 < 0)
-                            iVar14 += 0xFFF;
-
-                        iVar14 = iVar14 >> 12;
-
-                        if (wheel_pos.x - v2.x < 0)
-                            iVar16 = wheel_pos.x - v2.x;
-
-                        iVar20 = -v3.z * iVar21;
-                        int iVar22 = iVar14 - iVar16; //sp+50h
-
-                        if (iVar20 < 0)
-                            iVar20 += 0xFFF;
-
-                        iVar14 = 0;
-                        iVar20 = iVar20 >> 12;
-
-                        if (wheel_pos.z - v2.z < 0)
-                            iVar14 = wheel_pos.z - v2.z;
-
-                        int iVar23 = iVar20 - iVar14; //sp+58h
-                        iVar14 = wheels[i].physics1.X;
-                        iVar16 = v2.y;
-
-                        if (iVar14 < iVar16)
-                            iVar14 = iVar16;
-
-                        int iVar24 = (wheels[i].physics1.Y - iVar14) * wheels[i].phy1Unk1; //r8
-                        int iVar25 = (iVar24 << 7) / v3.y; //sp+54h, r4
-
-                        if (wheels[i].physics1.X < iVar16 || wheels[i].screen.y < iVar16)
-                        {
-                            int iVar = (iVar16 - wheels[i].screen.y) * wheels[i].phy1Unk2;
-
-                            if (iVar < 0)
-                                iVar += 31;
-
-                            iVar25 = iVar25 + (iVar >> 5);
-                        }
-                        else
-                        {
-                            int iVar = iVar16 - wheels[i].screen.y;
-                            iVar25 = iVar25 + (iVar << 4);
-                            vObject.flags = vObject.flags | 0x40000000;
-                        }
-
-                        wheels[i].screen.y = v2.y;
-
-                        if ((wheels[i].flags & 0x4000000) == 0)
-                        {
-                            if (onTile == null || onTile.unk2[0] == 0)
-                                iVar9 = -iVar25 << 1;
-                            else
-                                iVar9 = -iVar25 * (256 - onTile.unk2[0]) >> 7;
-
-                            if (local_4c == 0)
-                            {
-                                iVar12 = v1.x >> 5;
-                                iVar16 = v1.z >> 2;
-                            }
-                            else
-                            {
-                                long lVar4 = (long)v1.x * local_48; //r6,r7
-                                long lVar5 = (long)v1.z * local_4c; //sp+E0h,sp+E4h
-                                long lVar6 = (long)v1.x * local_4c; //sp+D0h,sp+D4h
-                                long lVar7 = (long)v1.z * local_48; //r4,r5
-                                iVar8 = (uint)lVar4 < (uint)lVar5 ? 1 : 0;
-                                int iVar26 = (int)lVar4 - (int)lVar5; //r2
-                                int iVar27 = (int)(lVar4 >> 32) - (int)(lVar5 >> 5); //r3
-                                iVar27 -= iVar8;
-                                iVar26 = (int)((uint)iVar26 >> 11);
-                                iVar10 = iVar27 << 15;
-                                iVar26 |= iVar10;
-                                iVar27 = iVar27 >> 11;
-                                iVar12 = iVar26;
-                                iVar26 = (int)lVar6 + (int)lVar7;
-                                iVar27 = (int)(lVar6 >> 32) + (int)(lVar7 >> 32);
-                                iVar10 = (uint)iVar26 < (uint)lVar7 ? 1 : 0;
-                                iVar27 += iVar10;
-                                iVar26 = iVar26 >> 14;
-                                iVar14 = iVar27 << 18;
-                                iVar26 |= iVar14;
-                                iVar27 = iVar27 >> 14;
-                                iVar16 = iVar26;
-                            }
-
-                            int a = acceleration;
-
-                            if (acceleration < 0)
-                                a = -a;
-
-                            iVar20 = iVar9;
-
-                            if (a << 6 < iVar9)
-                                iVar20 = a << 6;
-
-                            iVar21 = iVar20;
-
-                            if (acceleration < 0)
-                            {
-                                iVar21 = -iVar16;
-
-                                if (iVar16 <= 0)
-                                {
-                                    if (iVar20 < -iVar16)
-                                        iVar21 = iVar20;
-                                }
-                                else
-                                {
-                                    iVar20 = -iVar20;
-
-                                    if (iVar20 <= iVar21)
-                                        goto LAB_3F738;
-                                }
-
-                                iVar21 = iVar20;
-                            }
-                            else
-                            {
-                                if ((wheels[i].flags & 0x1000000) == 0)
-                                    iVar21 = 0;
-                                else
-                                {
-                                    if (direction <= 0)
-                                        iVar21 = -iVar21;
-                                    else
-                                    {
-                                        if (iVar20 < -iVar16 >> 2)
-                                            iVar21 = -iVar16 >> 2;
-                                    }
-                                }
-                            }
-
-                            LAB_3F738:
-                            if ((wheels[i].flags & 0x1000000) != 0)
-                            {
-                                if (breaking != 0 && breaking <= 0)
-                                    iVar21 -= (breaking << 1) + breaking;
-                                else
-                                {
-                                    iVar21 += breaking << 6;
-                                    iVar9 = (iVar9 + (int)((uint)iVar9 >> 31)) >> 1;
-                                    iVar25 = iVar25 - (breaking << 7);
-                                }
-                            }
-
-                            if ((wheels[i].flags & 0x40000000) != 0)
-                            {
-                                int iVar;
-
-                                if (iVar16 >> 8 < 0)
-                                    iVar = (iVar16 >> 8) * -(iVar16 >> 8);
-                                else
-                                    iVar = (iVar16 >> 8) * (iVar16 >> 8);
-
-                                iVar21 -= iVar >> 5;
-                            }
-
-                            if (onTile != null)
-                            {
-                                if (onTile.unk2[1] != 0)
-                                {
-                                    int iVar;
-
-                                    if (iVar16 >> 8 < 0)
-                                        iVar = (iVar16 >> 8) * -(iVar16 >> 8);
-                                    else
-                                        iVar = (iVar16 >> 8) * (iVar16 >> 8);
-
-                                    iVar21 -= iVar * onTile.unk2[1] >> 12;
-                                }
-                            }
-
-                            iVar16 = -iVar12;
-
-                            if (iVar12 <= 0)
-                            {
-                                if (iVar9 < -iVar12)
-                                    iVar16 = iVar9;
-                            }
-                            else
-                            {
-                                if (iVar16 < -iVar9)
-                                    iVar16 = -iVar9;
-                            }
-
-                            if (local_4c != 0)
-                            {
-                                int iVar = local_4c * iVar21 + local_48 * iVar16 >> 12;
-                                iVar22 = iVar22 + iVar;
-                                iVar = local_48 * iVar21 - local_4c * iVar16 >> 12;
-                                iVar23 = iVar23 + iVar;
-                            }
-                            else
-                            {
-                                iVar22 = iVar22 + iVar16;
-                                iVar23 = iVar23 + iVar21;
-                            }
-                        }
-
-                        int wheel_pos_x = wheel_pos.x >> 3;
-                        int wheel_pos_y = wheel_pos.y >> 3;
-                        int wheel_pos_z = wheel_pos.z >> 3;
-                        Coprocessor.rotationMatrix.rt11 = (short)wheel_pos_x;
-                        Coprocessor.rotationMatrix.rt12 = (short)(wheel_pos_x >> 16);
-                        Coprocessor.rotationMatrix.rt22 = (short)wheel_pos_y;
-                        Coprocessor.rotationMatrix.rt23 = (short)(wheel_pos_y >> 16);
-                        Coprocessor.rotationMatrix.rt33 = (short)wheel_pos_z;
-
-                        int iVar29 = iVar22 >> 3; //r3
-
-                        if (iVar29 < -0x8000)
-                            iVar10 = -0x8000;
-                        else
-                        {
-                            iVar10 = 0x7fff;
-
-                            if (iVar29 < 0x8000)
-                                iVar10 = iVar29;
-                        }
-
-                        iVar29 = iVar25 >> 3;
-
-                        if (iVar29 < -0x8000)
-                            iVar16 = -0x8000;
-                        else
-                        {
-                            iVar16 = 0x7fff;
-
-                            if (iVar29 < 0x8000)
-                                iVar16 = iVar29;
-                        }
-
-                        iVar29 = iVar23 >> 3;
-
-                        if (iVar29 < -0x8000)
-                            iVar14 = -0x8000;
-                        else
-                        {
-                            iVar14 = 0x7fff;
-
-                            if (iVar29 < 0x8000)
-                                iVar14 = iVar29;
-                        }
-
-                        Coprocessor.accumulator.ir1 = (short)iVar10;
-                        Coprocessor.accumulator.ir2 = (short)iVar16;
-                        Coprocessor.accumulator.ir3 = (short)iVar14;
-                        Coprocessor.ExecuteOP(12, false);
-                        local_v2.x += iVar22;
-                        local_v2.y += iVar25;
-                        local_v2.z += iVar23;
-                        local_v1.x += Coprocessor.mathsAccumulator.mac1;
-                        local_v1.y += Coprocessor.mathsAccumulator.mac2;
-                        local_v1.z += Coprocessor.mathsAccumulator.mac3;
-
-                        if (onTile != null)
-                        {
-                            if (onTile.unk2[3] != 0 && onTile.unk2[3] != 7)
-                            {
-                                //function call by register
-                            }
-                        }
-                    }
-                    else
-                    {
-                        wheels[i].screen.y = v2.y;
-                    }
-                }
-                else
-                {
-                    wheels[i].screen.y = wheels[i].physics1.Y;
-                }
-
-                int iVar30 = local_4c * v1.x + local_48 * v1.z; //r2
-                int iVar31 = 0; //r5
-
-                if (iVar30 < 0)
-                    iVar30 += 0xFFF;
-
-                iVar30 = iVar30 >> 12;
-                wheels[i].physics2.Z = iVar30;
-
-                if (wheels[i].physics2.Y != 0)
-                {
-                    iVar30 = iVar30 * wheels[i].physics2.Y;
-
-                    if (iVar30 < 0)
-                        iVar30 += 0x7ffff;
-
-                    iVar31 = iVar30 >> 19;
-
-                    if ((wheels[i].flags & 0x1000000) != 0)
-                    {
-                        if (0 < breaking)
-                        {
-                            iVar31 = iVar31 + breaking * 2;
-                        }
-                    }
-
-                    wheels[i].vr.x = (short)(wheels[i].vr.x - iVar31);
-                }
-            }
-        }
-
-        for (int i = 0; i < wheels.Length; i++)
-            if (wheels[i] != null)
-                wheels[i].ApplyTransformation();
-        
-        local_v2 = Utilities.FUN_24094(vObject.vTransform.rotation, local_v2);
-        int iVar32 = (vObject.phy1Unk2 << 16 | (ushort)vObject.phy1Unk1) * lightness; //r18
-        local_v2.y += GameManager.instance.gravityFactor;
-        long lVar8 = (long)vObject.physics1.X * iVar32; //sp+E0, sp+E4
-        local_v2.x -= (int)(lVar8 >> 32 >> 0);
-        lVar8 = (long)vObject.physics1.Y * iVar32;
-        local_v2.y -= (int)(lVar8 >> 32 >> 0);
-        lVar8 = (long)vObject.physics1.Z * iVar32;
-        local_v2.z -= (int)(lVar8 >> 32 >> 0);
-        vObject.FUN_2AFF8(local_v2, local_v1);
-        int iVar33 = vObject.physics2.X; //r2
-
-        if (vObject.physics2.X < 0)
-            iVar33 += 31;
-
-        vObject.physics2.X -= iVar33 >> 5;
-        iVar33 = vObject.physics2.Y;
-
-        if (vObject.physics2.Y < 0)
-            iVar33 += 31;
-
-        vObject.physics2.Y -= iVar33 >> 5;
-        iVar33 = vObject.physics2.Z;
-
-        if (vObject.physics2.Z < 0)
-            iVar33 += 31;
-
-        vObject.physics2.Z -= iVar33 >> 5;
-    }
-
-    public void FUN_3EDC4()
     {
         long lVar1;
         long lVar2;
