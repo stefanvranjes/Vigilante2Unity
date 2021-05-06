@@ -68,6 +68,7 @@ public class Vehicle : MonoBehaviour
     public VigObject[] body;
     public VigObject DAT_100; //0x100
     public VigObject[] wheels;
+    public VigObject[] weapons;
     public ushort doubleDamage;
     public ushort shield;
     public ushort jammer;
@@ -306,7 +307,7 @@ public class Vehicle : MonoBehaviour
         FUN_41B0C();
     }
     
-    private void FUN_41B0C()
+    /*private void FUN_41B0C()
     {
         short sVar1 = 84; //r17
 
@@ -400,7 +401,7 @@ public class Vehicle : MonoBehaviour
                         if (wheelsType != _WHEELS.Snow)
                             goto LAB_41E08;
 
-                        //FUN_40F10
+                        PhySnow();
                     }
                 }
             }
@@ -408,19 +409,190 @@ public class Vehicle : MonoBehaviour
         else
         {
             //FUN_3E774
-            //FUN_3E8C0
+            FUN_3E8C0();
         }
 
         sVar1 = 0;
 
         LAB_41E08:
-        ;
+        
+    }*/
+
+    private void FUN_41B0C()
+    {
+        byte bVar1;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        short sVar6;
+
+        sVar6 = 84;
+
+        if (-1 < acceleration)
+        {
+            sVar6 = 85;
+
+            if (-1 < direction)
+            {
+                sVar6 = 0;
+
+                if ((DAT_F6 & 128) != 0)
+                    sVar6 = 86;
+            }
+        }
+
+        if (body[1] != null)
+        {
+            //...
+        }
+
+        vObject.flags &= 0x8fffffff;
+        iVar4 = Utilities.FUN_29E84(new Vector3Int
+            (vObject.physics1.X, vObject.physics1.Y, vObject.physics1.Z));
+
+        if (iVar4 < 0)
+            iVar4 += 127;
+
+        iVar5 = vObject.physics1.X;
+        vObject.physics1.W = iVar4 >> 7;
+
+        if (iVar5 < 0)
+            iVar5 += 127;
+
+        iVar4 = vObject.physics1.Y;
+
+        if (iVar4 < 0)
+            iVar4 += 127;
+
+        iVar3 = vObject.physics1.Z;
+
+        if (iVar3 < 0)
+            iVar3 += 127;
+
+        iVar4 = vObject.vTransform.rotation.V02 * (iVar5 >> 7) +
+                vObject.vTransform.rotation.V12 * (iVar4 >> 7) +
+                vObject.vTransform.rotation.V22 * (iVar3 >> 7);
+
+        if (iVar4 < 0)
+            iVar4 += 4095;
+
+        vObject.physics2.W = iVar4 >> 12;
+            
+        if (DAT_B4 == 0)
+        {
+            if (wheelsType == _WHEELS.Air)
+                PhyAir();
+            else
+            {
+                if (wheelsType < _WHEELS.Sea)
+                {
+                    iVar5 = 0;
+
+                    if (wheelsType != _WHEELS.Ground)
+                        goto LAB_41E08;
+
+                    PhyGround();
+                }
+                else
+                {
+                    if (wheelsType == _WHEELS.Sea)
+                        PhySea();
+                    else
+                    {
+                        iVar5 = 0;
+
+                        if (wheelsType != _WHEELS.Snow)
+                            goto LAB_41E08;
+
+                        PhySnow();
+                    }
+                }
+            }
+        }
+        else
+        {
+            //FUN_3E774
+            FUN_3E8C0();
+        }
+
+        iVar5 = 0;
+        LAB_41E08:
+        for (; iVar5 < 3; iVar5++)
+            if (weapons[iVar5] != null)
+                if (weapons[iVar5].id != 0)
+                    weapons[iVar5].id -= 1;
+
+        if (doubleDamage != 0)
+            doubleDamage -= 1;
+
+        if (shield != 0)
+            shield -= 1;
+
+        if (jammer != 0)
+            jammer -= 1;
+
+        if ((vObject.flags & 0x8000000) == 0)
+        {
+            if (jammer == 0)
+            {
+                if (-1 < vObject.id && (DAT_F6 & 2) == 0)
+                {
+                    vObject.screen = vObject.vTransform.position;
+                    return;
+                }
+
+                iVar4 = (vObject.vTransform.position.x - vObject.screen.x) * DAT_AF;
+
+                if (iVar4 < 0)
+                    iVar4 += 255;
+
+                vObject.screen.x += iVar4 >> 8;
+                iVar4 = (vObject.vTransform.position.y - vObject.screen.y) * DAT_AF;
+
+                if (iVar4 < 0)
+                    iVar4 += 255;
+
+                vObject.screen.y += iVar4 >> 8;
+                iVar5 = vObject.screen.z;
+                iVar4 = (vObject.vTransform.position.z - iVar5) * DAT_AF;
+
+                if (iVar4 < 0)
+                    iVar4 += 255;
+
+                iVar4 = iVar4 >> 8;
+            }
+            else
+            {
+                iVar4 = vObject.vTransform.position.x - vObject.screen.x;
+
+                if (iVar4 < 0)
+                    iVar4 += 31;
+
+                vObject.screen.x += iVar4 >> 5;
+                iVar4 = vObject.vTransform.position.y - vObject.screen.y;
+
+                if (iVar4 < 0)
+                    iVar4 += 31;
+
+                iVar5 = vObject.screen.z;
+                vObject.screen.y += iVar4 >> 5;
+                iVar4 = vObject.screen.z - iVar5;
+
+                if (iVar4 < 0)
+                    iVar4 += 31;
+
+                iVar4 = iVar4 >> 5;
+            }
+
+            vObject.screen.z = iVar5 + iVar4;
+        }
     }
 
     //FUN_40F10
     public void PhySnow()
     {
         short sVar1;
+        long lVar2;
         byte bVar3;
         int uVar5;
         uint uVar6;
@@ -433,8 +605,8 @@ public class Vehicle : MonoBehaviour
         int iVar13;
         int iVar14;
         int uVar15;
+        int iVar16;
         uint uVar19;
-        TileData iVar16;
         VigTransform auStack224;
         Vector3Int auStack144;
         Vector3Int auStack104;
@@ -570,7 +742,7 @@ public class Vehicle : MonoBehaviour
                     local_a0 = positions[i];
                     local_94 = heights[i];
                     local_80 = normals[i];
-                    iVar16 = tiles[i];
+                    TileData tile = tiles[i];
 
                     if (i < 2)
                     {
@@ -621,7 +793,7 @@ public class Vehicle : MonoBehaviour
                         {
                             uVar6 = 0x10000000;
 
-                            if (iVar16 != null)
+                            if (tile != null)
                                 uVar6 = 0x30000000;
 
                             vObject.flags |= uVar6;
@@ -654,9 +826,9 @@ public class Vehicle : MonoBehaviour
                             local_c0.y = ((iVar7 - iVar12) * sVar1 * 128) / auStack104.y + local_c0.y;
                             wheels[i].screen.y = auStack144.y;
 
-                            if (iVar16 == null)
+                            if (tile == null)
                                 iVar12 = -local_c0.y;
-                            else if (iVar16.unk2[4] != 2)
+                            else if (tile.unk2[4] != 2)
                                 iVar12 = -local_c0.y;
                             else
                                 iVar12 = 0x7fffffff;
@@ -752,11 +924,140 @@ public class Vehicle : MonoBehaviour
                                 local_c0.z = iVar9 * local_c0.z - iVar12 >> 12;
                             }
 
+                            int cop2r32 = local_b0.x >> 3;
+                            int cop2r34 = local_b0.y >> 3;
+                            int cop2r36 = local_b0.z >> 3;
+                            Coprocessor.rotationMatrix.rt11 = (short)(cop2r32 & 0xFFFF);
+                            Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
+                            Coprocessor.rotationMatrix.rt22 = (short)(cop2r34 & 0xFFFF);
+                            Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
+                            Coprocessor.rotationMatrix.rt33 = (short)cop2r36;
+                            iVar12 = local_c0.x >> 3;
 
+                            if (iVar12 < -0x8000)
+                                iVar7 = -0x8000;
+                            else
+                            {
+                                iVar7 = 0x7fff;
+
+                                if (iVar12 < 0x8000)
+                                    iVar7 = iVar12;
+                            }
+
+                            iVar12 = local_c0.y >> 3;
+
+                            if (iVar12 < -0x8000)
+                                iVar13 = -0x8000;
+                            else
+                            {
+                                iVar13 = 0x7fff;
+
+                                if (iVar12 < 0x8000)
+                                    iVar13 = iVar12;
+                            }
+
+                            iVar12 = local_c0.z >> 3;
+
+                            if (iVar12 < -0x8000)
+                                iVar10 = -0x8000;
+                            else
+                            {
+                                iVar10 = 0x7fff;
+
+                                if (iVar12 < 0x8000)
+                                    iVar10 = iVar12;
+                            }
+
+                            Coprocessor.accumulator.ir1 = (short)iVar7;
+                            Coprocessor.accumulator.ir2 = (short)iVar13;
+                            Coprocessor.accumulator.ir3 = (short)iVar10;
+                            Coprocessor.ExecuteOP(12, false);
+                            local_f0.x += local_c0.x;
+                            local_f0.y += local_c0.y;
+                            local_f0.z += local_c0.z;
+                            iVar12 = Coprocessor.mathsAccumulator.mac1;
+                            local_100.x += iVar12;
+                            iVar12 = Coprocessor.mathsAccumulator.mac2;
+                            local_100.y += iVar12;
+                            iVar12 = Coprocessor.mathsAccumulator.mac3;
+                            local_100.z += iVar12;
+
+                            if (tile != null)
+                            {
+                                if (tile.unk2[3] != 0 && tile.unk2[3] != 7)
+                                {
+                                    //function call by register
+                                }
+
+                                if (i < 2) goto LAB_41944;
+
+                                if (tile.unk2[4] == 2)
+                                {
+                                    //...
+                                }
+                            }
                         }
+                        else
+                            wheels[i].screen.y = auStack144.y;
+                    }
+                    else
+                        wheels[i].screen.y = wheels[i].physics1.Y;
+
+                    if (1 < i)
+                    {
+                        iVar16 = iVar11 * local_78.x + iVar9 * local_78.z;
+
+                        if (iVar16 < 0)
+                            iVar16 += 0xfff;
+
+                        iVar11 = (iVar16 >> 12) * wheels[i].physics2.Y;
+                        wheels[i].physics2.Z = iVar16 >> 12;
+
+                        if (iVar11 < 0)
+                            iVar11 += 0x7ffff;
+
+                        wheels[i].vr.x -= iVar11 >> 19;
                     }
                 }
+
+                LAB_41944:
+                ;
             }
+
+            for (int i = 0; i < 6; i++)
+                wheels[i].ApplyTransformation();
+
+            local_f0 = Utilities.FUN_24094(vObject.vTransform.rotation, local_f0);
+            iVar14 = vObject.physics1.W * lightness;
+            local_f0.x -= (int)((ulong)((long)vObject.physics1.X * iVar14) >> 32);
+            local_f0.y = (local_f0.y + 11520) -
+                         (int)((ulong)((long)vObject.physics1.Y * iVar14) >> 32);
+            lVar2 = (long)vObject.physics1.Z * iVar14;
+            local_20 = (uint)lVar2;
+            local_1c = (int)((ulong)lVar2 >> 32);
+            local_f0.z -= local_1c;
+            vObject.FUN_2AFF8(local_f0, local_100);
+            iVar16 = vObject.physics2.X;
+            iVar14 = iVar16;
+
+            if (iVar16 < 0)
+                iVar14 = iVar16 + 31;
+
+            iVar11 = vObject.physics2.Y;
+            vObject.physics2.X = iVar16 - (iVar14 >> 5);
+            iVar14 = iVar11;
+
+            if (iVar11 < 0)
+                iVar14 = iVar11 + 31;
+
+            iVar16 = vObject.physics2.Z;
+            vObject.physics2.Y = iVar11 - (iVar14 >> 5);
+            iVar14 = iVar16;
+
+            if (iVar16 < 0)
+                iVar14 = iVar16 + 31;
+
+            vObject.physics2.Z = iVar16 - (iVar14 >> 5);
         }
     }
 
@@ -2051,7 +2352,7 @@ public class Vehicle : MonoBehaviour
         }
     }
 
-    private void FUN_3E8C0()
+    /*private void FUN_3E8C0()
     {
         int iVar1 = 0; //r22
 
@@ -2219,6 +2520,194 @@ public class Vehicle : MonoBehaviour
                 }
 
                 if (0x4C00 < vObject.physics1.Y)
+                    vObject.flags |= 0x40000000;
+            }
+        }
+    }*/
+
+    private void FUN_3E8C0()
+    {
+        long lVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        uint uVar5;
+        uint uVar6;
+        Vector3Int local_60;
+        Vector3Int local_50;
+        Vector3Int local_40;
+        Vector3Int local_30;
+        TileData local_20;
+        int local_18;
+        int local_14;
+
+        uVar6 = 0;
+
+        if (DAT_B4 == 0)
+            uVar6 = (uint)(wheelsType == _WHEELS.Ground ? 1 : 0) << 2;
+
+        uVar5 = 0;
+        local_60 = new Vector3Int(0, 0, 0);
+        local_50 = new Vector3Int(0, GameManager.instance.gravityFactor, 0);
+
+        do
+        {
+            local_40 = new Vector3Int();
+            local_30 = new Vector3Int();
+
+            if ((uVar5 & uVar6) == 0)
+            {
+                if ((uVar5 & 1) == 0)
+                    local_40.x = vObject.vCollider.min.x;
+                else
+                    local_40.x = vObject.vCollider.max.x;
+
+                if ((uVar5 & 4) == 0)
+                    local_40.y = vObject.vCollider.min.y;
+                else
+                    local_40.y = vObject.vCollider.max.y;
+
+                if ((uVar5 & 2) == 0)
+                    local_40.z = vObject.vCollider.min.z;
+                else
+                    local_40.z = vObject.vCollider.max.z;
+
+                FUN_3EA0C();
+            }
+            else
+            {
+                iVar3 = (int)uVar5 - 4;
+
+                if (wheels[iVar3] != null)
+                {
+                    local_40.x = wheels[iVar3].screen.x;
+                    local_40.y = wheels[iVar3].screen.y + wheels[iVar3].physics2.X;
+                    local_40.z = wheels[iVar3].screen.z;
+                    FUN_3EA0C();
+                }
+            }
+
+            uVar5++;
+
+            if (7 < (int)uVar5)
+            {
+                local_60 = Utilities.FUN_2426C(
+                    vObject.vTransform.rotation,
+                    new Matrix2x4(local_60.x, local_60.y, local_60.z, 0));
+                iVar2 = vObject.physics1.W * lightness;
+                local_50.x -= (int)((ulong)((long)vObject.physics1.X * iVar2) >> 32);
+                local_50.y -= (int)((ulong)((long)vObject.physics1.Y * iVar2) >> 32);
+                lVar1 = (long)vObject.physics1.Z * iVar2;
+                local_18 = (int)lVar1;
+                local_14 = (int)((ulong)lVar1 >> 32);
+                local_50.z -= local_14; //need to inspect this
+                vObject.FUN_2AFF8(local_50, local_60);
+                iVar3 = vObject.physics2.X;
+                iVar2 = iVar3;
+
+                if (iVar3 < 0)
+                    iVar2 = iVar3 + 31;
+
+                iVar4 = vObject.physics2.Y;
+                vObject.physics2.X = iVar3 - (iVar2 >> 5);
+                iVar2 = iVar4;
+
+                if (iVar4 < 0)
+                    iVar2 = iVar4 + 31;
+
+                iVar3 = vObject.physics2.Z;
+                vObject.physics2.Y = iVar4 - (iVar2 >> 5);
+                iVar2 = iVar3;
+
+                if (iVar3 < 0)
+                    iVar2 = iVar3 + 31;
+
+                vObject.physics2.Z = iVar3 - (iVar2 >> 5);
+
+                if ((vObject.flags & 0x40000000) != 0)
+                    FUN_3A020(-(vObject.physics1.Y / 19456), 0, 0 < vObject.id); //tmp
+
+                return;
+            }
+        } while (true);
+
+        void FUN_3EA0C()
+        {
+            local_40 = Utilities.FUN_24148(vObject.vTransform, local_40);
+            iVar3 = vObject.FUN_2CFBC(local_40, out local_20);
+
+            if (0 < local_40.y - iVar3)
+            {
+                iVar4 = -vObject.physics1.X;
+
+                if (0 < vObject.physics1.X)
+                    iVar4 += 3;
+
+                iVar4 = iVar4 >> 2;
+
+                if (iVar4 < -2880)
+                    local_30.x = -2880;
+                else
+                {
+                    local_30.x = 2880;
+
+                    if (iVar4 < 2881)
+                        local_30.x = iVar4;
+                }
+
+                iVar4 = -vObject.physics1.Z;
+
+                if (0 < vObject.physics1.Z)
+                    iVar4 += 3;
+
+                iVar4 = iVar4 >> 2;
+
+                if (iVar4 < -2880)
+                    local_30.z = -2880;
+                else
+                {
+                    local_30.z = 2880;
+
+                    if (iVar4 < 2881)
+                        local_30.z = iVar4;
+                }
+
+                local_30.y = -(local_40.y - iVar3);
+
+                if (0 < vObject.physics1.Y)
+                    local_30.y -= vObject.physics1.Y >> 2;
+
+                int cop2r32 = local_40.x - vObject.vTransform.position.x >> 3;
+                int cop2r34 = local_40.y - vObject.vTransform.position.y >> 3;
+                int cop2r36 = local_40.z - vObject.vTransform.position.z >> 3;
+                Coprocessor.rotationMatrix.rt11 = (short)(cop2r32 & 0xFFFF);
+                Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
+                Coprocessor.rotationMatrix.rt22 = (short)(cop2r34 & 0xFFFF);
+                Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
+                Coprocessor.rotationMatrix.rt33 = (short)cop2r36;
+                Coprocessor.accumulator.ir1 = (short)(local_30.x >> 3);
+                Coprocessor.accumulator.ir2 = (short)(local_30.y >> 3);
+                Coprocessor.accumulator.ir3 = (short)(local_30.z >> 3);
+                Coprocessor.ExecuteOP(12, false);
+                local_50.x += local_30.x;
+                local_50.y += local_30.y;
+                local_50.z += local_30.z;
+                iVar3 = Coprocessor.mathsAccumulator.mac1;
+                local_60.x += iVar3;
+                iVar3 = Coprocessor.mathsAccumulator.mac2;
+                local_60.y += iVar3;
+                iVar3 = Coprocessor.mathsAccumulator.mac3;
+                local_60.z += iVar3;
+
+                if (local_20 != null)
+                {
+                    if (local_20.unk2[3] != 0 && local_20.unk2[3] != 7)
+                    {
+                        //function call by register
+                    }
+                }
+
+                if (19456 < vObject.physics1.Y)
                     vObject.flags |= 0x40000000;
             }
         }
