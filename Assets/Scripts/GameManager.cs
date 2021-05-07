@@ -881,6 +881,9 @@ public class GameManager : MonoBehaviour
 
     public static byte[] DAT_6B204 = { 0, 1, 2, 3 };
 
+    public static uint[,] DAT_637DC = { };
+    public static uint[,] DAT_637E0 = { };
+
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
 
@@ -985,6 +988,10 @@ public class GameManager : MonoBehaviour
     public short DAT_E1C; //gp+E1Ch
     public VigTransform DAT_F00; //gp+F00h
     public int DAT_C74; //gp+C74h
+    public ushort[] DAT_CF0; //gp+CF0h
+    public byte DAT_CF8; //gp+CF8h
+    public byte DAT_D08; //gp+D08h
+    public uint[] DAT_D18; //gp+D18h
     public int DAT_DA0; //gp+DA0h
     public int DAT_DB0; //gp+DB0h
     public ushort unk7; //gp+EA0h
