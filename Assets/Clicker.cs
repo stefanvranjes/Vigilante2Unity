@@ -16,10 +16,10 @@ public class Clicker : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
-    if (Input.GetMouseButtonDown(0))
+    if (PSXInput.GetMouseButtonDown(0))
     {
       RaycastHit hit;
-      Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
+      Ray ray = _cam.ScreenPointToRay(PSXInput.mousePosition);
       if (Physics.Raycast(ray, out hit, 100.0f, HitLayer))
       {
         var rotator = hit.transform.GetComponent<SimpleRotator>();

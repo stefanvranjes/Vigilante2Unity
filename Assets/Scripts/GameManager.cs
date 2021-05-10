@@ -989,14 +989,21 @@ public class GameManager : MonoBehaviour
     public VigTransform DAT_F00; //gp+F00h
     public int DAT_C74; //gp+C74h
     public ushort[] DAT_CF0; //gp+CF0h
+    public byte[] DAT_CF4; //gp+CF4h
+    public byte[] DAT_CF5; //gp+CF5h
     public byte DAT_CF8; //gp+CF8h
+    public byte[] DAT_CFC; //gp+CFCh
     public byte DAT_D08; //gp+D08h
-    public uint[] DAT_D18; //gp+D18h
+    public byte[] DAT_D18; //gp+D18h
+    public byte[] DAT_D19; //gp+D19h
+    public byte[] DAT_D1A; //gp+D1Ah
+    public byte[] DAT_D1B; //gp+D1Bh
     public int DAT_DA0; //gp+DA0h
     public int DAT_DB0; //gp+DB0h
     public ushort unk7; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
+    public ushort[,] DAT_08; //gp+08h
     public int DAT_2C; //gp+2Ch; possible an enum?
     public _MODE mode; //gp+31h
     public bool DAT_36; //gp+36h
