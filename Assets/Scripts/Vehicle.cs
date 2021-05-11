@@ -260,7 +260,7 @@ public class Vehicle : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (vObject.ai < 0 && GameManager.instance.mode != _MODE.Demo)
+        if (vObject.ai < 0 && GameManager.instance.gameMode != _MODE.Demo)
         {
             TileData tile = GameManager.instance.terrain.GetTileByPosition
                 ((uint)vObject.vTransform.position.x, (uint)vObject.vTransform.position.z);

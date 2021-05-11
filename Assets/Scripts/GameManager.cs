@@ -21,13 +21,16 @@ public struct VehicleData
     public byte[] unk0x2C; //0x2C
 }
 
-public enum _MODE
+public enum _GAME_MODE
 {
-    Unk0,
-    Unk1,
-    Unk2,
-    Unk3,
-    Demo
+    Quest,
+    Arcade,
+    Alone,
+    Survival,
+    Demo,
+    Versus,
+    Coop,
+    Quest2
 }
 
 public class GameManager : MonoBehaviour
@@ -884,6 +887,8 @@ public class GameManager : MonoBehaviour
     public static uint[,] DAT_637DC = { };
     public static uint[,] DAT_637E0 = { };
 
+    public static byte[] DAT_639A0 = { 0, 4, 1, 4, 2, 4, 3, 4, 0, 1, 0, 2, 1, 3, 2, 3 };
+
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
 
@@ -986,7 +991,11 @@ public class GameManager : MonoBehaviour
     public Vector3Int DAT_A18; //gp+A18h
     public Vector3Int DAT_A24; //gp+A24h
     public short DAT_E1C; //gp+E1Ch
+    public int DAT_ED8; //gp+ED8h
+    public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_F00; //gp+F00h
+    public int DAT_F20; //gp+F20h
+    public VigTransform DAT_F28; //gp+F28h
     public int DAT_C74; //gp+C74h
     public ushort[] DAT_CF0; //gp+CF0h
     public byte[] DAT_CF4; //gp+CF4h
@@ -1000,12 +1009,15 @@ public class GameManager : MonoBehaviour
     public byte[] DAT_D1B; //gp+D1Bh
     public int DAT_DA0; //gp+DA0h
     public int DAT_DB0; //gp+DB0h
+    public short DAT_DB4; //gp+DB4h
+    public short DAT_DB6; //gp+DB6h
+    public short DAT_DB8; //gp+DB8h
     public ushort unk7; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
     public ushort[,] DAT_08; //gp+08h
     public int DAT_2C; //gp+2Ch; possible an enum?
-    public _MODE mode; //gp+31h
+    public _GAME_MODE gameMode; //gp+31h
     public bool DAT_36; //gp+36h
     public int gravityFactor; //gp+3Ch
     public int DAT_40; //gp+40h
@@ -1023,6 +1035,202 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private void FUN_1C158()
+    {
+        uint uVar4;
+        int piVar7;
+        int iVar8;
+        int iVar13;
+        int piVar17;
+        uint uVar23;
+        int iVar24;
+        int iVar26;
+        int iVar27;
+        int unaff_s6;
+        Vector3Int local_c0;
+        List<Vector2Int> local_b0;
+        Vector3Int local_30;
+        List<Vector3Int> aiStack240;
+        Vector3Int DAT_1f800084;
+
+        if (gameMode < _GAME_MODE.Coop)
+        {
+            DAT_DB4 = 80;
+            DAT_DB6 = 40;
+            DAT_DB8 = 20;
+        }
+        else
+        {
+            DAT_DB4 = 48;
+            DAT_DB6 = 24;
+            DAT_DB8 = 12;
+        }
+
+        Utilities.SetRotMatrix(DAT_F28.rotation);
+        local_c0 = DAT_F28.position;
+
+        if (DAT_F28.position.x < 0)
+            local_c0.x = DAT_F28.position.x + 255;
+
+        local_c0.x = local_c0.x >> 8;
+        local_c0.y = DAT_F28.position.y;
+
+        if (DAT_F28.position.y < 0)
+            local_c0.y = DAT_F28.position.y + 255;
+
+        local_c0.y = local_c0.y >> 8;
+        local_c0.z = DAT_F28.position.z;
+
+        if (DAT_F28.position.z < 0)
+            local_c0.z = DAT_F28.position.z + 255;
+
+        local_c0.z = local_c0.z >> 8;
+        DAT_1f800084 = new Vector3Int(-local_c0.x, -local_c0.y, -local_c0.z);
+        Coprocessor.translationVector._trx = local_c0.x;
+        Coprocessor.translationVector._try = local_c0.y;
+        Coprocessor.translationVector._trz = local_c0.z;
+        iVar26 = (DAT_DB4 * (DAT_EDC / 2) * 256) / DAT_ED8;
+        uVar23 = 0;
+        iVar24 = 0;
+        iVar27 = (DAT_DB4 * (DAT_F20 / 2) * 256) / DAT_ED8;
+        uVar4 = 0;
+        local_30 = new Vector3Int();
+        aiStack240 = new List<Vector3Int>();
+
+        do
+        {
+            local_30.x = iVar26;
+
+            if (uVar4 == 0)
+                local_30.x = -local_30.x;
+
+            local_30.y = iVar27;
+
+            if ((uVar23 & 2) == 0)
+                local_30.y = -local_30.y;
+
+            uVar23++;
+            local_30.z = DAT_DB4 << 8;
+            aiStack240.Add(Utilities.FUN_23F58(local_30));
+            uVar4 = uVar23 & 1;
+        } while ((int)uVar23 < 4);
+
+        iVar24 = 0;
+        iVar26 = 0;
+        local_b0 = new List<Vector2Int>();
+
+        do
+        {
+            if ((uint)aiStack240[iVar26].y + 8U < 0x3001)
+            {
+                local_b0.Add(new Vector2Int(aiStack240[iVar26].x, aiStack240[iVar26].z));
+                iVar24++;
+            }
+
+            iVar26++;
+        } while (iVar26 < 5);
+
+        iVar26 = 0;
+
+        do
+        {
+            uVar4 = DAT_639A0[iVar26];
+            uVar23 = DAT_639A0[iVar26 + 1];
+            piVar17 = (int)uVar4;
+            piVar7 = (int)uVar23;
+
+            if (aiStack240[piVar7].y < -8)
+            {
+                if (-9 < aiStack240[piVar17].y)
+                {
+                    iVar27 = aiStack240[piVar17].x;
+                    local_b0.Add(new Vector2Int(
+                        iVar27 + (aiStack240[piVar7].x - iVar27) * (-8 - aiStack240[piVar17].y) /
+                                 (aiStack240[piVar7].y - aiStack240[piVar17].y), 
+                        aiStack240[piVar17].z + 
+                        ((aiStack240[piVar7].z - aiStack240[piVar17].z) * 
+                        (-8 - aiStack240[piVar17].y)) / 
+                        (aiStack240[piVar7].y - aiStack240[piVar17].y)));
+                    iVar24++;
+                }
+            }
+            else
+            {
+                if (-9 >= aiStack240[piVar17].y)
+                {
+                    iVar27 = aiStack240[piVar17].x;
+                    local_b0.Add(new Vector2Int(
+                        iVar27 + (aiStack240[piVar7].x - iVar27) * (-8 - aiStack240[piVar17].y) /
+                                 (aiStack240[piVar7].y - aiStack240[piVar17].y),
+                        aiStack240[piVar17].z +
+                        ((aiStack240[piVar7].z - aiStack240[piVar17].z) *
+                        (-8 - aiStack240[piVar17].y)) /
+                        (aiStack240[piVar7].y - aiStack240[piVar17].y)));
+                    iVar24++;
+                }
+            }
+
+            if (aiStack240[piVar7].y < 0x2ff9)
+            {
+                if (aiStack240[piVar17].y >= 0x2ff9)
+                {
+                    iVar27 = aiStack240[piVar17].x;
+                    local_b0.Add(new Vector2Int(
+                          iVar27 + (aiStack240[piVar7].x - iVar27) * (0x2ff8 - aiStack240[piVar17].y) /
+                                    (aiStack240[piVar7].y - aiStack240[piVar17].y),
+                          aiStack240[piVar17].z +
+                          ((aiStack240[piVar7].z - aiStack240[piVar17].z) *
+                          (0x2ff8 - aiStack240[piVar17].y)) /
+                          (aiStack240[piVar7].y - aiStack240[piVar17].y)));
+                    iVar24++;
+                }
+            }
+            else
+            {
+                if (aiStack240[piVar17].y < 0x2ff9)
+                {
+                    iVar27 = aiStack240[piVar17].x;
+                    local_b0.Add(new Vector2Int(
+                          iVar27 + (aiStack240[piVar7].x - iVar27) * (0x2ff8 - aiStack240[piVar17].y) /
+                                    (aiStack240[piVar7].y - aiStack240[piVar17].y),
+                          aiStack240[piVar17].z +
+                          ((aiStack240[piVar7].z - aiStack240[piVar17].z) *
+                          (0x2ff8 - aiStack240[piVar17].y)) /
+                          (aiStack240[piVar7].y - aiStack240[piVar17].y)));
+                    iVar24++;
+                }
+            }
+
+            iVar26++;
+
+            if (7 < iVar26)
+            {
+                if (iVar24 != 0)
+                {
+                    iVar26 = 0x7fffffff;
+                    iVar13 = 0x7fffffff;
+                    iVar27 = 0;
+
+                    if (0 < iVar24)
+                    {
+                        do
+                        {
+                            iVar8 = local_b0[iVar27].y;
+
+                            if (iVar8 < iVar26 || (iVar8 == iVar26 && local_b0[iVar27].x < iVar13))
+                            {
+                                iVar13 = local_b0[iVar27].x;
+                                iVar26 = iVar8;
+                                unaff_s6 = iVar27;
+                            }
+                            iVar27++;
+                        } while (iVar27 < iVar24);
+                    }
+                }
+            }
+        }
     }
 
     private int FUN_1E354(Vector3Int v3)

@@ -108,6 +108,18 @@ public class Utilities
         }
     }
 
+    public static Vector3Int FUN_23F58(Vector3Int v3)
+    {
+        Coprocessor.vector0.vx0 = (short)v3.x;
+        Coprocessor.vector0.vy0 = (short)v3.y;
+        Coprocessor.vector0.vz0 = (short)v3.z;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.TR, 12, false);
+        return new Vector3Int(
+            Coprocessor.mathsAccumulator.mac1, 
+            Coprocessor.mathsAccumulator.mac2, 
+            Coprocessor.mathsAccumulator.mac3);
+    }
+
     public static Matrix3x3 FUN_247C4(Matrix3x3 m1, Matrix3x3 m2)
     {
         Coprocessor.rotationMatrix.rt11 = m1.V00;
@@ -900,79 +912,19 @@ public class Utilities
         return new Vector3Int(Coprocessor.accumulator.ir1, Coprocessor.accumulator.ir2, Coprocessor.accumulator.ir3);
     }
 
-    //FUN_5A78C
-    /*public static Matrix3x3 RotMatrixYXZ(Vector3Int r)
+    //FUN_5A01C
+    public static void SetRotMatrix(Matrix3x3 m)
     {
-        Matrix3x3 m33 = new Matrix3x3();
-        int z = r.z >> 31; //r11
-        int xy = (r.y << 16) + r.x; //r12
-        int index = ((r.z + z ^ z) << 2 & 0x3FFC) / 2;
-        int iVar1 = (GameManager.DAT_65C90[index + 1] << 16) | (ushort)GameManager.DAT_65C90[index]; //r6
-        int iVar2 = xy >> 16; //r8
-        int iVar3 = iVar2 >> 31; //r10
-        index = ((iVar2 + iVar3 ^ iVar3) << 2 & 0x3FFC) / 2;
-        int iVar4 = (GameManager.DAT_65C90[index + 1] << 16) | (ushort)GameManager.DAT_65C90[index]; //r5
-        iVar2 = xy << 16 >> 16;
-        int iVar5 = iVar2 >> 31; //r9
-        index = ((iVar2 + iVar5 ^ iVar5) << 2 & 0x3FFC) / 2;
-        int iVar6 = (GameManager.DAT_65C90[index + 1] << 16) | (ushort)GameManager.DAT_65C90[index]; //r4
-        iVar1 = iVar1 >> 16 << 16 | (int)((uint)((iVar1 << 16) + z ^ z) >> 16);
-        iVar4 = iVar4 >> 16 << 16 | (int)((uint)((iVar4 << 16) + iVar3 ^ iVar3) >> 16);
-        iVar6 = iVar6 >> 16 << 16 | (int)((uint)((iVar6 << 16) + iVar5 ^ iVar5) >> 16);
-        iVar2 = iVar4 >> 16;
-        Coprocessor.accumulator.ir0 = (short)iVar2;
-        int iVar7 = iVar6 << 16 >> 16; //r7
-        Coprocessor.accumulator.ir1 = (short)iVar7;
-        int iVar8 = iVar1 << 16 >> 16; //r3
-        Coprocessor.accumulator.ir2 = (short)iVar8;
-        Coprocessor.accumulator.ir3 = (short)(iVar1 >> 16);
-        Coprocessor.ExecuteGPF(12, false);
-        m33.SetValue32(4, (iVar6 >> 16) * iVar2 >> 12);
-        iVar2 = Coprocessor.accumulator.ir1;
-        iVar5 = Coprocessor.accumulator.ir2;
-        iVar3 = Coprocessor.accumulator.ir3;
-        int iVar9 = iVar4 << 16 >> 16; //r14
-        Coprocessor.accumulator.ir0 = (short)iVar9;
-        Coprocessor.accumulator.ir1 = (short)iVar7;
-        Coprocessor.accumulator.ir2 = (short)iVar8;
-        Coprocessor.accumulator.ir3 = (short)(iVar1 >> 16);
-        Coprocessor.ExecuteGPF(12, false);
-        int iVar10 = Coprocessor.accumulator.ir1; //r11
-        int iVar11 = Coprocessor.accumulator.ir2; //r12
-        int iVar12 = Coprocessor.accumulator.ir3; //r13
-        Coprocessor.accumulator.ir0 = (short)(iVar1 >> 16);
-        Coprocessor.accumulator.ir1 = (short)(iVar6 >> 16);
-        Coprocessor.accumulator.ir2 = (short)iVar10;
-        Coprocessor.accumulator.ir3 = (short)iVar2;
-        Coprocessor.ExecuteGPF(12, false);
-        int iVar13 = iVar6 >> 16; //r1
-        int iVar14 = iVar13 * iVar9; //lo
-        iVar6 = Coprocessor.accumulator.ir1;
-        iVar4 = Coprocessor.accumulator.ir2;
-        iVar1 = Coprocessor.accumulator.ir3;
-        Coprocessor.accumulator.ir0 = (short)iVar8;
-        Coprocessor.accumulator.ir1 = (short)iVar13;
-        Coprocessor.accumulator.ir2 = (short)iVar10;
-        Coprocessor.accumulator.ir3 = (short)iVar2;
-        Coprocessor.ExecuteGPF(12, false);
-        iVar7 = -iVar7 << 16;
-        iVar6 = iVar6 & 0xFFFF | iVar7;
-        m33.SetValue32(2, iVar6);
-        iVar13 = Coprocessor.accumulator.ir1;
-        iVar9 = Coprocessor.accumulator.ir2;
-        int iVar15 = Coprocessor.accumulator.ir3; //r15
-        iVar5 = iVar4 - iVar5 << 16;
-        iVar3 = iVar3 + iVar9 & 0xFFFF;
-        iVar5 |= iVar3;
-        m33.SetValue32(0, iVar5);
-        iVar14 = iVar14 >> 12 & 0xFFFF;
-        iVar13 = iVar13 << 16 | iVar14;
-        m33.SetValue32(1, iVar13);
-        iVar12 = iVar15 - iVar12 & 0xFFFF;
-        iVar11 = iVar1 + iVar11 << 16 | iVar13;
-        m33.SetValue32(3, iVar11);
-        return m33;
-    }*/
+        Coprocessor.rotationMatrix.rt11 = m.V00;
+        Coprocessor.rotationMatrix.rt12 = m.V01;
+        Coprocessor.rotationMatrix.rt13 = m.V02;
+        Coprocessor.rotationMatrix.rt21 = m.V10;
+        Coprocessor.rotationMatrix.rt22 = m.V11;
+        Coprocessor.rotationMatrix.rt23 = m.V12;
+        Coprocessor.rotationMatrix.rt31 = m.V20;
+        Coprocessor.rotationMatrix.rt32 = m.V21;
+        Coprocessor.rotationMatrix.rt33 = m.V22;
+    }
 
     //FUN_5A78C
     public static Matrix3x3 RotMatrixYXZ_gte(Vector3Int r)
