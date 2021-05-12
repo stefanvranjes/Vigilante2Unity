@@ -987,9 +987,12 @@ public class GameManager : MonoBehaviour
     public VehicleConfig commonWheelConfiguration;
     public Vehicle[] players; //6B8D8
 
+    public Matrix3x3 DAT_718; //gp+718h
+    public Matrix3x3 DAT_738; //gp+738h
     public bool DAT_83B; //gp+83Bh
     public Vector3Int DAT_A18; //gp+A18h
     public Vector3Int DAT_A24; //gp+A24h
+    public Color32 DAT_E04; //gp+E04h
     public short DAT_E1C; //gp+E1Ch
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
@@ -997,6 +1000,7 @@ public class GameManager : MonoBehaviour
     public int DAT_F20; //gp+F20h
     public VigTransform DAT_F28; //gp+F28h
     public int DAT_C74; //gp+C74h
+    public int DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
     public byte[] DAT_CF4; //gp+CF4h
     public byte[] DAT_CF5; //gp+CF5h
@@ -1008,10 +1012,12 @@ public class GameManager : MonoBehaviour
     public byte[] DAT_D1A; //gp+D1Ah
     public byte[] DAT_D1B; //gp+D1Bh
     public int DAT_DA0; //gp+DA0h
+    public Color32 DAT_DA4; //gp+DA4h
     public int DAT_DB0; //gp+DB0h
     public short DAT_DB4; //gp+DB4h
     public short DAT_DB6; //gp+DB6h
     public short DAT_DB8; //gp+DB8h
+    public Color32 DAT_DDC; //gp+DDCh
     public ushort unk7; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
@@ -1039,20 +1045,34 @@ public class GameManager : MonoBehaviour
 
     private void FUN_1C158()
     {
+        bool bVar1;
+        bool bVar3;
         uint uVar4;
+        int iVar5;
+        int iVar6;
         int piVar7;
         int iVar8;
+        int iVar9;
+        int piVar11;
         int iVar13;
+        int iVar14;
         int piVar17;
+        int iVar18;
+        int iVar19;
+        int iVar21;
+        int iVar22;
         uint uVar23;
         int iVar24;
+        int iVar25;
         int iVar26;
         int iVar27;
         int unaff_s6;
         Vector3Int local_c0;
         List<Vector2Int> local_b0;
         Vector3Int local_30;
+        int local_28;
         List<Vector3Int> aiStack240;
+        int DAT_1f800080;
         Vector3Int DAT_1f800084;
 
         if (gameMode < _GAME_MODE.Coop)
@@ -1204,6 +1224,7 @@ public class GameManager : MonoBehaviour
             }
 
             iVar26++;
+            unaff_s6 = 0; //not in the original code
 
             if (7 < iVar26)
             {
@@ -1228,6 +1249,141 @@ public class GameManager : MonoBehaviour
                             iVar27++;
                         } while (iVar27 < iVar24);
                     }
+
+                    local_b0[unaff_s6] = new Vector2Int(local_b0[0].x, local_b0[0].y);
+                    local_b0[0] = new Vector2Int(iVar13, iVar26);
+                    iVar27 = iVar24 - 1;
+                    iVar8 = 1;
+
+                    do
+                    {
+                        bVar3 = false;
+                        iVar25 = iVar8;
+                        local_28 = 0; //not in the original code
+
+                        if (iVar8 < iVar27)
+                        {
+                            do
+                            {
+                                piVar7 = iVar8;
+                                iVar5 = iVar8 + 1;
+                                piVar11 = iVar5;
+                                iVar14 = local_b0[piVar7].x;
+                                iVar22 = local_b0[piVar11].y;
+                                iVar9 = iVar14 - iVar13;
+                                iVar21 = local_b0[piVar7].y;
+                                iVar18 = local_b0[piVar11].x;
+                                iVar19 = iVar18 - iVar13;
+                                iVar6 = iVar9 * (iVar22 - iVar26) - (iVar21 - iVar26) * iVar19;
+
+                                if (iVar6 == 0)
+                                {
+                                    iVar24--;
+                                    iVar27--;
+
+                                    if (iVar21 == iVar22)
+                                    {
+                                        if (iVar9 < 0)
+                                            iVar9 = -iVar9;
+
+                                        if (iVar19 < 0)
+                                            iVar19 = -iVar19;
+
+                                        bVar1 = iVar19 < iVar9;
+                                    }
+                                    else
+                                        bVar1 = iVar22 < iVar21;
+
+                                    iVar9 = iVar8 + (bVar1 ? 1 : 0);
+
+                                    while (iVar9 < iVar24)
+                                    {
+                                        iVar19 = iVar9 + 1;
+                                        iVar5 = local_b0[iVar19].y;
+                                        local_b0[iVar9] = new Vector2Int(local_b0[iVar19].x, iVar5);
+                                        iVar9 = iVar19;
+                                    }
+
+                                    iVar8--;
+                                }
+                                else
+                                {
+                                    if (iVar6 < 0)
+                                    {
+                                        local_b0[piVar7] = new Vector2Int(iVar18, local_b0[piVar11].y);
+                                        local_b0[piVar11] = new Vector2Int(iVar14, iVar21);
+
+                                        if (!bVar3)
+                                        {
+                                            iVar25 = 1;
+
+                                            if (2 < iVar8)
+                                                iVar25 = iVar8 - 1;
+
+                                            bVar3 = true;
+                                        }
+
+                                        local_28 = iVar8;
+                                    }
+                                }
+
+                                iVar8++;
+                            } while (iVar8 < iVar27);
+                        }
+
+                        iVar27 = local_28;
+                        iVar8 = iVar25;
+                    } while (bVar3);
+
+                    iVar27 = 0;
+                    iVar26 = 0;
+
+                    if (0 < iVar24)
+                    {
+                        piVar11 = 0;
+
+                        do
+                        {
+                            if (1 < iVar26)
+                            {
+                                do
+                                {
+                                    iVar8 = iVar26 - 1;
+                                    iVar13 = local_b0[iVar8].x;
+
+                                    if ((local_b0[iVar8].y - local_b0[iVar26 - 2].y) *
+                                        (local_b0[piVar11].x - iVar13) <=
+                                        (iVar13 - local_b0[iVar26 - 2].x) * (local_b0[piVar11].y - local_b0[iVar8].y))
+                                        break;
+
+                                    iVar26 = iVar8;
+                                } while (1 < iVar8);
+                            }
+
+                            iVar13 = local_b0[piVar11].y;
+                            local_b0[iVar26] = new Vector2Int(local_b0[piVar11].x, iVar13);
+                            iVar26++;
+                            iVar27++;
+                            piVar11++;
+                        } while (iVar27 < iVar24);
+                    }
+
+                    Utilities.SetRotMatrix(DAT_F00.rotation);
+                    Coprocessor.translationVector._trx = 0;
+                    Coprocessor.translationVector._try = 0;
+                    Coprocessor.translationVector._trz = 0;
+                    iVar24 = 0;
+                    Utilities.SetColorMatrix(DAT_738);
+                    Utilities.SetLightMatrix(DAT_718);
+                    Utilities.SetBackColor(DAT_E04.r, DAT_E04.g, DAT_E04.b);
+                    Utilities.SetFarColor(DAT_DA4.r, DAT_DA4.g, DAT_DA4.b);
+                    DAT_1f800080 = DAT_CE0 + 0x100;
+                    Utilities.SetFogNearFar(DAT_DB6 << 8, DAT_DB4 << 8, DAT_ED8);
+                    Coprocessor.colorCode.r = DAT_DDC.r;
+                    Coprocessor.colorCode.g = DAT_DDC.g;
+                    Coprocessor.colorCode.b = DAT_DDC.b;
+                    Coprocessor.colorCode.code = DAT_DDC.a;
+
                 }
             }
         }

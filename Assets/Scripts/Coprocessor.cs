@@ -103,13 +103,15 @@ public class Coprocessor
     public static Cop2Accumulator accumulator;
     public static Cop2Maths mathsAccumulator;
     public static Cop2RT rotationMatrix;
-    public static Cop2LCM lightMatrix;
-    public static Cop2LLM lightColorMatrix;
+    public static Cop2LLM lightMatrix;
+    public static Cop2LCM lightColorMatrix;
     public static Cop2ClrCode colorCode;
     public static Cop2TV translationVector;
     public static Cop2BC backgroundColor;
     public static Cop2FC farColor;
     public static Cop2ClrFIFO colorFIFO;
+    public static short dqa;
+    public static uint dqb;
 
     static readonly long MAC0_MIN_VALUE = -(INT64_C(1) << 31);
     static readonly long MAC0_MAX_VALUE = (INT64_C(1) << 31) - 1;

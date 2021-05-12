@@ -892,6 +892,49 @@ public class Utilities
         return uVar3;
     }
 
+    //FUN_5961C
+    public static void SetFogNearFar(int a, int b, int h)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+
+        iVar2 = b - a;
+
+        if (99 < iVar2)
+        {
+            if (iVar2 == 0)
+                return; //exception 0x1c00
+
+            if (iVar2 == -1 && -a * b == -0x80000000)
+                return; //exception 0x1800
+
+            if (iVar2 == 0)
+                return; //exception 0x1c00
+
+            if (iVar2 == -1 && b << 12 == -0x80000000)
+                return; //exception 0x1800
+
+            iVar1 = (-a * b) / iVar2 << 8;
+            iVar3 = iVar1 / h;
+
+            if (h == 0)
+                return; //exception 0x1c00
+
+            if (h == -1 && iVar1 == -0x80000000)
+                return; //exception 0x1800
+
+            if (iVar3 < -0x8000)
+                iVar3 = -0x8000;
+
+            if (0x7fff < iVar3)
+                iVar3 = 0x7fff;
+
+            SetDQA(iVar3);
+            SetDQB((b << 12) / iVar2 << 12);
+        }
+    }
+
     //FUN_59FBC
     public static Vector3Int ApplyMatrixSV(Matrix3x3 m33, Vector3Int v3)
     {
@@ -925,6 +968,64 @@ public class Utilities
         Coprocessor.rotationMatrix.rt32 = m.V21;
         Coprocessor.rotationMatrix.rt33 = m.V22;
     }
+
+    //FUN_5A04C
+    public static void SetLightMatrix(Matrix3x3 m)
+    {
+        Coprocessor.lightMatrix.l11 = m.V00;
+        Coprocessor.lightMatrix.l12 = m.V01;
+        Coprocessor.lightMatrix.l13 = m.V02;
+        Coprocessor.lightMatrix.l21 = m.V10;
+        Coprocessor.lightMatrix.l22 = m.V11;
+        Coprocessor.lightMatrix.l23 = m.V12;
+        Coprocessor.lightMatrix.l31 = m.V20;
+        Coprocessor.lightMatrix.l32 = m.V21;
+        Coprocessor.lightMatrix.l33 = m.V22;
+    }
+
+    //FUN_5A07C
+    public static void SetColorMatrix(Matrix3x3 m)
+    {
+        Coprocessor.lightColorMatrix.lr1 = m.V00;
+        Coprocessor.lightColorMatrix.lr2 = m.V01;
+        Coprocessor.lightColorMatrix.lr3 = m.V02;
+        Coprocessor.lightColorMatrix.lg1 = m.V10;
+        Coprocessor.lightColorMatrix.lg2 = m.V11;
+        Coprocessor.lightColorMatrix.lg3 = m.V12;
+        Coprocessor.lightColorMatrix.lb1 = m.V20;
+        Coprocessor.lightColorMatrix.lb2 = m.V21;
+        Coprocessor.lightColorMatrix.lb3 = m.V22;
+    }
+
+    //FUN_5A1A4
+    public static void SetDQA(int param1)
+    {
+        Coprocessor.dqa = (short)param1;
+    }
+
+    //FUN_5A1B0
+    public static void SetDQB(int param1)
+    {
+        Coprocessor.dqb = (uint)param1;
+    }
+
+    //FUN_5A1BC
+    public static void SetBackColor(int rbk, int gbk, int bbk)
+    {
+        Coprocessor.backgroundColor._rbk = rbk << 4;
+        Coprocessor.backgroundColor._gbk = gbk << 4;
+        Coprocessor.backgroundColor._bbk = bbk << 4;
+    }
+
+    //FUN_5A1DC
+    public static void SetFarColor(int rfc, int gfc, int bfc)
+    {
+        Coprocessor.farColor._rfc = rfc << 4;
+        Coprocessor.farColor._gfc = gfc << 4;
+        Coprocessor.farColor._bfc = bfc << 4;
+    }
+
+    
 
     //FUN_5A78C
     public static Matrix3x3 RotMatrixYXZ_gte(Vector3Int r)
