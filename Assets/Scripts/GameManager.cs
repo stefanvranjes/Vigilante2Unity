@@ -983,10 +983,19 @@ public class GameManager : MonoBehaviour
         },
     };
 
+    public static Color32[] DAT_1f800000 = new Color32[32];
+    public static int DAT_1f800080;
+    public static Vector3Int DAT_1f800084;
+    public static short DAT_1f800094;
+    public static short DAT_1f800096;
+    public static short DAT_1f800098;
+    public static short DAT_1f80009a;
+
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
     public Vehicle[] players; //6B8D8
 
+    public Color32[] DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
     public Matrix3x3 DAT_738; //gp+738h
     public bool DAT_83B; //gp+83Bh
@@ -1072,8 +1081,6 @@ public class GameManager : MonoBehaviour
         Vector3Int local_30;
         int local_28;
         List<Vector3Int> aiStack240;
-        int DAT_1f800080;
-        Vector3Int DAT_1f800084;
 
         if (gameMode < _GAME_MODE.Coop)
         {
@@ -1168,10 +1175,10 @@ public class GameManager : MonoBehaviour
                     iVar27 = aiStack240[piVar17].x;
                     local_b0.Add(new Vector2Int(
                         iVar27 + (aiStack240[piVar7].x - iVar27) * (-8 - aiStack240[piVar17].y) /
-                                 (aiStack240[piVar7].y - aiStack240[piVar17].y), 
-                        aiStack240[piVar17].z + 
-                        ((aiStack240[piVar7].z - aiStack240[piVar17].z) * 
-                        (-8 - aiStack240[piVar17].y)) / 
+                                 (aiStack240[piVar7].y - aiStack240[piVar17].y),
+                        aiStack240[piVar17].z +
+                        ((aiStack240[piVar7].z - aiStack240[piVar17].z) *
+                        (-8 - aiStack240[piVar17].y)) /
                         (aiStack240[piVar7].y - aiStack240[piVar17].y)));
                     iVar24++;
                 }
@@ -1371,8 +1378,7 @@ public class GameManager : MonoBehaviour
                     Utilities.SetRotMatrix(DAT_F00.rotation);
                     Coprocessor.translationVector._trx = 0;
                     Coprocessor.translationVector._try = 0;
-                    Coprocessor.translationVector._trz = 0;
-                    iVar24 = 0;
+                    Coprocessor.translationVector._trz = 0; iVar24 = 0;
                     Utilities.SetColorMatrix(DAT_738);
                     Utilities.SetLightMatrix(DAT_718);
                     Utilities.SetBackColor(DAT_E04.r, DAT_E04.g, DAT_E04.b);
@@ -1384,9 +1390,147 @@ public class GameManager : MonoBehaviour
                     Coprocessor.colorCode.b = DAT_DDC.b;
                     Coprocessor.colorCode.code = DAT_DDC.a;
 
+                    for (iVar24 = 0; iVar24 < 32; iVar24++)
+                    {
+                        Coprocessor.accumulator.ir1 = (short)(iVar24 << 7);
+                        Coprocessor.ExecuteCC(12, true);
+                        terrain.DAT_BA4F0[iVar24] = new Color32
+                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                        DAT_1f800000[iVar24] = new Color32
+                            (terrain.DAT_B9370[iVar24].r, terrain.DAT_B9370[iVar24].g, terrain.DAT_B9370[iVar24].b, 52);
+                    }
+
+                    DAT_1f800094 = (short)(ushort)DAT_EDC;
+                    DAT_1f800096 = (short)(ushort)DAT_F20;
+                    DAT_1f800098 = (short)(DAT_DB6 << 8);
+                    DAT_1f80009a = (short)(DAT_DB8 << 8);
+                    FUN_1BECC(local_b0, iVar26);
                 }
+
+                return;
             }
-        }
+        } while (true);
+    }
+
+    private void FUN_1BECC(List<Vector2Int> param1, int param2)
+    {
+        int piVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int piVar5;
+        int iVar6;
+        int in_t0;
+        int in_t1;
+        int iVar7;
+        bool unaff_s0;
+        int iVar8;
+        int piVar9;
+        int unaff_s4;
+        int unaff_s5;
+        int iVar10;
+        int iVar11;
+        int iVar12;
+
+        iVar8 = 0;
+        iVar11 = 0;
+        iVar10 = param1[0].x;
+        iVar2 = param1[0].y;
+
+        if (iVar2 < 0)
+            iVar2 += 1023;
+
+        iVar7 = (iVar2 >> 10) << 2;
+        iVar2 = (iVar2 >> 10) * 1024;
+        piVar9 = 0;
+        iVar12 = iVar10;
+        unaff_s0 = false; //not in the original code
+        unaff_s4 = 0; //not in the original code
+        unaff_s5 = 0; //not in the original code
+        in_t0 = 0; //not in the original code
+        in_t1 = 0; //not in the original code
+
+        do
+        {
+            iVar2 += 1024;
+            iVar3 = param1[iVar8].y;
+            iVar4 = iVar12;
+
+            do
+            {
+                if (iVar2 <= iVar3) break;
+
+                unaff_s4 = param1[iVar8].x;
+                in_t0 = param1[iVar8].y;
+
+                if (unaff_s4 < iVar4)
+                    iVar4 = unaff_s4;
+
+                if (iVar8 == 0)
+                    iVar8 = param2;
+
+                iVar8--;
+                iVar3 = param1[iVar8].y;
+                unaff_s0 = iVar3 < in_t0;
+            } while (!unaff_s0);
+
+            iVar3 = iVar10;
+
+            if (param1[piVar9].y < iVar2)
+            {
+                piVar5 = iVar11;
+
+                do
+                {
+                    unaff_s5 = param1[piVar5].x;
+                    in_t1 = param1[piVar5].y;
+
+                    if (iVar3 < unaff_s5)
+                        iVar3 = unaff_s5;
+
+                    piVar9++;
+                    iVar11++;
+                    unaff_s0 = false;
+
+                    if (param1[piVar5 + 1].y < in_t1 || iVar11 == param2)
+                        unaff_s0 = true;
+
+                    if (unaff_s0) goto LAB_1C0A4;
+
+                    piVar1 = piVar5 + 1;
+                    piVar5++;
+                } while (param1[piVar1].y < iVar2);
+            }
+
+            if (!unaff_s0)
+            {
+                iVar12 = unaff_s4 +
+                        (param1[iVar8].x - unaff_s4) * (iVar2 - in_t0) /
+                        (param1[iVar8].y - in_t0);
+                iVar10 = unaff_s5 + (param1[piVar9].x - unaff_s5) * (iVar2 - in_t1) / (param1[piVar9].y - in_t1);
+
+                if (iVar12 < iVar4)
+                    iVar4 = iVar12;
+
+                if (iVar3 < iVar10)
+                    iVar3 = iVar10;
+            }
+
+            LAB_1C0A4:
+            iVar6 = iVar3 + 1023;
+
+            if (iVar4 < 0)
+                iVar4 += 1023;
+
+            if (iVar6 < 0)
+                iVar6 = iVar3 + 2046;
+
+            terrain.FUN_1BE68((iVar4 >> 10) << 2, (iVar6 >> 10) << 2, iVar7);
+            iVar7 += 4;
+
+            if (unaff_s0)
+                return;
+        } while (true);
     }
 
     private int FUN_1E354(Vector3Int v3)

@@ -1231,6 +1231,13 @@ public class Utilities
         return new Vector3Int(mac1, mac2, mac3);
     }
 
+    public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+    {
+        if (val.CompareTo(min) < 0) return min;
+        else if (val.CompareTo(max) > 0) return max;
+        else return val;
+    }
+
     public static float MoveDecimal(int value, int space)
     {
         return (float)(value / Math.Pow(10, space));

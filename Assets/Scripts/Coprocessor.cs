@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using static Types.TypesClass;
 
@@ -71,6 +72,17 @@ public struct Cop2ClrFIFO
     public byte r2, g2, b2, cd2;
 }
 
+public struct Cop2SxyFIFO
+{
+    public short sx1, sx2, sx3, sx4;
+    public short sy1, sy2, sy3, sy4;
+}
+
+public struct Cop2SzFIFO
+{
+    public short sz1, sz2, sz3, sz4;
+}
+
 public enum _MVMVA_MULTIPLY_MATRIX
 {
     Rotation,
@@ -110,6 +122,8 @@ public class Coprocessor
     public static Cop2BC backgroundColor;
     public static Cop2FC farColor;
     public static Cop2ClrFIFO colorFIFO;
+    public static Cop2SxyFIFO screenXYFIFO;
+    public static Cop2SzFIFO screenZFIFO;
     public static short dqa;
     public static uint dqb;
 
@@ -121,6 +135,11 @@ public class Coprocessor
     static readonly int IR0_MAX_VALUE = 0x1000;
     static readonly int IR123_MIN_VALUE = -(INT64_C(1) << 15);
     static readonly int IR123_MAX_VALUE = (INT64_C(1) << 15) - 1;
+
+    public static void ExecuteRTPS(byte shift, bool lm)
+    {
+
+    }
 
     public static void ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX matrix, _MVMVA_MULTIPLY_VECTOR multiply, _MVMVA_TRANSLATION_VECTOR translation, byte shift, bool lm)
     {
@@ -263,6 +282,63 @@ public class Coprocessor
         TruncateAndSetMACAndIR(IR2 * D1 - IR1 * D2, 3, shift, lm);
     }
 
+    public static void ExecuteCC(byte shift, bool lm)
+    {
+        short[,] LCM = new short[,]
+        {
+            { lightColorMatrix.lr1, lightColorMatrix.lr2, lightColorMatrix.lr3 },
+            { lightColorMatrix.lg1, lightColorMatrix.lg2, lightColorMatrix.lg3 },
+            { lightColorMatrix.lb1, lightColorMatrix.lb2, lightColorMatrix.lb3 }
+        };
+
+        int[] BK = new int[]
+        {
+            backgroundColor._rbk, backgroundColor._gbk, backgroundColor._bbk
+        };
+
+        MultMatVec(LCM, BK, accumulator.ir1, accumulator.ir2, accumulator.ir3, shift, lm);
+
+        TruncateAndSetMACAndIR((long)((int)(uint)colorCode.r * accumulator.ir1) << 4, 1, shift, lm);
+        TruncateAndSetMACAndIR((long)((int)(uint)colorCode.g * accumulator.ir2) << 4, 2, shift, lm);
+        TruncateAndSetMACAndIR((long)((int)(uint)colorCode.b * accumulator.ir3) << 4, 3, shift, lm);
+
+        PushRGBFromMAC();
+    }
+
+    private static void RTPS(short[] V, byte shift, bool lm, bool last)
+    {
+        int[] TR = new int[]
+        {
+            translationVector._trx, translationVector._try, translationVector._trz
+        };
+
+        int[,] RT = new int[,]
+        {
+            { rotationMatrix.rt11, rotationMatrix.rt12, rotationMatrix.rt13 },
+            { rotationMatrix.rt21, rotationMatrix.rt22, rotationMatrix.rt23 },
+            { rotationMatrix.rt31, rotationMatrix.rt32, rotationMatrix.rt33 }
+        };
+
+        long[] xyz = new long[3];
+
+        for (int i = 0; i < 3; i++)
+            xyz[i] = SignExtendMACResult(SignExtendMACResult(((long)TR[i] << 12) + ((long)RT[i, 0] * V[0]), i + 1) +
+                                ((long)RT[i, 1] * V[1]), i + 1) + ((long)RT[i, 2] * V[2]);
+
+        long x = xyz[0];
+        long y = xyz[1];
+        long z = xyz[2];
+        TruncateAndSetMAC(x, 1, shift);
+        TruncateAndSetMAC(y, 2, shift);
+        TruncateAndSetMAC(z, 3, shift);
+        TruncateAndSetIR(mathsAccumulator.mac1, 1, lm);
+        TruncateAndSetIR(mathsAccumulator.mac2, 2, lm);
+        TruncateAndSetIR((int)(z >> 12), 3, false);
+        accumulator.ir3 = (short)Utilities.Clamp<int>(mathsAccumulator.mac3, lm ? 0 : IR123_MIN_VALUE, IR123_MAX_VALUE);
+
+        PushSZ((int)(z >> 12));
+    }
+
     private static void MultMatVec(short[,] M, int[] T, short Vx, short Vy, short Vz, byte shift, bool lm)
     {
         for (int i = 0; i < 3; i++)
@@ -301,14 +377,42 @@ public class Coprocessor
         else if (value > MAX_VALUE)
             value = MAX_VALUE;
 
-        if (index == 0)
-            accumulator.ir0 = (short)value;
-        else if (index == 1)
-            accumulator.ir1 = (short)value;
-        else if (index == 2)
-            accumulator.ir2 = (short)value;
-        else
-            accumulator.ir3 = (short)value;
+        switch (index)
+        {
+            case 0:
+                accumulator.ir0 = (short)value;
+                break;
+            case 1:
+                accumulator.ir1 = (short)value;
+                break;
+            case 2:
+                accumulator.ir2 = (short)value;
+                break;
+            default:
+                accumulator.ir3 = (short)value;
+                break;
+        }
+    }
+
+    private static void TruncateAndSetMAC(long value, int index, byte shift)
+    {
+        value >>= shift;
+
+        switch (index)
+        {
+            case 0:
+                mathsAccumulator.mac0 = (int)(uint)(ulong)value;
+                break;
+            case 1:
+                mathsAccumulator.mac1 = (int)(uint)(ulong)value;
+                break;
+            case 2:
+                mathsAccumulator.mac2 = (int)(uint)(ulong)value;
+                break;
+            default:
+                mathsAccumulator.mac3 = (int)(uint)(ulong)value;
+                break;
+        }
     }
 
     private static long SignExtendMACResult(long value, int index)
@@ -337,6 +441,19 @@ public class Coprocessor
         colorFIFO.g2 = (byte)g;
         colorFIFO.b2 = (byte)b;
         colorFIFO.cd2 = (byte)c;
+    }
+
+    private static void PushSZ(int value)
+    {
+        if (value < 0)
+            value = 0;
+        else if (value > 0xFFFF)
+            value = 0xFFFF;
+
+        screenZFIFO.sz1 = screenZFIFO.sz2;
+        screenZFIFO.sz2 = screenZFIFO.sz3;
+        screenZFIFO.sz3 = screenZFIFO.sz4;
+        screenZFIFO.sz4 = (short)value;
     }
 
     private static uint TruncateRGB(int value, int index)

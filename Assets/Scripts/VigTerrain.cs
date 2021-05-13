@@ -47,6 +47,8 @@ public class VigTerrain : MonoBehaviour
     public int tileY;
     public int zoneCount;
     public float drawDistance;
+    public Color32[] DAT_B9370 = new Color32[32];
+    public Color32[] DAT_BA4F0 = new Color32[32];
     public VigTransform DAT_BDFF0;
 
     private Dictionary<int, List<int>> verticesDict;
@@ -223,6 +225,19 @@ public class VigTerrain : MonoBehaviour
         }
     }
 
+    public void FUN_1BE68(int param1, int param2, int param3)
+    {
+        if (param1 < param2)
+        {
+            do
+            {
+                FUN_288E0((uint)param1, (uint)param3, GameManager.instance.DAT_610)
+                param1 += 4;
+
+            } while (param1 < param2);
+        }
+    }
+
     public Vector3Int FUN_1B998(uint x, uint z)
     {
         uint uVar1 = x >> 16; //r10
@@ -368,5 +383,47 @@ public class VigTerrain : MonoBehaviour
 
             return vertexH >> 5;
         }
+    }
+
+    private void FUN_288E0(uint param1, uint param2, Color32[] param3)
+    {
+        int iVar1;
+        int iVar2;
+        uint uVar4;
+        int iVar5;
+        uint uVar7;
+        int puVar14;
+        int puVar15;
+        int puVar16;
+        int puVar17;
+
+        iVar1 = (int)(param1 >> 6) * 32 + (int)(param2 >> 6);
+        iVar2 = iVar1 * 4;
+        iVar5 = (int)((param2 & 63) + (param1 & 63) * 64) * 2;
+        puVar14 = chunks[32 + iVar1] * 4096 + iVar5 / 2;
+        uVar7 = param1 + 4 & 63;
+        puVar15 = puVar14 + 128;
+
+        if (uVar7 == 0)
+            puVar15 = chunks[64 + iVar1] * 4096 + (iVar5 - 7680) / 2;
+
+        puVar16 = puVar14 + 2;
+        puVar17 = puVar15 + 2;
+
+        if ((param2 + 4 & 63) == 0)
+        {
+            puVar16 = chunks[33 + iVar1] * 4096 + (iVar5 - 120) / 2;
+            puVar17 = puVar16 + 128;
+
+            if (uVar7 == 0)
+                puVar17 = chunks[65 + iVar1] * 4096;
+        }
+
+        iVar1 = (int)param2 * 128 + GameManager.DAT_1f800084.z;
+        uVar4 = (uint)((int)param1 * 128 + GameManager.DAT_1f800084.x & 0xffff);
+        iVar5 = GameManager.DAT_1f800084.y * 0x10000;
+        Coprocessor.vector0.vx0 = (short)uVar4;
+        Coprocessor.vector0.vy0 = (short)((vertices[puVar14] & 0x7ff) * 0x80000 >> 16);
+        Coprocessor.vector0.vz0 = (short)iVar1;
     }
 }
