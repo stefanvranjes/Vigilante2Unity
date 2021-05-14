@@ -1000,13 +1000,13 @@ public class Utilities
     //FUN_5A1A4
     public static void SetDQA(int param1)
     {
-        Coprocessor.dqa = (short)param1;
+        Coprocessor.depthQueingA = (short)param1;
     }
 
     //FUN_5A1B0
     public static void SetDQB(int param1)
     {
-        Coprocessor.dqb = (uint)param1;
+        Coprocessor.depthQueingB = (uint)param1;
     }
 
     //FUN_5A1BC

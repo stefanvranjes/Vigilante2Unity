@@ -4,6 +4,19 @@ using System.Collections.Generic;
 
 namespace Types
 {
+    public enum DisplayAspectRatio
+    {
+        Auto,
+        MatchWindow,
+        Custom,
+        R4_3,
+        R16_9,
+        R19_9,
+        R20_9,
+        PAR1_1,
+        Count
+    };
+
     public class TypesClass
     {
         private static readonly sbyte INT8_MIN = 0x7f;
