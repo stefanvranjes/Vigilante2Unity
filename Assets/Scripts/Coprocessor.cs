@@ -277,6 +277,30 @@ public class Coprocessor
         MultMatVec(M, T, Vx, Vy, Vz, shift, lm);
     }
 
+    public static void ExecuteCDP(byte shift, bool lm)
+    {
+        short[,] LCM = new short[,]
+        {
+            { lightColorMatrix.lr1, lightColorMatrix.lr2, lightColorMatrix.lr3 },
+            { lightColorMatrix.lg1, lightColorMatrix.lg2, lightColorMatrix.lg3 },
+            { lightColorMatrix.lb1, lightColorMatrix.lb2, lightColorMatrix.lb3 }
+        };
+        int[] BK = new int[]
+        {
+            backgroundColor._rbk, backgroundColor._gbk, backgroundColor._bbk
+        };
+
+        MultMatVec(LCM, BK, accumulator.ir1, accumulator.ir2, accumulator.ir3, shift, lm);
+
+        int in_MAC1 = ((int)(uint)colorCode.r * accumulator.ir1) << 4;
+        int in_MAC2 = ((int)(uint)colorCode.g * accumulator.ir2) << 4;
+        int in_MAC3 = ((int)(uint)colorCode.b * accumulator.ir3) << 4;
+
+        InterpolateColor(in_MAC1, in_MAC2, in_MAC3, shift, lm);
+
+        PushRGBFromMAC();
+    }
+
     public static void ExecuteSQR(byte shift, bool lm)
     {
         mathsAccumulator.mac1 = (accumulator.ir1 * accumulator.ir1) >> shift;
@@ -543,6 +567,17 @@ public class Coprocessor
         uint result = (uint)(((ulong)lhs * recip + 0x8000) >> 16);
 
         return Math.Min(0x1FFFF, result);
+    }
+
+    private static void InterpolateColor(long in_MAC1, long in_MAC2, long in_MAC3, byte shift, bool lm)
+    {
+        TruncateAndSetMACAndIR(((long)farColor._rfc << 12) - in_MAC1, 1, shift, false);
+        TruncateAndSetMACAndIR(((long)farColor._gfc << 12) - in_MAC2, 2, shift, false);
+        TruncateAndSetMACAndIR(((long)farColor._bfc << 12) - in_MAC3, 3, shift, false);
+
+        TruncateAndSetMACAndIR(accumulator.ir1 * accumulator.ir0 + in_MAC1, 1, shift, lm);
+        TruncateAndSetMACAndIR(accumulator.ir2 * accumulator.ir0 + in_MAC2, 2, shift, lm);
+        TruncateAndSetMACAndIR(accumulator.ir3 * accumulator.ir0 + in_MAC3, 3, shift, lm);
     }
 
     private static void SetOTZ(int value)

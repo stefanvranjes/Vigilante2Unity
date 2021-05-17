@@ -990,7 +990,8 @@ public class GameManager : MonoBehaviour
     public static short DAT_1f800096;
     public static short DAT_1f800098;
     public static short DAT_1f80009a;
-    public static int DAT_1f80009c;
+    public static TerrainScreen[] terrainScreen = new TerrainScreen[20];
+    /*public static int DAT_1f80009c;
     public static int DAT_1f8000a0;
     public static uint DAT_1f8000a4;
     public static Color32 DAT_1f8000a8;
@@ -1020,13 +1021,13 @@ public class GameManager : MonoBehaviour
     public static int DAT_1f80021c;
     public static int DAT_1f800220;
     public static uint DAT_1f800224;
-    public static Color32 DAT_1f800228;
+    public static Color32 DAT_1f800228;*/
 
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
     public Vehicle[] players; //6B8D8
 
-    public Color32[] DAT_610; //gp+610h
+    public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
     public Matrix3x3 DAT_738; //gp+738h
     public bool DAT_83B; //gp+83Bh
@@ -1040,7 +1041,7 @@ public class GameManager : MonoBehaviour
     public int DAT_F20; //gp+F20h
     public VigTransform DAT_F28; //gp+F28h
     public int DAT_C74; //gp+C74h
-    public int DAT_CE0; //gp+CE0h
+    public Color32[] DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
     public byte[] DAT_CF4; //gp+CF4h
     public byte[] DAT_CF5; //gp+CF5h
@@ -1414,7 +1415,7 @@ public class GameManager : MonoBehaviour
                     Utilities.SetLightMatrix(DAT_718);
                     Utilities.SetBackColor(DAT_E04.r, DAT_E04.g, DAT_E04.b);
                     Utilities.SetFarColor(DAT_DA4.r, DAT_DA4.g, DAT_DA4.b);
-                    DAT_1f800080 = DAT_CE0 + 0x100;
+                    DAT_1f800080 = 0x100; //DAT_CE0 + 0x100
                     Utilities.SetFogNearFar(DAT_DB6 << 8, DAT_DB4 << 8, DAT_ED8);
                     Coprocessor.colorCode.r = DAT_DDC.r;
                     Coprocessor.colorCode.g = DAT_DDC.g;
