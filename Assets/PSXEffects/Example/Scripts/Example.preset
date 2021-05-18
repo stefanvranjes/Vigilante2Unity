@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Example
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 2b416fbce5a38cc47a3a1e709f95f5e3,
+      type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Name
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: cfuStatus
+    value: PSXEffects
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: sections.Array.size
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: sections.Array.data[0]
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: sections.Array.data[1]
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: sections.Array.data[2]
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: sections.Array.data[3]
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: customRes.x
+    value: 407
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: customRes.y
+    value: 229
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: resolutionFactor
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: limitFramerate
+    value: 60
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: skipFrames
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: affineMapping
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: polygonalDrawDistance
+    value: -1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: vertexInaccuracy
+    value: 200
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: polygonInaccuracy
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: colorDepth
+    value: 5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: scanlines
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: scanlineIntensity
+    value: 5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: ditherTexture
+    value: 
+    objectReference: {fileID: 2800000, guid: 8dd5bb07501448a4e9631457f7f63a13, type: 3}
+  - target: {fileID: 0}
+    propertyPath: dithering
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: ditherThreshold
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: ditherIntensity
+    value: 35
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: maxDarkness
+    value: 20
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: subtractFade
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: favorRed
+    value: 0.75
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: worldSpaceSnapping
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: postProcessing
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: verticalScanlines
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: shadowIntensity
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: downscale
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: snapCamera
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: camInaccuracy
+    value: 0.05
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: camSnapping
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: shadowType
+    value: 0
+    objectReference: {fileID: 0}

@@ -767,7 +767,7 @@ public class VigTerrain : MonoBehaviour
         }
     }
 
-    private void FUN_290A8(uint param1, int param2, Queue<ScreenPoly> param3, int param4)
+    /*private void FUN_290A8(uint param1, int param2, Queue<ScreenPoly> param3, int param4)
     {
         uint uVar2;
         int iVar4;
@@ -816,5 +816,5 @@ public class VigTerrain : MonoBehaviour
                 param3[1].clr = clrVar4;
             }
         }
-    }
+    }*/
 }

@@ -1,0 +1,96 @@
+ ____  ____  _  _  ____  ____  ____  ____  ___  ____  ____ 
+(  _ \/ ___)( \/ )(  __)(  __)(  __)(  __)/ __)(_  _)/ ___)
+ ) __/\___ \ )  (  ) _)  ) _)  ) _)  ) _)( (__   )(  \___ \
+(__)  (____/(_/\_)(____)(__)  (__)  (____)\___) (__) (____/
+
+-------------------------------------------------------------
+
+Thank you for checking out my asset!  PSXEffects will help you create that
+old, very outdated, yet beautiful look that the first PlayStation console
+provides.
+
+
+This package includes one main script: PSXEffects.cs.  This script handles
+setting variables and properties in PSXEffect's shaders and also handles
+PSX image effect rendering.  You can set variables in this script during
+runtime if needed.
+
+Basic Setup:
+To set up PSXEffects quickly, drag the PSXEffects prefab from the Prefabs
+folder into the scene.  You can also place the PSXEffects.cs script on any
+camera.  If you place it on a GameObject without a Camera component, one
+will be created for you.
+
+PSXEffects.cs properties:
+-Custom Resolution - Allows you to apply a fixed resolution (default: false)
+-Resolution - The fixed downscale resolution (default: 620, 480)
+-Resolution Factor - Determines how pixelated the main display is (default: 2)
+rendered (you can find a pre-made canvas in the included Prefabs folder)
+-Target Framerate - Sets the project's max framerate to this number (the same as setting Application.targetFrameRate) (default: -1)
+-Frame Skip - Determines the frame gap between PSXEffects render calls to the camera (default: 0)
+-Enable Camera Position Inaccuracy - Toggles camera position snapping (default: false)
+-Camera Inaccuracy - How many units the camera should snap (default: 0.05)
+-Affine Texture Mapping - Simulates the PSX's distorted texture look (default: true)
+-Polygonal Draw Distance - Simulates culling of entire polygons in many PSX
+games relative to the distance from the camera (default: 0)
+-Polygon Inaccuracy - Simulates the PSX's lack of a Z-buffer (default: 2)
+-Vertex Inaccuracy - Simulates vertex snapping (default: 30)
+-Use World Space Snapping - Determines whether to snap vertices in world space instead of screen space (default: false)
+-Camera-Based Snapping - Takes camera's transform into account when snapping vertices (default: false)
+-Saturated Diffuse - Adds a little more darkness to the dark side of meshes (default: 20)
+-Use Skybox Lighting - Toggles whether to gather color from the skybox (default: false)
+-Enable Post Processing - Toggles post processing on or off (default: true)
+-Color Depth - Simulates how many bits are used for color per pixel (default: 5)
+-Subtraction Fade - Fades the screen just like original PSX games (default: 0)
+-Darken Darks/Favor Red - Darkens dark colors and subtly tints them red like PSX lighting (default: 1)
+-Scanlines - Draws scanlines on the screen (default: false)
+-Vertical - Toggles vertical/horizontal scanlines (default: true)
+-Scanline Intensity - Changes how intense the scanline effect is (default: 5)
+-Dithering - Simulates PSX dithering effects (default: true)
+-Dither Texture - Determines what texture to use to dither
+-Dither Threshold - Changes how "sensitive" dithering gets applied (default: 1)
+-Dither Intensity - Changes how intense the dithering effect is (5)
+
+
+PSXEffects comes with a very important shader: PS1Shader.shader.
+Creative name huh?  This shader handles the look of all models.
+
+PS1Shader.shader properties:
+-Render Mode - Determines which method is used to render the material
+-Backface Culling - Toggles rendering the back side of faces
+-Unlit - Toggles scene lighting on the object
+-Draw Distance Influence - Determines whether the material should cull polygons based off of the polygonal draw distance (default: true)
+-Vertex Inaccuracy Override - Overrides the global vertex inaccuracy setting for the specific material (default: -1.0)
+-Color - Tinting of the object (default: white)
+-Main Texture - The main texture (default: white)
+-Diffuse Mode - Determines whether to calculate diffuse lighting in the vertex or fragment shader (default: Vertex)
+-Normal Map - The normal map (default: bump)
+-Specular Mode - Determines whether to use Phong or Gouraud specular shading (default: Gouraud)
+-Specular Map - A black and white texture that determines which parts are glossy (default: white)
+-Specular Amount - Level of glossiness (default: 0.0)
+-Metal Map - A texture that uses the red channel to determine metalness and the alpha channel for smoothness (default: white)
+-Metallic Amount - The metalness of the material (default: 0.0)
+-Smoothness Amount - The smoothness of the material (default: 0.5)
+-Emission Map - A texture that determines which parts emit more color (default: white)
+-Emission Amount - A value that determines how much the material emits color (default: 0)
+-Cubemap - Cubemap reflection (default: rgb(0.5, 0.5, 0.5))
+-LOD Texture - A texture that will show up similar to draw distance, but intended for lower-res textures (default: white)
+-LOD Amount - The distance from the camera that the LOD texture will show up (default: 0)
+
+
+Tips:
+--Stretching with affine mapping--
+When affine mapping is turned on, textures will stretch like crazy when the
+camera gets close.  This effect is more noticable if the model's polygons
+are bigger in size.  To tone down the stretching, subdivide your polygons
+that are affected by extreme affine mapping stretching.
+
+--ProBuilder black objects--
+If using ProBuilder and the object turns black when applying a PSXEffects
+material, uncheck "Lightmap Static" under the object's Mesh Renderer.
+
+--Consistent frame skip--
+By default, PSXEffects' Frame Skip option skips x amount of frames between
+RenderTexture renders.  If your screen's refresh rate is different from
+someone else's, the FPS they'll be seeing is also different.  To combat this,
+set the Target Framerate option to a normal refresh rate (like 60 or so).

@@ -181,26 +181,26 @@ public class Coprocessor
         switch (matrix)
         {
             case _MVMVA_MULTIPLY_MATRIX.Color:
-                M[0, 0] = lightColorMatrix.l11;
-                M[0, 1] = lightColorMatrix.l12;
-                M[0, 2] = lightColorMatrix.l13;
-                M[1, 0] = lightColorMatrix.l21;
-                M[1, 1] = lightColorMatrix.l22;
-                M[1, 2] = lightColorMatrix.l23;
-                M[2, 0] = lightColorMatrix.l31;
-                M[2, 1] = lightColorMatrix.l32;
-                M[2, 2] = lightColorMatrix.l33;
+                M[0, 0] = lightColorMatrix.lb1;
+                M[0, 1] = lightColorMatrix.lb2;
+                M[0, 2] = lightColorMatrix.lb3;
+                M[1, 0] = lightColorMatrix.lg1;
+                M[1, 1] = lightColorMatrix.lg2;
+                M[1, 2] = lightColorMatrix.lg3;
+                M[2, 0] = lightColorMatrix.lr1;
+                M[2, 1] = lightColorMatrix.lr2;
+                M[2, 2] = lightColorMatrix.lr3;
                 break;
             case _MVMVA_MULTIPLY_MATRIX.Light:
-                M[0, 0] = lightMatrix.lb1;
-                M[0, 1] = lightMatrix.lb2;
-                M[0, 2] = lightMatrix.lb3;
-                M[1, 0] = lightMatrix.lg1;
-                M[1, 1] = lightMatrix.lg2;
-                M[1, 2] = lightMatrix.lg3;
-                M[2, 0] = lightMatrix.lr1;
-                M[2, 1] = lightMatrix.lr2;
-                M[2, 2] = lightMatrix.lr3;
+                M[0, 0] = lightMatrix.l11;
+                M[0, 1] = lightMatrix.l12;
+                M[0, 2] = lightMatrix.l13;
+                M[1, 0] = lightMatrix.l21;
+                M[1, 1] = lightMatrix.l22;
+                M[1, 2] = lightMatrix.l23;
+                M[2, 0] = lightMatrix.l31;
+                M[2, 1] = lightMatrix.l32;
+                M[2, 2] = lightMatrix.l33;
                 break;
             case _MVMVA_MULTIPLY_MATRIX.Rotation:
                 M[0, 0] = rotationMatrix.rt11;

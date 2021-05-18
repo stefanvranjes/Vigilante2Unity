@@ -590,7 +590,7 @@ public static class IMP_TIM
                                 if (m_current_q_scale == 0)
                                     val = SignedNBits((int)(n & 0x3FF), 10) * 2;
 
-                                val = Clamp(val, -0x400, 0x3FF);
+                                val = Utilities.Clamp(val, -0x400, 0x3FF);
 
                                 if (m_current_q_scale > 0)
                                     blk[m_current_block, ZAGZIG[m_current_coefficient]] = (short)val;
@@ -615,7 +615,7 @@ public static class IMP_TIM
                                 if (m_current_q_scale == 0)
                                     val = SignedNBits((int)(n & 0x3FF), 10) * 2;
 
-                                val = Clamp(val, -0x400, 0x3FF);
+                                val = Utilities.Clamp(val, -0x400, 0x3FF);
 
                                 if (m_current_q_scale > 0)
                                     blk[m_current_block, ZAGZIG[m_current_coefficient]] = (short)val;
@@ -652,7 +652,7 @@ public static class IMP_TIM
                                     for (int u = 0; u < 8; u++)
                                         sum += (temp_buffer[u + y * 8]) * (m_scale_table[u * 8 + x]);
 
-                                    blk[m_current_block, x + y * 8] = (short)Clamp(SignedNBits((int)((sum >> 32) + ((sum >> 31) & 1)), 9), -128, 127);
+                                    blk[m_current_block, x + y * 8] = (short)Utilities.Clamp(SignedNBits((int)((sum >> 32) + ((sum >> 31) & 1)), 9), -128, 127);
                                 }
                             }
                         }
@@ -671,9 +671,9 @@ public static class IMP_TIM
                                     B = (short)(1.772f * (float)B);
 
                                     short Y = m_blocks[Yblk, x + y * 8];
-                                    R = (short)Clamp((int)Y + R, -128, 127);
-                                    G = (short)Clamp((int)Y + G, -128, 127);
-                                    B = (short)Clamp((int)Y + B, -128, 127);
+                                    R = (short)Utilities.Clamp((int)Y + R, -128, 127);
+                                    G = (short)Utilities.Clamp((int)Y + G, -128, 127);
+                                    B = (short)Utilities.Clamp((int)Y + B, -128, 127);
 
                                     R += 128;
                                     G += 128;

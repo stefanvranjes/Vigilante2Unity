@@ -260,7 +260,7 @@ public class Vehicle : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (vObject.ai < 0 && GameManager.instance.gameMode != _MODE.Demo)
+        if (vObject.ai < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
         {
             TileData tile = GameManager.instance.terrain.GetTileByPosition
                 ((uint)vObject.vTransform.position.x, (uint)vObject.vTransform.position.z);
@@ -2324,8 +2324,8 @@ public class Vehicle : MonoBehaviour
             local_e8.y = (local_e8.y + 11520) -
                          (int)((ulong)((long)vObject.physics1.Y * iVar14) >> 32);
             lVar1 = (long)vObject.physics1.Z * iVar14;
-            local_28 = (uint)lVar1;
-            local_24 = (int)((ulong)lVar1 >> 32);
+            local_24 = (int)lVar1;
+            local_28 = (uint)((ulong)lVar1 >> 32);
             local_e8.z -= local_24;
             vObject.FUN_2AFF8(local_e8, local_f8);
             iVar18 = vObject.physics2.X;
@@ -3146,15 +3146,15 @@ public class Vehicle : MonoBehaviour
 
         if (playerController.type == _CONTROLLER_TYPE.SteeringWheel)
         {
-            turning = (short)((playerController.leftStickX - 128) * 5);
-            uVar19 = (uint)(playerController.leftStickY < 129 ? 1 : 0) ^ 1;
+            turning = (short)((playerController.stick[0] - 128) * 5);
+            uVar19 = (uint)(playerController.stick[1] < 129 ? 1 : 0) ^ 1;
 
-            if (-1 < (sbyte)playerController.DAT_15)
+            if (-1 < (sbyte)playerController.DAT_14[1])
                 uVar19 |= 0x10000;
 
             if ((DAT_F6 & 16) == 0)
             {
-                if (direction < 0 && 16 < playerController.leftStickY)
+                if (direction < 0 && 16 < playerController.stick[1])
                 {
                     uVar10 = 1;
                     direction = uVar10;
@@ -3176,10 +3176,10 @@ public class Vehicle : MonoBehaviour
                 }
                 else
                 {
-                    uVar14 = playerController.leftStickY;
+                    uVar14 = playerController.stick[1];
 
-                    if (playerController.rightStickX < 241)
-                        uVar14 -= playerController.rightStickX;
+                    if (playerController.stick[2] < 241)
+                        uVar14 -= playerController.stick[2];
                     else
                     {
                         iVar8 = turning;
@@ -3188,7 +3188,7 @@ public class Vehicle : MonoBehaviour
                             iVar8 = -iVar8;
 
                         if (iVar8 < 170)
-                            uVar14 -= playerController.rightStickX;
+                            uVar14 -= playerController.stick[2];
                     }
 
                     uVar14 = uVar14 * uVar7;
@@ -3208,9 +3208,9 @@ public class Vehicle : MonoBehaviour
 
             if (vObject.vTransform.rotation.V11 < 0)
             {
-                uVar17 = playerController.leftStickX;
+                uVar17 = playerController.stick[0];
 
-                if ((int)(uVar17 ^ playerController.leftStickX) < 0)
+                if ((int)(uVar17 ^ playerController.stick[0]) < 0)
                     uVar17 = 0;
 
                 iVar12 = vObject.physics2.Z;
@@ -3226,7 +3226,7 @@ public class Vehicle : MonoBehaviour
                 return;
             }
 
-            if ((uVar17 & 0x400) == 0 && playerController.rightStickX < 241)
+            if ((uVar17 & 0x400) == 0 && playerController.stick[0] < 241)
             {
                 if (0 < breaking)
                     breaking = (sbyte)-breaking;
@@ -3617,9 +3617,9 @@ public class Vehicle : MonoBehaviour
         if (_CONTROLLER_TYPE.JoypadAnalog < playerController.type)
             return;
 
-        uVar19 = playerController.leftStickX;
+        uVar19 = playerController.stick[0];
         uVar7 = uVar19 - 128;
-        iVar12 = 128 - playerController.leftStickY;
+        iVar12 = 128 - playerController.stick[0];
         iVar8 = iVar12;
 
         if (iVar12 < 0)
@@ -3751,7 +3751,7 @@ public class Vehicle : MonoBehaviour
         uVar14 = 0;
 
         if (64 < iVar15)
-            uVar14 = (uint)(128 - (byte)playerController.DAT_15 < 65 ? 1 : 0);
+            uVar14 = (uint)(128 - (byte)playerController.DAT_14[1] < 65 ? 1 : 0);
 
         uVar9 = uVar17 & 0x1000100;
 
@@ -3832,7 +3832,7 @@ public class Vehicle : MonoBehaviour
 
         if (vObject.vTransform.rotation.V11 < 0)
         {
-            uVar19 -= playerController.DAT_14;
+            uVar19 -= playerController.DAT_14[0];
 
             if ((uVar19 ^ uVar7) < 0)
                 uVar19 = 0;
@@ -3934,7 +3934,7 @@ public class Vehicle : MonoBehaviour
             breaking = uVar10;
         }
 
-        iVar12 = playerController.rightStickX - 128;
+        iVar12 = playerController.stick[0] - 128;
         iVar8 = iVar12;
 
         if (iVar12 < 0)
@@ -3943,12 +3943,12 @@ public class Vehicle : MonoBehaviour
         if (32 < iVar8)
         {
             if (iVar12 < 0)
-                iVar12 = playerController.rightStickX - 125;
+                iVar12 = playerController.stick[0] - 125;
 
             vCamera.DAT_92 -= (short)(iVar12 >> 2);
         }
 
-        iVar12 = playerController.rightStickY - 128;
+        iVar12 = playerController.stick[1] - 128;
         iVar8 = iVar12;
 
         if (32 < iVar8)
