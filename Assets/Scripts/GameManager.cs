@@ -1040,6 +1040,7 @@ public class GameManager : MonoBehaviour
     public VigTransform DAT_F00; //gp+F00h
     public int DAT_F20; //gp+F20h
     public VigTransform DAT_F28; //gp+F28h
+    public Matrix3x3 DAT_FA8; //gp+FA8h
     public int DAT_C74; //gp+C74h
     public Color32[] DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
@@ -1068,6 +1069,18 @@ public class GameManager : MonoBehaviour
     public bool DAT_36; //gp+36h
     public int gravityFactor; //gp+3Ch
     public int DAT_40; //gp+40h
+
+    public void FUN_1C134()
+    {
+        FUN_1C158();
+    }
+
+    public void FUN_2DE18()
+    {
+        Utilities.SetColorMatrix(DAT_FA8);
+        Utilities.SetBackColor(64, 64, 64);
+        Utilities.SetFogNearFar(2048, 8192, 0);
+    }
 
     // Start is called before the first frame update
     void Awake()

@@ -413,6 +413,9 @@ public class VigTerrain : MonoBehaviour
         int iVar9;
         Vector2Int v2Var9;
         uint uVar10;
+        Color32 uVar11;
+        Color32 uVar12;
+        Color32 uVar13;
         int puVar14;
         int puVar15;
         int puVar16;
@@ -630,6 +633,136 @@ public class VigTerrain : MonoBehaviour
                     };
                     param3.Enqueue(screenPoly);
                 }
+            }
+            else
+            {
+                GameManager.terrainScreen[12].vert.x = Coprocessor.screenXYFIFO.sx2;
+                GameManager.terrainScreen[12].vert.y = Coprocessor.screenXYFIFO.sy2;
+                Coprocessor.accumulator.ir0 = (short)GameManager.terrainScreen[12].ir0;
+                Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar17] >> 11 << 7);
+                GameManager.terrainScreen[0].vert.z = Coprocessor.screenZFIFO.sz0;
+                GameManager.terrainScreen[2].vert.z = Coprocessor.screenZFIFO.sz1;
+                GameManager.terrainScreen[10].vert.z = Coprocessor.screenZFIFO.sz2;
+                GameManager.terrainScreen[12].vert.z = Coprocessor.screenZFIFO.sz3;
+                GameManager.terrainScreen[0].color = new Color32(Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0);
+                GameManager.terrainScreen[2].color = new Color32(Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1);
+                GameManager.terrainScreen[10].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                Coprocessor.ExecuteCDP(12, true);
+                GameManager.terrainScreen[12].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                iVar5 = GameManager.DAT_1f800084.y * 0x10000;
+
+                if (uVar20 != 0)
+                {
+                    Coprocessor.vector0.vx0 = (short)(uVar4 + 512 & 0xffff);
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 128] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vz0 = (short)iVar1;
+                    Coprocessor.ExecuteRTPS(12, false);
+                    GameManager.terrainScreen[1].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[1].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14 + 128] >> 11 << 7);
+                    GameManager.terrainScreen[1].vert.z = Coprocessor.screenZFIFO.sz3;
+                    Coprocessor.ExecuteCDP(12, true);
+                }
+
+                if ((uVar19 | uVar6) != 0)
+                {
+                    Coprocessor.vector0.vx0 = (short)uVar4;
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 2] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vz0 = (short)(iVar1 + 512);
+                    uVar11 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                    Coprocessor.ExecuteRTPS(12, false);
+
+                    if (uVar20 != 0)
+                        GameManager.terrainScreen[1].color = uVar11;
+
+                    GameManager.terrainScreen[5].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[5].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14 + 2] >> 11 << 7);
+                    GameManager.terrainScreen[5].vert.z = Coprocessor.screenZFIFO.sz3;
+                    Coprocessor.ExecuteCDP(12, true);
+                }
+
+                if ((uVar10 | uVar7) != 0)
+                {
+                    Coprocessor.vector0.vx0 = (short)(uVar4 + 1024 & 0xffff);
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar15 + 2] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vz0 = (short)(iVar1 + 512);
+                    uVar12 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                    Coprocessor.ExecuteRTPS(12, false);
+                    uVar11 = uVar12;
+
+                    if ((uVar19 | uVar6) == 0)
+                    {
+                        uVar11 = GameManager.terrainScreen[5].color;
+
+                        if (uVar20 != 0)
+                            GameManager.terrainScreen[1].color = uVar12;
+                    }
+
+                    GameManager.terrainScreen[5].color = uVar11;
+                    GameManager.terrainScreen[7].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[7].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15 + 2] >> 11 << 7);
+                    GameManager.terrainScreen[7].vert.z = Coprocessor.screenZFIFO.sz3;
+                    Coprocessor.ExecuteCDP(12, true);
+                }
+
+                if ((uVar6 | uVar7) == 0)
+                {
+                    if ((uVar10 | uVar7) == 0)
+                    {
+                        if ((uVar19 | uVar6) == 0)
+                        {
+                            if (uVar20 != 0)
+                                GameManager.terrainScreen[1].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                        }
+                        else
+                            GameManager.terrainScreen[5].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                    }
+                    else
+                        GameManager.terrainScreen[7].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                }
+                else
+                {
+                    Coprocessor.vector0.vx0 = (short)(uVar4 + 512 & 0xffff);
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar16 + 128] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vz0 = (short)(iVar1 + 1024);
+                    uVar13 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                    Coprocessor.ExecuteRTPS(12, false);
+                    GameManager.terrainScreen[11].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[11].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar16 + 128] >> 11 << 7);
+                    GameManager.terrainScreen[11].vert.z = Coprocessor.screenZFIFO.sz3;
+                    Coprocessor.ExecuteCDP(12, true);
+                    uVar11 = GameManager.terrainScreen[5].color;
+                    uVar12 = uVar13;
+
+                    if ((uVar10 | uVar7) == 0)
+                    {
+                        uVar11 = uVar13;
+                        uVar12 = GameManager.terrainScreen[7].color;
+
+                        if ((uVar19 | uVar6) == 0)
+                        {
+                            uVar11 = GameManager.terrainScreen[5].color;
+
+                            if (uVar20 != 0)
+                                GameManager.terrainScreen[1].color = uVar13;
+                        }
+                    }
+
+                    GameManager.terrainScreen[7].color = uVar12;
+                    GameManager.terrainScreen[5].color = uVar11;
+                    GameManager.terrainScreen[11].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                }
+
+                GameManager.terrainScreen[0].vert.x = v2Var2.x;
+                GameManager.terrainScreen[0].vert.y = v2Var2.y;
+                GameManager.terrainScreen[2].vert.x = v2Var9.x;
+                GameManager.terrainScreen[2].vert.y = v2Var9.y;
+                GameManager.terrainScreen[10].vert.x = v2Var8.x;
+                GameManager.terrainScreen[10].vert.y = v2Var8.y;
+
             }
         }
     }
