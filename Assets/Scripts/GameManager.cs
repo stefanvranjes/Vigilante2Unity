@@ -1037,9 +1037,13 @@ public class GameManager : MonoBehaviour
     public short DAT_E1C; //gp+E1Ch
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
+    public VigTransform DAT_EE0; //gp+EE0h
     public VigTransform DAT_F00; //gp+F00h
     public int DAT_F20; //gp+F20h
     public VigTransform DAT_F28; //gp+F28h
+    public Matrix3x3 DAT_F48; //gp+F48h
+    public Matrix3x3 DAT_F68; //gp+F68h
+    public VigTransform DAT_F88; //gp+F88h
     public Matrix3x3 DAT_FA8; //gp+FA8h
     public int DAT_C74; //gp+C74h
     public Color32[] DAT_CE0; //gp+CE0h
@@ -1675,6 +1679,24 @@ public class GameManager : MonoBehaviour
         }
 
         return uVar4;
+    }
+
+    public void FUN_2E0E8(VigTransform param1, int param2)
+    {
+        DAT_F28 = param1;
+        DAT_F88 = DAT_F28;
+        DAT_F00 = Utilities.FUN_2A3EC(param1);
+        DAT_ED8 = param2;
+        //FUN_5A21C
+        DAT_F48 = Utilities.FUN_247C4(DAT_F68, param1.rotation);
+        //FUN_2DFF0
+        DAT_EE0 = DAT_F00;
+        DAT_EE0.rotation = Utilities.FUN_2A4A4(DAT_EE0.rotation);
+    }
+
+    private void FUN_2DFF0(Matrix3x3 param1)
+    {
+
     }
 
     public static uint FUN_2AC5C()

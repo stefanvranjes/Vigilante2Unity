@@ -74,6 +74,69 @@ public static class Utilities
         return v2;
     }
 
+    public static Matrix3x3 FUN_2A4A4(Matrix3x3 m33)
+    {
+        long lVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+
+        lVar1 = SquareRoot(m33.V00 * m33.V00 + m33.V20 * m33.V20);
+        iVar4 = m33.V00 * (0x1000000 / (int)lVar1);
+
+        if (iVar4 < 0)
+            iVar4 += 4095;
+
+        iVar5 = m33.V20 * (0x1000000 / (int)lVar1);
+        iVar4 = iVar4 >> 12;
+
+        if (iVar5 < 0)
+            iVar5 += 4095;
+
+        if (m33.V11 < 0)
+            iVar4 = -iVar4;
+
+        m33.V22 = (short)lVar1;
+        iVar2 = iVar4 * m33.V10 - iVar5 * m33.V12;
+        m33.V20 = 0;
+
+        if (iVar2 < 0)
+            iVar2 += 4095;
+
+        iVar3 = iVar5 * m33.V00 - iVar5 * m33.V02;
+        m33.V10 = (short)(iVar2 >> 12);
+
+        if (iVar3 < 0)
+            iVar3 += 4095;
+
+        iVar4 = iVar4 * m33.V00 - iVar5 * m33.V02;
+        m33.V12 = (short)(iVar3 >> 12);
+
+        if (iVar4 < 0)
+            iVar4 += 4095;
+
+        m33.V00 = (short)(iVar4 >> 12);
+        m33.V02 = 0;
+
+        return m33;
+    }
+
+    public static VigTransform FUN_2A3EC(VigTransform transform)
+    {
+        int iVar1;
+        VigTransform tout;
+
+        tout.rotation = TransposeMatrix(transform.rotation);
+        tout.position = FUN_24094(tout.rotation, transform.position);
+        iVar1 = tout.position.z;
+        tout.position.x = -tout.position.x;
+        tout.position.z = -iVar1;
+        tout.position.y = -tout.position.y;
+
+        return tout;
+    }
+
     public static int FUN_2A248(Matrix3x3 m33)
     {
         return -Ratan2(m33.V12, m33.V00) << 16 >> 16;
@@ -1025,7 +1088,27 @@ public static class Utilities
         Coprocessor.farColor._bfc = bfc << 4;
     }
 
-    
+    public static Matrix3x3 TransposeMatrix(Matrix3x3 m)
+    {
+        Matrix3x3 output;
+
+        output = new Matrix3x3();
+        output.V00 = m.V02;
+        output.V01 = m.V10;
+        output.V02 = m.V00;
+        output.V10 = m.V01;
+        output.V00 = m.V00;
+        output.V20 = m.V11;
+        output.V21 = m.V12;
+        output.V11 = m.V20;
+        output.V12 = m.V21;
+        output.V20 = m.V02;
+        output.V11 = m.V11;
+        output.V02 = m.V20;
+        output.V22 = m.V22;
+
+        return output;
+    }
 
     //FUN_5A78C
     public static Matrix3x3 RotMatrixYXZ_gte(Vector3Int r)
