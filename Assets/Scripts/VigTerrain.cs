@@ -197,6 +197,11 @@ public class VigTerrain : MonoBehaviour
 
         }
     }
+    
+    public void FUN_31678()
+    {
+        GameManager.instance.FUN_1C134();
+    }
 
     private bool InsideCircle(Tile center, Tile tile, float radius)
     {
@@ -604,7 +609,7 @@ public class VigTerrain : MonoBehaviour
             {
                 if (iVar5 < 1)
                 {
-                    ScreenPoly screenPoly = new ScreenPoly
+                    /*ScreenPoly screenPoly = new ScreenPoly
                     {
                         index = 0, //not in the original code
                         v1 = v2Var2,
@@ -614,7 +619,7 @@ public class VigTerrain : MonoBehaviour
                         clr2 = new Color32(Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1),
                         clr3 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2)
                     };
-                    param3.Enqueue(screenPoly);
+                    param3.Enqueue(screenPoly);*/
                 }
 
                 Coprocessor.ExecuteNCLIP();
@@ -624,7 +629,7 @@ public class VigTerrain : MonoBehaviour
 
                 if (-1 < iVar1)
                 {
-                    Coprocessor.ExecuteCDP(12, true);
+                    /*Coprocessor.ExecuteCDP(12, true);
                     ScreenPoly screenPoly = new ScreenPoly
                     {
                         index = 0, //not in the original code
@@ -635,7 +640,7 @@ public class VigTerrain : MonoBehaviour
                         clr2 = new Color32(Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1),
                         clr3 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2)
                     };
-                    param3.Enqueue(screenPoly);
+                    param3.Enqueue(screenPoly);*/
                 }
             }
             else

@@ -1768,7 +1768,7 @@ public class Vehicle : MonoBehaviour
                         wheels[i].vr.x -= iVar7 >> 19;
                     }
 
-                    vObject.ApplyTransformation();
+                    wheels[i].ApplyTransformation();
                 }
             }
 
@@ -1780,7 +1780,7 @@ public class Vehicle : MonoBehaviour
 
             if (vObject.vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
                 return;
-
+                
             //FUN_391AC
         }
         else
@@ -2222,8 +2222,8 @@ public class Vehicle : MonoBehaviour
             local_e8.y = (local_e8.y + 11520) -
                          (int)((ulong)((long)vObject.physics1.Y * iVar14) >> 32);
             lVar1 = (long)vObject.physics1.Z * iVar14;
-            local_24 = (int)lVar1;
-            local_28 = (uint)((ulong)lVar1 >> 32);
+            local_28 = (uint)lVar1;
+            local_24 = (int)((ulong)lVar1 >> 32);
             local_e8.z -= local_24;
             vObject.FUN_2AFF8(local_e8, local_f8);
             iVar18 = vObject.physics2.X;
@@ -2498,7 +2498,7 @@ public class Vehicle : MonoBehaviour
                 lVar1 = (long)vObject.physics1.Z * iVar2;
                 local_18 = (int)lVar1;
                 local_14 = (int)((ulong)lVar1 >> 32);
-                local_50.z -= local_14; //need to inspect this
+                local_50.z -= local_14;
                 vObject.FUN_2AFF8(local_50, local_60);
                 iVar3 = vObject.physics2.X;
                 iVar2 = iVar3;
@@ -3286,7 +3286,7 @@ public class Vehicle : MonoBehaviour
 
                 if (iVar8 != 0)
                 {
-                    iVar12 = iVar8 * vObject.physics2.W;
+                    iVar12 = iVar8 * vObject.physics1.W;
 
                     if (iVar12 < 0)
                         iVar12 += 0x7fff;
@@ -3512,6 +3512,8 @@ public class Vehicle : MonoBehaviour
             vObject.physics2.Z = iVar12 + iVar8;
             return;
         }
+
+        return;
 
         if (_CONTROLLER_TYPE.JoypadAnalog < playerController.type)
             return;

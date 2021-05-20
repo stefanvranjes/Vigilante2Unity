@@ -37,7 +37,8 @@ public enum _SCREEN_MODE
 {
     Whole,
     Horizontal,
-    Vertical
+    Vertical,
+    Unknown
 }
 
 public class GameManager : MonoBehaviour
@@ -924,6 +925,7 @@ public class GameManager : MonoBehaviour
             unk0x12=57,
             unk0x13=148,
             unk0x15=50,
+            lightness=4206,
             vectorUnk=new Vector3Int(64, 64, 64),
             unk0x2A=0x2999,
             unk0x2C=new byte[4] { 200, 172, 91, 52 }
@@ -1143,44 +1145,46 @@ public class GameManager : MonoBehaviour
                     if ((uVar18 & 0x2000000) == 0)
                         oVar7.flags = uVar18 & 0xfffffffd;
                 }
-                else
-                {
-                    uVar18 = players[0].vObject.flags;
-                    oVar7 = players[0].vObject;
-                    vVar12 = players[1];
+            }
+            else
+            {
+                uVar18 = players[0].vObject.flags;
+                oVar7 = players[0].vObject;
+                vVar12 = players[1];
 
-                    if ((uVar18 & 0x2000000) == 0)
-                        oVar7.flags = uVar18 & 0xfffffffd;
-                }
+                if ((uVar18 & 0x2000000) == 0)
+                    oVar7.flags = uVar18 & 0xfffffffd;
+            }
 
-                if (vVar12.view == _CAR_VIEW.Close)
+            if (vVar12.view == _CAR_VIEW.Close)
+            {
+                if ((vVar12.vObject.flags & 0x2000000) != 0)
                 {
-                    if ((vVar12.vObject.flags & 0x2000000) != 0)
-                    {
-                        cVar7 = vVar12.vCamera;
-                        sVar1 = cVar7.fieldOfView;
-                        oVar7 = cVar7.vObject;
-                    }
-                    else
-                    {
-                        oVar7 = vVar12.closeViewer;
-                        vVar12.vObject.flags |= 2;
-                        sVar1 = vVar12.vCamera.fieldOfView;
-                    }
-                }
-                else
-                {
-                    if ((vVar12.vObject.flags & 0x2000000) == 0)
-                        vVar12.vObject.flags &= 0xfffffffd;
-
                     cVar7 = vVar12.vCamera;
                     sVar1 = cVar7.fieldOfView;
                     oVar7 = cVar7.vObject;
                 }
-
-                FUN_2D278(oVar7, sVar1);
-                terrain.DAT_BDFF0 = DAT_F00;
+                else
+                {
+                    oVar7 = vVar12.closeViewer;
+                    vVar12.vObject.flags |= 2;
+                    sVar1 = vVar12.vCamera.fieldOfView;
+                }
             }
+            else
+            {
+                if ((vVar12.vObject.flags & 0x2000000) == 0)
+                    vVar12.vObject.flags &= 0xfffffffd;
+
+                cVar7 = vVar12.vCamera;
+                sVar1 = cVar7.fieldOfView;
+                oVar7 = cVar7.vObject;
+            }
+
+            FUN_2D278(oVar7, sVar1);
+            terrain.DAT_BDFF0 = DAT_F00;
+            //FUN_14B3C
+            terrain.FUN_31678();
         }
     }
 
@@ -1279,6 +1283,7 @@ public class GameManager : MonoBehaviour
         iVar24 = 0;
         iVar26 = 0;
         local_b0 = new List<Vector2Int>();
+        aiStack240.Add(DAT_1f800084);
 
         do
         {

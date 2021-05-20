@@ -111,6 +111,10 @@ public class InputManager : MonoBehaviour
             inputs[i, 0].DAT_01 = 65;
             inputs[i, 0].DAT_02 = 0xff;
             inputs[i, 0].DAT_03 = 0xff;
+            inputs[i, 0].DAT_04 = 0x80;
+            inputs[i, 0].DAT_05 = 0x80;
+            inputs[i, 0].DAT_06 = 0x80;
+            inputs[i, 0].DAT_07 = 0x80;
 
             if (Input.GetButton(player + "CROSS"))
                 inputs[i, 0].DAT_03 &= 0xbf;

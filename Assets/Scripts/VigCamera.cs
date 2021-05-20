@@ -489,23 +489,23 @@ public class VigCamera : MonoBehaviour
 
     private void FUN_4B820()
     {
-        if (GameManager.instance.DAT_2C == 1)
+        if (GameManager.instance.screenMode == _SCREEN_MODE.Horizontal)
         {
             DAT_90 = -160;
             DAT_94 = 80;
             return;
         }
 
-        if (GameManager.instance.DAT_2C < 2)
+        if (GameManager.instance.screenMode < _SCREEN_MODE.Vertical)
         {
-            if (GameManager.instance.DAT_2C != 0)
+            if (GameManager.instance.screenMode != _SCREEN_MODE.Whole)
                 return;
         }
         else
         {
-            if (GameManager.instance.DAT_2C != 2)
+            if (GameManager.instance.screenMode != _SCREEN_MODE.Vertical)
             {
-                if (GameManager.instance.DAT_2C == 3)
+                if (GameManager.instance.screenMode == _SCREEN_MODE.Unknown)
                 {
                     DAT_90 = -192;
                     DAT_94 = 128;
@@ -525,14 +525,13 @@ public class VigCamera : MonoBehaviour
         int iVar1;
 
         FUN_4B820();
-        iVar1 = GameManager.instance.DAT_2C;
         DAT_92 = 0;
 
-        if (iVar1 == 0)
+        if (GameManager.instance.screenMode == _SCREEN_MODE.Whole)
             iVar1 = 0x10000;
         else
         {
-            if (iVar1 == 3)
+            if (GameManager.instance.screenMode == _SCREEN_MODE.Unknown)
                 iVar1 = 0x20800;
             else
                 iVar1 = 0x14000;

@@ -532,6 +532,7 @@ public struct Matrix2x3
     }
 }
 
+[Serializable]
 public struct Matrix2x4
 {
     public short M0, M1;
