@@ -5,6 +5,7 @@ using UnityEngine;
 public class VigCamera : MonoBehaviour
 {
     public VigObject vObject;
+    public short fieldOfView; //0x1C
     public Vehicle target; //0x80
     public Vector3Int DAT_84; //0x84
     public int DAT_9C; //0x9C

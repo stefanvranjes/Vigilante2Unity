@@ -33,6 +33,13 @@ public enum _VEHICLE
     Wapiti
 };
 
+public enum _CAR_VIEW
+{
+    Defualt,
+    Far,
+    Close
+}
+
 public class Vehicle : MonoBehaviour
 {
     public VigObject vObject;
@@ -56,7 +63,8 @@ public class Vehicle : MonoBehaviour
     public byte DAT_C3; //0xC3
     public byte DAT_C4; //0xC4
     public byte DAT_C5; //0xC5
-    public _VEHICLE vehicle;
+    public _VEHICLE vehicle; //0xDC
+    public _CAR_VIEW view; //0xDD
     public byte DAT_DE; //0xDE
     public byte DAT_DF; //0xDF
     public short DAT_E0; //0xE0
@@ -66,7 +74,7 @@ public class Vehicle : MonoBehaviour
     public VigCamera vCamera;
     public ushort DAT_F6; //0xF6
     public VigObject[] body;
-    public VigObject DAT_100; //0x100
+    public VigObject closeViewer; //0x100
     public VigObject[] wheels;
     public VigObject[] weapons;
     public ushort doubleDamage;
@@ -2966,9 +2974,9 @@ public class Vehicle : MonoBehaviour
                 else
                     iVar2.vObject.physics2.M1 = 2048;
 
-                DAT_100.vr.y = vObject.physics2.M1;
+                closeViewer.vr.y = vObject.physics2.M1;
                 vObject.vectorUnk1.x = -vObject.vectorUnk1.x;
-                DAT_100.ApplyRotationMatrix();
+                closeViewer.ApplyRotationMatrix();
             }
         }
 

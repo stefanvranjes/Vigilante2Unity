@@ -171,6 +171,24 @@ public static class Utilities
         }
     }
 
+    public static VigObject FUN_2CD78(VigObject obj)
+    {
+        VigObject oVar1;
+        VigObject oVar2;
+
+        oVar2 = obj.parent;
+        oVar1 = oVar2;
+
+        while(oVar1 != null && oVar1.child2 != obj)
+        {
+            oVar2 = oVar1.parent;
+            obj = oVar1;
+            oVar1 = oVar2;
+        }
+
+        return oVar1;
+    }
+
     public static Vector3Int FUN_23F58(Vector3Int v3)
     {
         Coprocessor.vector0.vx0 = (short)v3.x;
@@ -998,6 +1016,139 @@ public static class Utilities
         }
     }
 
+    public static VigTransform CompMatrixLV(VigTransform m0, VigTransform m1)
+    {
+        short sVar1;
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        uint uVar5;
+        int iVar6;
+        int iVar7;
+        uint uVar8;
+        int iVar9;
+        int iVar10;
+        uint uVar11;
+        int iVar12;
+        VigTransform m2;
+
+        Coprocessor.rotationMatrix.rt11 = m0.rotation.V00;
+        Coprocessor.rotationMatrix.rt12 = m0.rotation.V01;
+        Coprocessor.rotationMatrix.rt13 = m0.rotation.V02;
+        Coprocessor.rotationMatrix.rt21 = m0.rotation.V10;
+        Coprocessor.rotationMatrix.rt22 = m0.rotation.V11;
+        Coprocessor.rotationMatrix.rt23 = m0.rotation.V12;
+        Coprocessor.rotationMatrix.rt31 = m0.rotation.V20;
+        Coprocessor.rotationMatrix.rt32 = m0.rotation.V21;
+        Coprocessor.rotationMatrix.rt33 = m0.rotation.V22;
+        Coprocessor.vector0.vx0 = m1.rotation.V00;
+        Coprocessor.vector0.vy0 = m1.rotation.V02;
+        Coprocessor.vector0.vz0 = m1.rotation.V21;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        uVar5 = (ushort)Coprocessor.accumulator.ir1;
+        iVar6 = Coprocessor.accumulator.ir2;
+        uVar8 = (ushort)Coprocessor.accumulator.ir3;
+        Coprocessor.vector0.vx0 = m1.rotation.V01;
+        Coprocessor.vector0.vy0 = m1.rotation.V11;
+        Coprocessor.vector0.vz0 = m1.rotation.V21;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        iVar10 = Coprocessor.accumulator.ir1;
+        uVar11 = (ushort)Coprocessor.accumulator.ir2;
+        iVar12 = Coprocessor.accumulator.ir3;
+        Coprocessor.vector0.vx0 = m1.rotation.V02;
+        Coprocessor.vector0.vy0 = m1.rotation.V12;
+        Coprocessor.vector0.vz0 = m1.rotation.V22;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        m2.rotation.V01 = (short)iVar10;
+        m2.rotation.V00 = (short)uVar5;
+        m2.rotation.V21 = (short)iVar12;
+        m2.rotation.V20 = (short)uVar8;
+        uVar5 = (ushort)Coprocessor.accumulator.ir1;
+        iVar10 = Coprocessor.accumulator.ir2;
+        sVar1 = Coprocessor.accumulator.ir3;
+        m2.rotation.V22 = sVar1;
+        m2.rotation.V02 = (short)uVar5;
+        m2.rotation.V10 = (short)iVar6;
+        m2.rotation.V11 = (short)uVar11;
+        m2.rotation.V12 = (short)iVar10;
+        uVar5 = (uint)m1.position.x;
+        uVar8 = (uint)m1.position.y;
+        uVar11 = (uint)m1.position.z;
+
+        if ((int)uVar5 < 0)
+        {
+            iVar10 = -(-(int)uVar5 >> 15);
+            uVar5 = (uint)-(-(int)uVar5 & 0x7fff);
+        }
+        else
+        {
+            iVar10 = (int)uVar5 >> 15;
+            uVar5 = uVar5 & 0x7fff;
+        }
+
+        if ((int)uVar8 < 0)
+        {
+            iVar6 = -(-(int)uVar8 >> 15);
+            uVar8 = (uint)-(-(int)uVar8 & 0x7fff);
+        }
+        else
+        {
+            iVar6 = (int)uVar8 >> 15;
+            uVar8 = uVar8 & 0x7fff;
+        }
+
+        if ((int)uVar11 < 0)
+        {
+            iVar12 = -(-(int)uVar11 >> 15);
+            uVar11 = (uint)-(-(int)uVar11 & 0x7fff);
+        }
+        else
+        {
+            iVar12 = (int)uVar11 >> 15;
+            uVar11 = uVar11 & 0x7fff;
+        }
+
+        Coprocessor.accumulator.ir1 = (short)iVar10;
+        Coprocessor.accumulator.ir2 = (short)iVar6;
+        Coprocessor.accumulator.ir3 = (short)iVar12;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 0, false);
+        iVar10 = Coprocessor.mathsAccumulator.mac1;
+        iVar6 = Coprocessor.mathsAccumulator.mac2;
+        iVar12 = Coprocessor.mathsAccumulator.mac3;
+        Coprocessor.accumulator.ir1 = (short)uVar5;
+        Coprocessor.accumulator.ir2 = (short)uVar8;
+        Coprocessor.accumulator.ir3 = (short)uVar11;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+
+        if (iVar10 < 0)
+            iVar10 *= 8;
+        else
+            iVar10 <<= 3;
+
+        if (iVar6 < 0)
+            iVar6 *= 8;
+        else
+            iVar6 <<= 3;
+
+        if (iVar12 < 0)
+            iVar12 *= 8;
+        else
+            iVar12 <<= 3;
+
+        iVar2 = Coprocessor.mathsAccumulator.mac1;
+        iVar3 = Coprocessor.mathsAccumulator.mac2;
+        iVar4 = Coprocessor.mathsAccumulator.mac3;
+        iVar7 = m0.position.y;
+        iVar9 = m0.position.z;
+        m2.position = new Vector3Int();
+        m2.position.x = iVar2 + iVar10 + m0.position.x;
+        m2.position.y = iVar3 + iVar6 + iVar7;
+        m2.position.z = iVar4 + iVar12 + iVar9;
+
+        return m2;
+    }
+
     //FUN_59FBC
     public static Vector3Int ApplyMatrixSV(Matrix3x3 m33, Vector3Int v3)
     {
@@ -1088,6 +1239,12 @@ public static class Utilities
         Coprocessor.farColor._bfc = bfc << 4;
     }
 
+    public static void FUN_5A21C(int param1)
+    {
+        Coprocessor.projectionPlaneDistance = (ushort)param1;
+    }
+
+    //FUN_5A40C
     public static Matrix3x3 TransposeMatrix(Matrix3x3 m)
     {
         Matrix3x3 output;

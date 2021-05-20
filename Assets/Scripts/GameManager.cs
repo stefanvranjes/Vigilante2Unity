@@ -33,6 +33,13 @@ public enum _GAME_MODE
     Quest2
 }
 
+public enum _SCREEN_MODE
+{
+    Whole,
+    Horizontal,
+    Vertical
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -1025,7 +1032,7 @@ public class GameManager : MonoBehaviour
 
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
-    public Vehicle[] players; //6B8D8
+    public Vehicle[] players; //gp+FF8h
 
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
@@ -1035,6 +1042,7 @@ public class GameManager : MonoBehaviour
     public Vector3Int DAT_A24; //gp+A24h
     public Color32 DAT_E04; //gp+E04h
     public short DAT_E1C; //gp+E1Ch
+    public VigTransform DAT_EA8; //gp+EA8h
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_EE0; //gp+EE0h
@@ -1068,7 +1076,7 @@ public class GameManager : MonoBehaviour
     public byte uvSize;
     public ushort unk3;
     public ushort[,] DAT_08; //gp+08h
-    public int DAT_2C; //gp+2Ch; possible an enum?
+    public _SCREEN_MODE screenMode; //gp+2Ch;
     public _GAME_MODE gameMode; //gp+31h
     public bool DAT_36; //gp+36h
     public int gravityFactor; //gp+3Ch
@@ -1099,6 +1107,70 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    //FUN_132CC
+    private void FixedUpdate()
+    {
+        short sVar1;
+        VigObject oVar7;
+        VigCamera cVar7;
+        Vehicle vVar12;
+        uint uVar18;
+
+        if (screenMode == _SCREEN_MODE.Whole)
+        {
+            if (gameMode < _GAME_MODE.Versus || players[0].vObject.maxHalfHealth != 0)
+            {
+                vVar12 = players[0];
+
+                if (players[1] != null)
+                {
+                    uVar18 = players[1].vObject.flags;
+                    oVar7 = players[1].vObject;
+
+                    if ((uVar18 & 0x2000000) == 0)
+                        oVar7.flags = uVar18 & 0xfffffffd;
+                }
+                else
+                {
+                    uVar18 = players[0].vObject.flags;
+                    oVar7 = players[0].vObject;
+                    vVar12 = players[1];
+
+                    if ((uVar18 & 0x2000000) == 0)
+                        oVar7.flags = uVar18 & 0xfffffffd;
+                }
+
+                if (vVar12.view == _CAR_VIEW.Close)
+                {
+                    if ((vVar12.vObject.flags & 0x2000000) != 0)
+                    {
+                        cVar7 = vVar12.vCamera;
+                        sVar1 = cVar7.fieldOfView;
+                        oVar7 = cVar7.vObject;
+                    }
+                    else
+                    {
+                        oVar7 = vVar12.closeViewer;
+                        vVar12.vObject.flags |= 2;
+                        sVar1 = vVar12.vCamera.fieldOfView;
+                    }
+                }
+                else
+                {
+                    if ((vVar12.vObject.flags & 0x2000000) == 0)
+                        vVar12.vObject.flags &= 0xfffffffd;
+
+                    cVar7 = vVar12.vCamera;
+                    sVar1 = cVar7.fieldOfView;
+                    oVar7 = cVar7.vObject;
+                }
+
+                FUN_2D278(oVar7, sVar1);
+                terrain.DAT_BDFF0 = DAT_F00;
+            }
+        }
     }
 
     private void FUN_1C158()
@@ -1645,7 +1717,7 @@ public class GameManager : MonoBehaviour
 
         auStack24 = Utilities.FUN_24148(DAT_F00, pos);
 
-        if (DAT_2C == 0)
+        if (screenMode == _SCREEN_MODE.Whole)
         {
             if (!DAT_83B)
                 uVar4 = (uint)FUN_1E39C(auStack24);
@@ -1681,22 +1753,42 @@ public class GameManager : MonoBehaviour
         return uVar4;
     }
 
-    public void FUN_2E0E8(VigTransform param1, int param2)
+    public void FUN_2D278(VigObject param1, int param2)
+    {
+        VigTransform tVar1;
+
+        tVar1 = FUN_2CDF4(param1);
+        FUN_2E0E8(tVar1, param2);
+    }
+
+    public VigTransform FUN_2CDF4(VigObject obj)
+    {
+        VigTransform m1 = obj.vTransform;
+
+        while (true)
+        {
+            obj = Utilities.FUN_2CD78(obj);
+
+            if (obj == null) break;
+
+            DAT_EA8 = Utilities.CompMatrixLV(obj.vTransform, m1);
+            m1 = DAT_EA8;
+        }
+
+        return m1;
+    }
+
+    private void FUN_2E0E8(VigTransform param1, int param2)
     {
         DAT_F28 = param1;
         DAT_F88 = DAT_F28;
         DAT_F00 = Utilities.FUN_2A3EC(param1);
         DAT_ED8 = param2;
-        //FUN_5A21C
+        Utilities.FUN_5A21C(param2);
         DAT_F48 = Utilities.FUN_247C4(DAT_F68, param1.rotation);
         //FUN_2DFF0
         DAT_EE0 = DAT_F00;
         DAT_EE0.rotation = Utilities.FUN_2A4A4(DAT_EE0.rotation);
-    }
-
-    private void FUN_2DFF0(Matrix3x3 param1)
-    {
-
     }
 
     public static uint FUN_2AC5C()

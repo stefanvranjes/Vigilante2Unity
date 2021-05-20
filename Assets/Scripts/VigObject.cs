@@ -613,10 +613,10 @@ public class VigObject : MonoBehaviour
     public sbyte DAT_18; //0x18
     public short unk2; //0x1A
 
-    public ushort maxHalfHealth;
-    public ushort maxFullHealth;
+    public ushort maxHalfHealth; //0x1C
+    public ushort maxFullHealth; //0x1E
 
-    public VigTransform vTransform;
+    public VigTransform vTransform; //0x20
 
     public short padding1; //0x32
 
