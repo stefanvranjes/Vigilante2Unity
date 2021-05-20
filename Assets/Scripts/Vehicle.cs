@@ -268,7 +268,7 @@ public class Vehicle : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (vObject.ai < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
+        if (vObject.id < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
         {
             TileData tile = GameManager.instance.terrain.GetTileByPosition
                 ((uint)vObject.vTransform.position.x, (uint)vObject.vTransform.position.z);
@@ -302,6 +302,7 @@ public class Vehicle : MonoBehaviour
             }
 
             FUN_3D424(InputManager.controllers[~vObject.id]);
+            //FUN_3AC84(InputManager.controllers[~vObject.id]);
         }
     }
 
@@ -314,117 +315,6 @@ public class Vehicle : MonoBehaviour
     {
         FUN_41B0C();
     }
-    
-    /*private void FUN_41B0C()
-    {
-        short sVar1 = 84; //r17
-
-        if (-1 < acceleration)
-        {
-            sVar1 = 85;
-
-            if (-1 < direction)
-            {
-                sVar1 = 0;
-
-                if ((DAT_F6 & 0x80) != 0)
-                {
-                    sVar1 = 86;
-                }
-            }
-        }
-
-        if (body[0] != null)
-        {
-            if (body[0].pointerUnk1 != 0)
-            {
-                //...
-            }
-
-            if (body[0].DAT_78 != 0)
-            {
-                //...
-            }
-
-            if (sVar1 != 0)
-            {
-                //...
-            }
-        }
-
-        vObject.flags = vObject.flags & 0x8fffffff;
-        int iVar = Utilities.FUN_29E84
-            (new Vector3Int(vObject.physics1.X, vObject.physics1.Y, vObject.physics1.Z)); //r2
-
-        if (iVar < 0)
-            iVar += 127;
-        
-        vObject.physics1.M6 = (short)(iVar >> 7);
-        vObject.physics1.M7 = (short)(iVar >> 7 >> 16);
-
-        int x = vObject.physics1.X;
-        if (x < 0)
-            x += 127;
-
-        int y = vObject.physics1.Y;
-        if (y < 0)
-            y += 127;
-
-        int z = vObject.physics1.Z;
-        if (z < 0)
-            z += 127;
-
-        int sum = vObject.vTransform.rotation.V02 * (x >> 7) +
-                  vObject.vTransform.rotation.V12 * (y >> 7) +
-                  vObject.vTransform.rotation.V22 * (z >> 7);
-
-        if (sum < 0)
-            sum += 4095;
-
-        vObject.physics2.M6 = (short)(sum >> 12);
-
-        if (DAT_B4 == 0)
-        {
-            if (wheelsType == _WHEELS.Air)
-                PhyAir();
-            else
-            {
-                if (wheelsType < _WHEELS.Sea)
-                {
-                    sVar1 = 0;
-
-                    if (wheelsType != _WHEELS.Ground)
-                        goto LAB_41E08;
-
-                    PhyGround();
-                }
-                else
-                {
-                    if (wheelsType == _WHEELS.Sea)
-                        PhySea();
-                    else
-                    {
-                        sVar1 = 0;
-
-                        if (wheelsType != _WHEELS.Snow)
-                            goto LAB_41E08;
-
-                        PhySnow();
-                    }
-                }
-            }
-        }
-        else
-        {
-            //FUN_3E774
-            FUN_3E8C0();
-        }
-
-        sVar1 = 0;
-
-        LAB_41E08:
-        
-    }*/
 
     private void FUN_41B0C()
     {
@@ -3149,7 +3039,8 @@ public class Vehicle : MonoBehaviour
         uint uVar19;
 
         cVar1 = wheelsType;
-        uVar17 = playerController.actions;
+        uVar17 = (uint)(playerController.DAT_B << 24 | playerController.DAT_A << 16 |
+                        playerController.steering << 8 | playerController.actions);
         unaff_s1 = 0; //original code does not contain
 
         if (playerController.type == _CONTROLLER_TYPE.SteeringWheel)

@@ -82,6 +82,8 @@ public class VigTerrain : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        return;
+
         verticesDict = new Dictionary<int, List<int>>();
         tilesDict = new Dictionary<int, Tile>();
 
@@ -185,6 +187,8 @@ public class VigTerrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        return;
+
         for (int i = 0; i < GameManager.instance.players.Length; i++)
         {
             Vector3Int cameraPosition = GameManager.instance.players[i].vCamera.vObject.vTransform.position;

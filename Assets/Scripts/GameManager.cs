@@ -891,8 +891,12 @@ public class GameManager : MonoBehaviour
 
     public static byte[] DAT_6B204 = { 0, 1, 2, 3 };
 
-    public static uint[,] DAT_637DC = { };
-    public static uint[,] DAT_637E0 = { };
+    public static uint[,] DAT_637DC = 
+        { { 0, 0, 0xA8563412, 0x123800, 0xA8563412, 0xA8563412 }, 
+        { 0, 0, 0xA8563412, 0x123800, 0xA8563412, 0xA8563412 } };
+    public static uint[,] DAT_637E0 = 
+        { { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 }, 
+        { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 } };
 
     public static byte[] DAT_639A0 = { 0, 4, 1, 4, 2, 4, 3, 4, 0, 1, 0, 2, 1, 3, 2, 3 };
 
@@ -1101,6 +1105,13 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
+
+        DAT_D18 = new byte[2];
+        DAT_D19 = new byte[2];
+        DAT_D1A = new byte[2];
+        DAT_D1B = new byte[2];
+        DAT_CF0 = new ushort[2];
+        DAT_CFC = new byte[4];
     }
 
     // Update is called once per frame
