@@ -64,7 +64,7 @@ public class VigTerrain : MonoBehaviour
     public Color32[] DAT_B9370 = new Color32[32];
     public Color32[] DAT_BA4F0 = new Color32[32];
     public VigTransform DAT_BDFF0;
-
+    
     private Dictionary<int, List<int>> verticesDict;
     private Dictionary<int, Tile> tilesDict;
     private MeshRenderer[] meshes;
@@ -433,6 +433,7 @@ public class VigTerrain : MonoBehaviour
         uint uVar19;
         uint uVar20;
         uint uVar21;
+        Vector3Int[] terrainVertices = new Vector3Int[4];
 
         iVar1 = (int)(param1 >> 6) * 32 + (int)(param2 >> 6);
         iVar2 = iVar1 * 4;
@@ -462,6 +463,7 @@ public class VigTerrain : MonoBehaviour
         Coprocessor.vector0.vx0 = (short)uVar4;
         Coprocessor.vector0.vy0 = (short)((vertices[puVar14] & 0x7ff) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)iVar1;
+        terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         Coprocessor.ExecuteRTPS(12, false);
         uVar7 = (uint)GameManager.DAT_1f800098;
         uVar6 = uVar4 + 0x400 & 0xffff;
@@ -470,6 +472,7 @@ public class VigTerrain : MonoBehaviour
         Coprocessor.vector0.vx0 = (short)uVar6;
         Coprocessor.vector0.vy0 = (short)((vertices[puVar15] & 0x7ff) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)iVar1;
+        terrainVertices[1] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         Coprocessor.ExecuteRTPS(12, false);
         uVar19 = (uint)(iVar2 < (int)uVar7 ? 1 : 0);
         iVar9 = Coprocessor.screenZFIFO.sz2;
@@ -478,6 +481,7 @@ public class VigTerrain : MonoBehaviour
         Coprocessor.vector0.vy0 = (short)((vertices[puVar16] & 0x7ff) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)(iVar1 + 1024);
         v2Var2 = new Vector2Int(Coprocessor.screenXYFIFO.sx1, Coprocessor.screenXYFIFO.sy1);
+        terrainVertices[2] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         Coprocessor.ExecuteRTPS(12, false);
         uVar10 = (uint)(iVar9 < (int)uVar7 ? 1 : 0) << 1;
         uVar20 = uVar19 | uVar10;
@@ -487,6 +491,7 @@ public class VigTerrain : MonoBehaviour
         Coprocessor.vector0.vx0 = (short)uVar6;
         Coprocessor.vector0.vy0 = (short)((vertices[puVar17] & 0x7ff) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)(iVar1 + 1024);
+        terrainVertices[3] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         iVar5 = Coprocessor.mathsAccumulator.mac0;
         Coprocessor.ExecuteRTPS(12, false);
         uVar6 = (uint)(iVar9 < (int)uVar7 ? 1 : 0) << 2;
@@ -502,24 +507,36 @@ public class VigTerrain : MonoBehaviour
 
         if (uVar21 == 15)
         {
-            GameManager.terrainScreen[0].vert.z = Coprocessor.screenZFIFO.sz0;
+            /*GameManager.terrainScreen[0].vert.z = Coprocessor.screenZFIFO.sz0;
             GameManager.terrainScreen[2].vert.z = Coprocessor.screenZFIFO.sz1;
             GameManager.terrainScreen[10].vert.z = Coprocessor.screenZFIFO.sz2;
-            GameManager.terrainScreen[12].vert.z = Coprocessor.screenZFIFO.sz3;
+            GameManager.terrainScreen[12].vert.z = Coprocessor.screenZFIFO.sz3;*/
+            GameManager.terrainScreen[0].vert.z = terrainVertices[0].z;
+            GameManager.terrainScreen[0].vert.x = terrainVertices[0].x;
+            GameManager.terrainScreen[0].vert.y = terrainVertices[0].y;
+            GameManager.terrainScreen[2].vert.z = terrainVertices[1].z;
+            GameManager.terrainScreen[10].vert.z = terrainVertices[2].z;
+            GameManager.terrainScreen[12].vert.z = terrainVertices[3].z;
             Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14] >> 13 << 7);
             Coprocessor.ExecuteCC(12, true);
-            GameManager.terrainScreen[2].vert.x = Coprocessor.screenXYFIFO.sx0;
-            GameManager.terrainScreen[2].vert.y = Coprocessor.screenXYFIFO.sy0;
+            /*GameManager.terrainScreen[2].vert.x = Coprocessor.screenXYFIFO.sx0;
+            GameManager.terrainScreen[2].vert.y = Coprocessor.screenXYFIFO.sy0;*/
+            GameManager.terrainScreen[2].vert.x = terrainVertices[1].x;
+            GameManager.terrainScreen[2].vert.y = terrainVertices[1].y;
             Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15] >> 13 << 7);
             GameManager.terrainScreen[0].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteCC(12, true);
-            GameManager.terrainScreen[10].vert.x = Coprocessor.screenXYFIFO.sx1;
-            GameManager.terrainScreen[10].vert.y = Coprocessor.screenXYFIFO.sy1;
+            /*GameManager.terrainScreen[10].vert.x = Coprocessor.screenXYFIFO.sx1;
+            GameManager.terrainScreen[10].vert.y = Coprocessor.screenXYFIFO.sy1;*/
+            GameManager.terrainScreen[10].vert.x = terrainVertices[2].x;
+            GameManager.terrainScreen[10].vert.y = terrainVertices[2].y;
             Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar16] >> 13 << 7);
             GameManager.terrainScreen[2].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteCC(12, true);
-            GameManager.terrainScreen[12].vert.x = Coprocessor.screenXYFIFO.sx2;
-            GameManager.terrainScreen[12].vert.y = Coprocessor.screenXYFIFO.sy2;
+            /*GameManager.terrainScreen[12].vert.x = Coprocessor.screenXYFIFO.sx2;
+            GameManager.terrainScreen[12].vert.y = Coprocessor.screenXYFIFO.sy2;*/
+            GameManager.terrainScreen[12].vert.x = terrainVertices[3].x;
+            GameManager.terrainScreen[12].vert.y = terrainVertices[3].y;
             Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar17] >> 13 << 7);
             GameManager.terrainScreen[10].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteCC(12, true);
@@ -537,27 +554,42 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.vector1.vy1 = (short)(cop2r2 >> 16);
             Coprocessor.vector2.vx2 = (short)cop2r4;
             Coprocessor.vector2.vy2 = (short)(cop2r4 >> 16);
+            terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
+            terrainVertices[1] = new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1);
+            terrainVertices[2] = new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2);
             GameManager.terrainScreen[12].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteRTPT(12, false);
-            GameManager.terrainScreen[1].vert.x = Coprocessor.screenXYFIFO.sx0;
+            /*GameManager.terrainScreen[1].vert.x = Coprocessor.screenXYFIFO.sx0;
             GameManager.terrainScreen[1].vert.y = Coprocessor.screenXYFIFO.sy0;
             GameManager.terrainScreen[11].vert.x = Coprocessor.screenXYFIFO.sx2;
-            GameManager.terrainScreen[11].vert.y = Coprocessor.screenXYFIFO.sy2;
+            GameManager.terrainScreen[11].vert.y = Coprocessor.screenXYFIFO.sy2;*/
+            GameManager.terrainScreen[1].vert.x = terrainVertices[0].x;
+            GameManager.terrainScreen[1].vert.y = terrainVertices[0].y;
+            GameManager.terrainScreen[11].vert.x = terrainVertices[2].x;
+            GameManager.terrainScreen[11].vert.y = terrainVertices[2].y;
             Coprocessor.vector0.vx0 = (short)uVar4;
-            Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 2] & 0x7ff) * 0x80000 + uVar7);
+            Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 2] & 0x7ff) * 0x80000 + uVar7 >> 16);
             cop2r4 = (uint)(vertices[puVar15 + 2] & 0x7ff) * 0x80000 +
                         (uVar4 + 1024 & 0xffff | uVar7);
             Coprocessor.vector2.vx2 = (short)cop2r4;
             Coprocessor.vector2.vy2 = (short)(cop2r4 >> 16);
             Coprocessor.vector0.vz0 = (short)(iVar1 + 512);
             Coprocessor.vector2.vz2 = (short)(iVar1 + 512);
-            GameManager.terrainScreen[1].vert.z = Coprocessor.screenZFIFO.sz1;
-            GameManager.terrainScreen[11].vert.z = Coprocessor.screenZFIFO.sz3;
+            /*GameManager.terrainScreen[1].vert.z = Coprocessor.screenZFIFO.sz1;
+            GameManager.terrainScreen[11].vert.z = Coprocessor.screenZFIFO.sz3;*/
+            GameManager.terrainScreen[1].vert.z = terrainVertices[0].z;
+            GameManager.terrainScreen[11].vert.z = terrainVertices[2].z;
+            terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
+            terrainVertices[2] = new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2);
             Coprocessor.ExecuteRTPT(12, false);
-            GameManager.terrainScreen[5].vert.x = Coprocessor.screenXYFIFO.sx0;
+            /*GameManager.terrainScreen[5].vert.x = Coprocessor.screenXYFIFO.sx0;
             GameManager.terrainScreen[5].vert.y = Coprocessor.screenXYFIFO.sy0;
             GameManager.terrainScreen[6].vert.x = Coprocessor.screenXYFIFO.sx1;
-            GameManager.terrainScreen[6].vert.y = Coprocessor.screenXYFIFO.sy1;
+            GameManager.terrainScreen[6].vert.y = Coprocessor.screenXYFIFO.sy1;*/
+            GameManager.terrainScreen[5].vert.x = terrainVertices[0].x;
+            GameManager.terrainScreen[5].vert.y = terrainVertices[0].y;
+            GameManager.terrainScreen[6].vert.x = terrainVertices[1].x;
+            GameManager.terrainScreen[6].vert.y = terrainVertices[1].y;
             cop2r0 = (uint)vertices[puVar14 + 128] >> 13 << 7;
             cop2r2 = (uint)vertices[puVar14 + 130] >> 13 << 7;
             cop2r4 = (uint)vertices[puVar16 + 128] >> 13 << 7;
@@ -567,8 +599,10 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.vector1.vy1 = (short)(cop2r2 >> 16);
             Coprocessor.vector2.vx2 = (short)cop2r4;
             Coprocessor.vector2.vy2 = (short)(cop2r4 >> 16);
-            GameManager.terrainScreen[5].vert.z = Coprocessor.screenZFIFO.sz1;
-            GameManager.terrainScreen[6].vert.z = Coprocessor.screenZFIFO.sz2;
+            /*GameManager.terrainScreen[5].vert.z = Coprocessor.screenZFIFO.sz1;
+            GameManager.terrainScreen[6].vert.z = Coprocessor.screenZFIFO.sz2;*/
+            GameManager.terrainScreen[5].vert.z = terrainVertices[0].z;
+            GameManager.terrainScreen[6].vert.z = terrainVertices[1].z;
             Coprocessor.ExecuteNCCT(12, true);
             GameManager.terrainScreen[1].color = new Color32(Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0);
             Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14 + 2] >> 13 << 7);
@@ -577,15 +611,18 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.ExecuteCC(12, true);
             GameManager.terrainScreen[5].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15 + 2] >> 13 << 7);
-            GameManager.terrainScreen[7].vert.x = Coprocessor.screenXYFIFO.sx2;
+            /*GameManager.terrainScreen[7].vert.x = Coprocessor.screenXYFIFO.sx2;
             GameManager.terrainScreen[7].vert.y = Coprocessor.screenXYFIFO.sy2;
-            GameManager.terrainScreen[7].vert.z = Coprocessor.screenZFIFO.sz3;
+            GameManager.terrainScreen[7].vert.z = Coprocessor.screenZFIFO.sz3;*/
+            GameManager.terrainScreen[7].vert.x = terrainVertices[2].x;
+            GameManager.terrainScreen[7].vert.y = terrainVertices[2].y;
+            GameManager.terrainScreen[7].vert.z = terrainVertices[2].z;
             Coprocessor.ExecuteCC(12, true);
             uVar7 = uVar4 + 512 & 0xffff;
             iVar1 += 512;
             GameManager.terrainScreen[7].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
-            GameManager.terrainScreen[0].vert.x = v2Var2.x;
-            GameManager.terrainScreen[0].vert.y = v2Var2.y;
+            /*GameManager.terrainScreen[0].vert.x = v2Var2.x;
+            GameManager.terrainScreen[0].vert.y = v2Var2.y;*/
             //FUN_290A8(uVar7, iVar1, param3, 6);
             //...
         }
@@ -645,14 +682,26 @@ public class VigTerrain : MonoBehaviour
             }
             else
             {
-                GameManager.terrainScreen[12].vert.x = Coprocessor.screenXYFIFO.sx2;
-                GameManager.terrainScreen[12].vert.y = Coprocessor.screenXYFIFO.sy2;
+                /*GameManager.terrainScreen[12].vert.x = Coprocessor.screenXYFIFO.sx2;
+                GameManager.terrainScreen[12].vert.y = Coprocessor.screenXYFIFO.sy2;*/
+                GameManager.terrainScreen[12].vert.x = terrainVertices[3].x;
+                GameManager.terrainScreen[12].vert.y = terrainVertices[3].y;
                 Coprocessor.accumulator.ir0 = (short)GameManager.terrainScreen[12].ir0;
                 Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar17] >> 11 << 7);
-                GameManager.terrainScreen[0].vert.z = Coprocessor.screenZFIFO.sz0;
+                /*GameManager.terrainScreen[0].vert.z = Coprocessor.screenZFIFO.sz0;
                 GameManager.terrainScreen[2].vert.z = Coprocessor.screenZFIFO.sz1;
                 GameManager.terrainScreen[10].vert.z = Coprocessor.screenZFIFO.sz2;
-                GameManager.terrainScreen[12].vert.z = Coprocessor.screenZFIFO.sz3;
+                GameManager.terrainScreen[12].vert.z = Coprocessor.screenZFIFO.sz3;*/
+                GameManager.terrainScreen[0].vert.z = terrainVertices[0].z;
+                GameManager.terrainScreen[0].vert.x = terrainVertices[0].x;
+                GameManager.terrainScreen[0].vert.y = terrainVertices[0].y;
+                GameManager.terrainScreen[2].vert.z = terrainVertices[1].z;
+                GameManager.terrainScreen[2].vert.x = terrainVertices[1].x;
+                GameManager.terrainScreen[2].vert.y = terrainVertices[1].y;
+                GameManager.terrainScreen[10].vert.z = terrainVertices[2].z;
+                GameManager.terrainScreen[10].vert.x = terrainVertices[2].x;
+                GameManager.terrainScreen[10].vert.y = terrainVertices[2].y;
+                GameManager.terrainScreen[12].vert.z = terrainVertices[3].z;
                 GameManager.terrainScreen[0].color = new Color32(Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0);
                 GameManager.terrainScreen[2].color = new Color32(Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1);
                 GameManager.terrainScreen[10].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
@@ -663,39 +712,48 @@ public class VigTerrain : MonoBehaviour
                 if (uVar20 != 0)
                 {
                     Coprocessor.vector0.vx0 = (short)(uVar4 + 512 & 0xffff);
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 128] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 128] & 0x7ff) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)iVar1;
+                    terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     Coprocessor.ExecuteRTPS(12, false);
-                    GameManager.terrainScreen[1].vert.x = Coprocessor.screenXYFIFO.sx2;
-                    GameManager.terrainScreen[1].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    /*GameManager.terrainScreen[1].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[1].vert.y = Coprocessor.screenXYFIFO.sy2;*/
+                    GameManager.terrainScreen[1].vert.x = terrainVertices[0].x;
+                    GameManager.terrainScreen[1].vert.y = terrainVertices[0].y;
                     Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14 + 128] >> 11 << 7);
-                    GameManager.terrainScreen[1].vert.z = Coprocessor.screenZFIFO.sz3;
+                    //GameManager.terrainScreen[1].vert.z = Coprocessor.screenZFIFO.sz3;
+                    GameManager.terrainScreen[1].vert.z = terrainVertices[0].z;
                     Coprocessor.ExecuteCDP(12, true);
                 }
 
                 if ((uVar19 | uVar6) != 0)
                 {
                     Coprocessor.vector0.vx0 = (short)uVar4;
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 2] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 2] & 0x7ff) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)(iVar1 + 512);
+                    terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     uVar11 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
                     Coprocessor.ExecuteRTPS(12, false);
 
                     if (uVar20 != 0)
                         GameManager.terrainScreen[1].color = uVar11;
 
-                    GameManager.terrainScreen[5].vert.x = Coprocessor.screenXYFIFO.sx2;
-                    GameManager.terrainScreen[5].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    /*GameManager.terrainScreen[5].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[5].vert.y = Coprocessor.screenXYFIFO.sy2;*/
+                    GameManager.terrainScreen[5].vert.x = terrainVertices[0].x;
+                    GameManager.terrainScreen[5].vert.y = terrainVertices[0].y;
                     Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14 + 2] >> 11 << 7);
-                    GameManager.terrainScreen[5].vert.z = Coprocessor.screenZFIFO.sz3;
+                    //GameManager.terrainScreen[5].vert.z = Coprocessor.screenZFIFO.sz3;
+                    GameManager.terrainScreen[5].vert.z = terrainVertices[0].z;
                     Coprocessor.ExecuteCDP(12, true);
                 }
 
                 if ((uVar10 | uVar7) != 0)
                 {
                     Coprocessor.vector0.vx0 = (short)(uVar4 + 1024 & 0xffff);
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar15 + 2] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar15 + 2] & 0x7ff) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)(iVar1 + 512);
+                    terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     uVar12 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
                     Coprocessor.ExecuteRTPS(12, false);
                     uVar11 = uVar12;
@@ -709,10 +767,13 @@ public class VigTerrain : MonoBehaviour
                     }
 
                     GameManager.terrainScreen[5].color = uVar11;
-                    GameManager.terrainScreen[7].vert.x = Coprocessor.screenXYFIFO.sx2;
-                    GameManager.terrainScreen[7].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    /*GameManager.terrainScreen[7].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[7].vert.y = Coprocessor.screenXYFIFO.sy2;*/
+                    GameManager.terrainScreen[7].vert.x = terrainVertices[0].x;
+                    GameManager.terrainScreen[7].vert.y = terrainVertices[0].y;
                     Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15 + 2] >> 11 << 7);
-                    GameManager.terrainScreen[7].vert.z = Coprocessor.screenZFIFO.sz3;
+                    //GameManager.terrainScreen[7].vert.z = Coprocessor.screenZFIFO.sz3;
+                    GameManager.terrainScreen[7].vert.z = terrainVertices[0].z;
                     Coprocessor.ExecuteCDP(12, true);
                 }
 
@@ -734,14 +795,18 @@ public class VigTerrain : MonoBehaviour
                 else
                 {
                     Coprocessor.vector0.vx0 = (short)(uVar4 + 512 & 0xffff);
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar16 + 128] & 0x7ff) * 0x80000 + iVar5);
+                    Coprocessor.vector0.vy0 = (short)((vertices[puVar16 + 128] & 0x7ff) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)(iVar1 + 1024);
+                    terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     uVar13 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
                     Coprocessor.ExecuteRTPS(12, false);
-                    GameManager.terrainScreen[11].vert.x = Coprocessor.screenXYFIFO.sx2;
-                    GameManager.terrainScreen[11].vert.y = Coprocessor.screenXYFIFO.sy2;
+                    /*GameManager.terrainScreen[11].vert.x = Coprocessor.screenXYFIFO.sx2;
+                    GameManager.terrainScreen[11].vert.y = Coprocessor.screenXYFIFO.sy2;*/
+                    GameManager.terrainScreen[11].vert.x = terrainVertices[0].x;
+                    GameManager.terrainScreen[11].vert.y = terrainVertices[0].y;
                     Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar16 + 128] >> 11 << 7);
-                    GameManager.terrainScreen[11].vert.z = Coprocessor.screenZFIFO.sz3;
+                    //GameManager.terrainScreen[11].vert.z = Coprocessor.screenZFIFO.sz3;
+                    GameManager.terrainScreen[11].vert.z = terrainVertices[0].z;
                     Coprocessor.ExecuteCDP(12, true);
                     uVar11 = GameManager.terrainScreen[5].color;
                     uVar12 = uVar13;
@@ -765,12 +830,12 @@ public class VigTerrain : MonoBehaviour
                     GameManager.terrainScreen[11].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
                 }
 
-                GameManager.terrainScreen[0].vert.x = v2Var2.x;
+                /*GameManager.terrainScreen[0].vert.x = v2Var2.x;
                 GameManager.terrainScreen[0].vert.y = v2Var2.y;
                 GameManager.terrainScreen[2].vert.x = v2Var9.x;
                 GameManager.terrainScreen[2].vert.y = v2Var9.y;
                 GameManager.terrainScreen[10].vert.x = v2Var8.x;
-                GameManager.terrainScreen[10].vert.y = v2Var8.y;
+                GameManager.terrainScreen[10].vert.y = v2Var8.y;*/
 
             }
         }

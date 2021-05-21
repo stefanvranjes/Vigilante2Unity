@@ -1059,6 +1059,7 @@ public class GameManager : MonoBehaviour
     public Matrix3x3 DAT_F68; //gp+F68h
     public VigTransform DAT_F88; //gp+F88h
     public Matrix3x3 DAT_FA8; //gp+FA8h
+    public Vector2Int DAT_FC8; //gp+FC8h
     public int DAT_C74; //gp+C74h
     public Color32[] DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
@@ -1082,6 +1083,7 @@ public class GameManager : MonoBehaviour
     public byte uvSize;
     public ushort unk3;
     public ushort[,] DAT_08; //gp+08h
+    public int DAT_24; //gp+24h
     public _SCREEN_MODE screenMode; //gp+2Ch;
     public _GAME_MODE gameMode; //gp+31h
     public bool DAT_36; //gp+36h
@@ -1126,10 +1128,61 @@ public class GameManager : MonoBehaviour
     private void FixedUpdate()
     {
         short sVar1;
+        int uVar4;
+        int uVar10;
+        int uVar13;
+        int uVar15;
         VigObject oVar7;
         VigCamera cVar7;
         Vehicle vVar12;
         uint uVar18;
+
+        DAT_24 = 1 - DAT_24;
+
+        if (screenMode == _SCREEN_MODE.Horizontal)
+        {
+            uVar4 = 320;
+            uVar13 = 160;
+            uVar10 = 120;
+            uVar15 = 60;
+            FUN_2DF30(uVar4, uVar10, uVar13, uVar15);
+        }
+        else
+        {
+            if (screenMode < _SCREEN_MODE.Vertical)
+            {
+                uVar4 = 320;
+
+                if (screenMode == _SCREEN_MODE.Whole)
+                {
+                    uVar10 = 240;
+                    uVar13 = 160;
+                    uVar15 = 120;
+                    FUN_2DF30(uVar4, uVar10, uVar13, uVar15);
+                }
+            }
+            else
+            {
+                if (screenMode == _SCREEN_MODE.Vertical)
+                {
+                    uVar4 = 160;
+                    uVar10 = 240;
+                    uVar13 = 80;
+                    uVar15 = 120;
+                    FUN_2DF30(uVar4, uVar10, uVar13, uVar15);
+                }
+
+                uVar4 = 160;
+
+                if (screenMode == _SCREEN_MODE.Unknown)
+                {
+                    uVar13 = 80;
+                    uVar10 = 120;
+                    uVar15 = 60;
+                    FUN_2DF30(uVar4, uVar10, uVar13, uVar15);
+                }
+            }
+        }
 
         if (screenMode == _SCREEN_MODE.Whole)
         {
@@ -1232,7 +1285,8 @@ public class GameManager : MonoBehaviour
         }
 
         Utilities.SetRotMatrix(DAT_F28.rotation);
-        local_c0 = DAT_F28.position;
+        local_c0 = new Vector3Int();
+        local_c0.x = DAT_F28.position.x;
 
         if (DAT_F28.position.x < 0)
             local_c0.x = DAT_F28.position.x + 255;
@@ -1283,7 +1337,7 @@ public class GameManager : MonoBehaviour
         iVar24 = 0;
         iVar26 = 0;
         local_b0 = new List<Vector2Int>();
-        aiStack240.Add(DAT_1f800084);
+        aiStack240.Add(local_c0);
 
         do
         {
@@ -1777,6 +1831,19 @@ public class GameManager : MonoBehaviour
         FUN_2E0E8(tVar1, param2);
     }
 
+    private void FUN_2DEE8(int param1, int param2)
+    {
+        Utilities.SetScreenOffset(param1, param2);
+        DAT_FC8 = new Vector2Int(param1, param2);
+    }
+
+    private void FUN_2DF30(int param1, int param2, int param3, int param4)
+    {
+        DAT_EDC = param1;
+        DAT_F20 = param2;
+        FUN_2DEE8(param3, param4);
+    }
+
     public VigTransform FUN_2CDF4(VigObject obj)
     {
         VigTransform m1 = obj.vTransform;
@@ -1800,7 +1867,7 @@ public class GameManager : MonoBehaviour
         DAT_F88 = DAT_F28;
         DAT_F00 = Utilities.FUN_2A3EC(param1);
         DAT_ED8 = param2;
-        Utilities.FUN_5A21C(param2);
+        Utilities.SetProjectionPlane(param2);
         DAT_F48 = Utilities.FUN_247C4(DAT_F68, param1.rotation);
         //FUN_2DFF0
         DAT_EE0 = DAT_F00;

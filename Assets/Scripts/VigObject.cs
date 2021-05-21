@@ -650,7 +650,7 @@ public class VigObject : MonoBehaviour
             (int)(-transform.localPosition.y * GameManager.translateFactor), 
             (int)(transform.localPosition.z * GameManager.translateFactor));
 
-        vTransform.rotation.Euler2Matrix(transform.localRotation.eulerAngles * Mathf.Deg2Rad);
+        ApplyRotationMatrix();
         //screen = position;
     }
 

@@ -1239,7 +1239,15 @@ public static class Utilities
         Coprocessor.farColor._bfc = bfc << 4;
     }
 
-    public static void FUN_5A21C(int param1)
+    //FUN_5A1FC
+    public static void SetScreenOffset(int param1, int param2)
+    {
+        Coprocessor.screenOffset.ofx = param1 << 16;
+        Coprocessor.screenOffset.ofy = param2 << 16;
+    }
+
+    //FUN_5A21C
+    public static void SetProjectionPlane(int param1)
     {
         Coprocessor.projectionPlaneDistance = (ushort)param1;
     }

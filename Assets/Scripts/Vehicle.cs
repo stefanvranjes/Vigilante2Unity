@@ -268,6 +268,11 @@ public class Vehicle : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        
+    }
+
+    private void FixedUpdate()
+    {
         if (vObject.id < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
         {
             TileData tile = GameManager.instance.terrain.GetTileByPosition
@@ -304,10 +309,7 @@ public class Vehicle : MonoBehaviour
             FUN_3D424(InputManager.controllers[~vObject.id]);
             //FUN_3AC84(InputManager.controllers[~vObject.id]);
         }
-    }
 
-    private void FixedUpdate()
-    {
         FUN_41AE8();
     }
 
