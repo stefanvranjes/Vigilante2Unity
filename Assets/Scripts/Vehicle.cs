@@ -44,7 +44,6 @@ public class Vehicle : MonoBehaviour
 {
     public VigObject vObject;
 
-    public VigObject target;
     public short turning;
     public short acceleration;
     public _WHEELS wheelsType;
@@ -71,12 +70,13 @@ public class Vehicle : MonoBehaviour
     public short DAT_E2; //0xE2
     public int DAT_E4; //0xE4
     public int lightness; //0xE8
-    public VigCamera vCamera;
+    public VigCamera vCamera; //0xEC
+    public VigObject target; //0xF0
     public ushort DAT_F6; //0xF6
     public VigObject[] body;
     public VigObject closeViewer; //0x100
     public VigObject[] wheels;
-    public VigObject[] weapons;
+    public Weapon[] weapons;
     public ushort doubleDamage;
     public ushort shield;
     public ushort jammer;
@@ -417,9 +417,9 @@ public class Vehicle : MonoBehaviour
         LAB_41E08:
         for (; iVar5 < 3; iVar5++)
             if (weapons[iVar5] != null)
-                if (weapons[iVar5].id != 0)
-                    weapons[iVar5].id -= 1;
-
+                if (weapons[iVar5].vObject.id != 0)
+                    weapons[iVar5].vObject.id -= 1;
+        
         if (doubleDamage != 0)
             doubleDamage -= 1;
 
