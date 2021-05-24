@@ -70,8 +70,10 @@ public class VigTerrain : MonoBehaviour
     private Dictionary<int, Tile> tilesDict;
     private MeshRenderer[] meshes;
     private List<Vector3> newVertices;
+    private List<Vector2> newUVs;
     private List<Color32> newColors;
     private List<int> newIndices;
+    private int in_t0, in_t1, in_t2, in_t3, in_t4;
     private int puVar14;
     private int puVar15;
     private int puVar16;
@@ -852,14 +854,23 @@ public class VigTerrain : MonoBehaviour
         short sVar3;
         int iVar4;
         Color32 clrVar4;
+        uint puVar5;
         int iVar6;
+        Color32 clrVar6;
+        uint puVar8;
         int iVar9;
         Color32 clrVar9;
         int iVar11;
         Color32 clrVar11;
         uint uVar13;
+        Color32 clrVar14;
+        uint uVar15;
+        uint uVar16;
         int puVar17;
         int index;
+        int cop2r0;
+        int cop2r2;
+        int cop2r4;
         Vector3Int[] terrainVertices = new Vector3Int[4];
 
         int tFactor = GameManager.translateFactor;
@@ -982,9 +993,9 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.vector1.vz1 = (short)(param2 + 256);
             Coprocessor.vector2.vz2 = (short)(param2 + 512);
             uVar13 = param1 + 256 & 0xffff | uVar2;
-            int cop2r0 = (vertices[puVar14 + 64] & 0x7ff) * 0x80000 + (int)uVar13;
-            int cop2r2 = (vertices[puVar14 + 65] & 0x7ff) * 0x80000 + (int)uVar13;
-            int cop2r4 = (vertices[puVar16 + 64] & 0x7ff) * 0x80000 + (int)uVar13;
+            cop2r0 = (vertices[puVar14 + 64] & 0x7ff) * 0x80000 + (int)uVar13;
+            cop2r2 = (vertices[puVar14 + 65] & 0x7ff) * 0x80000 + (int)uVar13;
+            cop2r4 = (vertices[puVar16 + 64] & 0x7ff) * 0x80000 + (int)uVar13;
             Coprocessor.vector0.vx0 = (short)cop2r0;
             Coprocessor.vector0.vy0 = (short)(cop2r0 >> 16);
             Coprocessor.vector1.vx1 = (short)cop2r2;
@@ -1021,6 +1032,304 @@ public class VigTerrain : MonoBehaviour
             terrainWorld[param4 + 5] = terrainVertices[0];
             terrainWorld[param4 + 6] = terrainVertices[1];
             terrainWorld[param4 + 7] = terrainVertices[2];
+        }
+
+        uVar13 = (uint)(GameManager.DAT_1f800084.y << 16);
+        cop2r0 = (vertices[puVar14 + 1] & 0x7ff) * 0x80000 + (int)(uVar13 | param1);
+        Coprocessor.vector0.vx0 = (short)cop2r0;
+        Coprocessor.vector0.vy0 = (short)(cop2r0 >> 16);
+        Coprocessor.vector0.vz0 = (short)(param2 + 256);
+        terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
+        Coprocessor.ExecuteRTPS(12, false);
+        Coprocessor.vector1.vz1 = (short)(param2 + 512);
+        Coprocessor.vector2.vz2 = (short)(param2 + 256);
+        uVar15 = param1 + 256 & 0xffff | uVar13;
+        uVar16 = param1 + 512 & 0xffff | uVar13;
+        Coprocessor.vector0.vz0 = (short)param2;
+        cop2r0 = (vertices[puVar14 + 64] & 0x7ff) * 0x80000 + (int)uVar15;
+        Coprocessor.vector0.vx0 = (short)cop2r0;
+        Coprocessor.vector0.vy0 = (short)(cop2r0 >> 16);
+        cop2r2 = (vertices[puVar16 + 64] & 0x7ff) * 0x80000 + (int)uVar15;
+        Coprocessor.vector1.vx1 = (short)cop2r2;
+        Coprocessor.vector1.vy1 = (short)(cop2r2 >> 16);
+        cop2r4 = (vertices[puVar15 + 1] & 0x7ff) * 0x80000 + (int)uVar16;
+        Coprocessor.vector2.vx2 = (short)cop2r4;
+        Coprocessor.vector2.vy2 = (short)(cop2r4 >> 16);
+        GameManager.terrainScreen[param4 + 5].vert = new Vector3Int(Coprocessor.screenXYFIFO.sx2, Coprocessor.screenXYFIFO.sy2, Coprocessor.screenZFIFO.sz3);
+        terrainWorld[param4 + 5] = terrainVertices[0];
+        terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
+        terrainVertices[1] = new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1);
+        terrainVertices[2] = new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2);
+        Coprocessor.ExecuteRTPT(12, false);
+        GameManager.terrainScreen[param4 + 5].color = DAT_BA4F0[vertices[puVar14 + 1] >> 11];
+        GameManager.terrainScreen[param4 + 1].color = DAT_BA4F0[vertices[puVar14 + 64] >> 11];
+        GameManager.terrainScreen[param4 + 11].color = DAT_BA4F0[vertices[puVar16 + 64] >> 11];
+        GameManager.terrainScreen[param4 + 7].color = DAT_BA4F0[vertices[puVar15 + 1] >> 11];
+        puVar8 = GameManager.DAT_639EC[(uVar2 - 1) * 2];
+        puVar5 = GameManager.DAT_639EC[uVar2 * 2];
+        GameManager.terrainScreen[param4 + 1].vert.x = Coprocessor.screenXYFIFO.sx0;
+        GameManager.terrainScreen[param4 + 1].vert.y = Coprocessor.screenXYFIFO.sy0;
+        GameManager.terrainScreen[param4 + 11].vert.x = Coprocessor.screenXYFIFO.sx1;
+        GameManager.terrainScreen[param4 + 11].vert.y = Coprocessor.screenXYFIFO.sy1;
+        GameManager.terrainScreen[param4 + 7].vert.x = Coprocessor.screenXYFIFO.sx2;
+        GameManager.terrainScreen[param4 + 7].vert.y = Coprocessor.screenXYFIFO.sy2;
+        terrainWorld[param4 + 1] = terrainVertices[0];
+        terrainWorld[param4 + 11] = terrainVertices[1];
+        terrainWorld[param4 + 7] = terrainVertices[2];
+        iVar4 = (int)(puVar8 >> 1 & 0x1f) + param4;
+        iVar6 = (int)(puVar8 >> 2 & 0x1f0) / 16 + param4;
+        iVar9 = (int)(puVar8 >> 7 & 0x1f0) / 16 + param4;
+        Coprocessor.screenXYFIFO.sx0 = (short)GameManager.terrainScreen[iVar4].vert.x;
+        Coprocessor.screenXYFIFO.sy0 = (short)GameManager.terrainScreen[iVar4].vert.y;
+        Coprocessor.screenXYFIFO.sx1 = (short)GameManager.terrainScreen[iVar6].vert.x;
+        Coprocessor.screenXYFIFO.sy1 = (short)GameManager.terrainScreen[iVar6].vert.y;
+        Coprocessor.screenXYFIFO.sx2 = (short)GameManager.terrainScreen[iVar9].vert.x;
+        Coprocessor.screenXYFIFO.sy2 = (short)GameManager.terrainScreen[iVar9].vert.y;
+        clrVar11 = GameManager.terrainScreen[iVar6].color;
+        Coprocessor.ExecuteNCLIP();
+        clrVar14 = GameManager.terrainScreen[iVar9].color;
+
+        if (-1 < Coprocessor.mathsAccumulator.mac0)
+        {
+            newVertices.Add(terrainWorld[iVar4] / tFactor);
+            newVertices.Add(terrainWorld[iVar6] / tFactor);
+            newVertices.Add(terrainWorld[iVar9] / tFactor);
+            newColors.Add(GameManager.terrainScreen[iVar4].color);
+            newColors.Add(clrVar11);
+            newColors.Add(clrVar14);
+            index = newVertices.Count - 1;
+            newIndices.Add(index);
+            newIndices.Add(index - 1);
+            newIndices.Add(index - 2);
+        }
+
+        int _iVar9 = iVar9;
+        iVar9 = (int)(puVar8 >> 12 & 0x1f0) / 16 + param4;
+        Coprocessor.screenXYFIFO.sx0 = (short)GameManager.terrainScreen[iVar9].vert.x;
+        Coprocessor.screenXYFIFO.sy0 = (short)GameManager.terrainScreen[iVar9].vert.y;
+        clrVar9 = GameManager.terrainScreen[iVar9].color;
+        Coprocessor.ExecuteNCLIP();
+        iVar11 = (int)(puVar8 >> 17 & 0x1f0) / 16 + param4;
+        Coprocessor.screenXYFIFO.sx1 = (short)GameManager.terrainScreen[iVar11].vert.x;
+        Coprocessor.screenXYFIFO.sy1 = (short)GameManager.terrainScreen[iVar11].vert.y;
+        clrVar6 = GameManager.terrainScreen[iVar11].color;
+
+        if (Coprocessor.mathsAccumulator.mac0 < 1)
+        {
+            newVertices.Add(terrainWorld[iVar9] / tFactor);
+            newVertices.Add(terrainWorld[iVar6] / tFactor);
+            newVertices.Add(terrainWorld[_iVar9] / tFactor);
+            newColors.Add(clrVar9);
+            newColors.Add(clrVar11);
+            newColors.Add(clrVar14);
+            index = newVertices.Count - 1;
+            newIndices.Add(index);
+            newIndices.Add(index - 1);
+            newIndices.Add(index - 2);
+        }
+
+        Coprocessor.ExecuteNCLIP();
+
+        if (-1 < Coprocessor.mathsAccumulator.mac0)
+        {
+            newVertices.Add(terrainWorld[iVar9] / tFactor);
+            newVertices.Add(terrainWorld[iVar11] / tFactor);
+            newVertices.Add(terrainWorld[_iVar9] / tFactor);
+            newColors.Add(clrVar9);
+            newColors.Add(clrVar6);
+            newColors.Add(clrVar14);
+            index = newVertices.Count - 1;
+            newIndices.Add(index);
+            newIndices.Add(index - 1);
+            newIndices.Add(index - 2);
+        }
+
+        iVar6 = (int)(puVar5 >> 1 & 0x1f) + param4;
+        iVar9 = (int)(puVar5 >> 2 & 0x1f0) + param4;
+        iVar11 = (int)(puVar5 >> 7 & 0x1f0) + param4;
+        Coprocessor.screenXYFIFO.sx0 = (short)GameManager.terrainScreen[iVar6].vert.x;
+        Coprocessor.screenXYFIFO.sy0 = (short)GameManager.terrainScreen[iVar6].vert.y;
+        Coprocessor.screenXYFIFO.sx1 = (short)GameManager.terrainScreen[iVar9].vert.x;
+        Coprocessor.screenXYFIFO.sy1 = (short)GameManager.terrainScreen[iVar9].vert.y;
+        Coprocessor.screenXYFIFO.sx2 = (short)GameManager.terrainScreen[iVar11].vert.x;
+        Coprocessor.screenXYFIFO.sy2 = (short)GameManager.terrainScreen[iVar11].vert.y;
+        clrVar9 = GameManager.terrainScreen[iVar9].color;
+        Coprocessor.ExecuteNCLIP();
+        clrVar11 = GameManager.terrainScreen[iVar11].color;
+        uVar2 = puVar5 >> 12 & 0x1f0;
+        iVar4 = (int)uVar2 / 16 + param4;
+
+        if (uVar2 != 0)
+        {
+            if (Coprocessor.mathsAccumulator.mac0 < 1)
+            {
+                newVertices.Add(terrainWorld[iVar6] / tFactor);
+                newVertices.Add(terrainWorld[iVar9] / tFactor);
+                newVertices.Add(terrainWorld[iVar11] / tFactor);
+                newColors.Add(GameManager.terrainScreen[iVar6].color);
+                newColors.Add(clrVar9);
+                newColors.Add(clrVar11);
+                index = newVertices.Count - 1;
+                newIndices.Add(index);
+                newIndices.Add(index - 1);
+                newIndices.Add(index - 2);
+            }
+
+            Coprocessor.screenXYFIFO.sx0 = (short)GameManager.terrainScreen[iVar4].vert.x;
+            Coprocessor.screenXYFIFO.sy0 = (short)GameManager.terrainScreen[iVar4].vert.y;
+            clrVar4 = GameManager.terrainScreen[iVar4].color;
+            Coprocessor.ExecuteNCLIP();
+            uVar2 = puVar5 >> 17 & 0x1f0;
+            param4 = (int)uVar2 / 16 + param4;
+
+            if (uVar2 == 0)
+            {
+                if (Coprocessor.mathsAccumulator.mac0 < 0)
+                    return;
+
+                newVertices.Add(terrainWorld[iVar4] / tFactor);
+                newVertices.Add(terrainWorld[iVar9] / tFactor);
+                newVertices.Add(terrainWorld[iVar11] / tFactor);
+                newColors.Add(clrVar4);
+                newColors.Add(clrVar9);
+                newColors.Add(clrVar11);
+                index = newVertices.Count - 1;
+                newIndices.Add(index);
+                newIndices.Add(index - 1);
+                newIndices.Add(index - 2);
+                return;
+            }
+
+            Coprocessor.screenXYFIFO.sx1 = (short)GameManager.terrainScreen[param4].vert.x;
+            Coprocessor.screenXYFIFO.sy1 = (short)GameManager.terrainScreen[param4].vert.y;
+            clrVar6 = GameManager.terrainScreen[param4].color;
+
+            if (-1 < Coprocessor.mathsAccumulator.mac0)
+            {
+                newVertices.Add(terrainWorld[iVar4] / tFactor);
+                newVertices.Add(terrainWorld[iVar9] / tFactor);
+                newVertices.Add(terrainWorld[iVar11] / tFactor);
+                newColors.Add(clrVar4);
+                newColors.Add(clrVar9);
+                newColors.Add(clrVar11);
+                index = newVertices.Count - 1;
+                newIndices.Add(index);
+                newIndices.Add(index - 1);
+                newIndices.Add(index - 2);
+            }
+
+            Coprocessor.ExecuteNCLIP();
+
+            if (0 < Coprocessor.mathsAccumulator.mac0)
+                return;
+
+            newVertices.Add(terrainWorld[iVar4] / tFactor);
+            newVertices.Add(terrainWorld[param4] / tFactor);
+            newVertices.Add(terrainWorld[iVar11] / tFactor);
+            newColors.Add(clrVar4);
+            newColors.Add(clrVar6);
+            newColors.Add(clrVar11);
+            index = newVertices.Count - 1;
+            newIndices.Add(index);
+            newIndices.Add(index - 1);
+            newIndices.Add(index - 2);
+        }
+        else
+        {
+            if (0 < Coprocessor.mathsAccumulator.mac0)
+                return;
+
+            newVertices.Add(terrainWorld[iVar6] / tFactor);
+            newVertices.Add(terrainWorld[iVar9] / tFactor);
+            newVertices.Add(terrainWorld[iVar11] / tFactor);
+            newColors.Add(GameManager.terrainScreen[iVar6].color);
+            newColors.Add(clrVar9);
+            newColors.Add(clrVar11);
+            index = newVertices.Count - 1;
+            newIndices.Add(index);
+            newIndices.Add(index - 1);
+            newIndices.Add(index - 2);
+        }
+    }
+
+    private void FUN_29520(int param1, int param2, Queue<ScreenPoly> param3, int param4)
+    {
+        int iVar3;
+        Color32 clrVar4;
+        uint uVar5;
+        int iVar6;
+        Color32 clrVar6;
+        int iVar7;
+        Color32 clrVar7;
+        int iVar9;
+        short sVar12;
+        uint uVar13;
+        int index;
+
+        int tFactor = GameManager.translateFactor;
+        iVar3 = (ushort)GameManager.DAT_1f80009a - 4096;
+        iVar9 = in_t4;
+
+        if ((tileData[iVar9].unk1 & 1) == 0)
+        {
+            uVar5 = (uint)GameManager.terrainScreen[param4].vert.z;
+
+            if (GameManager.terrainScreen[param4].vert.z < GameManager.terrainScreen[param4 + 1].vert.z)
+                uVar5 = (uint)GameManager.terrainScreen[param4 + 1].vert.z;
+
+            iVar6 = (in_t1 >> 11);
+
+            if ((int)uVar5 < GameManager.terrainScreen[param4 + 5].vert.z)
+                uVar5 = (uint)GameManager.terrainScreen[param4 + 5].vert.z;
+
+            uVar13 = (uint)GameManager.terrainScreen[param4 + 6].vert.z;
+            iVar7 = (in_t2 >> 11);
+
+            if ((int)uVar5 < (int)uVar13)
+                uVar5 = uVar13;
+
+            Coprocessor.screenXYFIFO.sx0 = (short)GameManager.terrainScreen[param4].vert.x;
+            Coprocessor.screenXYFIFO.sy0 = (short)GameManager.terrainScreen[param4].vert.y;
+
+            if (0 < (int)uVar5)
+            {
+                Coprocessor.screenXYFIFO.sx1 = (short)GameManager.terrainScreen[param4 + 1].vert.x;
+                Coprocessor.screenXYFIFO.sy1 = (short)GameManager.terrainScreen[param4 + 1].vert.y;
+
+                if ((tileData[iVar9].unk1 & 2) == 0)
+                {
+                    Coprocessor.screenXYFIFO.sx2 = (short)GameManager.terrainScreen[param4 + 5].vert.x;
+                    Coprocessor.screenXYFIFO.sy2 = (short)GameManager.terrainScreen[param4 + 5].vert.y;
+                    iVar3 = (int)uVar5 - iVar3;
+                    Coprocessor.ExecuteNCLIP();
+                    sVar12 = (short)GameManager.instance.DAT_DA8;
+
+                    if (0 < iVar3)
+                        sVar12 = (short)(GameManager.instance.DAT_DA8 + ((uint)iVar3 >> 8) * 64);
+
+                    clrVar6 = GameManager.DAT_1f800000[iVar6];
+                    iVar3 = Coprocessor.mathsAccumulator.mac0;
+                    clrVar7 = GameManager.DAT_1f800000[iVar7];
+
+                    if (iVar3 < 1)
+                    {
+                        clrVar4 = GameManager.DAT_1f800000[in_t0 >> 11];
+                        newVertices.Add(terrainWorld[param4] / tFactor);
+                        newVertices.Add(terrainWorld[param4 + 1] / tFactor);
+                        newVertices.Add(terrainWorld[param4 + 5] / tFactor);
+                        newColors.Add(clrVar4);
+                        newColors.Add(clrVar6);
+                        newColors.Add(clrVar7);
+                        newUVs.Add(new Vector2(tileData[iVar9].uv1_x, sVar12));
+                        newUVs.Add(new Vector2(tileData[iVar9].uv2_x, tileData[iVar9].uv2_y));
+                        newUVs.Add(new Vector2(tileData[iVar9].uv3_x, 0));
+                        index = newVertices.Count - 1;
+                        newIndices.Add(index);
+                        newIndices.Add(index - 1);
+                        newIndices.Add(index - 2);
+                    }
+                }
+            }
         }
     }
 }

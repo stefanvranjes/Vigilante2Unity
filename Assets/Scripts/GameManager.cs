@@ -900,6 +900,7 @@ public class GameManager : MonoBehaviour
         { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 } };
 
     public static byte[] DAT_639A0 = { 0, 4, 1, 4, 2, 4, 3, 4, 0, 1, 0, 2, 1, 3, 2, 3 };
+    public static uint[] DAT_639EC = { };
 
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
@@ -1074,6 +1075,7 @@ public class GameManager : MonoBehaviour
     public byte[] DAT_D1B; //gp+D1Bh
     public int DAT_DA0; //gp+DA0h
     public Color32 DAT_DA4; //gp+DA4h
+    public ushort DAT_DA8; //gp+DA8h
     public int DAT_DB0; //gp+DB0h
     public short DAT_DB4; //gp+DB4h
     public short DAT_DB6; //gp+DB6h
