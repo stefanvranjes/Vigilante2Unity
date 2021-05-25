@@ -442,6 +442,7 @@ public class VigTerrain : MonoBehaviour
         uint uVar21;
         Vector3Int[] terrainVertices = new Vector3Int[4];
 
+        return;
         iVar1 = (int)(param1 >> 6) * 32 + (int)(param2 >> 6);
         iVar2 = iVar1 * 4;
         iVar5 = (int)((param2 & 63) + (param1 & 63) * 64) * 2;

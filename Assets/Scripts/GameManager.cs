@@ -957,7 +957,20 @@ public class GameManager : MonoBehaviour
         },
         new VehicleData
         {
-
+            unk0x0=new short[7]{ 32, 32, 40, 40, 48, 48, 0x803 }, //game stores 7th element for a wheel?
+            unk0xC=3,
+            vehicleID=_VEHICLE.BlueBurro,
+            unk0xE=0,
+            unk0xF=0,
+            unk0x10=28,
+            unk0x11=38,
+            unk0x12=80,
+            unk0x13=34,
+            unk0x15=49,
+            lightness=1945,
+            vectorUnk=new Vector3Int(64, 64, 64),
+            unk0x2A=0x4000,
+            unk0x2C=new byte[4]{ 64, 46, 176, 56 }
         },
         new VehicleData
         {
