@@ -84,13 +84,13 @@ public class Vehicle : VigObject
     
     void Awake()
     {
-        vObject = GetComponent<VigObject>();
         config = GetComponent<VehicleConfig>();
     }
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         VigObject currentObj = config.FUN_2C17C(0, 308, 0); //r20
         int configID = config.dataID;
         int iVar1 = GameManager.vehicleConfigs[configID].unk0xC;
@@ -260,26 +260,26 @@ public class Vehicle : VigObject
         } while (iVar6 != 0);
 
         DAT_C0 = (byte)(local_28[0] | local_28[1] << 2 | local_28[2] << 4 | local_28[3] << 6);
-        currentObj.DAT_7C = currentObj.FUN_2CA1C();
+        currentObj.PDAT_7C = currentObj.FUN_2CA1C();
     }
 
     // Update is called once per frame
-    private void Update()
+    protected override void Update()
     {
-        
+        base.Update();
     }
 
     private void FixedUpdate()
     {
-        if (vObject.id < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
+        if (id < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
         {
             TileData tile = GameManager.instance.terrain.GetTileByPosition
-                ((uint)vObject.vTransform.position.x, (uint)vObject.vTransform.position.z);
+                ((uint)vTransform.position.x, (uint)vTransform.position.z);
 
             if (tile.unk2[3] == 7)
-                vObject.FUN_3BFC0();
+                FUN_3BFC0();
 
-            if ((vObject.flags & 0x20000000) == 0)
+            if ((flags & 0x20000000) == 0)
             {
                 if (DAT_DF != 0)
                 {
@@ -304,7 +304,7 @@ public class Vehicle : VigObject
                 }
             }
 
-            FUN_3D424(InputManager.controllers[~vObject.id]);
+            FUN_3D424(InputManager.controllers[~id]);
             //FUN_3AC84(InputManager.controllers[~vObject.id]);
         }
 
@@ -344,37 +344,37 @@ public class Vehicle : VigObject
             //...
         }
 
-        vObject.flags &= 0x8fffffff;
+        flags &= 0x8fffffff;
         iVar4 = Utilities.FUN_29E84(new Vector3Int
-            (vObject.physics1.X, vObject.physics1.Y, vObject.physics1.Z));
+            (physics1.X, physics1.Y, physics1.Z));
 
         if (iVar4 < 0)
             iVar4 += 127;
 
-        iVar5 = vObject.physics1.X;
-        vObject.physics1.W = iVar4 >> 7;
+        iVar5 = physics1.X;
+        physics1.W = iVar4 >> 7;
 
         if (iVar5 < 0)
             iVar5 += 127;
 
-        iVar4 = vObject.physics1.Y;
+        iVar4 = physics1.Y;
 
         if (iVar4 < 0)
             iVar4 += 127;
 
-        iVar3 = vObject.physics1.Z;
+        iVar3 = physics1.Z;
 
         if (iVar3 < 0)
             iVar3 += 127;
 
-        iVar4 = vObject.vTransform.rotation.V02 * (iVar5 >> 7) +
-                vObject.vTransform.rotation.V12 * (iVar4 >> 7) +
-                vObject.vTransform.rotation.V22 * (iVar3 >> 7);
+        iVar4 = vTransform.rotation.V02 * (iVar5 >> 7) +
+                vTransform.rotation.V12 * (iVar4 >> 7) +
+                vTransform.rotation.V22 * (iVar3 >> 7);
 
         if (iVar4 < 0)
             iVar4 += 4095;
 
-        vObject.physics2.W = iVar4 >> 12;
+        physics2.W = iVar4 >> 12;
             
         if (DAT_B4 == 0)
         {
@@ -429,30 +429,30 @@ public class Vehicle : VigObject
         if (jammer != 0)
             jammer -= 1;
 
-        if ((vObject.flags & 0x8000000) == 0)
+        if ((flags & 0x8000000) == 0)
         {
             if (jammer == 0)
             {
-                if (-1 < vObject.id && (DAT_F6 & 2) == 0)
+                if (-1 < id && (DAT_F6 & 2) == 0)
                 {
-                    vObject.screen = vObject.vTransform.position;
+                    screen = vTransform.position;
                     return;
                 }
 
-                iVar4 = (vObject.vTransform.position.x - vObject.screen.x) * DAT_AF;
+                iVar4 = (vTransform.position.x - screen.x) * DAT_AF;
 
                 if (iVar4 < 0)
                     iVar4 += 255;
 
-                vObject.screen.x += iVar4 >> 8;
-                iVar4 = (vObject.vTransform.position.y - vObject.screen.y) * DAT_AF;
+                screen.x += iVar4 >> 8;
+                iVar4 = (vTransform.position.y - screen.y) * DAT_AF;
 
                 if (iVar4 < 0)
                     iVar4 += 255;
 
-                vObject.screen.y += iVar4 >> 8;
-                iVar5 = vObject.screen.z;
-                iVar4 = (vObject.vTransform.position.z - iVar5) * DAT_AF;
+                screen.y += iVar4 >> 8;
+                iVar5 = screen.z;
+                iVar4 = (vTransform.position.z - iVar5) * DAT_AF;
 
                 if (iVar4 < 0)
                     iVar4 += 255;
@@ -461,20 +461,20 @@ public class Vehicle : VigObject
             }
             else
             {
-                iVar4 = vObject.vTransform.position.x - vObject.screen.x;
+                iVar4 = vTransform.position.x - screen.x;
 
                 if (iVar4 < 0)
                     iVar4 += 31;
 
-                vObject.screen.x += iVar4 >> 5;
-                iVar4 = vObject.vTransform.position.y - vObject.screen.y;
+                screen.x += iVar4 >> 5;
+                iVar4 = vTransform.position.y - screen.y;
 
                 if (iVar4 < 0)
                     iVar4 += 31;
 
-                iVar5 = vObject.screen.z;
-                vObject.screen.y += iVar4 >> 5;
-                iVar4 = vObject.screen.z - iVar5;
+                iVar5 = screen.z;
+                screen.y += iVar4 >> 5;
+                iVar4 = screen.z - iVar5;
 
                 if (iVar4 < 0)
                     iVar4 += 31;
@@ -482,7 +482,7 @@ public class Vehicle : VigObject
                 iVar4 = iVar4 >> 5;
             }
 
-            vObject.screen.z = iVar5 + iVar4;
+            screen.z = iVar5 + iVar4;
         }
     }
 
@@ -519,7 +519,7 @@ public class Vehicle : VigObject
         uint local_20;
         int local_1c;
 
-        if (vObject.vTransform.rotation.V11 < 0)
+        if (vTransform.rotation.V11 < 0)
         {
             FUN_3E8C0();
             
@@ -557,21 +557,21 @@ public class Vehicle : VigObject
             if (GameManager.instance.DAT_DB0 == 0)
                 return;
 
-            if (GameManager.instance.DAT_DA0 <= vObject.vTransform.position.z)
+            if (GameManager.instance.DAT_DA0 <= vTransform.position.z)
                 return;
 
-            if (vObject.vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
+            if (vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
                 return;
 
             //FUN_391AC
         }
         else
         {
-            if (GameManager.instance.DAT_DB0 != 0 && vObject.vTransform.position.z < GameManager.instance.DAT_DA0)
+            if (GameManager.instance.DAT_DB0 != 0 && vTransform.position.z < GameManager.instance.DAT_DA0)
             {
-                if (GameManager.instance.DAT_DB0 < vObject.vTransform.position.y)
+                if (GameManager.instance.DAT_DB0 < vTransform.position.y)
                 {
-                    if (GameManager.instance.DAT_DB0 + 0x5000 < vObject.vTransform.position.y)
+                    if (GameManager.instance.DAT_DB0 + 0x5000 < vTransform.position.y)
                     {
                         //FUN_391AC
                         return;
@@ -583,7 +583,7 @@ public class Vehicle : VigObject
                     {
                         acceleration = -120;
 
-                        if (bVar3 == 0 && vObject.physics1.W < 1525)
+                        if (bVar3 == 0 && physics1.W < 1525)
                             ; //FUN_39BC4
                         else
                         {
@@ -593,7 +593,7 @@ public class Vehicle : VigObject
                 }
             }
 
-            auStack224 = vObject.FUN_2AEAC();
+            auStack224 = FUN_2AEAC();
             List<Vector3Int> positions = new List<Vector3Int>();
             List<Vector3Int> normals = new List<Vector3Int>();
             List<TileData> tiles = new List<TileData>();
@@ -615,11 +615,11 @@ public class Vehicle : VigObject
                             wheels[i].screen.z);
                     }
 
-                    Vector3Int position = Utilities.FUN_24148(vObject.vTransform, local_c0);
+                    Vector3Int position = Utilities.FUN_24148(vTransform, local_c0);
                     uVar15 = position.y;
                     TileData tile;
                     Vector3Int normal;
-                    uVar5 = vObject.FUN_2CFBC(position, out normal, out tile);
+                    uVar5 = FUN_2CFBC(position, out normal, out tile);
                     position.y = uVar5;
                     positions.Add(position);
                     normals.Add(normal);
@@ -672,7 +672,7 @@ public class Vehicle : VigObject
 
                             iVar12 = (int)GameManager.FUN_2AC5C();
 
-                            if (vObject.physics1.W <= iVar12)
+                            if (physics1.W <= iVar12)
                                 goto LAB_41360;
 
                             //FUN_38EF4
@@ -682,7 +682,7 @@ public class Vehicle : VigObject
                     }
 
                     LAB_41360:
-                    auStack144 = Utilities.FUN_24304(vObject.vTransform, local_a0);
+                    auStack144 = Utilities.FUN_24304(vTransform, local_a0);
                     auStack144.y -= wheels[i].physics2.X;
 
                     if (auStack144.y < wheels[i].physics1.Y)
@@ -694,8 +694,8 @@ public class Vehicle : VigObject
                             if (tile != null)
                                 uVar6 = 0x30000000;
 
-                            vObject.flags |= uVar6;
-                            auStack104 = Utilities.FUN_24210(vObject.vTransform.rotation, local_80);
+                            flags |= uVar6;
+                            auStack104 = Utilities.FUN_24210(vTransform.rotation, local_80);
                             iVar12 = wheels[i].physics1.X;
 
                             if (wheels[i].physics1.X < auStack144.y)
@@ -718,7 +718,7 @@ public class Vehicle : VigObject
                             else
                             {
                                 local_c0.y = (auStack144.y - wheels[i].screen.y) * 16;
-                                vObject.flags |= 0x40000000;
+                                flags |= 0x40000000;
                             }
 
                             local_c0.y = ((iVar7 - iVar12) * sVar1 * 128) / auStack104.y + local_c0.y;
@@ -925,37 +925,37 @@ public class Vehicle : VigObject
             for (int i = 0; i < 6; i++)
                 wheels[i].ApplyTransformation();
 
-            local_f0 = Utilities.FUN_24094(vObject.vTransform.rotation, local_f0);
-            iVar14 = vObject.physics1.W * lightness;
-            local_f0.x -= (int)((ulong)((long)vObject.physics1.X * iVar14) >> 32);
+            local_f0 = Utilities.FUN_24094(vTransform.rotation, local_f0);
+            iVar14 = physics1.W * lightness;
+            local_f0.x -= (int)((ulong)((long)physics1.X * iVar14) >> 32);
             local_f0.y = (local_f0.y + 11520) -
-                         (int)((ulong)((long)vObject.physics1.Y * iVar14) >> 32);
-            lVar2 = (long)vObject.physics1.Z * iVar14;
+                         (int)((ulong)((long)physics1.Y * iVar14) >> 32);
+            lVar2 = (long)physics1.Z * iVar14;
             local_20 = (uint)lVar2;
             local_1c = (int)((ulong)lVar2 >> 32);
             local_f0.z -= local_1c;
-            vObject.FUN_2AFF8(local_f0, local_100);
-            iVar16 = vObject.physics2.X;
+            FUN_2AFF8(local_f0, local_100);
+            iVar16 = physics2.X;
             iVar14 = iVar16;
 
             if (iVar16 < 0)
                 iVar14 = iVar16 + 31;
 
-            iVar11 = vObject.physics2.Y;
-            vObject.physics2.X = iVar16 - (iVar14 >> 5);
+            iVar11 = physics2.Y;
+            physics2.X = iVar16 - (iVar14 >> 5);
             iVar14 = iVar11;
 
             if (iVar11 < 0)
                 iVar14 = iVar11 + 31;
 
-            iVar16 = vObject.physics2.Z;
-            vObject.physics2.Y = iVar11 - (iVar14 >> 5);
+            iVar16 = physics2.Z;
+            physics2.Y = iVar11 - (iVar14 >> 5);
             iVar14 = iVar16;
 
             if (iVar16 < 0)
                 iVar14 = iVar16 + 31;
 
-            vObject.physics2.Z = iVar16 - (iVar14 >> 5);
+            physics2.Z = iVar16 - (iVar14 >> 5);
         }
     }
 
@@ -983,10 +983,10 @@ public class Vehicle : VigObject
         Vector3Int auStack48;
         Vector3Int auStack80;
 
-        if (vObject.vTransform.rotation.V11 < 0)
+        if (vTransform.rotation.V11 < 0)
         {
             iVar5 = VigTerrain.instance.FUN_1B750
-                ((uint)vObject.vTransform.position.x, (uint)vObject.vTransform.position.z);
+                ((uint)vTransform.position.x, (uint)vTransform.position.z);
 
             if (iVar5 < GameManager.instance.DAT_DB0)
             {
@@ -995,10 +995,10 @@ public class Vehicle : VigObject
             }
         }
 
-        VigTransform auStack144 = vObject.FUN_2AE18();
+        VigTransform auStack144 = FUN_2AE18();
         Vector3Int local_b0 = new Vector3Int(0, 0, 0);
         Vector3Int local_a0 = new Vector3Int(0, 11520, 0);
-        iVar5 = vObject.vTransform.rotation.V11;
+        iVar5 = vTransform.rotation.V11;
         iVar12 = 0;
 
         if (0 < iVar5)
@@ -1017,7 +1017,7 @@ public class Vehicle : VigObject
             iVar12 = iVar5;
 
             if (iVar5 < 0)
-                iVar6 = vObject.physics2.W;
+                iVar6 = physics2.W;
             else
             {
                 iVar6 = direction;
@@ -1034,7 +1034,7 @@ public class Vehicle : VigObject
 
         LAB_406D4:
         bVar3 = false;
-        local_24 = vObject.vTransform;
+        local_24 = vTransform;
         iVar5 = 3;
         uVar10 = 0;
 
@@ -1052,18 +1052,18 @@ public class Vehicle : VigObject
                         sVar4 = (short)(2048 - (((int)((uint)turning << 16) >> 16) -
                                                 ((int)((uint)turning << 16) >> 31) >> 1));
 
-                    vObject.child2.vr.y = sVar4;
-                    vObject.child2.ApplyTransformation();
-                    vObject.child2.child2.vr.z += iVar12 * 3;
-                    vObject.child2.child2.ApplyTransformation();
+                    child2.vr.y = sVar4;
+                    child2.ApplyTransformation();
+                    child2.child2.vr.z += iVar12 * 3;
+                    child2.child2.ApplyTransformation();
                 }
 
                 local_70 = new Vector3Int(
                     wheels[iVar5].screen.x,
-                    wheels[iVar5].screen.y + wheels[iVar5].DAT_78,
+                    wheels[iVar5].screen.y + wheels[iVar5].IDAT_78,
                     wheels[iVar5].screen.z);
                 local_60 = Utilities.FUN_24148(local_24, local_70);
-                iVar6 = vObject.FUN_2CFBC(local_60, out auStack48, out local_28);
+                iVar6 = FUN_2CFBC(local_60, out auStack48, out local_28);
                 auStack80 = Utilities.FUN_24148(auStack144, local_70);
 
                 if (local_60.z < GameManager.instance.DAT_DA0 && GameManager.instance.DAT_DB0 < iVar6)
@@ -1094,7 +1094,7 @@ public class Vehicle : VigObject
                             local_40 = Utilities.FUN_24094(local_24.rotation, local_40);
                             iVar9 = (int)GameManager.FUN_2AC5C();
 
-                            if (iVar9 < vObject.physics1.W)
+                            if (iVar9 < physics1.W)
                                 ; //FUN_38F38
                         }
 
@@ -1133,7 +1133,7 @@ public class Vehicle : VigObject
 
                                     iVar6 = (int)GameManager.FUN_2AC5C();
 
-                                    if (iVar6 < vObject.physics1.W)
+                                    if (iVar6 < physics1.W)
                                     {
                                         //FUN_38EF4
                                         wheels[iVar5].flags |= 0x8000000;
@@ -1147,8 +1147,8 @@ public class Vehicle : VigObject
 
                         if (local_28 != null)
                         {
-                            uVar7 = vObject.flags | 0x20000000;
-                            vObject.flags = uVar7;
+                            uVar7 = flags | 0x20000000;
+                            flags = uVar7;
                         }
 
                         FUN_40B3C();
@@ -1181,7 +1181,7 @@ public class Vehicle : VigObject
 
                             local_40.z = local_40.z >> 6;
                             local_40.y = 0;
-                            local_40 = Utilities.FUN_24094(vObject.vTransform.rotation, local_40);
+                            local_40 = Utilities.FUN_24094(vTransform.rotation, local_40);
                         }
 
                         iVar5 = auStack80.y;
@@ -1195,8 +1195,8 @@ public class Vehicle : VigObject
                         if (local_28 != null)
                             uVar7 = 0x10000000;
 
-                        uVar7 = vObject.flags | uVar7;
-                        vObject.flags = uVar7;
+                        uVar7 = flags | uVar7;
+                        flags = uVar7;
                         FUN_40B3C();
                     }
                 }
@@ -1208,7 +1208,7 @@ public class Vehicle : VigObject
 
             if (3 < (int)uVar7)
             {
-                if (bVar3 || (vObject.flags & 0x10000000) == 0)
+                if (bVar3 || (flags & 0x10000000) == 0)
                     DAT_C2 = 0;
                 else
                 {
@@ -1220,23 +1220,23 @@ public class Vehicle : VigObject
                 }
 
                 local_b0 = Utilities.FUN_2426C(
-                    vObject.vTransform.rotation, 
+                    vTransform.rotation, 
                     new Matrix2x4(local_b0.x, local_b0.y, local_b0.z, 0));
-                iVar5 = vObject.physics1.W * lightness;
-                local_a0.y -= (int)((ulong)((long)vObject.physics1.Y * iVar5) >> 32);
-                lVar2 = (long)vObject.physics1.Z * iVar5;
+                iVar5 = physics1.W * lightness;
+                local_a0.y -= (int)((ulong)((long)physics1.Y * iVar5) >> 32);
+                lVar2 = (long)physics1.Z * iVar5;
                 local_20 = (int)lVar2;
                 local_1c = (int)((ulong)lVar2 >> 32);
 
                 if (acceleration == 0)
                 {
-                    iVar12 = vObject.physics1.X;
+                    iVar12 = physics1.X;
 
                     if (iVar12 < 0)
                         iVar12 += 63;
 
                     iVar12 = -(iVar12 >> 6);
-                    iVar6 = vObject.physics1.Z;
+                    iVar6 = physics1.Z;
 
                     if (iVar6 < 0)
                         iVar6 += 63;
@@ -1245,12 +1245,12 @@ public class Vehicle : VigObject
                 }
                 else
                 {
-                    iVar6 = -vObject.physics1.X;
+                    iVar6 = -physics1.X;
 
-                    if (0 < vObject.physics1.X)
+                    if (0 < physics1.X)
                         iVar6 += 31;
 
-                    iVar9 = vObject.vTransform.rotation.V02;
+                    iVar9 = vTransform.rotation.V02;
 
                     if (iVar9 < 0)
                         iVar9 = -iVar9;
@@ -1266,12 +1266,12 @@ public class Vehicle : VigObject
                         iVar12 += 4095;
 
                     iVar12 = iVar12 >> 12;
-                    iVar9 = -vObject.physics1.Z;
+                    iVar9 = -physics1.Z;
 
-                    if (0 < vObject.physics1.Z)
+                    if (0 < physics1.Z)
                         iVar9 += 31;
 
-                    iVar8 = vObject.vTransform.rotation.V22;
+                    iVar8 = vTransform.rotation.V22;
 
                     if (iVar8 < 0)
                         iVar8 = -iVar8;
@@ -1289,39 +1289,39 @@ public class Vehicle : VigObject
                     iVar6 = iVar6 >> 12;
                 }
 
-                local_a0.x = (local_a0.x - (int)((ulong)((long)vObject.physics1.X * iVar5) >> 32)) + iVar12;
+                local_a0.x = (local_a0.x - (int)((ulong)((long)physics1.X * iVar5) >> 32)) + iVar12;
                 local_a0.z = (local_a0.z - local_1c) + iVar6;
-                vObject.FUN_2AFF8(local_a0, local_b0);
-                iVar12 = vObject.physics2.X;
+                FUN_2AFF8(local_a0, local_b0);
+                iVar12 = physics2.X;
                 iVar5 = iVar12;
 
                 if (iVar12 < 0)
                     iVar5 = iVar12 + 31;
 
-                iVar6 = vObject.physics2.Y;
-                vObject.physics2.X = iVar12 - (iVar5 >> 5);
+                iVar6 = physics2.Y;
+                physics2.X = iVar12 - (iVar5 >> 5);
                 iVar5 = iVar6;
 
                 if (iVar6 < 0)
                     iVar5 = iVar6 + 31;
 
-                iVar12 = vObject.physics2.Z;
-                vObject.physics2.Y = iVar6 - (iVar5 >> 5);
+                iVar12 = physics2.Z;
+                physics2.Y = iVar6 - (iVar5 >> 5);
                 iVar5 = iVar12;
 
                 if (iVar12 < 0)
                     iVar5 = iVar12 + 31;
 
-                vObject.physics2.Z = iVar12 - (iVar5 >> 5);
+                physics2.Z = iVar12 - (iVar5 >> 5);
                 return;
             }
         } while (true);
 
         void FUN_40B3C()
         {
-            int cop2r32 = local_60.x - vObject.vTransform.position.x >> 3;
-            int cop2r34 = local_60.y - vObject.vTransform.position.y >> 3;
-            int cop2r36 = local_60.z - vObject.vTransform.position.z >> 3;
+            int cop2r32 = local_60.x - vTransform.position.x >> 3;
+            int cop2r34 = local_60.y - vTransform.position.y >> 3;
+            int cop2r36 = local_60.z - vTransform.position.z >> 3;
             Coprocessor.rotationMatrix.rt11 = (short)(cop2r32 & 0xFFFF);
             Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
             Coprocessor.rotationMatrix.rt22 = (short)(cop2r34 & 0xFFFF);
@@ -1364,28 +1364,28 @@ public class Vehicle : VigObject
         int local_18;
         int local_14;
 
-        if (vObject.vTransform.rotation.V11 == 0)
+        if (vTransform.rotation.V11 == 0)
         {
             FUN_3E8C0();
 
             if (GameManager.instance.DAT_DB0 == 0)
                 return;
 
-            if (GameManager.instance.DAT_DA0 <= vObject.vTransform.position.z)
+            if (GameManager.instance.DAT_DA0 <= vTransform.position.z)
                 return;
 
-            if (vObject.vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
+            if (vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
                 return;
 
             //sound effect
             return;
         }
 
-        if (GameManager.instance.DAT_DB0 != 0 && vObject.vTransform.position.z < GameManager.instance.DAT_DA0)
+        if (GameManager.instance.DAT_DB0 != 0 && vTransform.position.z < GameManager.instance.DAT_DA0)
         {
-            if (GameManager.instance.DAT_DB0 < vObject.vTransform.position.y)
+            if (GameManager.instance.DAT_DB0 < vTransform.position.y)
             {
-                if (GameManager.instance.DAT_DB0 + 0x5000 < vObject.vTransform.position.y)
+                if (GameManager.instance.DAT_DB0 + 0x5000 < vTransform.position.y)
                 {
                     //sound effect
                     return;
@@ -1397,7 +1397,7 @@ public class Vehicle : VigObject
                 {
                     acceleration = -120;
 
-                    if (bVar2 == 0 && vObject.physics1.W < 1525)
+                    if (bVar2 == 0 && physics1.W < 1525)
                         ; //sound effect
                     else
                     {
@@ -1407,18 +1407,18 @@ public class Vehicle : VigObject
             }
         }
 
-        VigTransform container = vObject.FUN_2AE18();
+        VigTransform container = FUN_2AE18();
         Vector3Int local_88 = new Vector3Int(0, 0, 0);
         Vector3Int local_78 = new Vector3Int(0, 0, 0);
-        vObject.flags |= 0x10000000;
+        flags |= 0x10000000;
         int iVar5 = 0;
 
         for (int i = 0; i < 4; i++)
         {
             if (wheels[i] != null)
             {
-                local_48 = Utilities.FUN_24148(vObject.vTransform, wheels[i].screen);
-                iVar6 = vObject.FUN_2CFBC(local_48, out auStack56, out local_20);
+                local_48 = Utilities.FUN_24148(vTransform, wheels[i].screen);
+                iVar6 = FUN_2CFBC(local_48, out auStack56, out local_20);
 
                 if (local_48.z < GameManager.instance.DAT_DA0 && GameManager.instance.DAT_DB0 < iVar6)
                 {
@@ -1426,7 +1426,7 @@ public class Vehicle : VigObject
                     {
                         iVar7 = (int)GameManager.FUN_2AC5C();
 
-                        if (iVar7 << 1 < vObject.physics1.W)
+                        if (iVar7 << 1 < physics1.W)
                             ; //FUN_38EF4
                     }
                 }
@@ -1508,7 +1508,7 @@ public class Vehicle : VigObject
                         //function jump by register
                     }
 
-                    vObject.flags |= 0x20000000;
+                    flags |= 0x20000000;
                 }
             }
         }
@@ -1536,7 +1536,7 @@ public class Vehicle : VigObject
         iVar8 = iVar5;
 
         if (iVar5 < 0)
-            iVar6 = vObject.physics2.W;
+            iVar6 = physics2.W;
         else
         {
             iVar6 = direction;
@@ -1551,10 +1551,10 @@ public class Vehicle : VigObject
             iVar8 = -iVar5;
 
         LAB_40194:
-        local_78 = Utilities.FUN_24094(vObject.vTransform.rotation, local_78);
-        iVar5 = vObject.vTransform.rotation.V02;
+        local_78 = Utilities.FUN_24094(vTransform.rotation, local_78);
+        iVar5 = vTransform.rotation.V02;
         iVar7 = iVar5 * iVar8;
-        iVar6 = vObject.physics1.X;
+        iVar6 = physics1.X;
 
         if (iVar6 < 0)
             iVar6 += 63;
@@ -1573,9 +1573,9 @@ public class Vehicle : VigObject
             iVar10 += 4095;
 
         local_78.x += iVar7 / 24 - (iVar10 >> 12);
-        iVar5 = vObject.vTransform.rotation.V22;
+        iVar5 = vTransform.rotation.V22;
         iVar7 = iVar5 * iVar8;
-        iVar6 = vObject.physics1.Z;
+        iVar6 = physics1.Z;
 
         if (iVar6 < 0)
             iVar6 += 63;
@@ -1596,27 +1596,27 @@ public class Vehicle : VigObject
         local_78.z += iVar7 / 24 - (iVar10 >> 12);
         local_78.y += GameManager.instance.gravityFactor;
 
-        if (3051 < vObject.physics1.W)
+        if (3051 < physics1.W)
         {
-            iVar5 = (int)(vObject.physics2.W >> 31 & 8U) / 4;
+            iVar5 = (int)(physics2.W >> 31 & 8U) / 4;
             local_48 = new Vector3Int(0, wheels[iVar5].screen.y, wheels[iVar5].screen.z);
-            local_48 = Utilities.FUN_24148(vObject.vTransform, local_48);
-            iVar5 = vObject.physics1.X;
+            local_48 = Utilities.FUN_24148(vTransform, local_48);
+            iVar5 = physics1.X;
 
             if (iVar5 < 0)
                 iVar5 += 3;
 
             local_48.x += iVar5 >> 2;
-            iVar5 = vObject.physics1.Z;
+            iVar5 = physics1.Z;
 
             if (iVar5 < 0)
                 iVar5 += 3;
 
             local_48.z += iVar5 >> 2;
-            iVar5 = vObject.FUN_2CFBC(local_48);
+            iVar5 = FUN_2CFBC(local_48);
 
-            if (iVar5 - 20480 < vObject.vTransform.position.y)
-                local_78.y += (vObject.vTransform.rotation.V12 * iVar8) / 12;
+            if (iVar5 - 20480 < vTransform.position.y)
+                local_78.y += (vTransform.rotation.V12 * iVar8) / 12;
 
             iVar5 = (iVar5 - 20480) - local_48.y;
 
@@ -1624,7 +1624,7 @@ public class Vehicle : VigObject
             {
                 iVar8 = iVar5 + 31;
 
-                if (-1 < vObject.physics2.W)
+                if (-1 < physics2.W)
                 {
                     iVar8 = -iVar5;
 
@@ -1632,19 +1632,19 @@ public class Vehicle : VigObject
                         iVar8 += 31;
                 }
 
-                vObject.physics2.X += iVar8 >> 5;
+                physics2.X += iVar8 >> 5;
             }
         }
 
-        iVar5 = vObject.physics1.W * lightness;
-        local_78.x -= (int)((ulong)((long)vObject.physics1.X * iVar5) >> 32);
-        local_78.y -= (int)((ulong)((long)vObject.physics1.Y * iVar5) >> 32);
-        lVar1 = (long)vObject.physics1.Z * iVar5;
+        iVar5 = physics1.W * lightness;
+        local_78.x -= (int)((ulong)((long)physics1.X * iVar5) >> 32);
+        local_78.y -= (int)((ulong)((long)physics1.Y * iVar5) >> 32);
+        lVar1 = (long)physics1.Z * iVar5;
         local_18 = (int)lVar1;
         local_14 = (int)(lVar1 >> 32);
         local_78.z -= local_14;
-        vObject.FUN_2AFF8(local_78, local_88);
-        iVar8 = vObject.physics2.X;
+        FUN_2AFF8(local_78, local_88);
+        iVar8 = physics2.X;
         iVar5 = iVar8;
 
         if (iVar8 < 0)
@@ -1666,8 +1666,8 @@ public class Vehicle : VigObject
             iVar5 = iVar5 + (iVar6 >> 3);
         }
 
-        iVar6 = vObject.physics2.Z;
-        vObject.physics2.X = iVar8 - iVar5;
+        iVar6 = physics2.Z;
+        physics2.X = iVar8 - iVar5;
         iVar5 = iVar6;
 
         if (iVar6 < 0)
@@ -1689,14 +1689,14 @@ public class Vehicle : VigObject
             iVar5 += iVar8 >> 3;
         }
 
-        iVar8 = vObject.physics2.Y;
-        vObject.physics2.Z = iVar6 - iVar5;
+        iVar8 = physics2.Y;
+        physics2.Z = iVar6 - iVar5;
         iVar5 = iVar8;
 
         if (iVar8 < 0)
             iVar5 = iVar8 + 15;
 
-        vObject.physics2.Y = iVar8 + (turning * 2 - (iVar5 >> 4));
+        physics2.Y = iVar8 + (turning * 2 - (iVar5 >> 4));
     }
 
     //FUN_3EDC4
@@ -1737,7 +1737,7 @@ public class Vehicle : VigObject
         int local_24;
         int local_20;
 
-        if (vObject.vTransform.rotation.V11 < 0)
+        if (vTransform.rotation.V11 < 0)
         {
             FUN_3E8C0();
 
@@ -1775,21 +1775,21 @@ public class Vehicle : VigObject
             if (GameManager.instance.DAT_DB0 == 0)
                 return;
 
-            if (GameManager.instance.DAT_DA0 <= vObject.vTransform.position.z)
+            if (GameManager.instance.DAT_DA0 <= vTransform.position.z)
                 return;
 
-            if (vObject.vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
+            if (vTransform.position.y <= GameManager.instance.DAT_DB0 + 0x5000)
                 return;
                 
             //FUN_391AC
         }
         else
         {
-            if (GameManager.instance.DAT_DB0 != 0 && vObject.vTransform.position.z < GameManager.instance.DAT_DA0)
+            if (GameManager.instance.DAT_DB0 != 0 && vTransform.position.z < GameManager.instance.DAT_DA0)
             {
-                if (GameManager.instance.DAT_DB0 < vObject.vTransform.position.y)
+                if (GameManager.instance.DAT_DB0 < vTransform.position.y)
                 {
-                    if (GameManager.instance.DAT_DB0 + 0x5000 < vObject.vTransform.position.y)
+                    if (GameManager.instance.DAT_DB0 + 0x5000 < vTransform.position.y)
                     {
                         //FUN_391AC
                         return;
@@ -1801,7 +1801,7 @@ public class Vehicle : VigObject
                     {
                         acceleration = -120;
 
-                        if (bVar4 == 0 && vObject.physics1.W < 1525)
+                        if (bVar4 == 0 && physics1.W < 1525)
                             ; //FUN_39BC4
                         else
                         {
@@ -1813,7 +1813,7 @@ public class Vehicle : VigObject
                 }
             }
 
-            VigTransform auStack216 = vObject.FUN_2AEAC();
+            VigTransform auStack216 = FUN_2AEAC();
             iVar7 = 0;
             iVar9 = 0;
             List<Vector3Int> positions = new List<Vector3Int>();
@@ -1832,9 +1832,9 @@ public class Vehicle : VigObject
                     Vector3Int position;
                     Vector3Int normal;
                     TileData tile;
-                    position = Utilities.FUN_24148(vObject.vTransform, local_b8);
+                    position = Utilities.FUN_24148(vTransform, local_b8);
                     heights.Add(position.y);
-                    position.y = vObject.FUN_2CFBC(position, out normal, out tile);
+                    position.y = FUN_2CFBC(position, out normal, out tile);
                     positions.Add(position);
                     normals.Add(normal);
                     tiles.Add(tile);
@@ -1877,12 +1877,12 @@ public class Vehicle : VigObject
                         {
                             iVar9 = (int)GameManager.FUN_2AC5C();
 
-                            if (iVar9 < vObject.physics1.W)
+                            if (iVar9 < physics1.W)
                                 ; //FUN_38EF4
                         }
                     }
 
-                    local_88 = Utilities.FUN_24304(vObject.vTransform, local_98);
+                    local_88 = Utilities.FUN_24304(vTransform, local_98);
                     local_88.y -= wheels[i].physics2.X;
 
                     if (local_88.y < wheels[i].physics1.Y)
@@ -1894,17 +1894,17 @@ public class Vehicle : VigObject
                             if (local_44 != null)
                                 uVar10 = 0x30000000;
 
-                            vObject.flags |= uVar10;
+                            flags |= uVar10;
                             uVar17 = (uint)((local_78.x << 16) >> 16);
-                            uVar10 = (uint)vObject.physics1.X;
+                            uVar10 = (uint)physics1.X;
                             lVar1 = (long)((ulong)uVar17 * uVar10);
                             local_2c = (int)((uint)(ushort)local_78.y << 16);
                             local_30 = (uint)(local_2c >> 16);
                             local_2c = local_2c >> 31;
-                            uVar6 = (uint)vObject.physics1.Y;
+                            uVar6 = (uint)physics1.Y;
                             uVar19 = (uint)((ulong)local_30 * uVar6);
                             uVar11 = (uint)((int)((uint)(ushort)local_78.z << 16) >> 16);
-                            uVar13 = (uint)vObject.physics1.Z;
+                            uVar13 = (uint)physics1.Z;
                             lVar2 = (long)((ulong)uVar11 * uVar13);
                             local_38 = (uint)lVar2;
                             local_20 = (int)uVar17 * ((int)uVar10 >> 31);
@@ -1918,7 +1918,7 @@ public class Vehicle : VigObject
                                      (int)((ulong)local_30 * uVar6 >> 32) +
                                      (int)local_30 * ((int)uVar6 >> 31) + (int)uVar6 * local_2c + (uVar11 < uVar19 ? 1 : 0) +
                                      local_34 + (uint)(uVar13 < local_38 ? 1 : 0)) * 0x20000);
-                            local_60 = Utilities.FUN_24210(vObject.vTransform.rotation, local_78);
+                            local_60 = Utilities.FUN_24210(vTransform.rotation, local_78);
                             iVar9 = -local_60.x * (int)uVar10;
 
                             if (iVar9 < 0)
@@ -1962,7 +1962,7 @@ public class Vehicle : VigObject
                             else
                             {
                                 local_b8.y = (local_88.y - wheels[i].screen.y) * 16;
-                                vObject.flags |= 0x40000000;
+                                flags |= 0x40000000;
                             }
 
                             local_b8.y = ((iVar7 - iVar9) * sVar3 * 128) / local_60.y + local_b8.y;
@@ -2216,212 +2216,39 @@ public class Vehicle : VigObject
                 if (wheels[i] != null)
                     wheels[i].ApplyTransformation();
 
-            local_e8 = Utilities.FUN_24094(vObject.vTransform.rotation, local_e8);
-            iVar14 = vObject.physics1.W * lightness;
-            local_e8.x -= (int)((ulong)((long)vObject.physics1.X * iVar14) >> 32);
+            local_e8 = Utilities.FUN_24094(vTransform.rotation, local_e8);
+            iVar14 = physics1.W * lightness;
+            local_e8.x -= (int)((ulong)((long)physics1.X * iVar14) >> 32);
             local_e8.y = (local_e8.y + 11520) -
-                         (int)((ulong)((long)vObject.physics1.Y * iVar14) >> 32);
-            lVar1 = (long)vObject.physics1.Z * iVar14;
+                         (int)((ulong)((long)physics1.Y * iVar14) >> 32);
+            lVar1 = (long)physics1.Z * iVar14;
             local_28 = (uint)lVar1;
             local_24 = (int)((ulong)lVar1 >> 32);
             local_e8.z -= local_24;
-            vObject.FUN_2AFF8(local_e8, local_f8);
-            iVar18 = vObject.physics2.X;
+            FUN_2AFF8(local_e8, local_f8);
+            iVar18 = physics2.X;
             iVar14 = iVar18;
 
             if (iVar18 < 0)
                 iVar14 = iVar18 + 31;
 
-            iVar9 = vObject.physics2.Y;
-            vObject.physics2.X = iVar18 - (iVar14 >> 5);
+            iVar9 = physics2.Y;
+            physics2.X = iVar18 - (iVar14 >> 5);
             iVar14 = iVar9;
 
             if (iVar9 < 0)
                 iVar14 = iVar9 + 31;
 
-            iVar18 = vObject.physics2.Z;
-            vObject.physics2.Y = iVar9 - (iVar14 >> 5);
+            iVar18 = physics2.Z;
+            physics2.Y = iVar9 - (iVar14 >> 5);
             iVar14 = iVar18;
 
             if (iVar18 < 0)
                 iVar14 = iVar18 + 31;
 
-            vObject.physics2.Z = iVar18 - (iVar14 >> 5);
+            physics2.Z = iVar18 - (iVar14 >> 5);
         }
     }
-
-    /*private void FUN_3E8C0()
-    {
-        int iVar1 = 0; //r22
-
-        if (DAT_B4 == 0)
-            iVar1 = (weaponSlot == 0 ? 1 : 0) << 2;
-
-        int iVar2 = 0; //r17
-        Vector3Int local_v1 = new Vector3Int(0, 0, 0); //sp+10h
-        Vector3Int local_v2 = new Vector3Int(0, GameManager.instance.gravityFactor, 0); //sp+20h
-        Vector3Int rect1 = new Vector3Int(0, 0, 0); //sp+30h
-        Vector3Int rect2 = new Vector3Int(0, 0, 0); //sp+40h
-        TileData onTile; //sp+50h
-
-        do
-        {
-            if ((iVar2 & iVar1) == 0)
-            {
-                if ((iVar2 & 1) == 0)
-                    rect1.x = vObject.vCollider.min.x;
-                else
-                    rect1.x = vObject.vCollider.max.x;
-
-                if ((iVar2 & 4) == 0)
-                    rect1.y = vObject.vCollider.min.y;
-                else
-                    rect1.y = vObject.vCollider.max.y;
-
-                if ((iVar2 & 2) == 0)
-                    rect1.z = vObject.vCollider.min.z;
-                else
-                    rect1.z = vObject.vCollider.max.z;
-
-                FUN_3EA0C();
-            }
-            else
-            {
-                if (wheels[iVar2 - 4] != null)
-                {
-                    rect1.x = wheels[iVar2 - 4].screen.x;
-                    rect1.y = wheels[iVar2 - 4].screen.y + wheels[iVar2 - 4].physics2.X;
-                    rect1.z = wheels[iVar2 - 4].screen.z;
-                    FUN_3EA0C();
-                }
-            }
-
-            iVar2++;
-
-            if (7 < iVar2)
-            {
-                local_v1 = Utilities.FUN_2426C
-                    (vObject.vTransform.rotation, 
-                    new Matrix2x4(local_v1.x, local_v1.y, local_v1.z, 0));
-                int iVar3 = vObject.physics1.W * lightness; //r5
-                long lVar1 = (long)vObject.physics1.X * iVar3; //sp+58h, sp+5Ch
-                local_v2.x -= (int)(lVar1 >> 32 >> 0);
-                lVar1 = (long)vObject.physics1.Y * iVar3;
-                local_v2.y -= (int)(lVar1 >> 32 >> 0);
-                lVar1 = (long)vObject.physics1.Z * iVar3;
-                local_v2.z -= (int)(lVar1 >> 32 >> 0);
-                vObject.FUN_2AFF8(local_v2, local_v1);
-                int iVar4 = vObject.physics2.X;
-                iVar3 = iVar4;
-
-                if (iVar4 < 0)
-                    iVar3 = iVar4 + 31;
-
-                int iVar5 = vObject.physics2.Y;
-                vObject.physics2.X = iVar4 - (iVar3 >> 5);
-                iVar3 = iVar5;
-
-                if (iVar5 < 0)
-                    iVar3 = iVar5 + 31;
-
-                iVar4 = vObject.physics2.Z;
-                vObject.physics2.Y = iVar5 - (iVar3 >> 5);
-                iVar3 = iVar4;
-
-                if (iVar4 < 0)
-                    iVar3 = iVar4 + 31;
-
-                vObject.physics2.Z = iVar4 - (iVar3 >> 5);
-
-                if ((vObject.flags & 0x40000000) != 0)
-                {
-                    long lVar2 = (long)vObject.physics1.Y * 0x6BCA0000;
-                    bool isPlayer = 0 < vObject.id;
-                    FUN_3A020((int)-((lVar2 >> 32 >> 13) - (vObject.physics1.Y >> 31)), 0, isPlayer);
-                }
-
-                return;
-            }
-        } while(true);
-
-        void FUN_3EA0C()
-        {
-            rect1 = Utilities.FUN_24148(vObject.vTransform, rect1);
-            int h = vObject.FUN_2CFBC(rect1, out onTile);
-
-            if (0 < rect1.y - h)
-            {
-                int iVar3 = -vObject.physics1.X;
-
-                if (0 < vObject.physics1.X)
-                    iVar3 += 3;
-
-                iVar3 = iVar3 >> 2;
-
-                if (iVar3 < -0xB40)
-                    rect2.x = -0xB40;
-                else
-                {
-                    rect2.x = 0xB40;
-
-                    if (iVar3 < 0xB41)
-                        rect2.x = iVar3;
-                }
-
-                iVar3 = -vObject.physics1.Z;
-
-                if (0 < vObject.physics1.Z)
-                    iVar3 += 3;
-
-                iVar3 = iVar3 >> 2;
-
-                if (iVar3 < -0xB40)
-                    rect2.z = -0xB40;
-                else
-                {
-                    rect2.z = 0xB40;
-
-                    if (iVar3 < 0xB41)
-                        rect2.z = iVar3;
-                }
-
-                rect2.y = rect1.y - h;
-
-                if (0 < vObject.physics1.Y)
-                    rect2.y -= vObject.physics1.Y >> 2;
-
-                int cop2r32 = rect1.x - (vObject.vTransform.position.x >> 3);
-                int cop2r34 = rect1.y - (vObject.vTransform.position.y >> 3);
-                int cop2r36 = rect1.z - (vObject.vTransform.position.z >> 3);
-                Coprocessor.rotationMatrix.rt11 = (short)cop2r32;
-                Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
-                Coprocessor.rotationMatrix.rt22 = (short)cop2r34;
-                Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
-                Coprocessor.rotationMatrix.rt33 = (short)cop2r36;
-                Coprocessor.accumulator.ir1 = (short)(rect2.x >> 3);
-                Coprocessor.accumulator.ir2 = (short)(rect2.y >> 3);
-                Coprocessor.accumulator.ir3 = (short)(rect2.z >> 3);
-                Coprocessor.ExecuteOP(12, false);
-                local_v2.x += rect2.x;
-                local_v2.y += rect2.y;
-                local_v2.z += rect2.z;
-                local_v1.x += Coprocessor.mathsAccumulator.mac1;
-                local_v1.y += Coprocessor.mathsAccumulator.mac2;
-                local_v1.z += Coprocessor.mathsAccumulator.mac3;
-
-                if (onTile != null)
-                {
-                    if (onTile.unk2[3] != 0 && onTile.unk2[3] != 7)
-                    {
-                        //call function by register
-                    }
-                }
-
-                if (0x4C00 < vObject.physics1.Y)
-                    vObject.flags |= 0x40000000;
-            }
-        }
-    }*/
 
     private void FUN_3E8C0()
     {
@@ -2456,19 +2283,19 @@ public class Vehicle : VigObject
             if ((uVar5 & uVar6) == 0)
             {
                 if ((uVar5 & 1) == 0)
-                    local_40.x = vObject.vCollider.min.x;
+                    local_40.x = vCollider.min.x;
                 else
-                    local_40.x = vObject.vCollider.max.x;
+                    local_40.x = vCollider.max.x;
 
                 if ((uVar5 & 4) == 0)
-                    local_40.y = vObject.vCollider.min.y;
+                    local_40.y = vCollider.min.y;
                 else
-                    local_40.y = vObject.vCollider.max.y;
+                    local_40.y = vCollider.max.y;
 
                 if ((uVar5 & 2) == 0)
-                    local_40.z = vObject.vCollider.min.z;
+                    local_40.z = vCollider.min.z;
                 else
-                    local_40.z = vObject.vCollider.max.z;
+                    local_40.z = vCollider.max.z;
 
                 FUN_3EA0C();
             }
@@ -2490,40 +2317,40 @@ public class Vehicle : VigObject
             if (7 < (int)uVar5)
             {
                 local_60 = Utilities.FUN_2426C(
-                    vObject.vTransform.rotation,
+                    vTransform.rotation,
                     new Matrix2x4(local_60.x, local_60.y, local_60.z, 0));
-                iVar2 = vObject.physics1.W * lightness;
-                local_50.x -= (int)((ulong)((long)vObject.physics1.X * iVar2) >> 32);
-                local_50.y -= (int)((ulong)((long)vObject.physics1.Y * iVar2) >> 32);
-                lVar1 = (long)vObject.physics1.Z * iVar2;
+                iVar2 = physics1.W * lightness;
+                local_50.x -= (int)((ulong)((long)physics1.X * iVar2) >> 32);
+                local_50.y -= (int)((ulong)((long)physics1.Y * iVar2) >> 32);
+                lVar1 = (long)physics1.Z * iVar2;
                 local_18 = (int)lVar1;
                 local_14 = (int)((ulong)lVar1 >> 32);
                 local_50.z -= local_14;
-                vObject.FUN_2AFF8(local_50, local_60);
-                iVar3 = vObject.physics2.X;
+                FUN_2AFF8(local_50, local_60);
+                iVar3 = physics2.X;
                 iVar2 = iVar3;
 
                 if (iVar3 < 0)
                     iVar2 = iVar3 + 31;
 
-                iVar4 = vObject.physics2.Y;
-                vObject.physics2.X = iVar3 - (iVar2 >> 5);
+                iVar4 = physics2.Y;
+                physics2.X = iVar3 - (iVar2 >> 5);
                 iVar2 = iVar4;
 
                 if (iVar4 < 0)
                     iVar2 = iVar4 + 31;
 
-                iVar3 = vObject.physics2.Z;
-                vObject.physics2.Y = iVar4 - (iVar2 >> 5);
+                iVar3 = physics2.Z;
+                physics2.Y = iVar4 - (iVar2 >> 5);
                 iVar2 = iVar3;
 
                 if (iVar3 < 0)
                     iVar2 = iVar3 + 31;
 
-                vObject.physics2.Z = iVar3 - (iVar2 >> 5);
+                physics2.Z = iVar3 - (iVar2 >> 5);
 
-                if ((vObject.flags & 0x40000000) != 0)
-                    FUN_3A020(-(vObject.physics1.Y / 19456), 0, 0 < vObject.id); //tmp
+                if ((flags & 0x40000000) != 0)
+                    FUN_3A020(-(physics1.Y / 19456), 0, 0 < id); //tmp
 
                 return;
             }
@@ -2531,14 +2358,14 @@ public class Vehicle : VigObject
 
         void FUN_3EA0C()
         {
-            local_40 = Utilities.FUN_24148(vObject.vTransform, local_40);
-            iVar3 = vObject.FUN_2CFBC(local_40, out local_20);
+            local_40 = Utilities.FUN_24148(vTransform, local_40);
+            iVar3 = FUN_2CFBC(local_40, out local_20);
 
             if (0 < local_40.y - iVar3)
             {
-                iVar4 = -vObject.physics1.X;
+                iVar4 = -physics1.X;
 
-                if (0 < vObject.physics1.X)
+                if (0 < physics1.X)
                     iVar4 += 3;
 
                 iVar4 = iVar4 >> 2;
@@ -2553,9 +2380,9 @@ public class Vehicle : VigObject
                         local_30.x = iVar4;
                 }
 
-                iVar4 = -vObject.physics1.Z;
+                iVar4 = -physics1.Z;
 
-                if (0 < vObject.physics1.Z)
+                if (0 < physics1.Z)
                     iVar4 += 3;
 
                 iVar4 = iVar4 >> 2;
@@ -2572,12 +2399,12 @@ public class Vehicle : VigObject
 
                 local_30.y = -(local_40.y - iVar3);
 
-                if (0 < vObject.physics1.Y)
-                    local_30.y -= vObject.physics1.Y >> 2;
+                if (0 < physics1.Y)
+                    local_30.y -= physics1.Y >> 2;
 
-                int cop2r32 = local_40.x - vObject.vTransform.position.x >> 3;
-                int cop2r34 = local_40.y - vObject.vTransform.position.y >> 3;
-                int cop2r36 = local_40.z - vObject.vTransform.position.z >> 3;
+                int cop2r32 = local_40.x - vTransform.position.x >> 3;
+                int cop2r34 = local_40.y - vTransform.position.y >> 3;
+                int cop2r36 = local_40.z - vTransform.position.z >> 3;
                 Coprocessor.rotationMatrix.rt11 = (short)(cop2r32 & 0xFFFF);
                 Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
                 Coprocessor.rotationMatrix.rt22 = (short)(cop2r34 & 0xFFFF);
@@ -2605,8 +2432,8 @@ public class Vehicle : VigObject
                     }
                 }
 
-                if (19456 < vObject.physics1.Y)
-                    vObject.flags |= 0x40000000;
+                if (19456 < physics1.Y)
+                    flags |= 0x40000000;
             }
         }
     }
@@ -2686,7 +2513,7 @@ public class Vehicle : VigObject
         {
             if (wheelsType == _WHEELS.Ground)
             {
-                if ((vObject.flags & 0x10000000) == 0)
+                if ((flags & 0x10000000) == 0)
                 {
                     iVar6 = 3072;
 
@@ -2699,7 +2526,7 @@ public class Vehicle : VigObject
 
                     if (breaking < 1)
                     {
-                        iVar7 = vObject.physics1.W * GameManager.DAT_63F68[direction + 1];
+                        iVar7 = physics1.W * GameManager.DAT_63F68[direction + 1];
 
                         if (iVar7 < 0)
                             iVar7 += 4095;
@@ -2725,7 +2552,7 @@ public class Vehicle : VigObject
                 }
             }
             else
-                iVar6 = vObject.physics1.W / 2;
+                iVar6 = physics1.W / 2;
 
             iVar6 -= DAT_E0;
             iVar7 = -512;
@@ -2741,7 +2568,7 @@ public class Vehicle : VigObject
             iVar7 = DAT_E0 + iVar7;
             DAT_E0 = (short)iVar7;
             //sound effect
-            Controller playerController = InputManager.controllers[~vObject.id];
+            Controller playerController = InputManager.controllers[~id];
             if (((playerController.DAT_B << 24 | playerController.DAT_A << 16 | 
                 playerController.steering << 8 | playerController.actions) & 0x100) == 0)
             {
@@ -2764,9 +2591,9 @@ public class Vehicle : VigObject
                 DAT_E2 = (short)iVar6;
             }
 
-            unaff_s1 = GameManager.instance.FUN_1E478(vObject.vTransform.position);
+            unaff_s1 = GameManager.instance.FUN_1E478(vTransform.position);
             iVar6 = (int)(unaff_s1 & 0xffff) * DAT_E2;
-            cVar1 = vObject.DAT_18;
+            cVar1 = DAT_18;
 
             if (iVar6 < 0)
                 iVar6 += 4095;
@@ -2780,21 +2607,21 @@ public class Vehicle : VigObject
         }
         else
         {
-            uVar4 = GameManager.instance.FUN_1E478(vObject.vTransform.position);
-            cVar1 = vObject.DAT_18;
+            uVar4 = GameManager.instance.FUN_1E478(vTransform.position);
+            cVar1 = DAT_18;
         }
 
         //FUN_1E2C8
 
-        if ((vObject.flags & 0x40000000) != 0)
+        if ((flags & 0x40000000) != 0)
         {
             //...
         }
 
-        if (wheelsType== _WHEELS.Ground && (vObject.flags & 0x10000000) != 0 && 3051 < vObject.physics1.W)
+        if (wheelsType== _WHEELS.Ground && (flags & 0x10000000) != 0 && 3051 < physics1.W)
         {
-            iVar7 = vObject.physics2.W;
-            iVar6 = vObject.physics1.W * 3;
+            iVar7 = physics2.W;
+            iVar6 = physics1.W * 3;
 
             if (iVar7 < 0)
                 iVar7 = -iVar7;
@@ -2820,7 +2647,7 @@ public class Vehicle : VigObject
         LAB_3ABC8:
         if (DAT_DF != 0)
         {
-            uVar4 = (uint)(vObject.physics1.W / 2);
+            uVar4 = (uint)(physics1.W / 2);
 
             if (uVar4 < 768)
             {
@@ -2852,20 +2679,20 @@ public class Vehicle : VigObject
         uVar8 = (uint)(playerController.DAT_B << 24 | playerController.DAT_A << 16 |
                 playerController.steering << 8 | playerController.actions);
 
-        if ((vObject.flags & 0x2000000) == 0)
+        if ((flags & 0x2000000) == 0)
         {
             if ((DAT_F6 & 64) != (uVar8 & 64))
             {
-                iVar2 = GameManager.instance.players[~vObject.id];
+                iVar2 = GameManager.instance.players[~id];
                 DAT_F6 ^= DAT_F6;
 
                 if ((uVar8 & 64) == 0)
-                    iVar2.vObject.physics2.M1 = 0;
+                    iVar2.physics2.M1 = 0;
                 else
-                    iVar2.vObject.physics2.M1 = 2048;
+                    iVar2.physics2.M1 = 2048;
 
-                closeViewer.vr.y = vObject.physics2.M1;
-                vObject.vectorUnk1.x = -vObject.vectorUnk1.x;
+                closeViewer.vr.y = physics2.M1;
+                vectorUnk1.x = -vectorUnk1.x;
                 closeViewer.ApplyRotationMatrix();
             }
         }
@@ -2918,14 +2745,14 @@ public class Vehicle : VigObject
                 if (0 < direction)
                 {
                     iVar3 = GameManager.instance.terrain.FUN_1B750
-                        ((uint)vObject.vTransform.position.x, (uint)vObject.vTransform.position.z);
+                        ((uint)vTransform.position.x, (uint)vTransform.position.z);
 
                     if ((GameManager.instance.DAT_40 & 0x80000) == 0)
                         iVar4 = -0x32000;
                     else
                         iVar4 = -0x12C000;
 
-                    iVar4 = (iVar3 - vObject.vTransform.position.y) + iVar4;
+                    iVar4 = (iVar3 - vTransform.position.y) + iVar4;
 
                     if (iVar4 < 0)
                     {
@@ -2938,24 +2765,24 @@ public class Vehicle : VigObject
                             iVar3 += 1023;
 
                         iVar3 = iVar3 >> 10;
-                        iVar4 = vObject.vTransform.rotation.V01 * iVar3;
+                        iVar4 = vTransform.rotation.V01 * iVar3;
 
                         if (iVar4 < 0)
                             iVar4 += 31;
 
-                        iVar8 = vObject.vTransform.rotation.V11 * iVar3;
-                        vObject.physics1.X += iVar4 >> 5;
+                        iVar8 = vTransform.rotation.V11 * iVar3;
+                        physics1.X += iVar4 >> 5;
 
                         if (iVar8 < 0)
                             iVar8 += 31;
 
-                        iVar3 = vObject.vTransform.rotation.V21 * iVar3;
-                        vObject.physics1.Y += (iVar8 >> 5) - GameManager.instance.gravityFactor;
+                        iVar3 = vTransform.rotation.V21 * iVar3;
+                        physics1.Y += (iVar8 >> 5) - GameManager.instance.gravityFactor;
 
                         if (iVar3 < 0)
                             iVar3 += 31;
 
-                        vObject.physics1.Z += iVar3 >> 5;
+                        physics1.Z += iVar3 >> 5;
                     }
                 }
 
@@ -2974,16 +2801,16 @@ public class Vehicle : VigObject
         {
             if ((param1 & 0xffff) != 0)
             {
-                if ((param1 & 0xffff0000) != 0 && (vObject.flags & 0x10000000) != 0)
+                if ((param1 & 0xffff0000) != 0 && (flags & 0x10000000) != 0)
                 {
-                    if (DAT_B0 < 1 || (8391 < vObject.physics1.W || direction < 1))
+                    if (DAT_B0 < 1 || (8391 < physics1.W || direction < 1))
                     {
-                        if (2287 < vObject.physics1.W)
+                        if (2287 < physics1.W)
                             goto LAB_3D36C;
                     }
                     else
                     {
-                        vObject.FUN_2B1FC(GameManager.instance.DAT_A18, GameManager.instance.DAT_A24);
+                        FUN_2B1FC(GameManager.instance.DAT_A18, GameManager.instance.DAT_A24);
                         DAT_B0 = -39;
                     }
 
@@ -3105,23 +2932,23 @@ public class Vehicle : VigObject
                 FUN_39CEC(uVar19);
             }
 
-            if (vObject.vTransform.rotation.V11 < 0)
+            if (vTransform.rotation.V11 < 0)
             {
                 uVar17 = playerController.stick[0];
 
                 if ((int)(uVar17 ^ playerController.stick[0]) < 0)
                     uVar17 = 0;
 
-                iVar12 = vObject.physics2.Z;
+                iVar12 = physics2.Z;
                 iVar8 = (int)(uVar17 << 2);
 
                 if (cVar1 != _WHEELS.Sea)
                 {
-                    vObject.physics2.Z = iVar12 + (int)uVar17;
+                    physics2.Z = iVar12 + (int)uVar17;
                     return;
                 }
 
-                vObject.physics2.Z = iVar12 + iVar8;
+                physics2.Z = iVar12 + iVar8;
                 return;
             }
 
@@ -3132,7 +2959,7 @@ public class Vehicle : VigObject
 
                 if (cVar1 == _WHEELS.Ground)
                 {
-                    iVar8 = vObject.physics1.W * DAT_B2;
+                    iVar8 = physics1.W * DAT_B2;
 
                     if (iVar8 < 0)
                         iVar8 += 4095;
@@ -3151,8 +2978,8 @@ public class Vehicle : VigObject
                     if (iVar8 < 0)
                         iVar8 += 15;
 
-                    iVar8 = vObject.physics2.Y + (iVar8 >> 4);
-                    vObject.physics2.Y = iVar8;
+                    iVar8 = physics2.Y + (iVar8 >> 4);
+                    physics2.Y = iVar8;
                 }
             }
             else
@@ -3164,7 +2991,7 @@ public class Vehicle : VigObject
 
                 if (iVar8 < 170)
                 {
-                    if (vObject.physics1.W < 2370)
+                    if (physics1.W < 2370)
                     {
                         uVar10 = 127;
 
@@ -3191,11 +3018,11 @@ public class Vehicle : VigObject
                 if (cVar1 != _WHEELS.Air)
                 {
                     if (direction < 0)
-                        iVar8 = vObject.physics2.Y + turning * -2;
+                        iVar8 = physics2.Y + turning * -2;
                     else
-                        iVar8 = vObject.physics2.Y + turning * 2;
+                        iVar8 = physics2.Y + turning * 2;
 
-                    vObject.physics2.Y = iVar8;
+                    physics2.Y = iVar8;
                 }
             }
 
@@ -3261,7 +3088,7 @@ public class Vehicle : VigObject
             }
             else
             {
-                iVar8 = vObject.physics2.W;
+                iVar8 = physics2.W;
 
                 if (iVar8 < 0)
                     iVar8 = -iVar8;
@@ -3286,7 +3113,7 @@ public class Vehicle : VigObject
 
                 if (iVar8 != 0)
                 {
-                    iVar12 = iVar8 * vObject.physics1.W;
+                    iVar12 = iVar8 * physics1.W;
 
                     if (iVar12 < 0)
                         iVar12 += 0x7fff;
@@ -3311,7 +3138,7 @@ public class Vehicle : VigObject
                 }
                 else
                 {
-                    if (vObject.physics1.W < 2370)
+                    if (physics1.W < 2370)
                     {
                         uVar10 = 127;
 
@@ -3350,7 +3177,7 @@ public class Vehicle : VigObject
                 return;
             }
 
-            if (0 < vObject.vTransform.rotation.V11)
+            if (0 < vTransform.rotation.V11)
             {
                 uVar7 = 0;
 
@@ -3358,19 +3185,19 @@ public class Vehicle : VigObject
                 {
                     if ((uVar17 & 0x18000000) != 0)
                     {
-                        uVar7 = vObject.flags & 0x7fffffff;
+                        uVar7 = flags & 0x7fffffff;
 
                         if (direction < 0 && ((uVar17 & uVar19) != 0 ||
-                            vObject.physics2.W < -4997120))
+                            physics2.W < -4997120))
                             uVar7 |= 0x80000000;
 
-                        vObject.flags = uVar7;
+                        flags = uVar7;
                     }
 
-                    uVar7 = vObject.flags >> 31;
+                    uVar7 = flags >> 31;
                 }
                 else
-                    vObject.flags &= 0x7fffffff;
+                    flags &= 0x7fffffff;
 
                 if ((uVar17 & 0x400) == 0 || wheelsType == _WHEELS.Air)
                 {
@@ -3432,7 +3259,7 @@ public class Vehicle : VigObject
                     if (wheelsType != _WHEELS.Ground)
                         return;
 
-                    iVar8 = vObject.physics1.W * DAT_B2;
+                    iVar8 = physics1.W * DAT_B2;
 
                     if (iVar8 < 0)
                         iVar8 += 4095;
@@ -3448,7 +3275,7 @@ public class Vehicle : VigObject
                     if (iVar8 < 0)
                         iVar8 += 15;
 
-                    vObject.physics2.Y -= iVar8 >> 4;
+                    physics2.Y -= iVar8 >> 4;
                     return;
                 }
 
@@ -3460,11 +3287,11 @@ public class Vehicle : VigObject
                         iVar8 = turning + 32;
 
                     turning = (short)iVar8;
-                    iVar8 = vObject.physics2.Y;
+                    iVar8 = physics2.Y;
 
                     if (uVar7 == 0)
                     {
-                        vObject.physics2.Y = iVar8 + 1280;
+                        physics2.Y = iVar8 + 1280;
                         return;
                     }
                 }
@@ -3476,16 +3303,16 @@ public class Vehicle : VigObject
                         iVar8 = turning - 32;
 
                     turning = (short)iVar8;
-                    iVar8 = vObject.physics2.Y;
+                    iVar8 = physics2.Y;
 
                     if (uVar7 != 0)
                     {
-                        vObject.physics2.Y = iVar8 + 1280;
+                        physics2.Y = iVar8 + 1280;
                         return;
                     }
                 }
 
-                vObject.physics2.Y = iVar8 - 1280;
+                physics2.Y = iVar8 - 1280;
                 return;
             }
 
@@ -3494,7 +3321,7 @@ public class Vehicle : VigObject
                 if ((uVar17 & 0x10000000) == 0)
                     return;
 
-                iVar12 = vObject.physics2.Z;
+                iVar12 = physics2.Z;
                 iVar8 = 0x8000;
 
                 if (wheelsType == _WHEELS.Sea)
@@ -3502,18 +3329,16 @@ public class Vehicle : VigObject
             }
             else
             {
-                iVar12 = vObject.physics2.Z;
+                iVar12 = physics2.Z;
                 iVar8 = -0x8000;
 
                 if (wheelsType == _WHEELS.Sea)
                     iVar8 = -0x10000;
             }
 
-            vObject.physics2.Z = iVar12 + iVar8;
+            physics2.Z = iVar12 + iVar8;
             return;
         }
-
-        return;
 
         if (_CONTROLLER_TYPE.JoypadAnalog < playerController.type)
             return;
@@ -3565,7 +3390,7 @@ public class Vehicle : VigObject
 
             if ((int)uVar14 < 8)
             {
-                iVar8 = turning * vObject.physics1.W;
+                iVar8 = turning * physics1.W;
 
                 if (iVar8 < 0)
                     iVar8 += 0x7fff;
@@ -3686,7 +3511,7 @@ public class Vehicle : VigObject
                 uVar6 = DAT_B3;
 
             acceleration = (short)(sVar5 * uVar6);
-            iVar8 = vObject.physics2.W;
+            iVar8 = physics2.W;
 
             if (iVar8 < 0)
                 iVar8 = -iVar8;
@@ -3712,12 +3537,12 @@ public class Vehicle : VigObject
 
             if (!bVar2)
             {
-                iVar12 = vObject.physics2.X;
+                iVar12 = physics2.X;
 
                 if (iVar12 < 0)
                     iVar12 += 127;
 
-                iVar15 = vObject.physics2.Z;
+                iVar15 = physics2.Z;
 
                 if (iVar15 < 0)
                     iVar15 += 127;
@@ -3725,13 +3550,13 @@ public class Vehicle : VigObject
                 iVar8 = -1;
 
                 if (-1941505 <
-                    vObject.vTransform.rotation.V02 * (iVar12 >> 7) +
-                    vObject.vTransform.rotation.V22 * (iVar15 >> 7))
+                    vTransform.rotation.V02 * (iVar12 >> 7) +
+                    vTransform.rotation.V22 * (iVar15 >> 7))
                     iVar8 = 1;
             }
         }
 
-        if (vObject.vTransform.rotation.V11 < 0)
+        if (vTransform.rotation.V11 < 0)
         {
             uVar19 -= playerController.DAT_14[0];
 
@@ -3748,9 +3573,9 @@ public class Vehicle : VigObject
             iVar8 = (int)(uVar19 * 512) + iVar8;
 
             if (wheelsType == _WHEELS.Sea)
-                vObject.physics2.Z += iVar8 * 4;
+                physics2.Z += iVar8 * 4;
             else
-                vObject.physics2.Z += iVar8;
+                physics2.Z += iVar8;
         }
         else
         {
@@ -3763,7 +3588,7 @@ public class Vehicle : VigObject
 
                 if (iVar12 < 170)
                 {
-                    if (vObject.physics1.W < 2370)
+                    if (physics1.W < 2370)
                     {
                         if (uVar9 == 0)
                         {
@@ -3793,7 +3618,7 @@ public class Vehicle : VigObject
                 if (!bVar3 || wheelsType == _WHEELS.Air)
                     goto LAB_3E1C8;
 
-                iVar12 = vObject.physics2.Y;
+                iVar12 = physics2.Y;
                 iVar8 = iVar8 * turning * 2;
             }
             else
@@ -3804,7 +3629,7 @@ public class Vehicle : VigObject
                 if (!bVar3 || wheelsType != _WHEELS.Ground)
                     goto LAB_3E1C8;
 
-                iVar12 = vObject.physics1.W * DAT_B2;
+                iVar12 = physics1.W * DAT_B2;
 
                 if (iVar12 < 0)
                     iVar12 += 4095;
@@ -3816,10 +3641,10 @@ public class Vehicle : VigObject
                     iVar12 = iVar15;
 
                 iVar8 = (iVar8 * turning * iVar12) / 14;
-                iVar12 = vObject.physics2.Y;
+                iVar12 = physics2.Y;
             }
 
-            vObject.physics2.Y = iVar12 + iVar8;
+            physics2.Y = iVar12 + iVar8;
         }
 
         LAB_3E1C8:
@@ -3860,7 +3685,7 @@ public class Vehicle : VigObject
                 iVar12 += 127;
 
             iVar12 = vCamera.DAT_9C + (iVar12 >> 7);
-            iVar8 = vObject.DAT_58 << 1;
+            iVar8 = DAT_58 << 1;
 
             if (iVar8 <= iVar12)
             {
@@ -3876,7 +3701,7 @@ public class Vehicle : VigObject
         if ((uVar17 & 0x20000000) == 0)
             return;
 
-        if ((vObject.flags & 0x2000000) != 0)
+        if ((flags & 0x2000000) != 0)
             return;
 
         if (GameManager.instance.DAT_C74 != 0)

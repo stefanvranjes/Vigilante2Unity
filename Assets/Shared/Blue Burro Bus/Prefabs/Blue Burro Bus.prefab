@@ -88,9 +88,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -211,9 +214,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -310,9 +316,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -409,9 +418,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -453,7 +465,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2302176576829230922}
-  - component: {fileID: 5207652197520848092}
   - component: {fileID: 7837235886542802469}
   - component: {fileID: 870340550308098708}
   - component: {fileID: 8154727737764455242}
@@ -486,7 +497,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5207652197520848092
+--- !u!114 &7837235886542802469
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -495,7 +506,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4151186065884574389}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b4d74eb1af6c7349bc42130c6b61c25, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a9d9c8dfc9a7124abc6afd6e1423831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   flags: 0
@@ -530,9 +541,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 870340550308098708}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -553,19 +567,6 @@ MonoBehaviour:
     M7: 0
   vectorUnk1: {x: 0, y: 0, z: 0}
   unk1: 0
---- !u!114 &7837235886542802469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4151186065884574389}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a9d9c8dfc9a7124abc6afd6e1423831, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  vObject: {fileID: 0}
   turning: 0
   acceleration: 0
   wheelsType: 0
@@ -825,7 +826,7 @@ MonoBehaviour:
     next: -1
   pointerUnk1: 0
   obj:
-  - {fileID: 5207652197520848092}
+  - {fileID: 7837235886542802469}
   - {fileID: 4539817012825897566}
   - {fileID: 450117343006621151}
   currentID: 0
@@ -917,9 +918,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -1052,9 +1056,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -1151,9 +1158,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -1250,9 +1260,12 @@ MonoBehaviour:
   vConfig: {fileID: 0}
   vCollider: {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0

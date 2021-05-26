@@ -900,7 +900,11 @@ public class GameManager : MonoBehaviour
         { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 } };
 
     public static byte[] DAT_639A0 = { 0, 4, 1, 4, 2, 4, 3, 4, 0, 1, 0, 2, 1, 3, 2, 3 };
-    public static uint[] DAT_639EC = { };
+    public static uint[] DAT_639EC = { 0x004c0940, 0x0000530a, 0x00470a80, 0x0000530e, 0x00470940, 0x00076154, 0x018b1140,
+                                       0x000052ca, 0x00012ad4, 0x000c5882, 0x00470940, 0x01875954, 0x00470940, 0x01875954,
+                                       0x004702d4, 0x00005b0e, 0x00470940, 0x01875954, 0x018b3844, 0x000b5040, 0x00470940,
+                                       0x01875954, 0x014559d8, 0x00072880, 0x00470940, 0x01875954, 0x00470940, 0x01875954,
+                                       0x00470940, 0x01875954, 0x31415926, 0x00000000 };
 
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
@@ -1017,7 +1021,7 @@ public class GameManager : MonoBehaviour
     public static short DAT_1f800096;
     public static short DAT_1f800098;
     public static short DAT_1f80009a;
-    public static TerrainScreen[] terrainScreen = new TerrainScreen[20];
+    public static TerrainScreen[] terrainScreen = new TerrainScreen[40];
     /*public static int DAT_1f80009c;
     public static int DAT_1f8000a0;
     public static uint DAT_1f8000a4;
@@ -1108,7 +1112,9 @@ public class GameManager : MonoBehaviour
 
     public void FUN_1C134()
     {
+        terrain.ClearTerrainData();
         FUN_1C158();
+        terrain.CreateTerrainMesh();
     }
 
     public void FUN_2DE18()
@@ -1207,14 +1213,14 @@ public class GameManager : MonoBehaviour
 
         if (screenMode == _SCREEN_MODE.Whole)
         {
-            if (gameMode < _GAME_MODE.Versus || players[0].vObject.maxHalfHealth != 0)
+            if (gameMode < _GAME_MODE.Versus || players[0].maxHalfHealth != 0)
             {
                 vVar12 = players[0];
 
                 if (players[1] != null)
                 {
-                    uVar18 = players[1].vObject.flags;
-                    oVar7 = players[1].vObject;
+                    uVar18 = players[1].flags;
+                    oVar7 = players[1];
 
                     if ((uVar18 & 0x2000000) == 0)
                         oVar7.flags = uVar18 & 0xfffffffd;
@@ -1222,8 +1228,8 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                uVar18 = players[0].vObject.flags;
-                oVar7 = players[0].vObject;
+                uVar18 = players[0].flags;
+                oVar7 = players[0];
                 vVar12 = players[1];
 
                 if ((uVar18 & 0x2000000) == 0)
@@ -1232,27 +1238,27 @@ public class GameManager : MonoBehaviour
 
             if (vVar12.view == _CAR_VIEW.Close)
             {
-                if ((vVar12.vObject.flags & 0x2000000) != 0)
+                if ((vVar12.flags & 0x2000000) != 0)
                 {
                     cVar7 = vVar12.vCamera;
                     sVar1 = cVar7.fieldOfView;
-                    oVar7 = cVar7.vObject;
+                    oVar7 = cVar7;
                 }
                 else
                 {
                     oVar7 = vVar12.closeViewer;
-                    vVar12.vObject.flags |= 2;
+                    vVar12.flags |= 2;
                     sVar1 = vVar12.vCamera.fieldOfView;
                 }
             }
             else
             {
-                if ((vVar12.vObject.flags & 0x2000000) == 0)
-                    vVar12.vObject.flags &= 0xfffffffd;
+                if ((vVar12.flags & 0x2000000) == 0)
+                    vVar12.flags &= 0xfffffffd;
 
                 cVar7 = vVar12.vCamera;
                 sVar1 = cVar7.fieldOfView;
-                oVar7 = cVar7.vObject;
+                oVar7 = cVar7;
             }
 
             FUN_2D278(oVar7, sVar1);
@@ -1590,7 +1596,8 @@ public class GameManager : MonoBehaviour
                     Utilities.SetRotMatrix(DAT_F00.rotation);
                     Coprocessor.translationVector._trx = 0;
                     Coprocessor.translationVector._try = 0;
-                    Coprocessor.translationVector._trz = 0; iVar24 = 0;
+                    Coprocessor.translationVector._trz = 0;
+                    iVar24 = 0;
                     Utilities.SetColorMatrix(DAT_738);
                     Utilities.SetLightMatrix(DAT_718);
                     Utilities.SetBackColor(DAT_E04.r, DAT_E04.g, DAT_E04.b);
@@ -1955,37 +1962,37 @@ public class GameManager : MonoBehaviour
 
         if ((param2.flags & 0x40) == 0) goto LAB_2F05C;
 
-        if (param1.DAT_74 == null)
-            param1.DAT_74 = param2;
+        if (param1.PDAT_74 == null)
+            param1.PDAT_74 = param2;
         else
         {
             v3Var2 = param1.vTransform.position;
 
-            if (param1.DAT_78 != null)
+            if (param1.PDAT_78 != null)
             {
-                iVar6 = Utilities.FUN_29F6C(param1.DAT_74.vTransform.position, v3Var2);
-                iVar3 = Utilities.FUN_29F6C(param1.DAT_78.vTransform.position, v3Var2);
+                iVar6 = Utilities.FUN_29F6C(param1.PDAT_74.vTransform.position, v3Var2);
+                iVar3 = Utilities.FUN_29F6C(param1.PDAT_78.vTransform.position, v3Var2);
 
                 if (iVar3 <= iVar6)
                 {
                     iVar6 = Utilities.FUN_29F6C(param2.vTransform.position, v3Var2);
-                    iVar2 = Utilities.FUN_29F6C(param1.DAT_74.vTransform.position, v3Var2);
+                    iVar2 = Utilities.FUN_29F6C(param1.PDAT_74.vTransform.position, v3Var2);
 
                     if (iVar2 <= iVar6) goto LAB_2F05C;
                     else
                     {
-                        param1.DAT_74 = param2;
+                        param1.PDAT_74 = param2;
                         goto LAB_2F05C;
                     }
                 }
 
                 iVar6 = Utilities.FUN_29F6C(param2.vTransform.position, v3Var2);
-                iVar2 = Utilities.FUN_29F6C(param1.DAT_78.vTransform.position, v3Var2);
+                iVar2 = Utilities.FUN_29F6C(param1.PDAT_78.vTransform.position, v3Var2);
 
                 if (iVar2 <= iVar6) goto LAB_2F05C;
             }
 
-            param1.DAT_78 = param2;
+            param1.PDAT_78 = param2;
         }
 
         LAB_2F05C:
@@ -2039,7 +2046,7 @@ public class GameManager : MonoBehaviour
         ppiVar4 = 1;
         ppiVar2 = 0;
 
-        do
+        /*do
         {
             ppiVar1 = ppiVar4;
 
@@ -2075,7 +2082,7 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-        }
+        }*/
     }
 
     public static uint FUN_2AC5C()

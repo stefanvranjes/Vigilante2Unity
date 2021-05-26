@@ -631,9 +631,12 @@ public class VigObject : MonoBehaviour
     public VehicleConfig vConfig; //0x5C
     public VigCollider vCollider; //0x60
     public int unk3; //0x64
-    public VigObject DAT_74; //0x74
-    public VigObject DAT_78; //0x78
-    public uint DAT_7C; //0x7C
+    public VigObject PDAT_74; //0x74
+    public int IDAT_74; //0x74
+    public VigObject PDAT_78; //0x78
+    public int IDAT_78; //0x78
+    public VigObject PDAT_7C; //0x7C
+    public int IDAT_7C; //0x7C
 
     public Matrix2x4 physics1;
     public Matrix2x4 physics2;
@@ -642,9 +645,8 @@ public class VigObject : MonoBehaviour
     public short unk1; //0xA6
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
-
         vTransform.position = new Vector3Int(
             (int)(transform.localPosition.x * GameManager.translateFactor), 
             (int)(-transform.localPosition.y * GameManager.translateFactor), 
@@ -655,7 +657,7 @@ public class VigObject : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         transform.localPosition = new Vector3(
             (float)vTransform.position.x / GameManager.translateFactor, 
@@ -910,7 +912,7 @@ public class VigObject : MonoBehaviour
         else
             vertexHeight = 0x2ff800;
 
-        if (DAT_74 != 0)
+        if (PDAT_74 != null)
         {
             // ...
         }
@@ -933,7 +935,7 @@ public class VigObject : MonoBehaviour
         else
             vertexHeight = 0x2ff800;
 
-        if (DAT_74 != 0)
+        if (PDAT_74 != null)
         {
             // ...
         }
@@ -954,7 +956,7 @@ public class VigObject : MonoBehaviour
         else
             vertexHeight = 0x2ff800;
 
-        if (DAT_74 != 0)
+        if (PDAT_74 != null)
         {
             // ...
         }
@@ -962,20 +964,20 @@ public class VigObject : MonoBehaviour
         return vertexHeight;
     }
 
-    public uint FUN_2CA1C()
+    public VigObject FUN_2CA1C()
     {
-        uint uVar1;
+        VigObject oVar1;
         VehicleConfigContainer container = FUN_2C9A4();
 
         if (container == null)
-            uVar1 = 0;
+            oVar1 = null;
         else
         {
-            uVar1 = 0;
+            oVar1 = null;
             //...
         }
 
-        return uVar1;
+        return oVar1;
     }
 
     public virtual int FUN_2DD78(VigObject[] param1)
