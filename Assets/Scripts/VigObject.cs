@@ -631,9 +631,9 @@ public class VigObject : MonoBehaviour
     public VehicleConfig vConfig; //0x5C
     public VigCollider vCollider; //0x60
     public int unk3; //0x64
-    public uint pointerUnk1; //0x74
-    public int DAT_78; //0x78
-    public uint pointerUnk3; //0x7C
+    public VigObject DAT_74; //0x74
+    public VigObject DAT_78; //0x78
+    public uint DAT_7C; //0x7C
 
     public Matrix2x4 physics1;
     public Matrix2x4 physics2;
@@ -910,7 +910,7 @@ public class VigObject : MonoBehaviour
         else
             vertexHeight = 0x2ff800;
 
-        if (pointerUnk1 != 0)
+        if (DAT_74 != 0)
         {
             // ...
         }
@@ -933,7 +933,7 @@ public class VigObject : MonoBehaviour
         else
             vertexHeight = 0x2ff800;
 
-        if (pointerUnk1 != 0)
+        if (DAT_74 != 0)
         {
             // ...
         }
@@ -954,7 +954,7 @@ public class VigObject : MonoBehaviour
         else
             vertexHeight = 0x2ff800;
 
-        if (pointerUnk1 != 0)
+        if (DAT_74 != 0)
         {
             // ...
         }
@@ -976,6 +976,11 @@ public class VigObject : MonoBehaviour
         }
 
         return uVar1;
+    }
+
+    public virtual int FUN_2DD78(VigObject[] param1)
+    {
+        return 0;
     }
 
     public void FUN_3BFC0()

@@ -6,6 +6,8 @@ public class Weapon : MonoBehaviour
 {
     public VigObject vObject;
     public Vehicle owner;
+    public short ammo;
+    public short maxAmmo;
 
     private void Awake()
     {
@@ -21,6 +23,11 @@ public class Weapon : MonoBehaviour
     public virtual void UpdateW()
     {
         
+    }
+
+    public virtual void ComboW(uint combo)
+    {
+
     }
 
     private void FUN_42330()

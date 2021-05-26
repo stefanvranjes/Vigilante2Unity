@@ -1053,6 +1053,7 @@ public class GameManager : MonoBehaviour
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
     public Vehicle[] players; //gp+FF8h
+    public List<VigObject> worldObjs; //gp+1040h
 
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
@@ -1115,6 +1116,11 @@ public class GameManager : MonoBehaviour
         Utilities.SetColorMatrix(DAT_FA8);
         Utilities.SetBackColor(64, 64, 64);
         Utilities.SetFogNearFar(2048, 8192, 0);
+    }
+
+    public void FUN_31728()
+    {
+
     }
 
     // Start is called before the first frame update
@@ -1887,6 +1893,189 @@ public class GameManager : MonoBehaviour
         //FUN_2DFF0
         DAT_EE0 = DAT_F00;
         DAT_EE0.rotation = Utilities.FUN_2A4A4(DAT_EE0.rotation);
+    }
+
+    private VigObject[] FUN_2E998(VigObject param1, VigObject param2, VigTransform param3, VigTransform param4)
+    {
+        return null;
+    }
+
+    private VigObject[] FUN_2ECF8(VigObject param1, VigObject param2, VigTransform param3)
+    {
+        return null;
+    }
+
+    private VigObject[] FUN_2EDEC(VigObject param1, VigObject param2, VigTransform param3)
+    {
+        return null;
+    }
+
+    private uint FUN_2EEE0(VigObject param1, VigObject param2)
+    {
+        bool bVar1;
+        int iVar2;
+        Vector3Int v3Var2;
+        VigObject oVar2;
+        int iVar3;
+        VigObject[] piVar4;
+        uint uVar5;
+        int iVar6;
+        VigObject oVar6;
+
+        bVar1 = false;
+
+        if (param1.id == param2.id)
+            return 0;
+
+        iVar6 = param1.DAT_58 + param2.DAT_58;
+        iVar2 = param1.vTransform.position.x - param2.vTransform.position.x;
+
+        if (iVar2 < 0)
+            iVar2 = -iVar2;
+
+        if (iVar2 < iVar6)
+        {
+            iVar2 = param1.vTransform.position.y - param2.vTransform.position.y;
+
+            if (iVar2 < 0)
+                iVar2 = -iVar2;
+
+            if (iVar2 < iVar6)
+            {
+                iVar2 = param1.vTransform.position.z - param2.vTransform.position.z;
+
+                if (iVar2 < 0)
+                    iVar2 = -iVar2;
+
+                bVar1 = iVar2 < iVar6;
+            }
+        }
+
+        if (!bVar1) return 0;
+
+        if ((param2.flags & 0x40) == 0) goto LAB_2F05C;
+
+        if (param1.DAT_74 == null)
+            param1.DAT_74 = param2;
+        else
+        {
+            v3Var2 = param1.vTransform.position;
+
+            if (param1.DAT_78 != null)
+            {
+                iVar6 = Utilities.FUN_29F6C(param1.DAT_74.vTransform.position, v3Var2);
+                iVar3 = Utilities.FUN_29F6C(param1.DAT_78.vTransform.position, v3Var2);
+
+                if (iVar3 <= iVar6)
+                {
+                    iVar6 = Utilities.FUN_29F6C(param2.vTransform.position, v3Var2);
+                    iVar2 = Utilities.FUN_29F6C(param1.DAT_74.vTransform.position, v3Var2);
+
+                    if (iVar2 <= iVar6) goto LAB_2F05C;
+                    else
+                    {
+                        param1.DAT_74 = param2;
+                        goto LAB_2F05C;
+                    }
+                }
+
+                iVar6 = Utilities.FUN_29F6C(param2.vTransform.position, v3Var2);
+                iVar2 = Utilities.FUN_29F6C(param1.DAT_78.vTransform.position, v3Var2);
+
+                if (iVar2 <= iVar6) goto LAB_2F05C;
+            }
+
+            param1.DAT_78 = param2;
+        }
+
+        LAB_2F05C:
+        piVar4 = FUN_2ECF8(param1, param2, param1.vTransform);
+
+        if ((param1.flags & 0x800) == 0 || piVar4 == null)
+        {
+            piVar4 = FUN_2EDEC(param1, param2, param2.vTransform);
+
+            if ((param2.flags & 0x800) == 0 || piVar4 == null)
+            {
+                piVar4 = FUN_2E998(param1, param2, param1.vTransform, param2.vTransform);
+
+                if (piVar4 == null) return 0;
+            }
+        }
+
+        piVar4[0] = param2;
+        uVar5 = (uint)param1.FUN_2DD78(piVar4);
+
+        if (uVar5 + 1 < 2)
+        {
+            oVar2 = piVar4[2];
+            oVar6 = piVar4[4];
+            uVar5 >>= 31;
+            piVar4[2] = piVar4[1];
+            piVar4[1] = oVar2;
+            piVar4[4] = piVar4[3];
+            piVar4[3] = oVar6;
+            iVar2 = param2.FUN_2DD78(piVar4);
+
+            if (iVar2 < 0)
+                uVar5 |= 2;
+        }
+        else
+            uVar5 >>= 31;
+
+        return uVar5;
+    }
+
+    private void FUN_3174C()
+    {
+        int ppiVar1;
+        int ppiVar2;
+        int piVar3;
+        int ppiVar4;
+        int piVar5;
+        uint uVar7;
+        VigObject oVar8;
+
+        ppiVar4 = 1;
+        ppiVar2 = 0;
+
+        do
+        {
+            ppiVar1 = ppiVar4;
+
+            if (ppiVar1 == worldObjs.Count)
+                return;
+
+            oVar8 = worldObjs[ppiVar2];
+
+            if (oVar8 != null)
+            {
+                if ((oVar8.flags & 0x20) == 0)
+                {
+                    oVar8.DAT_78 = 0;
+                    oVar8.DAT_74 = 0;
+                    piVar5 = ppiVar1 + 1;
+                    ppiVar2 = ppiVar1;
+                    piVar3 = piVar5;
+
+                    while(piVar3 != worldObjs.Count)
+                    {
+                        if (worldObjs[ppiVar2] != null)
+                        {
+                            uVar7 = worldObjs[ppiVar2].flags;
+
+                            if ((uVar7 & 0x20) == 0)
+                            {
+                                if ((uVar7 & oVar8.flags & 0x20) == 0)
+                                {
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static uint FUN_2AC5C()

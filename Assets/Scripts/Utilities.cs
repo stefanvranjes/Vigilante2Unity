@@ -57,6 +57,12 @@ public static class Utilities
         return (int)(SquareRoot(iVar7) << iVar5);
     }
 
+    public static int FUN_29F6C(Vector3Int v1, Vector3Int v2)
+    {
+        return FUN_29E84(new Vector3Int
+            (v1.x - v2.x, v1.y - v2.y, v1.z - v2.z));
+    }
+
     public static Vector2Int FUN_2ACD0(Vector3Int v3a, Vector3Int v3b)
     {
         long lVar1 = (long)v3a.x * v3b.x;
@@ -72,6 +78,29 @@ public static class Utilities
         v2.y += (uint)v2.x < (uint)lVar3 ? 1 : 0;
 
         return v2;
+    }
+
+    public static int FUN_2ABC4(uint param1, int param2)
+    {
+        int iVar1;
+        long lVar2;
+        uint uVar3;
+
+        iVar1 = LeadingZeros(param2);
+        uVar3 = (uint)(35 - iVar1 >> 1);
+
+        if ((int)(uVar3 << 27) < 0)
+            param1 = (uint)(param2 >> (int)(uVar3 * 2 & 31));
+        else
+        {
+            param1 = param1 >> (int)(uVar3 * 2 & 31);
+
+            if (uVar3 << 27 != 0)
+                param1 = param1 | (uint)param2 << (int)(uVar3 * -2 & 31);
+        }
+
+        lVar2 = SquareRoot(param1);
+        return (int)lVar2 << (int)(uVar3 & 31);
     }
 
     public static Matrix3x3 FUN_2A4A4(Matrix3x3 m33)
@@ -484,6 +513,7 @@ public static class Utilities
         return 0;
     }
 
+    //FUN_5B9AC
     public static int Ratan2(int y, int x)
     {
         bool bVar1 = x < 0;

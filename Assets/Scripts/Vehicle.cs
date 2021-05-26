@@ -40,10 +40,8 @@ public enum _CAR_VIEW
     Close
 }
 
-public class Vehicle : MonoBehaviour
+public class Vehicle : VigObject
 {
-    public VigObject vObject;
-
     public short turning;
     public short acceleration;
     public _WHEELS wheelsType;
@@ -262,7 +260,7 @@ public class Vehicle : MonoBehaviour
         } while (iVar6 != 0);
 
         DAT_C0 = (byte)(local_28[0] | local_28[1] << 2 | local_28[2] << 4 | local_28[3] << 6);
-        currentObj.pointerUnk3 = currentObj.FUN_2CA1C();
+        currentObj.DAT_7C = currentObj.FUN_2CA1C();
     }
 
     // Update is called once per frame
