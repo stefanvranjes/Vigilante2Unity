@@ -629,7 +629,7 @@ public class VigObject : MonoBehaviour
 
     public int DAT_58; //0x58
     public VehicleConfig vConfig; //0x5C
-    public VigCollider vCollider; //0x60
+    public VigCollider[] vCollider; //0x60
     public int unk3; //0x64
     public VigObject PDAT_74; //0x74
     public int IDAT_74; //0x74
@@ -980,7 +980,7 @@ public class VigObject : MonoBehaviour
         return oVar1;
     }
 
-    public virtual int FUN_2DD78(VigObject[] param1)
+    public virtual int FUN_2DD78(HitDetection param1)
     {
         return 0;
     }

@@ -1902,19 +1902,193 @@ public class GameManager : MonoBehaviour
         DAT_EE0.rotation = Utilities.FUN_2A4A4(DAT_EE0.rotation);
     }
 
-    private VigObject[] FUN_2E998(VigObject param1, VigObject param2, VigTransform param3, VigTransform param4)
+    private HitDetection FUN_2E998(VigObject param1, VigObject param2, VigTransform param3, VigTransform param4)
     {
+        short sVar1;
+        int iVar2;
+        bool bVar3;
+        int iVar3;
+        int psVar4;
+        int iVar5;
+        int psVar6;
+
+        psVar6 = 0;
+
+        if (param1.vCollider[psVar6] != null)
+        {
+            if (param2.vCollider == null)
+                return null;
+
+            sVar1 = (short)param1.vCollider[psVar6].header;
+
+            while (sVar1 != 0)
+            {
+                sVar1 = (short)param1.vCollider[psVar6].header;
+                psVar4 = 0;
+
+                if (sVar1 == 1)
+                {
+                    if ((param1.vCollider[psVar6].flags & 0x8000U) == 0)
+                    {
+                        sVar1 = (short)param2.vCollider[psVar4].header;
+
+                        joined_r0x8002ea44:
+                        if (sVar1 != 0)
+                        {
+                            sVar1 = (short)param2.vCollider[psVar4].header;
+
+                            if (sVar1 != 1) ;//goto code_r0x8002EA5C;
+
+                            if ((param2.vCollider[psVar4].flags & 0x8000U) == 0)
+                            {
+                                bVar3 = Utilities.FUN_281FC(param1.vCollider[psVar6].bounds, param3, param2.vCollider[psVar4].bounds, param4);
+
+                                if (bVar3)
+                                {
+                                    bVar3 = Utilities.FUN_281FC(param2.vCollider[psVar4].bounds, param4, param1.vCollider[psVar6].bounds, param3);
+
+                                    if (bVar3)
+                                    {
+                                        HitDetection hit = new HitDetection();
+                                        hit.collider1 = param1.vCollider[psVar6];
+                                        hit.collider2 = param2.vCollider[psVar4];
+                                        hit.object1 = param1;
+                                        hit.object2 = param2;
+                                        return hit;
+                                    }
+                                }
+                            }
+
+                            psVar4++;
+                            sVar1 = (short)param2.vCollider[psVar4].header;
+                            goto joined_r0x8002ea44;                       
+                        }
+                    }
+
+                    psVar6++;
+                    sVar1 = (short)param1.vCollider[psVar6].header;
+                }
+                else
+                {
+
+                }
+            }
+        }
+
         return null;
+
+        code_r0x8002ea5c:
+        if (sVar1 == 2)
+        {
+            iVar3 = 0;
+
+            if (param2.vCollider[psVar4].flags == 0)
+            {
+                HitDetection hit = new HitDetection();
+                hit.collider1 = param1.vCollider[psVar6];
+                hit.collider1 = param2.vCollider[psVar4];
+                hit.object1 = param1;
+                hit.object2 = param2;
+                return hit;
+            }
+
+            iVar5 = 4;
+
+            while (true)
+            {
+
+            }
+        }
     }
 
-    private VigObject[] FUN_2ECF8(VigObject param1, VigObject param2, VigTransform param3)
+    private HitDetection FUN_2ECF8(VigObject param1, VigObject param2, VigTransform param3)
     {
-        return null;
+        HitDetection oVar1;
+        VigObject oVar2;
+        VigTransform MStack32;
+
+        oVar2 = param1.child2;
+
+        do
+        {
+            if (oVar2 == null)
+                return null;
+
+            if (oVar2.vCollider == null || (oVar2.flags & 0x20) != 0)
+            {
+                if ((oVar2.flags & 0x800) != 0)
+                {
+                    MStack32 = Utilities.CompMatrixLV(param3, oVar2.vTransform);
+                    oVar1 = FUN_2ECF8(oVar2, param2, MStack32);
+
+                    if (oVar1 != null)
+                        return oVar1;
+                }
+            }
+            else
+            {
+                MStack32 = Utilities.CompMatrixLV(param3, oVar2.vTransform);
+                oVar1 = FUN_2E998(oVar2, param2, MStack32, param2.vTransform);
+
+                if (oVar1 != null)
+                    return oVar1;
+
+                if ((oVar2.flags & 0x800) != 0)
+                {
+                    oVar1 = FUN_2ECF8(oVar2, param2, MStack32);
+
+                    if (oVar1 != null)
+                        return oVar1;
+                }
+            }
+
+            oVar2 = oVar2.child;
+        } while (true);
     }
 
-    private VigObject[] FUN_2EDEC(VigObject param1, VigObject param2, VigTransform param3)
+    private HitDetection FUN_2EDEC(VigObject param1, VigObject param2, VigTransform param3)
     {
-        return null;
+        HitDetection oVar1;
+        VigObject oVar2;
+        VigTransform MStack32;
+
+        oVar2 = param2.child2;
+
+        do
+        {
+            if (oVar2 == null)
+                return null;
+
+            if (oVar2.vCollider == null || (oVar2.flags & 0x20) != 0)
+            {
+                if ((oVar2.flags & 0x800) != 0)
+                {
+                    MStack32 = Utilities.CompMatrixLV(param3, oVar2.vTransform);
+                    oVar1 = FUN_2EDEC(param1, oVar2, MStack32);
+
+                    if (oVar1 != null)
+                        return oVar1;
+                }
+            }
+            else
+            {
+                MStack32 = Utilities.CompMatrixLV(param3, oVar2.vTransform);
+                oVar1 = FUN_2E998(param1, oVar2, param1.vTransform, MStack32);
+
+                if (oVar1 != null)
+                    return oVar1;
+
+                if ((oVar2.flags & 0x800) != 0)
+                {
+                    oVar1 = FUN_2EDEC(param1, oVar2, MStack32);
+
+                    if (oVar1 != null)
+                        return oVar1;
+                }
+            }
+
+            oVar2 = oVar2.child;
+        } while (true);
     }
 
     private uint FUN_2EEE0(VigObject param1, VigObject param2)
@@ -1922,9 +2096,9 @@ public class GameManager : MonoBehaviour
         bool bVar1;
         int iVar2;
         Vector3Int v3Var2;
-        VigObject oVar2;
+        VigCollider cVar2;
         int iVar3;
-        VigObject[] piVar4;
+        HitDetection hit;
         uint uVar5;
         int iVar6;
         VigObject oVar6;
@@ -1996,33 +2170,33 @@ public class GameManager : MonoBehaviour
         }
 
         LAB_2F05C:
-        piVar4 = FUN_2ECF8(param1, param2, param1.vTransform);
+        hit = FUN_2ECF8(param1, param2, param1.vTransform);
 
-        if ((param1.flags & 0x800) == 0 || piVar4 == null)
+        if ((param1.flags & 0x800) == 0 || hit == null)
         {
-            piVar4 = FUN_2EDEC(param1, param2, param2.vTransform);
+            hit = FUN_2EDEC(param1, param2, param2.vTransform);
 
-            if ((param2.flags & 0x800) == 0 || piVar4 == null)
+            if ((param2.flags & 0x800) == 0 || hit == null)
             {
-                piVar4 = FUN_2E998(param1, param2, param1.vTransform, param2.vTransform);
+                hit = FUN_2E998(param1, param2, param1.vTransform, param2.vTransform);
 
-                if (piVar4 == null) return 0;
+                if (hit == null) return 0;
             }
         }
 
-        piVar4[0] = param2;
-        uVar5 = (uint)param1.FUN_2DD78(piVar4);
+        hit.self = param2;
+        uVar5 = (uint)param1.FUN_2DD78(hit);
 
         if (uVar5 + 1 < 2)
         {
-            oVar2 = piVar4[2];
-            oVar6 = piVar4[4];
+            cVar2 = hit.collider2;
+            oVar6 = hit.object2;
             uVar5 >>= 31;
-            piVar4[2] = piVar4[1];
-            piVar4[1] = oVar2;
-            piVar4[4] = piVar4[3];
-            piVar4[3] = oVar6;
-            iVar2 = param2.FUN_2DD78(piVar4);
+            hit.collider2 = hit.collider1;
+            hit.collider1 = cVar2;
+            hit.object2 = hit.object1;
+            hit.object1 = oVar6;
+            iVar2 = param2.FUN_2DD78(hit);
 
             if (iVar2 < 0)
                 uVar5 |= 2;
