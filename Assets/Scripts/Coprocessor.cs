@@ -438,7 +438,7 @@ public class Coprocessor
 
         PushSZ((int)(z >> 12));
 
-        long result = (long)((ulong)UNRDivide(projectionPlaneDistance, (ushort)screenZFIFO.sz2));
+        long result = (long)((ulong)UNRDivide(projectionPlaneDistance, (ushort)screenZFIFO.sz3));
 
         long Sx;
         switch (s_aspect_ratio)

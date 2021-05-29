@@ -127,7 +127,7 @@ public static class Utilities
         iVar14 = iVar14 + iVar5 * 8 + iVar1 + iVar3 * 8;
         iVar16 = iVar16 + iVar12 * 8 + iVar2 + iVar4 * 8;
         iVar8 = iVar18 + iVar15 * 8 + iVar20 + iVar8 * 8;
-        uVar6 = (uint)(ushort)Coprocessor.rotationMatrix.rt12 | (ushort)Coprocessor.rotationMatrix.rt11);
+        uVar6 = (uint)(ushort)Coprocessor.rotationMatrix.rt12 | (ushort)Coprocessor.rotationMatrix.rt11;
         uVar10 = (uVar6 & 0x80008000) >> 15;
         uVar7 = (uint)(ushort)Coprocessor.rotationMatrix.rt21 | (ushort)Coprocessor.rotationMatrix.rt13;
         uint cop2r32 = uVar10 + (uVar6 ^ (uVar6 & 0x80008000) * 2 - uVar10);

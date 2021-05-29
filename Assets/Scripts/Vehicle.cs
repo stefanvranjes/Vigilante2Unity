@@ -2283,19 +2283,19 @@ public class Vehicle : VigObject
             if ((uVar5 & uVar6) == 0)
             {
                 if ((uVar5 & 1) == 0)
-                    local_40.x = vCollider.min.x;
+                    local_40.x = vCollider[0].bounds.min.x;
                 else
-                    local_40.x = vCollider.max.x;
+                    local_40.x = vCollider[0].bounds.max.x;
 
                 if ((uVar5 & 4) == 0)
-                    local_40.y = vCollider.min.y;
+                    local_40.y = vCollider[0].bounds.min.y;
                 else
-                    local_40.y = vCollider.max.y;
+                    local_40.y = vCollider[0].bounds.max.y;
 
                 if ((uVar5 & 2) == 0)
-                    local_40.z = vCollider.min.z;
+                    local_40.z = vCollider[0].bounds.min.z;
                 else
-                    local_40.z = vCollider.max.z;
+                    local_40.z = vCollider[0].bounds.max.z;
 
                 FUN_3EA0C();
             }
