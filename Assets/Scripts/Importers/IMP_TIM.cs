@@ -90,7 +90,13 @@ public static class IMP_TIM
     {
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
-            if (reader.ReadInt32() != 0x10)
+            int header = reader.ReadInt32();
+
+            if (header >> 24 == 8)
+            {
+                LoadTIM(reader, bmp);
+            }
+            else if (header != 0x10)
             {
                 reader.BaseStream.Seek(0, SeekOrigin.Begin);
                 short width = reader.ReadInt16();
@@ -849,68 +855,136 @@ public static class IMP_TIM
         #region Bitmap
         using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
         {
-            writer.Write((short)0x4D42); //Signature
-            writer.Write(imageWidth * imageHeight * 16 + 56); //File Size
-            writer.Write((short)0); //Reserved1
-            writer.Write((short)0); //Reserved2
-            writer.Write(54); //File Offset to Pixel Array
-            writer.Write(40); //DIB Header Size
-            writer.Write(imageWidth * 4); //Image Width
-            writer.Write((int)imageHeight); //Image Height
-            writer.Write(0x00200001); //Compression
-            writer.Write((long)0);
-            writer.Write(2834); //X Pixels Per Meter
-            writer.Write(2834); //Y Pixels Per Meter
-            writer.Write((long)0);
-
-            ushort redMask = 0x7C00;
-            ushort greenMask = 0x3E0;
-            ushort blueMask = 0x1F;
-            RGB[] pixels = new RGB[imageWidth * imageHeight * 4];
-
-            for (int i = 0; i < pixels.Length; i++)
+            if ((FLAG & 1) == 0)
             {
-                int colorIndex = i % 2 == 0 ? indices[i / 2] & 0x0F : indices[i / 2] >> 4;
+                writer.Write((short)0x4D42); //Signature
+                writer.Write(imageWidth * imageHeight * 16 + 56); //File Size
+                writer.Write((short)0); //Reserved1
+                writer.Write((short)0); //Reserved2
+                writer.Write(54); //File Offset to Pixel Array
+                writer.Write(40); //DIB Header Size
+                writer.Write(imageWidth * 4); //Image Width
+                writer.Write((int)imageHeight); //Image Height
+                writer.Write(0x00200001); //Compression
+                writer.Write((long)0);
+                writer.Write(2834); //X Pixels Per Meter
+                writer.Write(2834); //Y Pixels Per Meter
+                writer.Write((long)0);
 
-                byte R5 = (byte)((colors[colorIndex] & redMask) >> 10);
-                byte G5 = (byte)((colors[colorIndex] & greenMask) >> 5);
-                byte B5 = (byte)(colors[colorIndex] & blueMask);
+                ushort redMask = 0x7C00;
+                ushort greenMask = 0x3E0;
+                ushort blueMask = 0x1F;
+                RGB[] pixels = new RGB[imageWidth * imageHeight * 4];
 
-                byte R8 = (byte)(R5 << 3);
-                byte G8 = (byte)(G5 << 3);
-                byte B8 = (byte)(B5 << 3);
-
-                byte A = 255;
-
-                if (colors[colorIndex] >> 15 == 0)
-                    if (R8 == 0 && G8 == 0 && B8 == 0)
-                        A = 0;
-
-                /*pixels[i].r = A == 0 ? R8 : (byte)0;
-                pixels[i].g = A == 0 ? G8 : (byte)0;
-                pixels[i].b = A == 0 ? B8 : (byte)0;
-                pixels[i].a = A;*/
-
-                pixels[i].r = R8;
-                pixels[i].g = G8;
-                pixels[i].b = B8;
-                pixels[i].a = A;
-            }
-            
-            int width = imageWidth * 4;
-
-            for (int i = 0, j = pixels.Length - width; i < pixels.Length; i += width, j -= width)
-            {
-                for (int k = 0; k < width; ++k)
+                for (int i = 0; i < pixels.Length; i++)
                 {
-                    writer.Write(pixels[j + k].r);
-                    writer.Write(pixels[j + k].g);
-                    writer.Write(pixels[j + k].b);
-                    writer.Write(pixels[j + k].a);
-                }
-            }
+                    int colorIndex = i % 2 == 0 ? indices[i / 2] & 0x0F : indices[i / 2] >> 4;
 
-            writer.Write((short)0);
+                    byte R5 = (byte)((colors[colorIndex] & redMask) >> 10);
+                    byte G5 = (byte)((colors[colorIndex] & greenMask) >> 5);
+                    byte B5 = (byte)(colors[colorIndex] & blueMask);
+
+                    byte R8 = (byte)(R5 << 3);
+                    byte G8 = (byte)(G5 << 3);
+                    byte B8 = (byte)(B5 << 3);
+
+                    byte A = 255;
+
+                    if (colors[colorIndex] >> 15 == 0)
+                        if (R8 == 0 && G8 == 0 && B8 == 0)
+                            A = 0;
+
+                    /*pixels[i].r = A == 0 ? R8 : (byte)0;
+                    pixels[i].g = A == 0 ? G8 : (byte)0;
+                    pixels[i].b = A == 0 ? B8 : (byte)0;
+                    pixels[i].a = A;*/
+
+                    pixels[i].r = R8;
+                    pixels[i].g = G8;
+                    pixels[i].b = B8;
+                    pixels[i].a = A;
+                }
+
+                int width = imageWidth * 4;
+
+                for (int i = 0, j = pixels.Length - width; i < pixels.Length; i += width, j -= width)
+                {
+                    for (int k = 0; k < width; ++k)
+                    {
+                        writer.Write(pixels[j + k].r);
+                        writer.Write(pixels[j + k].g);
+                        writer.Write(pixels[j + k].b);
+                        writer.Write(pixels[j + k].a);
+                    }
+                }
+
+                writer.Write((short)0);
+            }
+            else
+            {
+                writer.Write((short)0x4D42); //Signature
+                writer.Write(imageWidth * imageHeight * 16 + 56); //File Size
+                writer.Write((short)0); //Reserved1
+                writer.Write((short)0); //Reserved2
+                writer.Write(54); //File Offset to Pixel Array
+                writer.Write(40); //DIB Header Size
+                writer.Write(imageWidth * 2); //Image Width
+                writer.Write((int)imageHeight); //Image Height
+                writer.Write(0x00200001); //Compression
+                writer.Write((long)0);
+                writer.Write(2834); //X Pixels Per Meter
+                writer.Write(2834); //Y Pixels Per Meter
+                writer.Write((long)0);
+
+                ushort redMask = 0x7C00;
+                ushort greenMask = 0x3E0;
+                ushort blueMask = 0x1F;
+                RGB[] pixels = new RGB[imageWidth * imageHeight * 2];
+
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    int colorIndex = indices[i];
+
+                    byte R5 = (byte)((colors[colorIndex] & redMask) >> 10);
+                    byte G5 = (byte)((colors[colorIndex] & greenMask) >> 5);
+                    byte B5 = (byte)(colors[colorIndex] & blueMask);
+
+                    byte R8 = (byte)(R5 << 3);
+                    byte G8 = (byte)(G5 << 3);
+                    byte B8 = (byte)(B5 << 3);
+
+                    byte A = 255;
+
+                    if (colors[colorIndex] >> 15 == 0)
+                        if (R8 == 0 && G8 == 0 && B8 == 0)
+                            A = 0;
+
+                    /*pixels[i].r = A == 0 ? R8 : (byte)0;
+                    pixels[i].g = A == 0 ? G8 : (byte)0;
+                    pixels[i].b = A == 0 ? B8 : (byte)0;
+                    pixels[i].a = A;*/
+
+                    pixels[i].r = R8;
+                    pixels[i].g = G8;
+                    pixels[i].b = B8;
+                    pixels[i].a = A;
+                }
+
+                int width = imageWidth * 2;
+
+                for (int i = 0, j = pixels.Length - width; i < pixels.Length; i += width, j -= width)
+                {
+                    for (int k = 0; k < width; ++k)
+                    {
+                        writer.Write(pixels[j + k].r);
+                        writer.Write(pixels[j + k].g);
+                        writer.Write(pixels[j + k].b);
+                        writer.Write(pixels[j + k].a);
+                    }
+                }
+
+                writer.Write((short)0);
+            }
         }
         #endregion
     }

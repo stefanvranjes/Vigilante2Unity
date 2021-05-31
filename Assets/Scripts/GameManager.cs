@@ -899,6 +899,8 @@ public class GameManager : MonoBehaviour
         { { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 }, 
         { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 } };
 
+    public static Vector3Int[] DAT_63970 = { new Vector3Int(0xf800, 0xfac0, 0), new Vector3Int(0x800, 0xfac0, 0), new Vector3Int(0x1800, 0xfac0, 0),
+                                             new Vector3Int(0xf800, 0x80, 0), new Vector3Int(0x800, 0x80, 0), new Vector3Int(0x1800, 0x80, 0) }; //tmp
     public static byte[] DAT_639A0 = { 0, 4, 1, 4, 2, 4, 3, 4, 0, 1, 0, 2, 1, 3, 2, 3 };
     public static uint[] DAT_639EC = { 0x004c0940, 0x0000530a, 0x00470a80, 0x0000530e, 0x00470940, 0x00076154, 0x018b1140,
                                        0x000052ca, 0x00012ad4, 0x000c5882, 0x00470940, 0x01875954, 0x00470940, 0x01875954,
@@ -1103,6 +1105,7 @@ public class GameManager : MonoBehaviour
     public byte uvSize;
     public ushort unk3;
     public ushort[,] DAT_08; //gp+08h
+    public int DAT_20; //gp+20h
     public int DAT_24; //gp+24h
     public _SCREEN_MODE screenMode; //gp+2Ch;
     public _GAME_MODE gameMode; //gp+31h

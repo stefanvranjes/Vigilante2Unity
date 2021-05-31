@@ -61,6 +61,8 @@ public class VigTerrain : MonoBehaviour
     public int tileY;
     public int zoneCount;
     public float drawDistance;
+    public Vector3Int[,] DAT_B9270 = new Vector3Int[2, 8];
+    public short[,] DAT_B9318 = new short[2, 20];
     public Color32[] DAT_B9370 = new Color32[32];
     public Color32[] DAT_BA4F0 = new Color32[32];
     public VigTransform DAT_BDFF0;
@@ -68,7 +70,8 @@ public class VigTerrain : MonoBehaviour
     private Vector3[] terrainWorld = new Vector3[40];
     private Dictionary<int, List<int>> verticesDict;
     private Dictionary<int, Tile> tilesDict;
-    private MeshFilter meshFilter;
+    private Mesh terrainMesh;
+    private Mesh skyboxMesh;
     private List<Vector3> newVertices;
     private List<Vector2> newUVs;
     private List<Color32> newColors;
@@ -88,7 +91,10 @@ public class VigTerrain : MonoBehaviour
             instance = this;
         }
 
-        meshFilter = GetComponent<MeshFilter>();
+        terrainMesh = new Mesh();
+        skyboxMesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = terrainMesh;
+        GameObject.Find("SkyBox").GetComponent<MeshFilter>().mesh = skyboxMesh;
     }
 
     // Start is called before the first frame update
@@ -98,7 +104,6 @@ public class VigTerrain : MonoBehaviour
         newColors = new List<Color32>();
         newUVs = new List<Vector2>();
         newTriangles = new List<int>();
-        meshFilter.mesh = null;
 
         return;
 
@@ -222,22 +227,22 @@ public class VigTerrain : MonoBehaviour
         newColors.Clear();
         newUVs.Clear();
         newTriangles.Clear();
-        Destroy(meshFilter.mesh);
+        terrainMesh.Clear();
     }
 
     public void CreateTerrainMesh()
     {
-        Mesh newMesh = new Mesh();
         for (int i = 0; i < newVertices.Count; i++)
             newVertices[i] = new Vector3(newVertices[i].x, -newVertices[i].y, newVertices[i].z);
-        newMesh.SetVertices(newVertices);
-        newMesh.SetTriangles(newTriangles, 0);
-        meshFilter.mesh = newMesh;
+        terrainMesh.SetVertices(newVertices);
+        terrainMesh.SetColors(newColors);
+        terrainMesh.SetTriangles(newTriangles, 0);
     }
     
     public void FUN_31678()
     {
         GameManager.instance.FUN_1C134();
+        FUN_1C910();
     }
 
     private bool InsideCircle(Tile center, Tile tile, float radius)
@@ -283,6 +288,212 @@ public class VigTerrain : MonoBehaviour
             vertices[i] = defaultVertex;
             tiles[i] = defaultTile;
         }
+    }
+
+    public void FUN_1C910()
+    {
+        short sVar1;
+        uint uVar2;
+        int iVar3;
+        int iVar5;
+        int iVar6;
+        int iVar11;
+        short sVar10;
+        int iVar12;
+        VigTransform local_48;
+        VigTransform local_28;
+
+        local_48 = GameManager.instance.DAT_F88;
+        iVar5 = GameManager.instance.DAT_20;
+        iVar6 = GameManager.instance.DAT_20;
+        uVar2 = (ushort)Utilities.FUN_2A27C(local_48.rotation);
+        local_48.rotation = Utilities.RotMatrixY(-(short)uVar2, local_48.rotation);
+        sVar1 = Utilities.FUN_2A248(local_48.rotation);
+        iVar3 = sVar1;
+
+        if (iVar3 < 0)
+            iVar3 = -iVar3;
+
+        if (1024 < iVar3)
+            sVar1 = (short)(2048 - sVar1);
+
+        local_48.rotation = Utilities.RotMatrixX(-sVar1, local_48.rotation);
+        uVar2 = (uVar2 & 0xfff) * 5;
+        local_48.position.x = (int)(uVar2 - (uVar2 & 0xf000));
+        local_48.position.y = sVar1 * -5;
+        local_48.position.z = -0xd00;
+        local_28 = Utilities.FUN_2A3EC(local_48);
+        Utilities.FUN_246BC(local_28);
+        Coprocessor.vector0.vx0 = (short)GameManager.DAT_63970[0].x;
+        Coprocessor.vector0.vy0 = (short)GameManager.DAT_63970[0].y;
+        Coprocessor.vector0.vz0 = (short)GameManager.DAT_63970[0].z;
+        Coprocessor.vector1.vx1 = (short)GameManager.DAT_63970[1].x;
+        Coprocessor.vector1.vy1 = (short)GameManager.DAT_63970[1].y;
+        Coprocessor.vector1.vz1 = (short)GameManager.DAT_63970[1].z;
+        Coprocessor.vector2.vx2 = (short)GameManager.DAT_63970[2].x;
+        Coprocessor.vector2.vy2 = (short)GameManager.DAT_63970[2].y;
+        Coprocessor.vector2.vz2 = (short)GameManager.DAT_63970[2].z;
+        Coprocessor.ExecuteRTPT(12, false);
+        DAT_B9270[iVar6, 0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
+        DAT_B9270[iVar6, 1] = new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1);
+        DAT_B9270[iVar6, 5] = new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2);
+        DAT_B9270[iVar6, 4] = new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1);
+        int sx1_1 = Coprocessor.screenXYFIFO.sx1;
+        int sy1_1 = Coprocessor.screenXYFIFO.sy1;
+        Coprocessor.vector0.vx0 = (short)GameManager.DAT_63970[3].x;
+        Coprocessor.vector0.vy0 = (short)GameManager.DAT_63970[3].y;
+        Coprocessor.vector0.vz0 = (short)GameManager.DAT_63970[3].z;
+        Coprocessor.vector1.vx1 = (short)GameManager.DAT_63970[4].x;
+        Coprocessor.vector1.vy1 = (short)GameManager.DAT_63970[4].y;
+        Coprocessor.vector1.vz1 = (short)GameManager.DAT_63970[4].z;
+        Coprocessor.vector2.vx2 = (short)GameManager.DAT_63970[5].x;
+        Coprocessor.vector2.vy2 = (short)GameManager.DAT_63970[5].y;
+        Coprocessor.vector2.vz2 = (short)GameManager.DAT_63970[5].z;
+        Coprocessor.ExecuteRTPT(12, false);
+        DAT_B9270[iVar6, 2] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
+        DAT_B9270[iVar6, 3] = new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1);
+        DAT_B9270[iVar6, 7] = new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2);
+        DAT_B9270[iVar6, 6] = new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1);
+        int sx1_2 = Coprocessor.screenXYFIFO.sx1;
+        int sy1_2 = Coprocessor.screenXYFIFO.sy1;
+        iVar11 = local_28.rotation.V00;
+        iVar12 = (sx1_1 + sx1_2) / 2;
+        iVar3 = local_28.rotation.V10;
+        iVar6 = (sy1_1 + sy1_2) / 2;
+        sVar1 = (short)iVar6;
+
+        if (iVar11 < 2897)
+        {
+            if (iVar11 < -2896)
+            {
+                iVar6 = GameManager.instance.DAT_EDC - iVar12;
+                DAT_B9318[iVar5, 7] = (short)GameManager.instance.DAT_F20;
+                DAT_B9318[iVar5, 5] = (short)GameManager.instance.DAT_F20;
+                DAT_B9318[iVar5, 19] = 0;
+                DAT_B9318[iVar5, 17] = 0;
+                DAT_B9318[iVar5, 4] = 0;
+                DAT_B9318[iVar5, 0] = 0;
+                DAT_B9318[iVar5, 16] = 0;
+                DAT_B9318[iVar5, 12] = 0;
+                DAT_B9318[iVar5, 6] = (short)GameManager.instance.DAT_EDC;
+                DAT_B9318[iVar5, 2] = (short)GameManager.instance.DAT_EDC;
+                DAT_B9318[iVar5, 18] = (short)GameManager.instance.DAT_EDC;
+                DAT_B9318[iVar5, 14] = (short)GameManager.instance.DAT_EDC;
+                sVar10 = (short)(sVar1 + (short)((-iVar12 * iVar3) / iVar11));
+                DAT_B9318[iVar5, 13] = sVar10;
+                DAT_B9318[iVar5, 1] = sVar10;
+                sVar1 = (short)(sVar1 + (short)((iVar6 * iVar3) / iVar11));
+                DAT_B9318[iVar5, 15] = sVar1;
+                DAT_B9318[iVar5, 3] = sVar1;
+            }
+            else
+            {
+                sVar1 = (short)iVar12;
+
+                if (iVar3 < 1)
+                {
+                    iVar12 = GameManager.instance.DAT_F20 - iVar6;
+                    DAT_B9318[iVar5, 6] = 0;
+                    DAT_B9318[iVar5, 4] = 0;
+                    DAT_B9318[iVar5, 18] = (short)GameManager.instance.DAT_EDC;
+                    DAT_B9318[iVar5, 16] = (short)GameManager.instance.DAT_EDC;
+                    DAT_B9318[iVar5, 5] = 0;
+                    DAT_B9318[iVar5, 1] = 0;
+                    DAT_B9318[iVar5, 17] = 0;
+                    DAT_B9318[iVar5, 13] = 0;
+                    DAT_B9318[iVar5, 7] = (short)GameManager.instance.DAT_F20;
+                    DAT_B9318[iVar5, 3] = (short)GameManager.instance.DAT_F20;
+                    DAT_B9318[iVar5, 19] = (short)GameManager.instance.DAT_F20;
+                    DAT_B9318[iVar5, 15] = (short)GameManager.instance.DAT_F20;
+                    sVar10 = (short)(sVar1 + (short)((-iVar6 * iVar11) / iVar3));
+                    DAT_B9318[iVar5, 12] = sVar10;
+                    DAT_B9318[iVar5, 0] = sVar10;
+                    sVar1 = (short)(sVar1 + (short)((iVar12 * iVar11) / iVar3));
+                    DAT_B9318[iVar5, 14] = sVar1;
+                    DAT_B9318[iVar5, 2] = sVar1;
+                }
+                else
+                {
+                    iVar12 = GameManager.instance.DAT_F20 - iVar6;
+                    DAT_B9318[iVar5, 6] = (short)GameManager.instance.DAT_EDC;
+                    DAT_B9318[iVar5, 4] = (short)GameManager.instance.DAT_EDC;
+                    DAT_B9318[iVar5, 18] = 0;
+                    DAT_B9318[iVar5, 16] = 0;
+                    DAT_B9318[iVar5, 5] = 0;
+                    DAT_B9318[iVar5, 1] = 0;
+                    DAT_B9318[iVar5, 17] = 0;
+                    DAT_B9318[iVar5, 13] = 0;
+                    DAT_B9318[iVar5, 7] = (short)GameManager.instance.DAT_F20;
+                    DAT_B9318[iVar5, 3] = (short)GameManager.instance.DAT_F20;
+                    DAT_B9318[iVar5, 19] = (short)GameManager.instance.DAT_F20;
+                    DAT_B9318[iVar5, 15] = (short)GameManager.instance.DAT_F20;
+                    sVar10 = (short)(sVar1 + (short)((-iVar6 * iVar11) / iVar3));
+                    DAT_B9318[iVar5, 12] = sVar10;
+                    DAT_B9318[iVar5, 0] = sVar10;
+                    sVar1 = (short)(sVar1 + (short)((iVar12 * iVar11) / iVar3));
+                    DAT_B9318[iVar5, 14] = sVar1;
+                    DAT_B9318[iVar5, 2] = sVar1;
+                }
+            }
+        }
+        else
+        {
+            iVar6 = GameManager.instance.DAT_EDC - iVar12;
+            DAT_B9318[iVar5, 7] = 0;
+            DAT_B9318[iVar5, 5] = 0;
+            DAT_B9318[iVar5, 19] = (short)GameManager.instance.DAT_F20;
+            DAT_B9318[iVar5, 17] = (short)GameManager.instance.DAT_F20;
+            DAT_B9318[iVar5, 4] = 0;
+            DAT_B9318[iVar5, 0] = 0;
+            DAT_B9318[iVar5, 16] = 0;
+            DAT_B9318[iVar5, 12] = 0;
+            DAT_B9318[iVar5, 6] = (short)GameManager.instance.DAT_EDC;
+            DAT_B9318[iVar5, 2] = (short)GameManager.instance.DAT_EDC;
+            DAT_B9318[iVar5, 18] = (short)GameManager.instance.DAT_EDC;
+            DAT_B9318[iVar5, 14] = (short)GameManager.instance.DAT_EDC;
+            sVar10 = (short)(sVar1 + (short)((-iVar12 * iVar3) / iVar11));
+            DAT_B9318[iVar5, 13] = sVar10;
+            DAT_B9318[iVar5, 1] = sVar10;
+            sVar1 = (short)(sVar1 + (short)((iVar6 * iVar3) / iVar11));
+            DAT_B9318[iVar5, 15] = sVar1;
+            DAT_B9318[iVar5, 3] = sVar1;
+        }
+
+        newVertices.Clear();
+        newTriangles.Clear();
+        newUVs.Clear();
+        skyboxMesh.Clear();
+        newVertices.Add(DAT_B9270[iVar5, 0]);
+        newVertices.Add(DAT_B9270[iVar5, 1]);
+        newVertices.Add(DAT_B9270[iVar5, 2]);
+        newVertices.Add(DAT_B9270[iVar5, 3]);
+        newVertices.Add(DAT_B9270[iVar5, 4]);
+        newVertices.Add(DAT_B9270[iVar5, 5]);
+        newVertices.Add(DAT_B9270[iVar5, 6]);
+        newVertices.Add(DAT_B9270[iVar5, 7]);
+        newUVs.Add(new Vector2(0, 0));
+        newUVs.Add(new Vector2(1, 0));
+        newUVs.Add(new Vector2(0, 1));
+        newUVs.Add(new Vector2(1, 1));
+        newUVs.Add(new Vector2(0, 0));
+        newUVs.Add(new Vector2(1, 0));
+        newUVs.Add(new Vector2(0, 1));
+        newUVs.Add(new Vector2(1, 1));
+        newTriangles.Add(0);
+        newTriangles.Add(1);
+        newTriangles.Add(2);
+        newTriangles.Add(3);
+        newTriangles.Add(2);
+        newTriangles.Add(1);
+        newTriangles.Add(4);
+        newTriangles.Add(5);
+        newTriangles.Add(6);
+        newTriangles.Add(7);
+        newTriangles.Add(6);
+        newTriangles.Add(5);
+        skyboxMesh.SetVertices(newVertices);
+        skyboxMesh.SetUVs(0, newUVs);
+        skyboxMesh.SetTriangles(newTriangles, 0);
     }
 
     public void FUN_1BE68(int param1, int param2, int param3)

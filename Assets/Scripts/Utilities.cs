@@ -320,9 +320,9 @@ public static class Utilities
         return tout;
     }
 
-    public static int FUN_2A248(Matrix3x3 m33)
+    public static short FUN_2A248(Matrix3x3 m33)
     {
-        return -Ratan2(m33.V12, m33.V00) << 16 >> 16;
+        return (short)-Ratan2(m33.V12, m33.V22);
     }
 
     public static short FUN_2A27C(Matrix3x3 m33)
@@ -382,6 +382,22 @@ public static class Utilities
             Coprocessor.mathsAccumulator.mac1, 
             Coprocessor.mathsAccumulator.mac2, 
             Coprocessor.mathsAccumulator.mac3);
+    }
+
+    public static void FUN_246BC(VigTransform transform)
+    {
+        Coprocessor.rotationMatrix.rt11 = transform.rotation.V00;
+        Coprocessor.rotationMatrix.rt12 = transform.rotation.V01;
+        Coprocessor.rotationMatrix.rt13 = transform.rotation.V02;
+        Coprocessor.rotationMatrix.rt21 = transform.rotation.V10;
+        Coprocessor.rotationMatrix.rt22 = transform.rotation.V11;
+        Coprocessor.rotationMatrix.rt23 = transform.rotation.V12;
+        Coprocessor.rotationMatrix.rt31 = transform.rotation.V20;
+        Coprocessor.rotationMatrix.rt32 = transform.rotation.V21;
+        Coprocessor.rotationMatrix.rt33 = transform.rotation.V22;
+        Coprocessor.translationVector._trx = transform.position.x;
+        Coprocessor.translationVector._try = transform.position.y;
+        Coprocessor.translationVector._trz = transform.position.z;
     }
 
     public static Matrix3x3 FUN_247C4(Matrix3x3 m1, Matrix3x3 m2)
@@ -1457,6 +1473,92 @@ public static class Utilities
         output.V22 = m.V22;
 
         return output;
+    }
+
+    //FUN_5A44C
+    public static Matrix3x3 RotMatrixX(long r, Matrix3x3 min)
+    {
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+        int iVar7;
+        int iVar8;
+        int iVar9;
+
+        if (-1 < r)
+        {
+            iVar3 = GameManager.DAT_65C90[(r & 0xfff) * 2];
+            iVar2 = GameManager.DAT_65C90[(r & 0xfff) * 2 + 1];
+        }
+        else
+        {
+            r = -r;
+            iVar3 = -GameManager.DAT_65C90[(r & 0xfff) * 2];
+            iVar2 = GameManager.DAT_65C90[(r & 0xfff) * 2 + 1];
+        }
+
+        iVar4 = min.V10;
+        iVar7 = min.V20;
+        iVar5 = min.V11;
+        iVar8 = min.V21;
+        iVar6 = min.V12;
+        iVar9 = min.V22;
+        Matrix3x3 mout = new Matrix3x3();
+        mout.V00 = min.V00;
+        mout.V01 = min.V01;
+        mout.V02 = min.V02;
+        mout.V10 = (short)(iVar2 * iVar4 - iVar3 * iVar7 >> 12);
+        mout.V11 = (short)(iVar2 * iVar5 - iVar3 * iVar8 >> 12);
+        mout.V12 = (short)(iVar2 * iVar6 - iVar3 * iVar9 >> 12);
+        mout.V20 = (short)(iVar3 * iVar4 + iVar2 * iVar7 >> 12);
+        mout.V21 = (short)(iVar3 * iVar5 + iVar2 * iVar8 >> 12);
+        mout.V22 = (short)(iVar3 * iVar6 + iVar2 * iVar9 >> 12);
+        return mout;
+    }
+
+    //FUN_5A5EC
+    public static Matrix3x3 RotMatrixY(long r, Matrix3x3 min)
+    {
+        int iVar1;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+        int iVar7;
+        int iVar8;
+        int iVar9;
+
+        if (-1 < r)
+        {
+            iVar1 = -GameManager.DAT_65C90[(r & 0xfff) * 2];
+            iVar3 = GameManager.DAT_65C90[(r & 0xfff) * 2 + 1];
+        }
+        else
+        {
+            r = -r;
+            iVar1 = GameManager.DAT_65C90[(r & 0xfff) * 2];
+            iVar3 = GameManager.DAT_65C90[(r & 0xfff) * 2 + 1];
+        }
+
+        iVar4 = min.V00;
+        iVar7 = min.V20;
+        iVar5 = min.V01;
+        iVar8 = min.V21;
+        iVar6 = min.V02;
+        iVar9 = min.V22;
+        Matrix3x3 mout = new Matrix3x3();
+        mout.V00 = (short)(iVar3 * iVar4 - iVar1 * iVar7 >> 12);
+        mout.V01 = (short)(iVar3 * iVar5 - iVar1 * iVar8 >> 12);
+        mout.V02 = (short)(iVar3 * iVar6 - iVar1 * iVar9 >> 12);
+        mout.V10 = min.V10;
+        mout.V11 = min.V11;
+        mout.V12 = min.V12;
+        mout.V20 = (short)(iVar1 * iVar4 + iVar3 * iVar7 >> 12);
+        mout.V21 = (short)(iVar1 * iVar5 + iVar3 * iVar8 >> 12);
+        mout.V22 = (short)(iVar1 * iVar6 + iVar3 * iVar9 >> 12);
+        return mout;
     }
 
     //FUN_5A78C

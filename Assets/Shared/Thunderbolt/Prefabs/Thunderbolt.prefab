@@ -82,11 +82,15 @@ MonoBehaviour:
   unk4: 0
   DAT_58: 0
   vConfig: {fileID: 0}
-  vCollider: {fileID: 1788980665575605263}
+  vCollider:
+  - {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -119,8 +123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d573d7f10b4b582478a13e062f75dafc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  min: {x: 0, y: 0, z: 0}
-  max: {x: 0, y: 0, z: 0}
+  header: 0
+  flags: 0
 --- !u!114 &7909924874214543884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,7 +137,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a9d9c8dfc9a7124abc6afd6e1423831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vObject: {fileID: 0}
+  flags: 0
+  type: 0
+  ai: 0
+  id: 0
+  child: {fileID: 0}
+  child2: {fileID: 0}
+  parent: {fileID: 0}
+  DAT_18: 0
+  unk2: 0
+  maxHalfHealth: 0
+  maxFullHealth: 0
+  vTransform:
+    rotation:
+      V00: 0
+      V01: 0
+      V02: 0
+      V10: 0
+      V11: 0
+      V12: 0
+      V20: 0
+      V21: 0
+      V22: 0
+    position: {x: 0, y: 0, z: 0}
+  padding1: 0
+  vMesh: {fileID: 0}
+  screen: {x: 0, y: 0, z: 0}
+  vr: {x: 0, y: 0, z: 0}
+  unk4: 0
+  DAT_58: 0
+  vConfig: {fileID: 0}
+  vCollider: []
+  unk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
+  physics1:
+    M0: 0
+    M1: 0
+    M2: 0
+    M3: 0
+    M4: 0
+    M5: 0
+    M6: 0
+    M7: 0
+  physics2:
+    M0: 0
+    M1: 0
+    M2: 0
+    M3: 0
+    M4: 0
+    M5: 0
+    M6: 0
+    M7: 0
+  vectorUnk1: {x: 0, y: 0, z: 0}
+  unk1: 0
   turning: 0
   acceleration: 0
   wheelsType: 0
@@ -422,11 +483,15 @@ MonoBehaviour:
   unk4: 0
   DAT_58: 0
   vConfig: {fileID: 0}
-  vCollider: {fileID: 0}
+  vCollider:
+  - {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -521,11 +586,15 @@ MonoBehaviour:
   unk4: 0
   DAT_58: 0
   vConfig: {fileID: 0}
-  vCollider: {fileID: 0}
+  vCollider:
+  - {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -620,11 +689,15 @@ MonoBehaviour:
   unk4: 0
   DAT_58: 0
   vConfig: {fileID: 0}
-  vCollider: {fileID: 0}
+  vCollider:
+  - {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -719,11 +792,15 @@ MonoBehaviour:
   unk4: 0
   DAT_58: 0
   vConfig: {fileID: 0}
-  vCollider: {fileID: 0}
+  vCollider:
+  - {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -818,11 +895,15 @@ MonoBehaviour:
   unk4: 0
   DAT_58: 0
   vConfig: {fileID: 0}
-  vCollider: {fileID: 0}
+  vCollider:
+  - {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -917,11 +998,15 @@ MonoBehaviour:
   unk4: 0
   DAT_58: 0
   vConfig: {fileID: 0}
-  vCollider: {fileID: 0}
+  vCollider:
+  - {fileID: 0}
   unk3: 0
-  pointerUnk1: 0
-  DAT_78: 0
-  pointerUnk3: 0
+  PDAT_74: {fileID: 0}
+  IDAT_74: 0
+  PDAT_78: {fileID: 0}
+  IDAT_78: 0
+  PDAT_7C: {fileID: 0}
+  IDAT_7C: 0
   physics1:
     M0: 0
     M1: 0
@@ -1350,6 +1435,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Back
       objectReference: {fileID: 0}
+    - target: {fileID: 4801825004197697510, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5642187937283359496, guid: 386d5879eaef3af4eaddbc7604238105,
         type: 3}
       propertyPath: m_RootOrder
@@ -1420,6 +1510,51 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 35a51e860801c3b4fb4c1ee464c6bf6b, type: 2}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: 98202557bd3cbff478bef4730d3de281, type: 2}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: bbdf6dd089c32034b92f3cecd390f731, type: 2}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[4]
+      value: 
+      objectReference: {fileID: 2100000, guid: c3e8f452c5469e845860b7ec52e47137, type: 2}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[5]
+      value: 
+      objectReference: {fileID: 2100000, guid: a837ff74add727146b70b5612a29e9fa, type: 2}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[6]
+      value: 
+      objectReference: {fileID: 2100000, guid: f62ac86f61b9f114ba22264a2e574c41, type: 2}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[7]
+      value: 
+      objectReference: {fileID: 2100000, guid: b57d9d0995f967a44befa38c8402cd69, type: 2}
+    - target: {fileID: 6197349643705531873, guid: 386d5879eaef3af4eaddbc7604238105,
+        type: 3}
+      propertyPath: m_Materials.Array.data[8]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1997b7733ec20824badd66bc0684b93d, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 386d5879eaef3af4eaddbc7604238105, type: 3}
 --- !u!4 &2001651464853066496 stripped
