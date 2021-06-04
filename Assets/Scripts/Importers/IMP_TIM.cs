@@ -789,7 +789,7 @@ public static class IMP_TIM
         }
     }
 
-    private static void LoadTIM(BinaryReader reader, string path)
+    public static void LoadTIM(BinaryReader reader, string path)
     {
         short clutWidth = 0;
         short clutHeight = 0;

@@ -25,7 +25,7 @@ public class Junction
     public int DAT_00; //0x00
     public int DAT_04; //0x04
     public int DAT_08; //0x08
-    public int DAT_0C; //0x0C
+    public XOBF_DB DAT_0C; //0x0C
     public byte DAT_10; //0x10
     public byte DAT_11; //0x11
     public short DAT_12; //0x12

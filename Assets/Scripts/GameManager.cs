@@ -1056,6 +1056,8 @@ public class GameManager : MonoBehaviour
     public static uint DAT_1f800224;
     public static Color32 DAT_1f800228;*/
 
+    public static byte[] DAT_854 = { 12, 32, 20, 32, 12, 24, 12, 24, 16, 28, 12, 28, 24, 24, 0, 24 };
+
     public VigTerrain terrain;
     public VehicleConfig commonWheelConfiguration;
     public Vehicle[] players; //gp+FF8h

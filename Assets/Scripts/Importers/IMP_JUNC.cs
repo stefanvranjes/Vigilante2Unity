@@ -14,6 +14,8 @@ public class IMP_JUNC
         int iVar5;
         int iVar7;
 
+        LevelManager levelManager = GameObject.Find("GameControl").GetComponent<LevelManager>();
+
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
             long length = reader.BaseStream.Length;
@@ -67,13 +69,12 @@ public class IMP_JUNC
             else
             {
                 iVar5 = reader.ReadInt16();
-                //...
+                newJunc.DAT_0C = levelManager.xobfList[iVar5];
                 sVar2 = reader.ReadInt16();
                 newJunc.DAT_14 = sVar2;
                 sVar2 = reader.ReadInt16();
                 newJunc.DAT_16 = sVar2;
-                //...
-
+                
             }
         }
     }
