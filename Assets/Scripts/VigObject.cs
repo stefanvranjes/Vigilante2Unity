@@ -628,7 +628,7 @@ public class VigObject : MonoBehaviour
     public ushort unk4; //0x4A
 
     public int DAT_58; //0x58
-    public VehicleConfig vConfig; //0x5C
+    public VigConfig vConfig; //0x5C
     public VigCollider[] vCollider; //0x60
     public int unk3; //0x64
     public VigObject PDAT_74; //0x74
@@ -967,7 +967,7 @@ public class VigObject : MonoBehaviour
     public VigObject FUN_2CA1C()
     {
         VigObject oVar1;
-        VehicleConfigContainer container = FUN_2C9A4();
+        ConfigContainer container = FUN_2C9A4();
 
         if (container == null)
             oVar1 = null;
@@ -1087,11 +1087,11 @@ public class VigObject : MonoBehaviour
         return iVar1;
     }
 
-    private VehicleConfigContainer FUN_2C9A4()
+    private ConfigContainer FUN_2C9A4()
     {
         int configIndex = (unk2 << 3) - unk2 << 2;
         short sVar1 = vConfig.configContainers[configIndex / 0x1C].next;
-        VehicleConfigContainer container;
+        ConfigContainer container;
 
         while (true)
         {

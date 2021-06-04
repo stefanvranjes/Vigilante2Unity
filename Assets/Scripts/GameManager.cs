@@ -1057,9 +1057,25 @@ public class GameManager : MonoBehaviour
     public static Color32 DAT_1f800228;*/
 
     public static byte[] DAT_854 = { 12, 32, 20, 32, 12, 24, 12, 24, 16, 28, 12, 28, 24, 24, 0, 24 };
+    public static VigTransform DAT_878 = new VigTransform
+    {
+        rotation = new Matrix3x3
+        {
+            V00 = 0x1000,
+            V01 = 0,
+            V02 = 0,
+            V10 = 0x1000,
+            V11 = 0,
+            V12 = 0,
+            V20 = 0x1000,
+            V21 = 0,
+            V22 = 0
+        },
+        position = new Vector3Int(0, 0, 0)
+    };
 
     public VigTerrain terrain;
-    public VehicleConfig commonWheelConfiguration;
+    public VigConfig commonWheelConfiguration;
     public Vehicle[] players; //gp+FF8h
     public List<VigObject> worldObjs; //gp+1040h
 
@@ -2262,6 +2278,11 @@ public class GameManager : MonoBehaviour
                 }
             }
         }*/
+    }
+
+    public static VigTransform FUN_2A39C()
+    {
+        return DAT_878;
     }
 
     public static uint FUN_2AC5C()

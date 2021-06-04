@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class VehicleConfigContainer
+public class ConfigContainer
 {
     public short flag; //0x00
     public short colliderID; //0x02
@@ -15,10 +15,10 @@ public class VehicleConfigContainer
     public short next; //0x1A
 }
 
-public class VehicleConfig : MonoBehaviour
+public class VigConfig : MonoBehaviour
 {
     public int dataID;
-    public VehicleConfigContainer[] configContainers;
+    public List<ConfigContainer> configContainers;
     public uint pointerUnk1; //0x08
     public VigObject[] obj;
     public int currentID=0;
@@ -86,26 +86,27 @@ public class VehicleConfig : MonoBehaviour
         return vObject;
     }
 
-    public VehicleConfigContainer FUN_2C590(int int1, int int2)
+    public ConfigContainer FUN_2C590(int int1, int int2)
     {
         int1 &= 0xFFFF;
         int configIndex = (int1 << 3) - int1 << 2;
         return FUN_2C534(configContainers[configIndex / 0x1C].next, int2 & 0xFFFF);
     }
 
-    public VehicleConfigContainer FUN_2C6D0(VehicleConfigContainer container, int int2)
+    public ConfigContainer FUN_2C6D0(ConfigContainer container, int int2)
     {
         return FUN_2C638(container.next, int2 & 0xFFFF);
     }
 
-    public VehicleConfigContainer FUN_2C5CC(VehicleConfigContainer container, int int2)
+    public ConfigContainer FUN_2C5CC(ConfigContainer container, int int2)
     {
         return FUN_2C534(container.next, int2 & 0xFFFF);
     }
 
-    public int FUN_2C73C(VehicleConfigContainer container)
+    public int FUN_2C73C(ConfigContainer container)
     {
-        int offset = Array.IndexOf(configContainers, container) * 0x1C;
+        int offset = configContainers.IndexOf(container) * 0x1C;
+        //int offset = List.IndexOf(configContainers, container) * 0x1C;
         int iVar1 = (offset << 3) + offset; //r2
         int iVar2 = iVar1 << 6; //r3
         iVar1 = iVar1 + iVar2 << 3;
@@ -116,7 +117,7 @@ public class VehicleConfig : MonoBehaviour
         return -iVar1 >> 2;
     }
 
-    private VehicleConfigContainer FUN_2C638(int int1, int int2)
+    private ConfigContainer FUN_2C638(int int1, int int2)
     {
         int2 &= 0xFFFF;
 
@@ -140,7 +141,7 @@ public class VehicleConfig : MonoBehaviour
         return null;
     }
 
-    private VehicleConfigContainer FUN_2C534(int int1, int int2)
+    private ConfigContainer FUN_2C534(int int1, int int2)
     {
         int2 &= 0xFFFF;
 

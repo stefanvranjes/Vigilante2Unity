@@ -31,6 +31,7 @@ public class Junction
     public short DAT_12; //0x12
     public short DAT_14; //0x14
     public short DAT_16; //0x16
+    public VigMesh DAT_18; //0x18
     public byte[] DAT_1C; //0x1C
 }
 

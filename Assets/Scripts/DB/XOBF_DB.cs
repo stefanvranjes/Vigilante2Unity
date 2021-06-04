@@ -8,31 +8,29 @@ public class XOBF_DB : MonoBehaviour
 {
     public class TMD
     {
-        public int vertices;
-        public ushort flag;
-        public int normals;
-        public int faces;
-        public byte[] vertexStream;
-        public byte[] normalStream;
-        public byte[] faceStream;
+        public int vertices; //0x00
+        public ushort flag; //0x02
+        public int normals; //0x08
+        public int faces; //0x10
+        public byte DAT_18; //0x18
+        public byte DAT_19; //0x19
+        public ushort DAT_1A; //0x1A
+        public byte[] vertexStream; //0x04
+        public byte[] normalStream; //0x0C
+        public byte[] faceStream; //0x14
     }
     
     public List<TMD> tmdList = new List<TMD>();
     public List<byte[]> cbbList = new List<byte[]>();
     public List<Texture2D> timList = new List<Texture2D>();
-    public List<byte[]> iniList = new List<byte[]>();
+    public VigConfig ini;
 
     private string prefabPath = "";
     private string prefabName = "";
 
-    public void FUN_2CB74(uint param2)
+    public VigMesh FUN_2CB74(uint param2)
     {
-        MemoryStream stream = new MemoryStream(iniList[(int)(param2 & 0xffff)]);
-
-        using (BinaryReader reader = new BinaryReader(stream, Encoding.Default, true))
-        {
-            FUN_1FD18(reader.ReadUInt16() & 0x7ffU);
-        }
+        return FUN_1FD18((ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU);
     }
 
     //FUN_32F40
@@ -97,6 +95,9 @@ public class XOBF_DB : MonoBehaviour
                 int normalsOffset = reader.ReadInt32();
                 newTMD.faces = reader.ReadInt32();
                 int facesOffset = reader.ReadInt32();
+                newTMD.DAT_18 = reader.ReadByte();
+                newTMD.DAT_19 = reader.ReadByte();
+                newTMD.DAT_1A = reader.ReadUInt16();
                 bVar2 = false;
 
                 if (0 < newTMD.faces)
@@ -256,24 +257,120 @@ public class XOBF_DB : MonoBehaviour
 
         if (0 < iniElements)
         {
+            VigConfig newConfig = gameObject.AddComponent<VigConfig>();
+
             for (int i = 0; i < iniElements; i++)
             {
                 reader.BaseStream.Seek(iniPosition + i * 4, SeekOrigin.Begin);
-                int elementOffset = reader.ReadInt32();
-                int elementSize = reader.ReadInt32();
-                long elementPosition = reader.BaseStream.Seek(iniPosition + elementOffset, SeekOrigin.Begin);
-                iniList.Add(reader.ReadBytes(elementSize));
+                ConfigContainer newContainer = new ConfigContainer();
+                newContainer.flag = reader.ReadInt16();
+                newContainer.colliderID = reader.ReadInt16();
+                newContainer.v3_1 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+                newContainer.v3_2 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+                newContainer.objID = reader.ReadInt16();
+                newContainer.previous = reader.ReadInt16();
+                newContainer.next = reader.ReadInt16();
+                newConfig.configContainers.Add(newContainer);
             }
         }
     }
 
-    private void FUN_1FD18(uint param2)
+    private void FUN_1F2FC(uint param2)
     {
+        //load VRAM data
+    }
+
+    private void FUN_1F6AC(TMD param1)
+    {
+        byte bVar1;
+        int iVar3;
+        MemoryStream puVar6;
+        long puVar7;
+        puVar6 = new MemoryStream(param1.faceStream);
+        param1.flag |= 0x4000;
+
+        using (BinaryReader reader = new BinaryReader(puVar6, Encoding.Default, true))
+        {
+            using (BinaryWriter writer = new BinaryWriter(puVar6, Encoding.Default, true))
+            {
+                if (0 < param1.faces)
+                {
+                    for (int i = 0; i < param1.faces; i++)
+                    {
+                        puVar7 = reader.BaseStream.Position;
+                        reader.BaseStream.Seek(3, SeekOrigin.Current);
+                        bVar1 = reader.ReadByte();
+
+                        if ((bVar1 & 0x80) != 0)
+                        {
+                            writer.Write((byte)0);
+                            writer.Write((byte)0);
+                            writer.Write((byte)0);
+                        }
+
+                        switch((uint)bVar1 >> 2 & 15)
+                        {
+                            case 1:
+                            case 5:
+                                break;
+                            case 9:
+                                break;
+                            case 10:
+                                puVar7 += reader.ReadUInt16() * 8;
+                                break;
+                            case 12:
+                                break;
+                            case 13:
+                                break;
+                        }
+
+                        reader.BaseStream.Seek(puVar7, SeekOrigin.Begin);
+                        reader.BaseStream.Seek(GameManager.DAT_854[bVar1 >> 2 & 15], SeekOrigin.Current);
+                    }
+                }
+            }
+        }
+    }
+
+    private VigMesh FUN_1FD18(uint param1)
+    {
+        byte bVar1;
+        ushort uVar2;
         int iVar5;
+        VigMesh pbVar3;
+        VigMesh pbVar6;
         TMD puVar7;
 
-        puVar7 = tmdList[(int)(param2 & 0xffff)];
+        puVar7 = tmdList[(int)(param1 & 0xffff)];
+        pbVar3 = new VigMesh();
+        pbVar6 = pbVar3;
         iVar5 = 0;
 
+        if (puVar7.DAT_19 != 0)
+        {
+            pbVar3.DAT_1C = new Texture2D[puVar7.DAT_19];
+
+            for (int i = 0; i < puVar7.DAT_19; i++)
+                pbVar3.DAT_1C[i] = timList[0];
+        }
+
+        pbVar3.DAT_00 = (byte)(((uint)(short)puVar7.flag >> 15) & 1);
+        pbVar3.vertices = (ushort)puVar7.vertices;
+        pbVar3.vertexStream = puVar7.vertexStream;
+        pbVar3.normalStream = puVar7.normalStream;
+        pbVar3.faces = (ushort)puVar7.faces;
+        pbVar3.faceStream = puVar7.faceStream;
+        bVar1 = puVar7.DAT_18;
+        pbVar3.DAT_02 = 0;
+        pbVar3.DAT_01 = bVar1;
+        uVar2 = puVar7.DAT_1A;
+        bVar1 = puVar7.DAT_18;
+        pbVar3.DAT_14 = 0;
+        pbVar3.DAT_18 = (uint)uVar2 << (16 - bVar1 & 31);
+
+        if ((puVar7.flag & 0x4000) == 0)
+            FUN_1F6AC(puVar7);
+
+        return pbVar3;
     }
 }

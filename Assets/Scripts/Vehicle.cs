@@ -79,12 +79,12 @@ public class Vehicle : VigObject
     public ushort shield;
     public ushort jammer;
 
-    private VehicleConfig config;
+    private VigConfig config;
 
     
     void Awake()
     {
-        config = GetComponent<VehicleConfig>();
+        config = GetComponent<VigConfig>();
     }
 
     // Start is called before the first frame update
@@ -128,8 +128,8 @@ public class Vehicle : VigObject
 
         int iVar3 = 0; //r18
         VigObject wheelObject; //r16
-        VehicleConfigContainer nextContainer; //r19
-        VehicleConfigContainer previousContainer; //r17
+        ConfigContainer nextContainer; //r19
+        ConfigContainer previousContainer; //r17
         GameManager.instance.commonWheelConfiguration.currentID = 0;
         wheels.CopyTo(GameManager.instance.commonWheelConfiguration.obj, 0);
 

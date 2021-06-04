@@ -11,18 +11,18 @@ public class ConfigEditor
     [MenuItem("CONTEXT/VehicleConfig/Import Config")]
     public static void ImportConfig(MenuCommand menuCommand)
     {
-        VehicleConfig config = menuCommand.context as VehicleConfig;
+        VigConfig config = menuCommand.context as VigConfig;
         string path = EditorUtility.OpenFilePanel("Open .ini file to import vehicle data", previousPath, "ini");
         previousPath = Path.GetDirectoryName(path);
 
         using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
         {
             int elementCount = reader.ReadInt32();
-            config.configContainers = new VehicleConfigContainer[elementCount];
+            config.configContainers = new ConfigContainer[elementCount];
 
             for (int i = 0; i < elementCount; i++)
             {
-                config.configContainers[i] = new VehicleConfigContainer();
+                config.configContainers[i] = new ConfigContainer();
                 config.configContainers[i].flag = reader.ReadInt16();
                 config.configContainers[i].colliderID = reader.ReadInt16();
                 config.configContainers[i].v3_1 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
