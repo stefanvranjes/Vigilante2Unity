@@ -28,9 +28,9 @@ public class XOBF_DB : MonoBehaviour
     private string prefabPath = "";
     private string prefabName = "";
 
-    public VigMesh FUN_2CB74(uint param2)
+    public VigMesh FUN_2CB74(GameObject param1, uint param2)
     {
-        return FUN_1FD18((ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU);
+        return FUN_1FD18(param1, (ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU);
     }
 
     //FUN_32F40
@@ -56,6 +56,9 @@ public class XOBF_DB : MonoBehaviour
                 }
             }
         }
+
+        LevelManager levelManager = GameObject.Find("GameControl").GetComponent<LevelManager>();
+        levelManager.xobfList.Add(this);
     }
 
     //FUN_1E914
@@ -332,7 +335,7 @@ public class XOBF_DB : MonoBehaviour
         }
     }
 
-    private VigMesh FUN_1FD18(uint param1)
+    private VigMesh FUN_1FD18(GameObject param1, uint param2)
     {
         byte bVar1;
         ushort uVar2;
@@ -341,8 +344,8 @@ public class XOBF_DB : MonoBehaviour
         VigMesh pbVar6;
         TMD puVar7;
 
-        puVar7 = tmdList[(int)(param1 & 0xffff)];
-        pbVar3 = new VigMesh();
+        puVar7 = tmdList[(int)(param2 & 0xffff)];
+        pbVar3 = param1.AddComponent<VigMesh>();
         pbVar6 = pbVar3;
         iVar5 = 0;
 
@@ -365,7 +368,7 @@ public class XOBF_DB : MonoBehaviour
         pbVar3.DAT_01 = bVar1;
         uVar2 = puVar7.DAT_1A;
         bVar1 = puVar7.DAT_18;
-        pbVar3.DAT_14 = 0;
+        pbVar3.DAT_14 = null;
         pbVar3.DAT_18 = (uint)uVar2 << (16 - bVar1 & 31);
 
         if ((puVar7.flag & 0x4000) == 0)

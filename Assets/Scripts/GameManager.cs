@@ -1099,6 +1099,7 @@ public class GameManager : MonoBehaviour
     public VigTransform DAT_F88; //gp+F88h
     public Matrix3x3 DAT_FA8; //gp+FA8h
     public Vector2Int DAT_FC8; //gp+FC8h
+    public ushort[] DAT_C18; //gp+C18h
     public int DAT_C74; //gp+C74h
     public Color32[] DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
@@ -1118,6 +1119,7 @@ public class GameManager : MonoBehaviour
     public short DAT_DB4; //gp+DB4h
     public short DAT_DB6; //gp+DB6h
     public short DAT_DB8; //gp+DB8h
+    public short DAT_DBA; //gp+DBAh
     public Color32 DAT_DDC; //gp+DDCh
     public ushort unk7; //gp+EA0h
     public byte uvSize;

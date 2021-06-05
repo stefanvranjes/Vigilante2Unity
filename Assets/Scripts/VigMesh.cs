@@ -43,7 +43,8 @@ public class VigMesh : MonoBehaviour
         long lVar7;
         long lVar8;
         long lVar9;
-        byte bVar10;
+        MemoryStream msVar7;
+        MemoryStream msVar8;
 
         iVar4 = 0;
         msVar6 = new MemoryStream(faceStream);
@@ -88,77 +89,77 @@ public class VigMesh : MonoBehaviour
 
         if (0 < faces)
         {
-            using (BinaryReader reader = new BinaryReader(msVar6, Encoding.Default, true))
+            using (BinaryReader brVar6 = new BinaryReader(msVar6, Encoding.Default, true))
             {
-                using (BinaryWriter writer = new BinaryWriter(msVar4, Encoding.Default, true))
+                using (BinaryWriter bwVar4 = new BinaryWriter(msVar4, Encoding.Default, true))
                 {
                     for (int i = 0; i < faces; i++)
                     {
-                        lVar7 = reader.BaseStream.Position;
-                        reader.BaseStream.Seek(3, SeekOrigin.Current);
-                        writer.BaseStream.Seek(3, SeekOrigin.Current);
-                        bVar10 = reader.ReadByte();
+                        lVar7 = brVar6.BaseStream.Position;
 
-                        switch((uint)bVar10 >> 2 & 15)
+                        switch((uint)brVar6.ReadByte(3) >> 2 & 15)
                         {
                             case 4:
-                                writer.Write((byte)(reader.ReadByte() & 3 | 0x20));
-                                uVar3 = reader.ReadUInt16();
+                                bwVar4.Write((byte)(brVar6.ReadByte(3) & 3 | 0x20), 3);
+                                uVar3 = brVar6.ReadUInt16(4);
                                 msVar5 = new MemoryStream(vertexStream);
-                                reader.BaseStream.Seek(4, SeekOrigin.Current);
-                                uVar2 = reader.ReadUInt16();
-                                lVar8 = writer.BaseStream.Position;
+                                uVar2 = brVar6.ReadUInt16(10);
+                                lVar8 = bwVar4.BaseStream.Position + 4;
                                 break;
                             case 5:
-                                writer.Write((byte)(reader.ReadByte() & 3 | 0x24));
-                                uVar3 = reader.ReadUInt16();
+                                bwVar4.Write((byte)(brVar6.ReadByte(3) & 3 | 0x24), 3);
+                                uVar3 = brVar6.ReadUInt16(4);
                                 msVar5 = new MemoryStream(vertexStream);
-                                reader.BaseStream.Seek(4, SeekOrigin.Current);
-                                uVar2 = reader.ReadUInt16();
-                                lVar8 = writer.BaseStream.Position;
+                                uVar2 = brVar6.ReadUInt16(10);
+                                lVar8 = bwVar4.BaseStream.Position + 4;
                                 break;
                             default:
                                 goto switchD_00003ae4_caseD_6;
                             case 7:
-                                writer.Write((byte)(reader.ReadByte() & 3 | 0x24));
-                                uVar3 = reader.ReadUInt16();
+                                bwVar4.Write((byte)(brVar6.ReadByte(3) & 3 | 0x24), 3);
+                                uVar3 = brVar6.ReadUInt16(4);
                                 msVar5 = new MemoryStream(vertexStream);
-                                reader.BaseStream.Seek(4, SeekOrigin.Current);
-                                uVar2 = reader.ReadUInt16();
-                                lVar8 = writer.BaseStream.Position;
+                                uVar2 = brVar6.ReadUInt16(10);
+                                lVar8 = bwVar4.BaseStream.Position + 4;
                                 break;
                             case 8:
-                                bVar1 = (byte)(reader.ReadByte() & 3 | 0x30);
+                                bVar1 = (byte)(brVar6.ReadByte(3) & 3 | 0x30);
                                 goto LAB_00003bb8;
                             case 9:
                             case 11:
-                                bVar1 = (byte)(reader.ReadByte() & 3 | 0x34);
+                                bVar1 = (byte)(brVar6.ReadByte(3) & 3 | 0x34);
                                 LAB_00003bb8:
-                                writer.Write(bVar1);
-                                writer.BaseStream.Seek(3, SeekOrigin.Current);
-                                writer.Write(bVar1);
-                                writer.BaseStream.Seek(3, SeekOrigin.Current);
-                                writer.Write(bVar1);
-                                lVar8 = writer.BaseStream.Position;
-                                param1();
-                                param1();
-                                reader.BaseStream.Seek(4, SeekOrigin.Current);
-                                uVar3 = reader.ReadUInt16();
+                                bwVar4.Write(bVar1, 11);
+                                bwVar4.Write(bVar1, 7);
+                                bwVar4.Write(bVar1, 3);
+                                msVar7 = new MemoryStream(vertexStream);
+                                msVar7.Seek(brVar6.ReadUInt16(4), SeekOrigin.Begin);
+                                msVar8 = new MemoryStream(normalStream);
+                                msVar8.Seek(brVar6.ReadUInt16(10), SeekOrigin.Begin);
+                                param1(msVar4, msVar6, msVar7, msVar8);
+                                bwVar4.BaseStream.Seek(4, SeekOrigin.Current);
+                                msVar7.Seek(brVar6.ReadUInt16(6), SeekOrigin.Begin);
+                                msVar8.Seek(brVar6.ReadUInt16(12), SeekOrigin.Begin);
+                                param1(msVar4, msVar6, msVar7, msVar8);
+                                bwVar4.BaseStream.Seek(-4, SeekOrigin.Current);
+                                lVar8 = bwVar4.BaseStream.Position + 12;
+                                uVar3 = brVar6.ReadUInt16(8);
                                 msVar5 = new MemoryStream(vertexStream);
-                                reader.BaseStream.Seek(5, SeekOrigin.Current);
-                                uVar2 = reader.ReadUInt16();
-                                writer.BaseStream.Seek(-4, SeekOrigin.Current);
+                                uVar2 = brVar6.ReadUInt16(14);
+                                bwVar4.BaseStream.Seek(8, SeekOrigin.Current);
                                 break;
                             case 10:
-                                reader.BaseStream.Seek(6, SeekOrigin.Current);
-                                lVar7 += reader.ReadUInt16() * 8;
+                                lVar7 += brVar6.ReadUInt16(10) * 8;
                                 goto switchD_00003ae4_caseD_6;
                         }
 
-                        param1();
-                        writer.BaseStream.Seek(lVar8, SeekOrigin.Begin);
+                        msVar5.Seek(uVar3, SeekOrigin.Begin);
+                        msVar7 = new MemoryStream(normalStream);
+                        msVar7.Seek(uVar2, SeekOrigin.Begin);
+                        param1(msVar4, msVar6, msVar5, msVar7);
+                        bwVar4.BaseStream.Seek(lVar8, SeekOrigin.Begin);
                         switchD_00003ae4_caseD_6:
-                        reader.BaseStream.Seek(lVar7 + GameManager.DAT_854[bVar10 >> 2 & 15], SeekOrigin.Begin);
+                        brVar6.BaseStream.Seek(lVar7 + GameManager.DAT_854[brVar6.ReadByte(3) >> 2 & 15], SeekOrigin.Begin);
                     }
                 }
             }

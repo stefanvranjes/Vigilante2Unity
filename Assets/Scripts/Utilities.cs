@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -1780,5 +1781,124 @@ public static class Utilities
     public static float MoveDecimal(long value, int space)
     {
         return (float)(value / Math.Pow(10, space));
+    }
+
+    public static sbyte ReadSByte(this BinaryReader reader, int offset)
+    {
+        long position = reader.BaseStream.Position;
+        reader.BaseStream.Seek(offset, SeekOrigin.Current);
+        sbyte value = reader.ReadSByte();
+        reader.BaseStream.Seek(position, SeekOrigin.Begin);
+        return value;
+    }
+
+    public static byte ReadByte(this BinaryReader reader, int offset)
+    {
+        long position = reader.BaseStream.Position;
+        reader.BaseStream.Seek(offset, SeekOrigin.Current);
+        byte value = reader.ReadByte();
+        reader.BaseStream.Seek(position, SeekOrigin.Begin);
+        return value;
+    }
+
+    public static byte[] ReadBytes(this BinaryReader reader, int offset, int length)
+    {
+        long position = reader.BaseStream.Position;
+        reader.BaseStream.Seek(offset, SeekOrigin.Current);
+        byte[] value = reader.ReadBytes(length);
+        reader.BaseStream.Seek(position, SeekOrigin.Begin);
+        return value;
+    }
+
+    public static short ReadInt16(this BinaryReader reader, int offset)
+    {
+        long position = reader.BaseStream.Position;
+        reader.BaseStream.Seek(offset, SeekOrigin.Current);
+        short value = reader.ReadInt16();
+        reader.BaseStream.Seek(position, SeekOrigin.Begin);
+        return value;
+    }
+    
+    public static ushort ReadUInt16(this BinaryReader reader, int offset)
+    {
+        long position = reader.BaseStream.Position;
+        reader.BaseStream.Seek(offset, SeekOrigin.Current);
+        ushort value = reader.ReadUInt16();
+        reader.BaseStream.Seek(position, SeekOrigin.Begin);
+        return value;
+    }
+
+    public static int ReadInt32(this BinaryReader reader, int offset)
+    {
+        long position = reader.BaseStream.Position;
+        reader.BaseStream.Seek(offset, SeekOrigin.Current);
+        int value = reader.ReadInt32();
+        reader.BaseStream.Seek(position, SeekOrigin.Begin);
+        return value;
+    }
+
+    public static uint ReadUInt32(this BinaryReader reader, int offset)
+    {
+        long position = reader.BaseStream.Position;
+        reader.BaseStream.Seek(offset, SeekOrigin.Current);
+        uint value = reader.ReadUInt32();
+        reader.BaseStream.Seek(position, SeekOrigin.Begin);
+        return value;
+    }
+
+    public static void Write(this BinaryWriter writer, int offset, sbyte value)
+    {
+        long position = writer.BaseStream.Position;
+        writer.BaseStream.Seek(offset, SeekOrigin.Current);
+        writer.Write(value);
+        writer.BaseStream.Seek(position, SeekOrigin.Begin);
+    }
+
+    public static void Write(this BinaryWriter writer, int offset, byte value)
+    {
+        long position = writer.BaseStream.Position;
+        writer.BaseStream.Seek(offset, SeekOrigin.Current);
+        writer.Write(value);
+        writer.BaseStream.Seek(position, SeekOrigin.Begin);
+    }
+
+    public static void Write(this BinaryWriter writer, int offset, byte[] value)
+    {
+        long position = writer.BaseStream.Position;
+        writer.BaseStream.Seek(offset, SeekOrigin.Current);
+        writer.Write(value);
+        writer.BaseStream.Seek(position, SeekOrigin.Begin);
+    }
+
+    public static void Write(this BinaryWriter writer, int offset, short value)
+    {
+        long position = writer.BaseStream.Position;
+        writer.BaseStream.Seek(offset, SeekOrigin.Current);
+        writer.Write(value);
+        writer.BaseStream.Seek(position, SeekOrigin.Begin);
+    }
+
+    public static void Write(this BinaryWriter writer, int offset, ushort value)
+    {
+        long position = writer.BaseStream.Position;
+        writer.BaseStream.Seek(offset, SeekOrigin.Current);
+        writer.Write(value);
+        writer.BaseStream.Seek(position, SeekOrigin.Begin);
+    }
+
+    public static void Write(this BinaryWriter writer, int offset, int value)
+    {
+        long position = writer.BaseStream.Position;
+        writer.BaseStream.Seek(offset, SeekOrigin.Current);
+        writer.Write(value);
+        writer.BaseStream.Seek(position, SeekOrigin.Begin);
+    }
+
+    public static void Write(this BinaryWriter writer, int offset, uint value)
+    {
+        long position = writer.BaseStream.Position;
+        writer.BaseStream.Seek(offset, SeekOrigin.Current);
+        writer.Write(value);
+        writer.BaseStream.Seek(position, SeekOrigin.Begin);
     }
 }

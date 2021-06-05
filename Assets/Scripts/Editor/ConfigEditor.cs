@@ -18,10 +18,11 @@ public class ConfigEditor
         using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
         {
             int elementCount = reader.ReadInt32();
-            config.configContainers = new ConfigContainer[elementCount];
+            config.configContainers = new List<ConfigContainer>();
 
             for (int i = 0; i < elementCount; i++)
             {
+                config.configContainers.Add(new ConfigContainer());
                 config.configContainers[i] = new ConfigContainer();
                 config.configContainers[i].flag = reader.ReadInt16();
                 config.configContainers[i].colliderID = reader.ReadInt16();

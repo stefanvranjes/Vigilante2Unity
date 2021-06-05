@@ -22,17 +22,7 @@ public class TileData
 [Serializable]
 public class Junction
 {
-    public int DAT_00; //0x00
-    public int DAT_04; //0x04
-    public int DAT_08; //0x08
-    public XOBF_DB DAT_0C; //0x0C
-    public byte DAT_10; //0x10
-    public byte DAT_11; //0x11
-    public short DAT_12; //0x12
-    public short DAT_14; //0x14
-    public short DAT_16; //0x16
-    public VigMesh DAT_18; //0x18
-    public byte[] DAT_1C; //0x1C
+    
 }
 
 public class Tile
