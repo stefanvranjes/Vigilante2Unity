@@ -891,8 +891,19 @@ public static class IMP_TIM
                     byte A = 255;
 
                     if (colors[colorIndex] >> 15 == 0)
+                    {
                         if (R8 == 0 && G8 == 0 && B8 == 0)
                             A = 0;
+                        else
+                            A = 255;
+                    }
+                    else
+                    {
+                        if (R8 == 0 && G8 == 0 && B8 == 0)
+                            A = 255;
+                        else
+                            A = 255;
+                    }
 
                     /*pixels[i].r = A == 0 ? R8 : (byte)0;
                     pixels[i].g = A == 0 ? G8 : (byte)0;

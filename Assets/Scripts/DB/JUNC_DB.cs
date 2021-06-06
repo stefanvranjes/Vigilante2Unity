@@ -18,7 +18,7 @@ public class JUNC_DB : MonoBehaviour
     public short DAT_14; //0x14
     public short DAT_16; //0x16
     public VigMesh DAT_18; //0x18
-    public byte[] DAT_1C; //0x1C
+    public RSEG_DB[] DAT_1C; //0x1C
 
     //FUN_79A0 (LOAD.DLL)
     public void LoadDB(string assetPath)
@@ -80,11 +80,11 @@ public class JUNC_DB : MonoBehaviour
 
             if (0 < iVar5)
             {
-                DAT_1C = new byte[iVar5];
+                DAT_1C = new RSEG_DB[iVar5];
 
                 do
                 {
-                    DAT_1C[iVar7] = 0;
+                    DAT_1C[iVar7] = null;
                     iVar7++;
                 } while (iVar7 < iVar5);
             }
