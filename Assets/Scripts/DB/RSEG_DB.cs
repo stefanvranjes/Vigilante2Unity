@@ -5,15 +5,12 @@ using UnityEngine;
 
 public class RSEG_DB : MonoBehaviour
 {
-    public JUNC_DB DAT_00; //0x00
-    public JUNC_DB DAT_04; //0x04
+    public JUNC_DB[] DAT_00; //0x00
     public ushort DAT_08; //0x08
     public ushort DAT_0A; //0x0A
     public ushort DAT_0C; //0x0C
-    public int DAT_10; //0x10
-    public int DAT_14; //0x14
-    public int DAT_18; //0x18
-    public int DAT_1C; //0x1C
+    public int[] DAT_10; //0x10
+    public int[] DAT_14; //0x14
     public int DAT_20; //0x20
     public int DAT_24; //0x24
     public int DAT_28; //0x28
@@ -53,19 +50,22 @@ public class RSEG_DB : MonoBehaviour
             }
 
             iVar3 = reader.ReadUInt16BE();
+            DAT_00 = new JUNC_DB[2];
             dbVar7 = levelManager.juncList[iVar3];
-            DAT_00 = dbVar7;
+            DAT_00[0] = dbVar7;
             iVar3 = reader.ReadUInt16BE();
             dbVar6 = levelManager.juncList[iVar3];
-            DAT_04 = dbVar6;
+            DAT_00[1] = dbVar6;
+            DAT_10 = new int[2];
             iVar3 = reader.ReadInt32BE();
-            DAT_10 = iVar3;
+            DAT_10[0] = iVar3;
+            DAT_14 = new int[2];
             iVar3 = reader.ReadInt32BE();
-            DAT_14 = iVar3;
+            DAT_14[0] = iVar3;
             iVar3 = reader.ReadInt32BE();
-            DAT_18 = iVar3;
+            DAT_10[1] = iVar3;
             iVar3 = reader.ReadInt32BE();
-            DAT_1C = iVar3;
+            DAT_14[1] = iVar3;
             dbVar4 = dbVar7.DAT_1C[0];
             iVar5 = 0;
 
@@ -96,8 +96,8 @@ public class RSEG_DB : MonoBehaviour
         int iVar2;
         int iVar3;
 
-        iVar1 = DAT_00.DAT_00 - DAT_04.DAT_00 << 1; //r4
-        iVar2 = DAT_10 - DAT_18; //r3
+        iVar1 = DAT_00[0].DAT_00 - DAT_00[1].DAT_00 << 1; //r4
+        iVar2 = DAT_10[0] - DAT_10[1]; //r3
         iVar3 = (iVar2 << 1) + iVar2; //r2
         iVar3 = iVar1 + iVar3;
 
@@ -105,8 +105,8 @@ public class RSEG_DB : MonoBehaviour
             iVar3 += 15;
 
         DAT_20 = iVar3 >> 4;
-        iVar1 = DAT_00.DAT_08 - DAT_04.DAT_08 << 1; //r4
-        iVar2 = DAT_14 - DAT_1C; //r3
+        iVar1 = DAT_00[0].DAT_08 - DAT_00[1].DAT_08 << 1; //r4
+        iVar2 = DAT_14[0] - DAT_14[1]; //r3
         iVar3 = (iVar2 << 1) + iVar2; //r2
         iVar3 = iVar1 + iVar3;
 
@@ -114,33 +114,33 @@ public class RSEG_DB : MonoBehaviour
             iVar3 += 15;
 
         DAT_24 = iVar3 >> 4;
-        iVar3 = DAT_04.DAT_00 - DAT_00.DAT_00; //r2
+        iVar3 = DAT_00[1].DAT_00 - DAT_00[0].DAT_00; //r2
         iVar2 = (iVar3 << 1) + iVar3; //r3
-        iVar3 = (DAT_10 << 1) + DAT_10 << 1;
+        iVar3 = (DAT_10[0] << 1) + DAT_10[0] << 1;
         iVar2 -= iVar3;
-        iVar3 = iVar2 + ((DAT_18 << 1) + DAT_18);
+        iVar3 = iVar2 + ((DAT_10[1] << 1) + DAT_10[1]);
 
         if (iVar3 < 0)
             iVar3 += 15;
 
         DAT_28 = iVar3 >> 4;
-        iVar3 = DAT_04.DAT_08 - DAT_00.DAT_08; //r2
+        iVar3 = DAT_00[1].DAT_08 - DAT_00[0].DAT_08; //r2
         iVar2 = (iVar3 << 1) + iVar3; //r3
-        iVar3 = (DAT_14 << 1) + DAT_14 << 1;
+        iVar3 = (DAT_14[0] << 1) + DAT_14[0] << 1;
         iVar2 -= iVar3;
-        iVar2 = iVar2 + ((DAT_1C << 1) + DAT_1C);
+        iVar2 = iVar2 + ((DAT_14[1] << 1) + DAT_14[1]);
 
         if (iVar2 < 0)
             iVar2 += 15;
 
         DAT_2C = iVar2 >> 4;
-        iVar2 = (DAT_10 << 1) + DAT_10; //r3
+        iVar2 = (DAT_10[0] << 1) + DAT_10[0]; //r3
 
         if (iVar2 < 0)
             iVar2 += 15;
 
         DAT_30 = iVar2 >> 4;
-        iVar2 = DAT_14 << 1; //r3
+        iVar2 = DAT_14[0] << 1; //r3
         iVar3 = iVar2 + iVar3; //r2
 
         if (iVar3 < 0)

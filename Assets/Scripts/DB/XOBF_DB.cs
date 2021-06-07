@@ -25,8 +25,8 @@ public class XOBF_DB : MonoBehaviour
     public List<Texture2D> timList = new List<Texture2D>();
     public VigConfig ini;
 
-    private string prefabPath = "";
-    private string prefabName = "";
+    private string prefabPath;
+    private string prefabName;
 
     public VigMesh FUN_2CB74(GameObject param1, uint param2)
     {

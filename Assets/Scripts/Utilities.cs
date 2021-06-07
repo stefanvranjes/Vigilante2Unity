@@ -633,6 +633,89 @@ public static class Utilities
         return new Vector3Int(mac1_2, mac2_2, mac3_2);
     }
 
+    
+
+    public static void FUN_18C54(BinaryReader param1, int param2, BinaryWriter param3, long param4)
+    {
+        ushort uVar1;
+        uint uVar2;
+        uint uVar3;
+        uint uVar4;
+        int iVar5;
+        int iVar6;
+        int iVar7;
+        int iVar8;
+        int iVar9;
+        int iVar10;
+        int iVar11;
+        int iVar12;
+        int iVar13;
+        uint local_20;
+        Color32 local_1c;
+
+        if (0 < param2)
+        {
+            uVar3 = 0x84210843; //r22
+            uVar4 = 0x80808081; //r20
+            local_20 = 0;
+
+            for (int i = 0; i < param2; i++)
+            {
+                uVar1 = param1.ReadUInt16(); //r16
+                uVar2 = (uint)uVar1 << 16; //r5
+
+                if (uVar2 == 0)
+                    param3.Write(uVar1);
+                else
+                {
+                    iVar5 = ((uVar1 & 0x1f) << 8) - (uVar1 & 0x1f); //r3
+                    iVar6 = (int)((long)iVar5 * (int)uVar3 >> 32); //r11
+                    iVar7 = (int)uVar2 >> 21 & 0x1f; //r2
+                    iVar8 = (iVar7 << 8) - iVar7; //r6
+                    iVar9 = (int)((long)iVar8 * (int)uVar3 >> 32); //r9
+                    iVar7 = (int)uVar2 >> 26 & 0x1f;
+                    iVar10 = (iVar7 << 8) - iVar7; //r5
+                    iVar11 = iVar6 + iVar5 >> 4; //r4
+                    iVar11 -= iVar5 >> 0x1f;
+                    iVar11 &= 0xff;
+                    local_20 = local_20 & 0xffffff00 | (uint)iVar11;
+                    iVar6 = (int)((long)iVar10 * (int)uVar3 >> 32);
+                    local_20 &= 0xffff00ff;
+                    iVar7 = iVar9 + iVar8 >> 4;
+                    iVar8 >>= 31;
+                    iVar7 = (iVar7 - iVar8 & 0xff) << 8;
+                    local_20 = (local_20 | (uint)iVar7) & 0xff00ffff;
+                    iVar7 = iVar6 + iVar10 >> 4;
+                    iVar10 >>= 31;
+                    iVar7 = (iVar7 - iVar10 & 0xff) << 16;
+                    local_20 |= (uint)iVar7;
+                    local_1c = DpqColor(new Color32
+                        ((byte)local_20, (byte)(local_20 >> 8), (byte)(local_20 >> 16), (byte)(local_20 >> 24)), param4);
+                    iVar10 = (local_1c.r << 5) - local_1c.r + 128;
+                    iVar5 = (int)((long)iVar10 * (int)uVar4 >> 32);
+                    iVar11 = (local_1c.g << 5) - local_1c.g + 128;
+                    iVar12 = (int)((long)iVar11 * (int)uVar4 >> 32); //r8
+                    iVar8 = (local_1c.b << 5) - local_1c.b + 128;
+                    iVar13 = (int)((long)iVar8 * (int)uVar4 >> 32); //r7
+                    iVar5 = iVar5 + iVar10 >> 7;
+                    iVar10 >>= 31;
+                    iVar5 -= iVar10;
+                    iVar7 = iVar12 + iVar11 >> 7;
+                    iVar11 >>= 31;
+                    iVar7 = iVar7 - iVar11 << 5;
+                    iVar5 |= iVar7;
+                    iVar7 = iVar13 + iVar8 >> 7;
+                    iVar8 >>= 31;
+                    iVar7 = iVar7 - iVar8 << 10;
+                    iVar5 |= iVar7;
+                    iVar7 = uVar1 & -0x8000;
+                    iVar5 |= iVar7;
+                    param3.Write((short)iVar5);
+                }
+            }
+        }
+    }
+
     public static int LeadingZeros(int x)
     {
         if ((x & 0x80000000) != 0)
@@ -1451,6 +1534,22 @@ public static class Utilities
     public static void SetProjectionPlane(int param1)
     {
         Coprocessor.projectionPlaneDistance = (ushort)param1;
+    }
+
+    public static Color32 DpqColor(Color32 vin, long p)
+    {
+        Coprocessor.colorCode.r = vin.r;
+        Coprocessor.colorCode.g = vin.g;
+        Coprocessor.colorCode.b = vin.b;
+        Coprocessor.colorCode.code = vin.a;
+        Coprocessor.accumulator.ir0 = (short)p;
+        Coprocessor.ExecuteDPCS(12, false);
+
+        return new Color32(
+            Coprocessor.colorFIFO.r2, 
+            Coprocessor.colorFIFO.g2, 
+            Coprocessor.colorFIFO.b2, 
+            Coprocessor.colorFIFO.cd2);
     }
 
     //FUN_5A40C

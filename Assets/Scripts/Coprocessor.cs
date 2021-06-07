@@ -170,6 +170,13 @@ public class Coprocessor
                             0, 0);
     }
 
+    public static void ExecuteDPCS(byte shift, bool lm)
+    {
+        byte[] RGBC = new byte[] { colorCode.r, colorCode.g, colorCode.b };
+
+        DPCS(RGBC, shift, lm);
+    }
+
     public static void ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX matrix, _MVMVA_MULTIPLY_VECTOR multiply, _MVMVA_TRANSLATION_VECTOR translation, byte shift, bool lm)
     {
         short[,] M = new short[3, 3];
@@ -403,6 +410,17 @@ public class Coprocessor
         NCCS(V0, shift, lm);
         NCCS(V1, shift, lm);
         NCCS(V2, shift, lm);
+    }
+
+    private static void DPCS(byte[] color, byte shift, bool lm)
+    {
+        TruncateAndSetMAC((long)(ulong)color[0] << 16, 1, 0);
+        TruncateAndSetMAC((long)(ulong)color[1] << 16, 2, 0);
+        TruncateAndSetMAC((long)(ulong)color[2] << 16, 3, 0);
+
+        InterpolateColor(mathsAccumulator.mac1, mathsAccumulator.mac2, mathsAccumulator.mac3, shift, lm);
+
+        PushRGBFromMAC();
     }
 
     private static void RTPS(short[] V, byte shift, bool lm, bool last)
