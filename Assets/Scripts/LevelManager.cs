@@ -226,6 +226,99 @@ public class LevelManager : MonoBehaviour
 
     private void FUN_6604(int[,] param1, int param2, int param3)
     {
+        long lVar1;
+        long lVar2;
+        uint uVar3;
+        uint uVar4;
+        uint uVar6;
+        uint uVar7;
+        uint uVar8;
+        int iVar9;
+        uint uVar10;
+        int iVar11;
+        uint uVar12;
+        uint uVar13;
+        uint[] local_188 = new uint[27];
 
+        uVar12 = 0;
+        uVar10 = 0x8000;
+        iVar11 = 0;
+        uVar7 = 0x10000;
+
+        do
+        {
+            uVar3 = (uint)param1[0, 3];
+            uVar8 = 0x10000 - uVar10;
+            iVar9 = -(int)(0x10000 < uVar10 ? 1 : 0) - iVar11;
+            uVar6 = (uint)param1[1, 2];
+            uVar13 = (uint)((ulong)uVar10 * uVar6);
+            uVar4 = (uint)((int)((ulong)uVar8 * uVar3) + (int)uVar13);
+            local_188[26] = (uint)Utilities.Divdi3((int)uVar4, (int)((ulong)uVar8 * uVar3 >> 32) +
+                                                       (int)uVar8 * ((int)uVar3 >> 31) + (int)uVar3 * iVar9 +
+                                                       (int)((ulong)uVar10 * uVar6 >> 32) +
+                                                       (int)uVar10 * ((int)uVar6 >> 31) + (int)uVar6 * iVar11 +
+                                                       (int)(uVar4 < uVar13 ? 1 : 0), 0x10000, 0);
+            uVar3 = (uint)param1[1, 1];
+            uVar6 = (uint)param1[2, 0];
+            uVar13 = (uint)((ulong)uVar10 * uVar6);
+            uVar4 = (uint)((int)((ulong)uVar8 * uVar3) + (int)uVar13);
+            local_188[25] = (uint)Utilities.Divdi3((int)uVar4, (int)((ulong)uVar8 * uVar3 >> 32) +
+                                                             (int)uVar8 * ((int)uVar3 >> 31) + (int)uVar3 * iVar9 +
+                                                             (int)((ulong)uVar10 * uVar6 >> 32) +
+                                                             (int)uVar10 * ((int)uVar6 >> 31) + (int)uVar6 * iVar11 +
+                                                             (int)(uVar4 < uVar13 ? 1 : 0), 0x10000, 0);
+            local_188[24] = local_188[26];
+            local_188[0] = (uint)param1[0, 0];
+            local_188[1] = (uint)param1[0, 1];
+            local_188[2] = (uint)param1[0, 2];
+            local_188[21] = (uint)param1[2, 1];
+            local_188[22] = (uint)param1[2, 2];
+            local_188[23] = (uint)param1[2, 3];
+            uVar3 = (uint)param1[0, 0];
+            uVar6 = (uint)param1[0, 3];
+            uVar13 = (uint)((ulong)uVar10 * uVar6);
+            uVar4 = (uint)((int)((ulong)uVar8 * uVar3) + (int)uVar13);
+            local_188[26] = (uint)Utilities.Divdi3((int)uVar4, (int)((ulong)uVar8 * uVar3 >> 32) +
+                                                              (int)uVar8 * ((int)uVar3 >> 31) + (int)uVar3 * iVar9 +
+                                                              (int)((ulong)uVar10 * uVar6 >> 32) +
+                                                              (int)uVar10 * ((int)uVar6 >> 31) + (int)uVar6 * iVar11 +
+                                                              (int)(uVar4 < uVar13 ? 1 : 0), 0x10000, 0);
+            local_188[27] = 0;
+            uVar3 = (uint)param1[0, 2];
+            uVar6 = (uint)param1[1, 1];
+            uVar13 = (uint)((ulong)uVar10 * uVar6);
+            uVar4 = (uint)((int)((ulong)uVar8 * uVar3) + (int)uVar13);
+            local_188[5] = (uint)Utilities.Divdi3((int)uVar4, (int)((ulong)uVar8 * uVar3 >> 32) +
+                                                            (int)uVar8 * ((int)uVar3 >> 31) + (int)uVar3 * iVar9 +
+                                                            (int)((ulong)uVar10 * uVar6 >> 32) +
+                                                            (int)uVar10 * ((int)uVar6 >> 31) + (int)uVar6 * iVar11 +
+                                                            (int)(uVar4 < uVar13 ? 1 : 0), 0x10000, 0);
+            local_188[3] = local_188[26];
+            local_188[4] = local_188[27];
+            uVar4 = (uint)((ulong)uVar10 * local_188[24]);
+            uVar3 = (uint)((int)((ulong)uVar8 * local_188[26]) + (int)uVar4);
+            local_188[28] = local_188[5];
+            local_188[26] = (uint)Utilities.Divdi3((int)uVar3, (int)((ulong)uVar8 * local_188[26] >> 32) +
+                                                             (int)uVar8 * ((int)local_188[26] >> 31) + (int)local_188[26] * iVar9 +
+                                                             (int)((ulong)uVar10 * local_188[24] >> 32) +
+                                                             (int)uVar10 * ((int)local_188[24] >> 31) + (int)local_188[24] * iVar11 +
+                                                             (int)(uVar3 < uVar4 ? 1 : 0), 0x10000, 0);
+            uVar4 = (uint)((ulong)uVar10 * local_188[25]);
+            local_188[25] = 0;
+            uVar3 = (uint)((int)((ulong)uVar8 * local_188[25]) + (int)uVar4);
+            local_188[8] = (uint)Utilities.Divdi3((int)uVar3, (int)((ulong)uVar8 * local_188[5] >> 32) +
+                                                            (int)uVar8 * ((int)local_188[5] >> 31) + (int)local_188[5] * iVar9 +
+                                                            (int)((ulong)uVar10 * local_188[25] >>
+                                                            32) + (int)uVar10 * ((int)local_188[25] >> 31) +
+                                                            (int)local_188[25] * iVar11 + (int)(uVar3 < uVar4 ? 1 : 0), 0x10000, 0);
+            local_188[6] = local_188[26];
+            local_188[7] = local_188[25];
+            uVar3 = (uint)param1[2, 0];
+            uVar6 = (uint)param1[1, 2];
+            uVar13 = (uint)((ulong)uVar8 * uVar6);
+            uVar4 = (uint)((int)((ulong)uVar10 * uVar3) + (int)uVar13);
+            local_188[26] = local_188[8];
+            local_188[26]=
+        }
     }
 }
