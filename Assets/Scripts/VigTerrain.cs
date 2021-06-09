@@ -22,7 +22,13 @@ public class TileData
 [Serializable]
 public class Junction
 {
-    
+    public XRTP_DB xrtp; //0x08
+    public Vector3Int pos; //0x0C
+    public int DAT_1C; //0x1C
+    public List<Vector3Int> DAT_20; //0x20
+    public List<short> DAT_26; //0x26
+    public List<Vector3Int> DAT_28; //0x28
+    public List<short> DAT_2E; //0x2E
 }
 
 public class Tile
@@ -660,6 +666,109 @@ public class VigTerrain : MonoBehaviour
 
             return vertexH >> 5;
         }
+    }
+
+    public Vector3Int FUN_1BB50(int param1, int param2)
+    {
+        int iVar1;
+        uint uVar2;
+        uint uVar3;
+        int iVar4;
+        uint uVar5;
+        int iVar6;
+        int iVar7;
+        int iVar8;
+        int iVar9;
+        int iVar10;
+        uint uVar11;
+        uint uVar12;
+        uint uVar13;
+        uint uVar14;
+        int iVar15;
+        int iVar16;
+        int iVar17;
+        uint uVar18;
+        uint uVar19;
+        Vector3Int v3 = new Vector3Int();
+
+        iVar10 = param1 - 0x8000;
+        iVar4 = param2 - 0x8000;
+        iVar7 = iVar10;
+
+        if (iVar10 < 0)
+            iVar7 = param1 + 0x7fff;
+
+        uVar14 = (uint)(iVar7 >> 16);
+        iVar10 += (int)uVar14 * -0x10000;
+        iVar7 = iVar4;
+
+        if (iVar4 < 0)
+            iVar7 = param2 + 0x7fff;
+
+        uVar13 = (uint)(iVar7 >> 16);
+        iVar4 += (int)uVar13 * -0x10000;
+        uVar5 = uVar13 >> 6;
+        uVar2 = uVar14 >> 6;
+        iVar7 = (int)(uVar13 & 63);
+        iVar16 = (int)(uVar14 & 63) * 128;
+        iVar17 = 0x10000 - iVar10;
+        uVar3 = uVar14 + 1 >> 6;
+        iVar15 = (int)(uVar14 + 1 & 63) * 128;
+        uVar18 = vertices[chunks[uVar2 * 32 + uVar5] * 4096 + iVar7 + iVar16] & 0x7ffU;
+        uVar19 = vertices[chunks[uVar3 * 32 + uVar5] * 4096 + iVar7 + iVar15] & 0x7ffU;
+        uVar11 = uVar14 + 2 >> 6;
+        iVar8 = (int)(uVar14 + 2 & 63) * 128;
+        uVar14 = uVar13 + 1 >> 6;
+        iVar6 = (int)(uVar13 + 1 & 63);
+        iVar7 = (int)(uVar19 - uVar18) * iVar17 +
+                ((vertices[chunks[uVar11 * 32 + uVar5] * 4096 + iVar7 + iVar8] & 0x7ff) - 
+                (int)uVar19) * iVar10;
+        uVar12 = vertices[chunks[uVar2 * 32 + uVar14] * 4096 + iVar6 + iVar16] & 0x7ffU;
+        uVar5 = vertices[chunks[uVar3 * 32 + uVar14] * 4096 + iVar6 + iVar15] & 0x7ffU;
+
+        if (iVar7 < 0)
+            iVar7 += 0xffff;
+
+        iVar9 = 0x10000 - iVar4;
+        iVar6 = (int)(uVar5 - uVar12) * iVar17 +
+                ((vertices[chunks[uVar11 * 32 + uVar14] * 4096 + iVar6 + iVar8] & 0x7ff) -
+                (int)uVar5) * iVar10;
+
+        if (iVar6 < 0)
+            iVar6 += 0xffff;
+
+        iVar7 = (iVar7 >> 16) * iVar9 + (iVar6 >> 16) * iVar4;
+        iVar1 = iVar7 >> 16;
+
+        if (iVar7 < 0)
+            iVar1 = (iVar7 + 0xffff) >> 16;
+
+        v3.x = iVar1;
+        v3.y = -32;
+        uVar14 = uVar13 + 2 >> 6;
+        iVar6 = (int)(uVar13 + 2 & 63);
+        iVar7 = (int)(uVar12 - uVar18) * iVar9 +
+                ((vertices[chunks[uVar2 * 32 + uVar14] * 4096 + iVar6 + iVar16] & 0x7ff) -
+                (int)uVar12) * iVar4;
+
+        if (iVar7 < 0)
+            iVar7 += 0xffff;
+
+        iVar4 = (int)(uVar5 - uVar19) * iVar9 +
+                ((vertices[chunks[uVar3 * 32 + uVar14] * 4096 + iVar6 + iVar15] & 0x7ff) -
+                (int)uVar5) * iVar4;
+
+        if (iVar4 < 0)
+            iVar4 += 0xffff;
+
+        iVar7 = (iVar7 >> 16) * iVar17 + (iVar4 >> 16) * iVar10;
+        iVar1 = iVar7 >> 16;
+
+        if (iVar7 < 0)
+            iVar1 = (iVar7 + 0xffff) >> 16;
+
+        v3.z = iVar1;
+        return v3;
     }
 
     private void FUN_288E0(uint param1, uint param2, Queue<ScreenPoly> param3)

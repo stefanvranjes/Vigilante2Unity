@@ -1752,6 +1752,7 @@ public static class Utilities
         return m33;
     }
 
+    //FUN_5991C
     public static Vector3Int VectorNormal(Vector3Int n1)
     {
         int normal_x = n1.x;

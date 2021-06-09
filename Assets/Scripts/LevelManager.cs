@@ -224,6 +224,13 @@ public class LevelManager : MonoBehaviour
         FUN_630C(local_b0, xrtpList[param1.DAT_0A], param1.DAT_0C);
     }
 
+    private Junction FUN_50C0(int param1)
+    {
+        Junction newJunc = new Junction();
+        newJunc.DAT_1C = param1;
+        return newJunc;
+    }
+
     private int FUN_57AC(int[] param1)
     {
         int iVar1;
@@ -278,6 +285,212 @@ public class LevelManager : MonoBehaviour
             iVar3 = iVar1 - iVar4;
 
         return iVar3;
+    }
+
+    private void FUN_5850(int[,] param1, XRTP_DB param2, ushort param3)
+    {
+        long lVar1;
+        uint uVar2;
+        uint uVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+        int iVar7;
+        int iVar8;
+        int iVar9;
+        int iVar10;
+        int iVar11;
+        int iVar12;
+        int iVar13;
+        uint uVar14;
+        int iVar15;
+        int iVar16;
+        int iVar17;
+        int iVar18;
+        uint uVar19;
+        int iVar20;
+        Junction jVar20;
+        int iVar21;
+        int iVar22;
+        int iVar23;
+        int iVar24;
+        Vector3Int local_70;
+        Vector2Int local_68;
+        Vector2Int local_64;
+        int local_50;
+        int local_4c;
+        int local_40;
+        int local_3c;
+        int local_38;
+
+        VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
+
+        iVar4 = (param1[0, 3] * 3 - param1[0, 0]) + param1[1, 2] * -3 + param1[2, 1];
+
+        if (iVar4 < 0)
+            iVar4 += 15;
+
+        iVar5 = (param1[1, 1] * 3 - param1[0, 2]) + param1[2, 0] * -3 + param1[2, 3];
+
+        if (iVar5 < 0)
+            iVar5 += 15;
+
+        iVar6 = param1[0, 0] * 3 + param1[0, 3] * -6 + param1[1, 2] * 3;
+
+        if (iVar6 < 0)
+            iVar6 += 15;
+
+        iVar7 = param1[0, 2] * 3 + param1[1, 1] * -6 + param1[2, 0] * 3;
+
+        if (iVar7 < 0)
+            iVar7 += 15;
+
+        iVar8 = param1[0, 3] * 3 + param1[0, 0] * -3;
+
+        if (iVar8 < 0)
+            iVar8 += 15;
+
+        iVar8 >>= 4;
+        iVar9 = param1[1, 1] * 3 + param1[0, 2] * -3;
+
+        if (iVar9 < 0)
+            iVar9 += 15;
+
+        iVar9 >>= 4;
+        iVar10 = param1[0, 0];
+        iVar11 = param1[0, 2];
+        uVar2 = (uint)(iVar4 >> 4) * 3;
+        uVar3 = (uint)(iVar5 >> 4) * 3;
+        iVar12 = (iVar6 >> 4) * 2;
+        iVar16 = (iVar7 >> 4) * 2;
+
+        if ((param3 & 1) != 0)
+        {
+            local_70 = terrain.FUN_1BB50(param1[0, 0], param1[0, 1]);
+            local_70 = Utilities.VectorNormal(local_70);
+        }
+
+        iVar20 = 0;
+        local_50 = 0;
+
+        do
+        {
+            iVar21 = iVar20 * iVar20;
+
+            if (iVar21 < 0)
+                iVar21 += 4095;
+
+            iVar13 = (int)uVar2 * (iVar21 >> 12) + iVar12 * iVar20;
+
+            if (iVar13 < 0)
+                iVar13 += 4095;
+
+            iVar13 = (iVar13 >> 12) + iVar8;
+
+            if (iVar13 < 0)
+                iVar13 += 255;
+
+            iVar21 = (int)uVar3 * (iVar21 >> 12) + iVar16 * iVar20;
+
+            if (iVar21 < 0)
+                iVar21 += 4095;
+
+            iVar21 = (iVar21 >> 12) + iVar9;
+
+            if (iVar21 < 0)
+                iVar21 += 255;
+
+            iVar21 = (int)Utilities.SquareRoot((iVar13 >> 8) * (iVar13 >> 8) + (iVar21 >> 8) * (iVar21 >> 8));
+            local_50++;
+            iVar20 = iVar20 + param2.DAT_28 / iVar21;
+        } while (iVar20 < 0x1000);
+
+        local_4c = 0;
+        param2.DAT_14 += local_50 * 2;
+        jVar20 = FUN_50C0(local_50);
+        iVar21 = (param1[0, 0] + param1[2, 1]) / 2;
+        iVar22 = (param1[0, 2] + param1[2, 3]) / 2;
+        uVar14 = (uint)terrain.FUN_1B750((uint)iVar21, (uint)iVar22);
+        jVar20.pos = new Vector3Int(iVar21, (int)uVar14, iVar22);
+        jVar20.xrtp = param2;
+        iVar21 = 0;
+
+        if (-1 < local_50)
+        {
+            local_40 = 0;
+            local_3c = 0;
+            local_38 = 0;
+
+            do
+            {
+                iVar13 = iVar21 * iVar21;
+
+                if (iVar13 < 0)
+                    iVar13 += 4095;
+
+                iVar13 >>= 12;
+                iVar22 = iVar13 * iVar21;
+
+                if (iVar22 < 0)
+                    iVar22 += 4095;
+
+                iVar17 = (iVar4 >> 4) * (iVar22 >> 12) + (iVar6 >> 4) * iVar13 + iVar8 * iVar21;
+
+                if (iVar17 < 0)
+                    iVar17 += 255;
+
+                iVar18 = (iVar5 >> 4) * (iVar22 >> 12) + (iVar7 >> 4) * iVar13 + iVar9 * iVar21;
+                iVar22 = (iVar17 >> 8) + iVar10;
+
+                if (iVar18 < 0)
+                    iVar18 += 255;
+
+                iVar17 = (int)uVar2 * iVar13 + iVar12 * iVar21;
+                iVar18 = (iVar18 >> 8) + iVar11;
+
+                if (iVar17 < 0)
+                    iVar17 += 4095;
+
+                iVar13 = (int)uVar3 * iVar13 + iVar16 * iVar21;
+                iVar17 >>= 8;
+
+                if (iVar13 < 0)
+                    iVar13 += 4095;
+
+                iVar13 = (iVar13 >> 12) + iVar9;
+
+                if (iVar13 < 0)
+                    iVar13 += 255;
+
+                iVar13 >>= 8;
+                iVar15 = (int)Utilities.SquareRoot(iVar17 * iVar17 + iVar13 * iVar13);
+                iVar23 = ((iVar13 * param2.DAT_24) / 2) / iVar15;
+                iVar24 = ((iVar17 * param2.DAT_24) / 2) / iVar15;
+                iVar13 = iVar22 - iVar23;
+                iVar22 += iVar23;
+                iVar17 = iVar18 + iVar24;
+                iVar18 -= iVar24;
+
+                if ((param3 & 1) == 0)
+                {
+                    local_68 = new Vector2Int();
+                    local_64 = new Vector2Int();
+                    local_68.x = iVar13 - jVar20.pos.x >> 8;
+                    iVar23 = terrain.FUN_1B750((uint)iVar13, (uint)iVar17);
+                    local_68.y = iVar23 - jVar20.pos.y >> 8;
+                    iVar23 = iVar17 - jVar20.pos.z;
+                    local_64.x = iVar23 >> 8;
+
+                    if (iVar13 < 0)
+                        iVar13 += 0xffff;
+
+                    if (iVar17 < 0)
+                        iVar17 += 0xffff;
+
+                    local_68.z=
+                }
+            }
+        }
     }
 
     private void FUN_630C(int[,] param1, XRTP_DB param2, ushort param3)
