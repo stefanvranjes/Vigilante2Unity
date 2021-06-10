@@ -24,6 +24,7 @@ public class Junction
 {
     public XRTP_DB xrtp; //0x08
     public Vector3Int pos; //0x0C
+    public int DAT_18; //0x18
     public int DAT_1C; //0x1C
     public List<Vector3Int> DAT_20; //0x20
     public List<short> DAT_26; //0x26

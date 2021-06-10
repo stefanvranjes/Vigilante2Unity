@@ -179,6 +179,31 @@ public static class Utilities
         return false;
     }
 
+    public static int FUN_29C5C(Vector3Int v1, Vector3Int v2)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+
+        iVar1 = v1.x * v2.x;
+        iVar2 = v1.y * v2.y;
+        iVar3 = v1.z * v2.z;
+
+        return iVar1 + iVar2 + iVar3;
+    }
+
+    public static int FUN_29DDC(Vector3Int v3)
+    {
+        Coprocessor.accumulator.ir1 = (short)v3.x;
+        Coprocessor.accumulator.ir2 = (short)v3.y;
+        Coprocessor.accumulator.ir3 = (short)v3.z;
+        Coprocessor.ExecuteSQR(0, true);
+
+        return Coprocessor.mathsAccumulator.mac1 +
+               Coprocessor.mathsAccumulator.mac2 +
+               Coprocessor.mathsAccumulator.mac3;
+    }
+
     public static int FUN_29E84(Vector3Int phy)
     {
         Vector2Int v2 = FUN_2ACD0(phy, phy); //r2, r3

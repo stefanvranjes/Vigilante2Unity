@@ -5,9 +5,11 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h
     public int DAT_118C; //gp+118Ch
+    public List<Junction> roadList = new List<Junction>(); //gp+1190h
     public List<XRTP_DB> xrtpList = new List<XRTP_DB>(); //gp+1194h
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
@@ -22,6 +24,33 @@ public class LevelManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public int FUN_9C10(uint param1, int param2, uint param3, int param4)
+    {
+        int iVar1;
+
+        iVar1 = 0;
+
+        if (param4 < param2)
+        {
+            iVar1 = 2;
+
+            if (param2 <= param4)
+            {
+                if (param1 < param3)
+                    iVar1 = 0;
+                else
+                {
+                    iVar1 = 2;
+
+                    if (param1 <= param3)
+                        iVar1 = 1;
+                }
+            }
+        }
+
+        return iVar1;
     }
 
     //FUN_7E6C (LOAD.DLL)
@@ -287,7 +316,7 @@ public class LevelManager : MonoBehaviour
         return iVar3;
     }
 
-    private void FUN_5850(int[,] param1, XRTP_DB param2, ushort param3)
+    private Junction FUN_5850(int[,] param1, XRTP_DB param2, ushort param3)
     {
         long lVar1;
         uint uVar2;
@@ -319,9 +348,12 @@ public class LevelManager : MonoBehaviour
         Vector2Int local_64;
         int local_50;
         int local_4c;
+        int local_48;
         int local_40;
         int local_3c;
         int local_38;
+        uint local_30;
+        int local_2c;
 
         VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
 
@@ -363,6 +395,8 @@ public class LevelManager : MonoBehaviour
         uVar3 = (uint)(iVar5 >> 4) * 3;
         iVar12 = (iVar6 >> 4) * 2;
         iVar16 = (iVar7 >> 4) * 2;
+        local_70 = new Vector3Int((short)iVar10, iVar10 >> 16, iVar11);
+        local_48 = 0; //not in original code
 
         if ((param3 & 1) != 0)
         {
@@ -487,19 +521,168 @@ public class LevelManager : MonoBehaviour
                     if (iVar17 < 0)
                         iVar17 += 0xffff;
 
-                    local_68.z=
+                    local_64.y = (int)((uint)terrain.vertices[terrain.chunks[((uint)(iVar17 >> 16) >> 6) +
+                                                                ((uint)(iVar13 >> 16) >> 6) * 128] * 4096 +
+                                               (iVar17 >> 16 & 63) + (iVar13 >> 16 & 63) * 128] >> 11) << 2;
+                    jVar20.DAT_20.Add(new Vector3Int(local_68.x, local_68.y, local_64.x));
+                    jVar20.DAT_26.Add((short)local_64.y);
+                    local_68.x = iVar22 - jVar20.pos.x >> 8;
+                    iVar13 = terrain.FUN_1B750((uint)iVar22, (uint)iVar18);
+                    local_68.y = iVar13 - jVar20.pos.y >> 8;
+                    iVar13 = iVar18 - jVar20.pos.z;
+
+                    if (iVar22 < 0)
+                        iVar22 += 0xffff;
+
+                    if (iVar18 < 0)
+                        iVar18 += 0xffff;
+
+                    local_64.x = iVar13 >> 8;
+                    local_64.y = (int)((uint)terrain.vertices[terrain.chunks[((uint)(iVar18 >> 16) >> 6) +
+                                                                          ((uint)(iVar22 >> 16) >> 6) * 128] +
+                                                           (iVar18 >> 16 & 63) + (iVar22 >> 16 & 63) * 128] >> 11) << 2;
+                    jVar20.DAT_28.Add(new Vector3Int(local_68.x, local_68.y, local_64.x));
+                    jVar20.DAT_2E.Add((short)local_64.y);
                 }
-            }
+                else
+                {
+                    lVar1 = (long)(0x1000 - iVar21) * param1[0, 1];
+                    local_30 = (uint)((long)iVar21 * param1[2, 2]);
+                    local_2c = (int)((ulong)((long)iVar21 * param1[2, 2]) >> 32);
+                    uVar19 = (uint)((int)lVar1 + local_30);
+                    iVar24 = (int)((ulong)lVar1 >> 32) + local_2c + (int)(uVar19 < local_30 ? 1 : 0);
+                    iVar23 = FUN_9C10(uVar19, iVar24, 0, 0);
+
+                    if (iVar23 < 1)
+                    {
+                        uVar19 += 4095;
+                        iVar24 += uVar19 < 0xfffU ? 1 : 0;
+                    }
+
+                    uVar19 = uVar19 >> 12 | (uint)(iVar24 << 20);
+                    local_68 = new Vector2Int();
+                    local_64 = new Vector2Int();
+                    local_68.x = iVar13 - jVar20.pos.x >> 8;
+                    local_68.y = (int)uVar19 - jVar20.pos.y >> 8;
+                    local_64.x = iVar17 - jVar20.pos.z >> 8;
+                    iVar17 = Utilities.FUN_29C5C(local_70, DAT_10F8);
+                    iVar13 = 0;
+
+                    if (0 < iVar17)
+                        iVar13 = iVar17;
+
+                    if (iVar13 < 0)
+                        iVar13 += 0x1ffff;
+
+                    iVar17 = (iVar13 >> 17) + 32;
+                    iVar13 = 128;
+
+                    if (iVar17 < 128)
+                        iVar13 = iVar17;
+
+                    local_64.y = iVar13;
+                    jVar20.DAT_20.Add(new Vector3Int(local_68.x, local_68.y, local_64.x));
+                    jVar20.DAT_26.Add((short)local_64.y);
+                    local_68.x = iVar22 - jVar20.pos.x >> 8;
+                    local_68.y = (int)uVar19 - jVar20.pos.y >> 8;
+                    local_64.x = iVar18 - jVar20.pos.z >> 8;
+                    iVar22 = Utilities.FUN_29C5C(local_70, DAT_10F8);
+                    iVar13 = 0;
+
+                    if (0 < iVar22)
+                        iVar13 = iVar22;
+
+                    if (iVar13 < 0)
+                        iVar13 += 0x1ffff;
+
+                    iVar22 = (iVar13 >> 17) + 32;
+                    iVar13 = 128;
+
+                    if (iVar22 < 128)
+                        iVar13 = iVar22;
+
+                    local_64.y = iVar13;
+                    jVar20.DAT_28.Add(new Vector3Int(local_68.x, local_68.y, local_64.x));
+                    jVar20.DAT_2E.Add((short)local_64.y);
+                }
+
+                iVar13 = Utilities.FUN_29DDC(jVar20.DAT_20[local_40]);
+
+                if (iVar13 < local_48)
+                    iVar13 = local_48;
+
+                local_48 = Utilities.FUN_29DDC(jVar20.DAT_28[local_40]);
+
+                if (local_48 < iVar13)
+                    local_48 = iVar13;
+
+                if (local_4c == local_50 - 1)
+                    iVar21 = 4096;
+                else
+                    iVar21 += param2.DAT_28 / iVar15;
+
+                local_40++;
+                local_3c++;
+                local_38++;
+                local_4c++;
+            } while (local_4c <= local_50);
         }
+
+        iVar4 = (int)Utilities.SquareRoot(local_48);
+        jVar20.DAT_18 = iVar4 << 8;
+        return jVar20;
     }
 
     private void FUN_630C(int[,] param1, XRTP_DB param2, ushort param3)
     {
         int iVar3;
+        int iVar5;
+        Junction jVar4;
+        Vector3Int local_70;
+        Vector3Int local_1c;
+        Vector3Int local_64;
+        Vector3Int local_58;
+        Vector3Int local_28;
+        Vector3Int local_34;
+        Vector3Int local_4c;
+        Vector3Int local_40;
+        Vector3Int local_10;
 
         iVar3 = FUN_57AC(new int[] { param1[0, 0], param1[0, 1], param1[0, 2], param1[0, 3],
                                      param1[1, 0], param1[1, 1], param1[1, 2], param1[1, 3],
                                      param1[2, 0], param1[2, 1], param1[2, 2], param1[2, 3] });
+
+        if (iVar3 < 0x100000)
+        {
+            jVar4 = FUN_5850(param1, param2, param3);
+            roadList.Add(jVar4);
+        }
+        else
+        {
+            iVar3 = (param1[0, 3] + param1[1, 2]) / 2;
+            iVar5 = (param1[1, 1] + param1[2, 0]) / 2;
+            local_70 = new Vector3Int(param1[0, 0], param1[0, 1], param1[0, 2]);
+            local_1c = new Vector3Int(param1[2, 1], param1[2, 2], param1[2, 3]);
+            local_64 = new Vector3Int((param1[0, 0] + param1[0, 3]) / 2, 0,
+                                    (param1[0, 2] + param1[1, 1]) / 2);
+            local_58 = new Vector3Int((local_64.x + iVar3) / 2, 0, (local_64.z + iVar5) / 2);
+            local_28 = new Vector3Int((param1[1, 2] + param1[2, 1]) / 2, 0,
+                                    (param1[2, 0] + param1[2, 3]) / 2);
+            local_34 = new Vector3Int((local_28.x + iVar3) / 2, 0, (local_28.z + iVar5) / 2);
+            local_4c = new Vector3Int((local_58.x + local_34.x) / 2,
+                                    (param1[0, 1] + param1[2, 2]) / 2,
+                                    (local_58.z + local_34.z) / 2);
+            local_40 = local_4c;
+            local_10 = local_4c;
+            FUN_630C(new int[,] { { local_70.x, local_70.y, local_70.z, local_64.x },
+                                  { local_64.y, local_64.z, local_58.x, local_58.y },
+                                  { local_58.z, local_4c.x, local_4c.y, local_4c.z } },
+                                    param2, param3);
+            FUN_630C(new int[,] { { local_40.x, local_40.y, local_40.z, local_34.x },
+                                  { local_34.y, local_34.z, local_28.x, local_28.y },
+                                  { local_28.z, local_1c.x, local_1c.y, local_1c.z } }, 
+                                    param2, param3);
+        }
     }
 
     private void FUN_6604(int[,] param1, int param2, int param3)
