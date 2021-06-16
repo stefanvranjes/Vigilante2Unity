@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -83,6 +85,19 @@ public class LevelManager : MonoBehaviour
                 }
             }
         }
+
+        if (0 < DAT_1180)
+        {
+            for (int i = 0; i < DAT_1180; i++)
+                if (xrtpList[i].timFarList != null)
+                    FUN_50F0(xrtpList[i]);
+        }
+    }
+
+    private void FUN_9C80(BinaryWriter param1)
+    {
+        param1.Write(3, 9);
+        param1.Write(7, 44);
     }
 
     private void FUN_719C(RSEG_DB param1)
@@ -258,6 +273,32 @@ public class LevelManager : MonoBehaviour
         Junction newJunc = new Junction();
         newJunc.DAT_1C = param1;
         return newJunc;
+    }
+
+    private void FUN_50F0(XRTP_DB param1)
+    {
+        short sVar1;
+        int iVar2;
+        int iVar3;
+        MemoryStream local_1a8 = new MemoryStream();
+
+        iVar2 = param1.DAT_28 >> 8;
+        iVar3 = param1.DAT_24 >> 8;
+        sVar1 = (short)Utilities.SquareRoot(iVar2 * iVar2 + iVar3 * iVar3);
+        param1.DAT_30 = (short)(sVar1 - 128);
+        param1.DAT_20 = 0;
+        param1.DAT_18 = 0;
+
+        if ((param1.DAT_2C & 2) == 0)
+        {
+            param1.DAT_0C = new byte[param1.DAT_14 * 40];
+            param1.DAT_10 = new byte[param1.DAT_1C * 160];
+
+            using (BinaryWriter writer = new BinaryWriter(local_1a8, Encoding.Default, true))
+            {
+                
+            }
+        }
     }
 
     private int FUN_57AC(int[] param1)
