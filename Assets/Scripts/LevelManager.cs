@@ -1,12 +1,39 @@
 using System;
-using System.IO;
-using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public Color32[] DAT_CE0; //gp+CE0h
+    public ushort[] DAT_CF0; //gp+CF0h
+    public byte[] DAT_CF4; //gp+CF4h
+    public byte[] DAT_CF5; //gp+CF5h
+    public byte DAT_CF8; //gp+CF8h
+    public byte[] DAT_CFC; //gp+CFCh
+    public byte DAT_D08; //gp+D08h
+    public byte[] DAT_D18; //gp+D18h
+    public byte[] DAT_D19; //gp+D19h
+    public byte[] DAT_D1A; //gp+D1Ah
+    public byte[] DAT_D1B; //gp+D1Bh
+    public int DAT_DA0; //gp+DA0h
+    public Color32 DAT_DA4; //gp+DA4h
+    public ushort DAT_DA8; //gp+DA8h
+    public int DAT_DB0; //gp+DB0h
+    public short DAT_DB4; //gp+DB4h
+    public short DAT_DB6; //gp+DB6h
+    public short DAT_DB8; //gp+DB8h
+    public short DAT_DBA; //gp+DBAh
+    public Color32 DAT_DDC; //gp+DDCh
+    public VigTransform DAT_F00; //gp+F00h
+    public int DAT_F20; //gp+F20h
+    public VigTransform DAT_F28; //gp+F28h
+    public Matrix3x3 DAT_F48; //gp+F48h
+    public Matrix3x3 DAT_F68; //gp+F68h
+    public VigTransform DAT_F88; //gp+F88h
+    public Matrix3x3 DAT_FA8; //gp+FA8h
+    public Vector2Int DAT_FC8; //gp+FC8h
+    public Matrix3x3 DAT_FD8; //gp+FD8h
     public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h
@@ -15,6 +42,8 @@ public class LevelManager : MonoBehaviour
     public List<XRTP_DB> xrtpList = new List<XRTP_DB>(); //gp+1194h
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
+
+    private VigTerrain terrain;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +57,73 @@ public class LevelManager : MonoBehaviour
         
     }
 
+    public void FUN_50B38()
+    {
+        bool bVar1;
+        Vector3Int local_18;
+
+        for (int i = 0; i < roadList.Count - 1; i++)
+        {
+            bVar1 = FUN_2E22C(roadList[i].pos, roadList[i].DAT_18);
+
+            if (bVar1)
+            {
+                local_18 = Utilities.FUN_24148(DAT_F00, roadList[i].pos);
+
+                if (local_18.z < 0x200000)
+                {
+                    Utilities.SetRotMatrix(DAT_F00.rotation);
+                    Coprocessor.translationVector._trx = local_18.x >> 8;
+                    Coprocessor.translationVector._try = local_18.y >> 8;
+                    Coprocessor.translationVector._trz = local_18.z >> 8;
+                    FUN_4F804(roadList[i]);
+                }
+            }
+        }
+    }
+
+    public void FUN_4F804(Junction param1)
+    {
+        FUN_4F828(param1);
+    }
+
+    public bool FUN_2E22C(Vector3Int param1, int param2)
+    {
+        int iVar1;
+        bool bVar2;
+
+        Coprocessor.rotationMatrix.rt11 = DAT_FD8.V00;
+        Coprocessor.rotationMatrix.rt12 = DAT_FD8.V01;
+        Coprocessor.rotationMatrix.rt13 = DAT_FD8.V02;
+        Coprocessor.rotationMatrix.rt21 = DAT_FD8.V10;
+        Coprocessor.rotationMatrix.rt22 = DAT_FD8.V11;
+        Coprocessor.rotationMatrix.rt23 = DAT_FD8.V12;
+        Coprocessor.rotationMatrix.rt31 = DAT_FD8.V20;
+        Coprocessor.rotationMatrix.rt32 = DAT_FD8.V21;
+        Coprocessor.rotationMatrix.rt33 = DAT_FD8.V22;
+        Coprocessor.accumulator.ir1 = (short)(param1.x - DAT_F28.position.x >> 8);
+        Coprocessor.accumulator.ir2 = (short)(param1.y - DAT_F28.position.y >> 8);
+        Coprocessor.accumulator.ir3 = (short)(param1.z - DAT_F28.position.z >> 8);
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        param2 >>= 8;
+        bVar2 = false;
+        iVar1 = Coprocessor.accumulator.ir1;
+
+        if (iVar1 < param2)
+        {
+            iVar1 = Coprocessor.accumulator.ir2;
+
+            if (iVar1 < param2)
+            {
+                iVar1 = Coprocessor.accumulator.ir3;
+                bVar2 = iVar1 < param2;
+            }
+        }
+
+        return bVar2;
+    }
+
+    //FUN_9C10 (LOAD.DLL)
     public int FUN_9C10(uint param1, int param2, uint param3, int param4)
     {
         int iVar1;
@@ -94,10 +190,82 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void FUN_9C80(BinaryWriter param1)
+    private void FUN_4F828(Junction param1)
     {
-        param1.Write(3, 9);
-        param1.Write(7, 44);
+        int iVar3;
+        uint uVar7;
+        int puVar14;
+        XRTP_DB dbVar16;
+        int puVar18;
+        Color32[] local_f0 = new Color32[32];
+        short local_30;
+        ushort local_28;
+
+        puVar18 = 0;
+        dbVar16 = param1.xrtp;
+        uVar7 = 0x2C;
+
+        if ((dbVar16.DAT_2C & 2) != 0)
+            uVar7 = 0x3C;
+
+        if ((dbVar16.DAT_2C & 0x100) != 0)
+            uVar7 |= 2;
+
+        local_28 = (ushort)dbVar16.DAT_2E;
+        
+        for (int i = 0; i < 32; i++)
+        {
+            local_f0[i] = new Color32
+                (
+                    terrain.DAT_B9370[i].r,
+                    terrain.DAT_B9370[i].g,
+                    terrain.DAT_B9370[i].b,
+                    (byte)uVar7
+                );
+        }
+
+        Coprocessor.vector0.vx0 = (short)param1.DAT_20[0].x;
+        Coprocessor.vector0.vy0 = (short)param1.DAT_20[0].y;
+        Coprocessor.vector0.vz0 = (short)param1.DAT_20[0].z;
+        Coprocessor.ExecuteRTPS(12, false);
+        Coprocessor.vector0.vx0 = (short)param1.DAT_28[0].x;
+        Coprocessor.vector0.vy0 = (short)param1.DAT_28[0].y;
+        Coprocessor.vector0.vz0 = (short)param1.DAT_28[0].z;
+        Coprocessor.ExecuteRTPS(12, false);
+
+        if (dbVar16.DAT_14 < dbVar16.DAT_18 + param1.DAT_1C)
+            dbVar16.DAT_18 = 0;
+
+        if ((dbVar16.DAT_2C & 2) == 0)
+        {
+            if (0 < param1.DAT_1C)
+            {
+                for (int i = 0; i < param1.DAT_1C; i++)
+                {
+                    puVar14 = i + 1;
+                    Coprocessor.vector0.vx0 = (short)param1.DAT_20[puVar14].x;
+                    Coprocessor.vector0.vy0 = (short)param1.DAT_20[puVar14].y;
+                    Coprocessor.vector0.vz0 = (short)param1.DAT_20[puVar14].z;
+                    Coprocessor.ExecuteRTPS(12, false);
+                    Coprocessor.ExecuteNCLIP();
+                    iVar3 = Coprocessor.mathsAccumulator.mac0;
+
+                    if (iVar3 < 0)
+                    {
+                        iVar3 = Coprocessor.screenZFIFO.sz2;
+
+                        if (iVar3 < (int)(uint)local_28)
+                        {
+                            if (0 < Coprocessor.screenZFIFO.sz1 || 0 < Coprocessor.screenZFIFO.sz2 || 
+                                0 < Coprocessor.screenZFIFO.sz3)
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void FUN_719C(RSEG_DB param1)
@@ -280,7 +448,6 @@ public class LevelManager : MonoBehaviour
         short sVar1;
         int iVar2;
         int iVar3;
-        MemoryStream local_1a8 = new MemoryStream();
 
         iVar2 = param1.DAT_28 >> 8;
         iVar3 = param1.DAT_24 >> 8;
@@ -293,11 +460,7 @@ public class LevelManager : MonoBehaviour
         {
             param1.DAT_0C = new byte[param1.DAT_14 * 40];
             param1.DAT_10 = new byte[param1.DAT_1C * 160];
-
-            using (BinaryWriter writer = new BinaryWriter(local_1a8, Encoding.Default, true))
-            {
-                
-            }
+            
         }
     }
 

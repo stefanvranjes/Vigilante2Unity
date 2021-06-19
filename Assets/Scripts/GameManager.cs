@@ -1091,36 +1091,8 @@ public class GameManager : MonoBehaviour
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_EE0; //gp+EE0h
-    public VigTransform DAT_F00; //gp+F00h
-    public int DAT_F20; //gp+F20h
-    public VigTransform DAT_F28; //gp+F28h
-    public Matrix3x3 DAT_F48; //gp+F48h
-    public Matrix3x3 DAT_F68; //gp+F68h
-    public VigTransform DAT_F88; //gp+F88h
-    public Matrix3x3 DAT_FA8; //gp+FA8h
-    public Vector2Int DAT_FC8; //gp+FC8h
     public ushort[] DAT_C18; //gp+C18h
     public int DAT_C74; //gp+C74h
-    public Color32[] DAT_CE0; //gp+CE0h
-    public ushort[] DAT_CF0; //gp+CF0h
-    public byte[] DAT_CF4; //gp+CF4h
-    public byte[] DAT_CF5; //gp+CF5h
-    public byte DAT_CF8; //gp+CF8h
-    public byte[] DAT_CFC; //gp+CFCh
-    public byte DAT_D08; //gp+D08h
-    public byte[] DAT_D18; //gp+D18h
-    public byte[] DAT_D19; //gp+D19h
-    public byte[] DAT_D1A; //gp+D1Ah
-    public byte[] DAT_D1B; //gp+D1Bh
-    public int DAT_DA0; //gp+DA0h
-    public Color32 DAT_DA4; //gp+DA4h
-    public ushort DAT_DA8; //gp+DA8h
-    public int DAT_DB0; //gp+DB0h
-    public short DAT_DB4; //gp+DB4h
-    public short DAT_DB6; //gp+DB6h
-    public short DAT_DB8; //gp+DB8h
-    public short DAT_DBA; //gp+DBAh
-    public Color32 DAT_DDC; //gp+DDCh
     public ushort unk7; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
