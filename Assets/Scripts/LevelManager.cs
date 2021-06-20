@@ -192,14 +192,28 @@ public class LevelManager : MonoBehaviour
 
     private void FUN_4F828(Junction param1)
     {
+        uint uVar1;
         int iVar3;
+        int iVar4;
+        uint uVar5;
+        uint uVar6;
         uint uVar7;
+        int puVar8;
+        int puVar9;
+        int iVar10;
+        uint uVar11;
+        int iVar12;
+        int iVar13;
         int puVar14;
         XRTP_DB dbVar16;
         int puVar18;
+        uint uVar20;
         Color32[] local_f0 = new Color32[32];
         short local_30;
         ushort local_28;
+        Vector3[] roadVertices = new Vector3[4];
+
+        int tFactor = 1;
 
         puVar18 = 0;
         dbVar16 = param1.xrtp;
@@ -227,10 +241,12 @@ public class LevelManager : MonoBehaviour
         Coprocessor.vector0.vx0 = (short)param1.DAT_20[0].x;
         Coprocessor.vector0.vy0 = (short)param1.DAT_20[0].y;
         Coprocessor.vector0.vz0 = (short)param1.DAT_20[0].z;
+        roadVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         Coprocessor.ExecuteRTPS(12, false);
         Coprocessor.vector0.vx0 = (short)param1.DAT_28[0].x;
         Coprocessor.vector0.vy0 = (short)param1.DAT_28[0].y;
         Coprocessor.vector0.vz0 = (short)param1.DAT_28[0].z;
+        roadVertices[1] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         Coprocessor.ExecuteRTPS(12, false);
 
         if (dbVar16.DAT_14 < dbVar16.DAT_18 + param1.DAT_1C)
@@ -246,6 +262,7 @@ public class LevelManager : MonoBehaviour
                     Coprocessor.vector0.vx0 = (short)param1.DAT_20[puVar14].x;
                     Coprocessor.vector0.vy0 = (short)param1.DAT_20[puVar14].y;
                     Coprocessor.vector0.vz0 = (short)param1.DAT_20[puVar14].z;
+                    roadVertices[2] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     Coprocessor.ExecuteRTPS(12, false);
                     Coprocessor.ExecuteNCLIP();
                     iVar3 = Coprocessor.mathsAccumulator.mac0;
@@ -259,7 +276,111 @@ public class LevelManager : MonoBehaviour
                             if (0 < Coprocessor.screenZFIFO.sz1 || 0 < Coprocessor.screenZFIFO.sz2 || 
                                 0 < Coprocessor.screenZFIFO.sz3)
                             {
+                                puVar8 = dbVar16.DAT_20 * 40;
+                                uVar1 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                                dbVar16.DAT_10[puVar8 + 2] = roadVertices[0] / tFactor;
+                                uVar1 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
+                                dbVar16.DAT_10[puVar8 + 14] = roadVertices[1] / tFactor;
+                                uVar1 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                                dbVar16.DAT_10[puVar8 + 26] = roadVertices[2] / tFactor;
+                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                                uVar5 = (uint)((int)uVar20 << 16 >> 16);
+                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
+                                uVar1 = (uint)((int)uVar20 << 16 >> 16);
+                                uVar11 = uVar1;
 
+                                if ((int)uVar5 < (int)uVar1)
+                                    uVar11 = uVar5;
+
+                                if ((int)uVar1 < (int)uVar5)
+                                    uVar1 = uVar5;
+
+                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                                uVar5 = (uint)((int)uVar20 << 16 >> 16);
+                                uVar6 = uVar5;
+
+                                if ((int)uVar11 < (int)uVar5)
+                                    uVar6 = uVar11;
+
+                                if ((int)uVar5 < (int)uVar1)
+                                    uVar5 = uVar1;
+
+                                iVar12 = Coprocessor.screenZFIFO.sz1;
+                                iVar3 = Coprocessor.screenZFIFO.sz2;
+                                iVar4 = Coprocessor.screenZFIFO.sz3;
+                                iVar13 = iVar12 * 4 + (iVar3 - iVar12) + (iVar4 - iVar12);
+                                Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
+                                Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
+                                Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
+                                roadVertices[0] = new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
+                                Coprocessor.vector1.vx1 = (short)((param1.DAT_20[puVar18].x + param1.DAT_28[puVar14 - 1].x) / 2);
+                                Coprocessor.vector1.vy1 = (short)((param1.DAT_20[puVar14 - 1].y + param1.DAT_28[puVar14 - 1].y) / 2);
+                                Coprocessor.vector1.vz1 = (short)((param1.DAT_20[puVar14 - 1].z + param1.DAT_28[puVar14 - 1].z) / 2);
+                                roadVertices[1] = new Vector3(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1);
+                                iVar10 = (param1.DAT_20[puVar14 - 1].y + param1.DAT_20[puVar14].y) / 2;
+                                Coprocessor.vector2.vx2 = (short)((param1.DAT_20[puVar18].x + param1.DAT_20[puVar14].x) / 2);
+                                Coprocessor.vector2.vy2 = (short)iVar10;
+                                Coprocessor.vector2.vz2 = (short)((param1.DAT_20[puVar14 - 1].z + param1.DAT_20[puVar14].z) / 2);
+                                roadVertices[2] = new Vector3(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2);
+                                Coprocessor.ExecuteRTPT(12, false);
+                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                                uVar1 = (uint)((int)uVar20 << 16 >> 16);
+                                uVar11 = uVar1;
+
+                                if ((int)uVar6 < (int)uVar1)
+                                    uVar11 = uVar6;
+
+                                uVar6 = (uint)((int)uVar1 < (int)uVar5 ? 1 : 0);
+
+                                if ((int)uVar11 < 320)
+                                {
+                                    if (uVar6 != 0)
+                                        uVar1 = uVar5;
+
+                                    if (-1 < (int)uVar1)
+                                    {
+                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                                        dbVar16.DAT_10[puVar14 + 38] = roadVertices[0] / tFactor;
+                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
+                                        dbVar16.DAT_10[puVar14 + 12] = roadVertices[1] / tFactor;
+                                        dbVar16.DAT_10[puVar14 + 4] = roadVertices[1] / tFactor;
+                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                                        dbVar16.DAT_10[puVar14 + 22] = roadVertices[2] / tFactor;
+                                        dbVar16.DAT_10[puVar14 + 6] = roadVertices[2] / tFactor;
+                                        iVar10 = 0;
+
+                                        if (0 < iVar13)
+                                            iVar10 = iVar13;
+
+                                        puVar9 = iVar10 >> 5;
+                                        iVar10 = iVar13 + (iVar3 - iVar12) * 2;
+                                        iVar3 = 0;
+
+                                        if (0 < iVar10)
+                                            iVar3 = iVar10;
+
+                                        puVar9 = iVar3 >> 5;
+                                        iVar4 = (iVar4 - iVar12) * 2;
+                                        iVar13 += iVar4;
+                                        iVar3 = 0;
+
+                                        if (0 < iVar13)
+                                            iVar3 = iVar13;
+
+                                        puVar9 = iVar3 >> 5;
+                                        iVar10 += iVar4;
+                                        iVar3 = 0;
+
+                                        if (0 < iVar10)
+                                            iVar3 = iVar10;
+
+                                        puVar9 = iVar3 >> 5;
+                                        Coprocessor.vector0.vx0 = (short)((param1.DAT_28[puVar14 - 1].x + param1.DAT_28[puVar14].x) / 2);
+                                        Coprocessor.vector0.vy0 = (short)((param1.DAT_28[puVar14 - 1].y + param1.DAT_28[puVar14].y) / 2);
+                                        Coprocessor.vector0.vz0 = (short)((param1.DAT_28[puVar14 - 1].z + param1.DAT_28[puVar14].z) / 2);
+
+                                    }
+                                }
                             }
                         }
                     }

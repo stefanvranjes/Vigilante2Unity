@@ -8,7 +8,7 @@ public class XRTP_DB : MonoBehaviour
 {
     public List<Texture2D> timFarList;
     public byte[] DAT_0C; //0x0C
-    public byte[] DAT_10; //0x10
+    public Vector3[] DAT_10; //0x10
     public int DAT_14; //0x14
     public int DAT_18; //0x18
     public int DAT_1C; //0x1C
