@@ -7,7 +7,8 @@ using UnityEngine;
 public class XRTP_DB : MonoBehaviour
 {
     public List<Texture2D> timFarList;
-    public byte[] DAT_0C; //0x0C
+    public Vector3[] V3_DAT_0C; //0x0C
+    public Color32[] C32_DAT_0C; //0x0C
     public Vector3[] V3_DAT_10; //0x10
     public Color32[] C32_DAT_10; //0x10
     public int DAT_14; //0x14
@@ -49,7 +50,7 @@ public class XRTP_DB : MonoBehaviour
             uVar2 = reader.ReadUInt16BE();
             DAT_2C = uVar2;
             DAT_14 = 0;
-            DAT_0C = null;
+            V3_DAT_0C = null;
             V3_DAT_10 = null;
 
             if (DAT_1C < 16)

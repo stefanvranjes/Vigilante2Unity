@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using UnityEngine;
 
 public static class Utilities
@@ -2025,5 +2026,34 @@ public static class Utilities
         writer.BaseStream.Seek(offset, SeekOrigin.Current);
         writer.Write(value);
         writer.BaseStream.Seek(position, SeekOrigin.Begin);
+    }
+}
+
+public class FixedSizedQueue<T>
+{
+    ConcurrentQueue<T> q = new ConcurrentQueue<T>();
+    private object lockObject = new object();
+
+    public int Limit { get; set; }
+    public void Enqueue(T obj)
+    {
+        q.Enqueue(obj);
+        lock (lockObject)
+        {
+            T overflow;
+            while (q.Count > Limit && q.TryDequeue(out overflow)) ;
+        }
+    }
+    public T Dequeue()
+    {
+        T result;
+        q.TryDequeue(out result);
+        return result;
+    }
+    public T Peek()
+    {
+        T result;
+        q.TryPeek(out result);
+        return result;
     }
 }
