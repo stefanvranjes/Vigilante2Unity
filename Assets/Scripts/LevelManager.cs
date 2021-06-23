@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public static LevelManager instance;
+
     public Color32[] DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
     public byte[] DAT_CF4; //gp+CF4h
@@ -60,6 +62,7 @@ public class LevelManager : MonoBehaviour
     public void FUN_50B38()
     {
         bool bVar1;
+        int iVar4;
         Vector3Int local_18;
 
         for (int i = 0; i < roadList.Count - 1; i++)
@@ -79,6 +82,15 @@ public class LevelManager : MonoBehaviour
                     FUN_4F804(roadList[i]);
                 }
             }
+        }
+
+        iVar4 = 0;
+
+        if (0 < DAT_1184)
+        {
+            for (int i = 0; i < iVar4; i++)
+                if (juncList[iVar4].DAT_18 != null)
+                    FUN_507DC(juncList[iVar4]);
         }
     }
 
@@ -187,6 +199,28 @@ public class LevelManager : MonoBehaviour
             for (int i = 0; i < DAT_1180; i++)
                 if (xrtpList[i].timFarList != null)
                     FUN_50F0(xrtpList[i]);
+        }
+    }
+
+    private void FUN_507DC(JUNC_DB param1)
+    {
+        bool bVar1;
+        Vector3Int local_28;
+        VigTransform local_18;
+
+        bVar1 = FUN_2E22C(param1.DAT_00, (int)param1.DAT_18.DAT_18);
+        local_28 = Utilities.FUN_24148(DAT_F00, param1.DAT_00);
+
+        if (bVar1 && local_28.z < 0x200000)
+        {
+            local_18.rotation = new Matrix3x3();
+            local_18.rotation.SetValue32(0, 0);
+            local_18.rotation.SetValue32(1, 0);
+            local_18.rotation.SetValue32(2, 0);
+            local_18.rotation.SetValue32(3, 0);
+            local_18.rotation.SetValue32(4, 0);
+            local_18.position = local_28;
+            param1.DAT_18.FUN_21F70(local_18);
         }
     }
 
@@ -695,8 +729,34 @@ public class LevelManager : MonoBehaviour
                             Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
                             roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
                             Coprocessor.ExecuteRTPS(12, false);
+                            dbVar16.C32_DAT_0C[puVar15 + 15] = local_f0[param1.DAT_26[puVar14 - 1] >> 2];
+                            dbVar16.C32_DAT_0C[puVar15 + 17] = local_f0[param1.DAT_2E[puVar14 - 1] >> 2];
+                            dbVar16.C32_DAT_0C[puVar15 + 20] = local_f0[param1.DAT_26[puVar14] >> 2];
+                            dbVar16.C32_DAT_0C[puVar15 + 23] = local_f0[param1.DAT_2E[puVar14] >> 2];
+                            uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                            dbVar16.V3_DAT_0C[puVar15 + 24] = roadVertices.Dequeue();
+                            Coprocessor.ExecuteAVSZ4();
+                            iVar3 = Coprocessor.accumulator.ir0;
+
+                            if (iVar3 < 0)
+                                iVar3 += 255;
+
+                            //...
+                            iVar3 = Coprocessor.averageZ;
+                            puVar15 += 13;
+                            puVar19 += 13;
+                            dbVar16.DAT_18++;
                         }
                     }
+                    else
+                    {
+                        Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
+                        Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
+                        Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
+                        Coprocessor.ExecuteRTPS(12, false);
+                    }
+
+                    puVar18 += 4;
                 }
             }
         }
@@ -726,22 +786,22 @@ public class LevelManager : MonoBehaviour
         local_80 = new int[,]
         {
             {
-                param1.DAT_00[0].DAT_00,
-                param1.DAT_00[0].DAT_04,
-                param1.DAT_00[0].DAT_08,
-                param1.DAT_00[0].DAT_00 + param1.DAT_10[0]
+                param1.DAT_00[0].DAT_00.x,
+                param1.DAT_00[0].DAT_00.y,
+                param1.DAT_00[0].DAT_00.z,
+                param1.DAT_00[0].DAT_00.x + param1.DAT_10[0]
             },
             {
                 0,
-                param1.DAT_00[0].DAT_08 + param1.DAT_14[0],
-                param1.DAT_00[1].DAT_00 + param1.DAT_10[1],
+                param1.DAT_00[0].DAT_00.z + param1.DAT_14[0],
+                param1.DAT_00[1].DAT_00.x + param1.DAT_10[1],
                 0
             },
             {
-                param1.DAT_00[1].DAT_08 + param1.DAT_14[1],
-                param1.DAT_00[1].DAT_00,
-                param1.DAT_00[1].DAT_04,
-                param1.DAT_00[1].DAT_08
+                param1.DAT_00[1].DAT_00.z + param1.DAT_14[1],
+                param1.DAT_00[1].DAT_00.x,
+                param1.DAT_00[1].DAT_00.y,
+                param1.DAT_00[1].DAT_00.z
             }
         };
         local_b0 = new int[3, 4];
@@ -858,8 +918,8 @@ public class LevelManager : MonoBehaviour
                     local_30 = iVar5;
                 }
 
-                local_b0[local_30, 1] = piVar7.DAT_00 + local_80[1, 0];
-                local_b0[local_30, 3] = piVar7.DAT_08 + local_80[1, 2];
+                local_b0[local_30, 1] = piVar7.DAT_00.x + local_80[1, 0];
+                local_b0[local_30, 3] = piVar7.DAT_00.z + local_80[1, 2];
                 uVar3 = terrain.FUN_1B750((uint)local_b0[local_30, 1], (uint)local_b0[local_30, 3]);
                 local_b0[local_30, 2] = uVar3;
             }
@@ -892,9 +952,11 @@ public class LevelManager : MonoBehaviour
 
         if ((param1.DAT_2C & 2) == 0)
         {
-            param1.V3_DAT_0C = new byte[param1.DAT_14 * 40];
-            param1.V3_DAT_10 = new Vector3[param1.DAT_1C * 160];
-            
+            param1.V3_DAT_0C = new Vector3[param1.DAT_14 * 10];
+            param1.C32_DAT_0C = new Color32[param1.DAT_14 * 10];
+            param1.V3_DAT_10 = new Vector3[param1.DAT_1C * 40];
+            param1.C32_DAT_10 = new Color32[param1.DAT_1C * 40];
+            //...
         }
     }
 

@@ -8,9 +8,7 @@ public delegate void DELEGATE_79A0(MemoryStream param1, MemoryStream param2, Mem
 
 public class JUNC_DB : MonoBehaviour
 {
-    public int DAT_00; //0x00
-    public int DAT_04; //0x04
-    public int DAT_08; //0x08
+    public Vector3Int DAT_00; //0x00
     public XOBF_DB DAT_0C; //0x0C
     public byte DAT_10; //0x10
     public byte DAT_11; //0x11
@@ -50,8 +48,8 @@ public class JUNC_DB : MonoBehaviour
             iVar4 = reader.ReadInt32BE();
             bVar1 = reader.ReadByte();
             iVar5 = reader.ReadByte();
-            DAT_00 = iVar3;
-            DAT_08 = iVar4;
+            DAT_00.x = iVar3;
+            DAT_00.z = iVar4;
             DAT_10 = bVar1;
             DAT_11 = (byte)iVar5;
 
@@ -67,12 +65,12 @@ public class JUNC_DB : MonoBehaviour
             if ((bVar1 & 2) == 0)
             {
                 iVar7 = terrain.FUN_1B750((uint)iVar3, (uint)iVar4);
-                DAT_04 = iVar7;
+                DAT_00.y = iVar7;
             }
             else
             {
                 iVar7 = reader.ReadInt32BE();
-                DAT_04 = iVar7 - 0x100000;
+                DAT_00.y = iVar7 - 0x100000;
                 length -= 4;
             }
 
@@ -137,10 +135,10 @@ public class JUNC_DB : MonoBehaviour
                                     iVar7 += 4095;
 
                                 sVar12 = (short)(iVar7 >> 12);
-                                iVar7 = terrain.FUN_1B750((uint)(DAT_00 + (sVar17 << (int)(uVar14 & 31))),
-                                                          (uint)(DAT_08 + (sVar12 << (int)(uVar14 & 31))));
+                                iVar7 = terrain.FUN_1B750((uint)(DAT_00.x + (sVar17 << (int)(uVar14 & 31))),
+                                                          (uint)(DAT_00.z + (sVar12 << (int)(uVar14 & 31))));
                                 reader2.BaseStream.Seek(2, SeekOrigin.Current);
-                                writer.Write((short)(iVar7 - DAT_04 >> (int)(uVar14 & 31)));
+                                writer.Write((short)(iVar7 - DAT_00.y >> (int)(uVar14 & 31)));
                                 writer.Write(sVar12);
                             }
                         }
@@ -150,7 +148,7 @@ public class JUNC_DB : MonoBehaviour
                 auStack72 = GameManager.FUN_2A39C();
                 Utilities.SetRotMatrix(auStack72.rotation);
                 Coprocessor.translationVector._trx = iVar3;
-                Coprocessor.translationVector._try = DAT_04;
+                Coprocessor.translationVector._try = DAT_00.y;
                 Coprocessor.translationVector._trz = iVar4;
                 dVar18 = new DELEGATE_79A0(FUN_78CC);
                 DAT_18.FUN_39A8(dVar18);

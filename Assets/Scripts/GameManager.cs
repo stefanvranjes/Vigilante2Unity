@@ -1105,6 +1105,8 @@ public class GameManager : MonoBehaviour
     public int gravityFactor; //gp+3Ch
     public int DAT_40; //gp+40h
 
+    private LevelManager levelManager;
+
     public void FUN_1C134()
     {
         terrain.ClearTerrainData();

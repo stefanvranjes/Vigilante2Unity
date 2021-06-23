@@ -385,6 +385,13 @@ public class Coprocessor
         RTPS(V2, shift, lm, true);
     }
 
+    public static void ExecuteAVSZ3()
+    {
+        long result = (long)zScaleFactor3 * (int)((uint)screenZFIFO.sz1 + (uint)screenZFIFO.sz2 + (uint)screenZFIFO.sz3);
+        TruncateAndSetMAC(result, 0, 0);
+        SetOTZ((int)(result >> 12));
+    }
+
     public static void ExecuteAVSZ4()
     {
         long result = (long)zScaleFactor4 * (int)((uint)screenZFIFO.sz0 + (uint)screenZFIFO.sz1 + (uint)screenZFIFO.sz2 + (uint)screenZFIFO.sz3);
