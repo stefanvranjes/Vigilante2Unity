@@ -419,6 +419,16 @@ public class Coprocessor
         NCCS(V2, shift, lm);
     }
 
+    public static void ExecuteNCCS(byte shift, bool lm)
+    {
+        short[] V0 = new short[]
+        {
+            vector0.vx0, vector0.vy0, vector0.vz0
+        };
+
+        NCCS(V0, shift, lm);
+    }
+
     private static void DPCS(byte[] color, byte shift, bool lm)
     {
         TruncateAndSetMAC((long)(ulong)color[0] << 16, 1, 0);
