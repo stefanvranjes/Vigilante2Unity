@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -597,6 +599,7 @@ public struct Matrix2x4
 public struct VigTransform
 {
     public Matrix3x3 rotation;
+    public short padding;
     public Vector3Int position;
 }
 
@@ -619,8 +622,6 @@ public class VigObject : MonoBehaviour
 
     public VigTransform vTransform; //0x20
 
-    public short padding1; //0x32
-
     public VigMesh vMesh; //0x40
 
     public Vector3Int screen; //0x4C
@@ -629,8 +630,11 @@ public class VigObject : MonoBehaviour
 
     public int DAT_58; //0x58
     public VigConfig vConfig; //0x5C
-    public VigCollider[] vCollider; //0x60
+    public byte[] vCollider; //0x60
     public int unk3; //0x64
+    public VigMesh vLOD; //0x68
+    public int DAT_6C; //0x6C
+    public VigShadow vShadow; //0x70
     public VigObject PDAT_74; //0x74
     public int IDAT_74; //0x74
     public VigObject PDAT_78; //0x78
@@ -673,14 +677,14 @@ public class VigObject : MonoBehaviour
     {
         vTransform.position = screen;
         vTransform.rotation = Utilities.RotMatrixYXZ_gte(vr);
-        padding1 = 0;
+        vTransform.padding = 0;
     }
 
     //FUN_2CF44
     public void ApplyRotationMatrix()
     {
         vTransform.rotation = Utilities.RotMatrixYXZ_gte(vr);
-        padding1 = 0;
+        vTransform.padding = 0;
     }
 
     public void FUN_24700(short x, short y, short z)
@@ -980,6 +984,154 @@ public class VigObject : MonoBehaviour
         return oVar1;
     }
 
+    public void FUN_2D368(VigTransform param1)
+    {
+        VigTransform t2;
+        bool local_2e;
+
+        if ((flags & 2) == 0)
+        {
+            t2 = Utilities.CompMatrixLV(param1, vTransform);
+            t2.padding = 0;
+
+            if (param1.padding != 0 || vTransform.padding != 0)
+                t2.padding = 1;
+
+            if ((flags & 0x10) != 0)
+            {
+                if ((flags & 0x400) == 0)
+                {
+                    if (t2.padding == 0)
+                        t2.rotation = GameManager.instance.DAT_EE0.rotation;
+                    else
+                        t2.rotation = Utilities.FUN_2A4A4(t2.rotation);
+                }
+                else
+                    t2.rotation = vTransform.rotation;
+            }
+
+            if (vMesh != null)
+                vMesh.FUN_2D2A8(t2);
+
+            if (child2 != null)
+                child2.FUN_2D368(t2);
+        }
+
+        if (child != null)
+            child.FUN_2D368(param1);
+    }
+
+    public void FUN_2D5EC(VigTransform param1, Vector3Int param2, Vector3Int param3)
+    {
+        VigTransform t2;
+
+        if ((flags & 2) == 0)
+        {
+            t2 = Utilities.CompMatrixLV(param1, vTransform);
+            t2.padding = 0;
+
+            if (param1.padding != 0 || vTransform.padding != 0)
+                t2.padding = 1;
+
+            if ((flags & 0x10) != 0)
+            {
+                if ((flags & 0x400) == 0)
+                {
+                    if (t2.padding == 0)
+                    {
+                        t2.rotation.SetValue32(0, 0);
+                        t2.rotation.SetValue32(1, 0);
+                        t2.rotation.SetValue32(2, 0);
+                        t2.rotation.SetValue32(3, 0);
+                        t2.rotation.SetValue32(4, 0);
+                    }
+                    else
+                        t2.rotation = Utilities.FUN_2A4A4(t2.rotation);
+                }
+                else
+                    t2.rotation = vTransform.rotation;
+            }
+
+            if (vMesh != null)
+                vMesh.FUN_2D4D4(t2, param2, param3);
+
+            if (child2 != null)
+                child2.FUN_2D5EC(t2, param2, param3);
+        }
+
+        if (child != null)
+            child.FUN_2D5EC(param1, param2, param3);
+    }
+
+    public void FUN_2D778(VigTransform param1)
+    {
+        VigTransform t2;
+        
+        if ((flags & 2) == 0)
+        {
+            t2 = Utilities.CompMatrixLV(param1, vTransform);
+
+            if ((flags & 0x10) != 0)
+            {
+                if ((flags & 0x400) == 0)
+                    t2.rotation = Utilities.FUN_2A4A4(t2.rotation);
+                else
+                    t2.rotation = vTransform.rotation;
+            }
+
+            if (vMesh != null)
+                vMesh.FUN_21F70(t2);
+
+            if (child2 != null)
+                child2.FUN_2D778(t2);
+        }
+
+        if (child != null)
+            child.FUN_2D778(param1);
+    }
+
+    public Matrix3x3 FUN_2D884(VigTransform param1)
+    {
+        VigObject oVar6;
+        VigTransform auStack32;
+
+        if ((flags & 0x1010) == 0x1000)
+        {
+            if ((flags & 0x400) == 0)
+            {
+                if (vTransform.padding == 0)
+                    param1.rotation = GameManager.instance.DAT_EE0.rotation;
+                else
+                    param1.rotation = Utilities.FUN_2A4A4(param1.rotation);
+            }
+            else
+            {
+                param1.rotation = GameManager.DAT_878.rotation;
+            }
+        }
+
+        vLOD.FUN_21F70(param1);
+        oVar6 = child2;
+
+        while (oVar6 != null)
+        {
+            if ((oVar6.flags & 2) == 0 && oVar6.vLOD != null)
+            {
+                auStack32 = Utilities.CompMatrixLV(param1, oVar6.vTransform);
+                auStack32.padding = 0;
+
+                if (param1.padding != 0 || oVar6.vTransform.padding != 0)
+                    auStack32.padding = 1;
+
+                auStack32.rotation = oVar6.FUN_2D884(auStack32);
+            }
+
+            oVar6 = oVar6.child;
+        }
+
+        return param1.rotation;
+    }
+
     public virtual int FUN_2DD78(HitDetection param1)
     {
         return 0;
@@ -1062,6 +1214,74 @@ public class VigObject : MonoBehaviour
         vr.x = Utilities.Ratan2(-position.y, iVar4);
     }
 
+    public void FUN_4C4F4()
+    {
+        TileData tVar1;
+        int iVar2;
+        int iVar3;
+        Vector3Int local_60;
+        Matrix3x3 local_48;
+        VigTerrain terrain = GameManager.instance.terrain;
+
+        tVar1 = terrain.GetTileByPosition((uint)vTransform.position.x, (uint)vTransform.position.z);
+
+        if ((tVar1.unk1 & 4) == 0)
+            iVar2 = terrain.FUN_1B750((uint)vTransform.position.x, (uint)vTransform.position.z);
+        else
+            iVar2 = 0x2ff800;
+
+        vShadow.vTransform.position.x = vTransform.position.x;
+        vShadow.vTransform.position.z = vTransform.position.z;
+
+        if (PDAT_74 != null)
+        {
+            iVar3 = PDAT_74.FUN_2F710(iVar2, vTransform.position, out local_60);
+
+            if (iVar3 != 0)
+                goto LAB_4C5B8;
+
+            if (PDAT_78 == null)
+                goto LAB_4C5C0;
+
+            iVar3 = PDAT_78.FUN_2F710(iVar2, vTransform.position, out local_60);
+
+            if (iVar3 == 0)
+                goto LAB_4C5C0;
+
+            LAB_4C5B8:
+            vShadow.vTransform.position.y = iVar3;
+            goto LAB_4C5D4;
+        }
+
+        LAB_4C5C0:
+        vShadow.vTransform.position.y = iVar2;
+        local_60 = terrain.FUN_1BB50(vTransform.position.x, vTransform.position.z);
+        LAB_4C5D4:
+        if ((vShadow.vMesh.DAT_00 & 8) == 0)
+        {
+            local_48 = new Matrix3x3();
+            local_48.V00 = 0x1000;
+            local_48.V01 = 0;
+            local_48.V02 = 0;
+            local_48.V11 = 0;
+            local_48.V20 = 0;
+            local_48.V21 = 0;
+            local_48.V22 = 0x1000;
+
+            if (local_60.y == 0)
+                local_48.V10 = (short)(local_60.x * -16);
+            else
+                local_48.V10 = (short)((local_60.x * -4096) / local_60.y);
+
+            if (local_60.y == 0)
+                local_48.V12 = (short)(local_60.z * -16);
+            else
+                local_48.V12 = (short)((local_60.z * -4096) / local_60.y);
+
+
+        }
+    }
+
     public int FUN_4DCD8()
     {
         int configIndex = (unk2 << 3) - unk2 << 2;
@@ -1109,5 +1329,419 @@ public class VigObject : MonoBehaviour
         }
 
         return container;
+    }
+
+    private int FUN_2F16C(VigTransform param1, int param2, Vector3Int param3, out Vector3Int param4)
+    {
+        short sVar1;
+        long lVar2;
+        int puVar3;
+        int iVar4;
+        int iVar5;
+        uint uVar6;
+        int iVar7;
+        uint uVar8;
+        int iVar9;
+        int psVar9;
+        int psVar10;
+        int iVar11;
+        int iVar12;
+        uint uVar13;
+        uint uVar14;
+        Vector3Int local_60;
+        Vector3Int local_50;
+        Vector3Int local_40;
+        uint local_30;
+        int local_2c;
+        param4 = new Vector3Int(); //not in the original code
+
+        if (vCollider != null)
+        {
+            MemoryStream msCollider = new MemoryStream(vCollider);
+
+            using (BinaryReader brCollider = new BinaryReader(msCollider, Encoding.Default, true))
+            {
+                local_60 = new Vector3Int(
+                    param3.x - param1.position.x,
+                    param3.y - param1.position.y,
+                    param3.z - param1.position.z);
+                sVar1 = brCollider.ReadInt16(0);
+                psVar10 = 0;
+
+                while(sVar1 != 0)
+                {
+                    if (brCollider.ReadUInt16(psVar10) == 1)
+                    {
+                        local_50 = Utilities.FUN_2426C(param1.rotation, 
+                            new Matrix2x4(local_60.x, local_60.y, local_60.z, 0));
+                        psVar9 = psVar10 + 4;
+
+                        if (local_50.x < brCollider.ReadInt32(psVar9 + 12) && brCollider.ReadInt32(psVar10 + 4) < local_50.x && 
+                            local_50.z < brCollider.ReadInt32(psVar9 + 20) && brCollider.ReadInt32(psVar9 + 8) < local_50.z && 
+                            local_50.y < brCollider.ReadInt32(psVar9 + 16))
+                        {
+                            iVar12 = brCollider.ReadInt32(psVar9 + 4);
+
+                            if (local_50.y < iVar12 + 0x2800 && iVar12 - 0x5000 < local_50.y)
+                            {
+                                if (param1.position.y + iVar12 < param2)
+                                    goto LAB_2F2F0;
+
+                                psVar10 += 28;
+
+                                if (!(param2 + 0x10000 < param3.y))
+                                    goto LAB_2F568;
+                                
+                                LAB_2F2F0:
+                                param4 = new Vector3Int
+                                    (-param1.rotation.V01, -param1.rotation.V11, -param1.rotation.V21);
+                                local_50.y = brCollider.ReadInt32(psVar9 + 4);
+                                local_50 = Utilities.FUN_24094(param1.rotation, local_50);
+                                return param1.position.y + local_50.y;
+                            }
+                        }
+
+                        psVar10 += 28;
+                    }
+                    else
+                    {
+                        iVar12 = 0x7fff0000;
+
+                        if (brCollider.ReadUInt16(psVar10) == 2)
+                        {
+                            uVar8 = 0x80010000;
+                            Utilities.SetRotMatrix(param1.rotation);
+                            local_40 = new Vector3Int(); //not in original code
+                            iVar9 = 0;
+
+                            if (brCollider.ReadUInt16(psVar10 + 2) != 0)
+                            {
+                                iVar11 = 4;
+                                puVar3 = psVar10 + iVar11;
+
+                                do
+                                {
+                                    Coprocessor.vector0.vx0 = brCollider.ReadInt16(puVar3);
+                                    Coprocessor.vector0.vy0 = brCollider.ReadInt16(puVar3 + 2);
+                                    Coprocessor.vector0.vz0 = brCollider.ReadInt16(puVar3 + 4);
+                                    Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+                                    uVar13 = (uint)((long)brCollider.ReadInt32(puVar3 + 8) * 4096);
+                                    iVar4 = Coprocessor.accumulator.ir1;
+                                    uVar14 = (uint)((long)iVar4 * local_60.x);
+                                    uVar6 = uVar13 - uVar14;
+                                    iVar5 = Coprocessor.accumulator.ir3;
+                                    local_30 = (uint)((long)iVar5 * local_60.z);
+                                    local_2c = (int)((ulong)((long)iVar5 * local_60.z) >> 32);
+                                    iVar5 = (int)(uVar6 - local_30);
+                                    iVar7 = ((((int)((ulong)((long)brCollider.ReadInt32(puVar3 + 8) * 4096) >> 32) -
+                                               (int)((ulong)((long)iVar4 * local_60.x) >> 32)) -
+                                               (int)(uVar13 < uVar14 ? 1 : 0)) - local_2c) - (int)(uVar6 < local_30 ? 1 : 0);
+                                    iVar4 = Coprocessor.accumulator.ir2;
+
+                                    if (iVar4 < 0)
+                                    {
+                                        iVar4 = Coprocessor.accumulator.ir2;
+                                        lVar2 = Utilities.Divdi3(iVar5, iVar7, iVar4, iVar4 >> 31);
+
+                                        if ((int)uVar8 < (int)lVar2)
+                                        {
+                                            local_40 = new Vector3Int(
+                                                Coprocessor.accumulator.ir1,
+                                                Coprocessor.accumulator.ir2,
+                                                Coprocessor.accumulator.ir3);
+                                            uVar8 = (uint)lVar2;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        iVar4 = Coprocessor.accumulator.ir2;
+
+                                        if (iVar4 < 1)
+                                        {
+                                            if (iVar7 < 0)
+                                                goto LAB_2F54C;
+                                        }
+                                        else
+                                        {
+                                            iVar4 = Coprocessor.accumulator.ir2;
+                                            lVar2 = Utilities.Divdi3(iVar5, iVar7, iVar4, iVar4 >> 31);
+
+                                            if ((int)lVar2 < local_60.y)
+                                                goto LAB_2F54C;
+
+                                            if ((int)lVar2 < iVar12)
+                                                iVar12 = (int)lVar2;
+                                        }
+                                    }
+
+                                    iVar11 += 12;
+                                    iVar9++;
+                                    puVar3 = psVar10 + iVar11;
+                                } while (iVar9 < brCollider.ReadUInt16(psVar10 + 2));
+                            }
+
+                            if ((int)uVar8 < iVar12)
+                            {
+                                iVar12 = (int)uVar8 + param1.position.y;
+
+                                if (iVar12 < param2 && param3.y - 0x2800 < iVar12 && 
+                                    iVar12 < param3.y + 0x5000 && local_40.y < -2048)
+                                {
+                                    param4 = local_40;
+                                    return iVar12;
+                                }
+                            }
+
+                            LAB_2F54C:
+                            psVar10 += brCollider.ReadUInt16(psVar10 + 2) * 12 + 4;
+                        }
+                    }
+
+                    LAB_2F568:
+                    sVar1 = brCollider.ReadInt16(psVar10);
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private int FUN_2F16C(VigTransform param1, int param2, Vector3Int param3)
+    {
+        short sVar1;
+        long lVar2;
+        int puVar3;
+        int iVar4;
+        int iVar5;
+        uint uVar6;
+        int iVar7;
+        uint uVar8;
+        int iVar9;
+        int psVar9;
+        int psVar10;
+        int iVar11;
+        int iVar12;
+        uint uVar13;
+        uint uVar14;
+        Vector3Int local_60;
+        Vector3Int local_50;
+        Vector3Int local_40;
+        uint local_30;
+        int local_2c;
+
+        if (vCollider != null)
+        {
+            MemoryStream msCollider = new MemoryStream(vCollider);
+
+            using (BinaryReader brCollider = new BinaryReader(msCollider, Encoding.Default, true))
+            {
+                local_60 = new Vector3Int(
+                    param3.x - param1.position.x,
+                    param3.y - param1.position.y,
+                    param3.z - param1.position.z);
+                sVar1 = brCollider.ReadInt16(0);
+                psVar10 = 0;
+
+                while (sVar1 != 0)
+                {
+                    if (brCollider.ReadUInt16(psVar10) == 1)
+                    {
+                        local_50 = Utilities.FUN_2426C(param1.rotation,
+                            new Matrix2x4(local_60.x, local_60.y, local_60.z, 0));
+                        psVar9 = psVar10 + 4;
+
+                        if (local_50.x < brCollider.ReadInt32(psVar9 + 12) && brCollider.ReadInt32(psVar10 + 4) < local_50.x &&
+                            local_50.z < brCollider.ReadInt32(psVar9 + 20) && brCollider.ReadInt32(psVar9 + 8) < local_50.z &&
+                            local_50.y < brCollider.ReadInt32(psVar9 + 16))
+                        {
+                            iVar12 = brCollider.ReadInt32(psVar9 + 4);
+
+                            if (local_50.y < iVar12 + 0x2800 && iVar12 - 0x5000 < local_50.y)
+                            {
+                                if (param1.position.y + iVar12 < param2)
+                                    goto LAB_2F2F0;
+
+                                psVar10 += 28;
+
+                                if (!(param2 + 0x10000 < param3.y))
+                                    goto LAB_2F568;
+
+                                LAB_2F2F0:
+                                local_50.y = brCollider.ReadInt32(psVar9 + 4);
+                                local_50 = Utilities.FUN_24094(param1.rotation, local_50);
+                                return param1.position.y + local_50.y;
+                            }
+                        }
+
+                        psVar10 += 28;
+                    }
+                    else
+                    {
+                        iVar12 = 0x7fff0000;
+
+                        if (brCollider.ReadUInt16(psVar10) == 2)
+                        {
+                            uVar8 = 0x80010000;
+                            Utilities.SetRotMatrix(param1.rotation);
+                            local_40 = new Vector3Int(); //not in original code
+                            iVar9 = 0;
+
+                            if (brCollider.ReadUInt16(psVar10 + 2) != 0)
+                            {
+                                iVar11 = 4;
+                                puVar3 = psVar10 + iVar11;
+
+                                do
+                                {
+                                    Coprocessor.vector0.vx0 = brCollider.ReadInt16(puVar3);
+                                    Coprocessor.vector0.vy0 = brCollider.ReadInt16(puVar3 + 2);
+                                    Coprocessor.vector0.vz0 = brCollider.ReadInt16(puVar3 + 4);
+                                    Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+                                    uVar13 = (uint)((long)brCollider.ReadInt32(puVar3 + 8) * 4096);
+                                    iVar4 = Coprocessor.accumulator.ir1;
+                                    uVar14 = (uint)((long)iVar4 * local_60.x);
+                                    uVar6 = uVar13 - uVar14;
+                                    iVar5 = Coprocessor.accumulator.ir3;
+                                    local_30 = (uint)((long)iVar5 * local_60.z);
+                                    local_2c = (int)((ulong)((long)iVar5 * local_60.z) >> 32);
+                                    iVar5 = (int)(uVar6 - local_30);
+                                    iVar7 = ((((int)((ulong)((long)brCollider.ReadInt32(puVar3 + 8) * 4096) >> 32) -
+                                               (int)((ulong)((long)iVar4 * local_60.x) >> 32)) -
+                                               (int)(uVar13 < uVar14 ? 1 : 0)) - local_2c) - (int)(uVar6 < local_30 ? 1 : 0);
+                                    iVar4 = Coprocessor.accumulator.ir2;
+
+                                    if (iVar4 < 0)
+                                    {
+                                        iVar4 = Coprocessor.accumulator.ir2;
+                                        lVar2 = Utilities.Divdi3(iVar5, iVar7, iVar4, iVar4 >> 31);
+
+                                        if ((int)uVar8 < (int)lVar2)
+                                        {
+                                            local_40 = new Vector3Int(
+                                                Coprocessor.accumulator.ir1,
+                                                Coprocessor.accumulator.ir2,
+                                                Coprocessor.accumulator.ir3);
+                                            uVar8 = (uint)lVar2;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        iVar4 = Coprocessor.accumulator.ir2;
+
+                                        if (iVar4 < 1)
+                                        {
+                                            if (iVar7 < 0)
+                                                goto LAB_2F54C;
+                                        }
+                                        else
+                                        {
+                                            iVar4 = Coprocessor.accumulator.ir2;
+                                            lVar2 = Utilities.Divdi3(iVar5, iVar7, iVar4, iVar4 >> 31);
+
+                                            if ((int)lVar2 < local_60.y)
+                                                goto LAB_2F54C;
+
+                                            if ((int)lVar2 < iVar12)
+                                                iVar12 = (int)lVar2;
+                                        }
+                                    }
+
+                                    iVar11 += 12;
+                                    iVar9++;
+                                    puVar3 = psVar10 + iVar11;
+                                } while (iVar9 < brCollider.ReadUInt16(psVar10 + 2));
+                            }
+
+                            if ((int)uVar8 < iVar12)
+                            {
+                                iVar12 = (int)uVar8 + param1.position.y;
+
+                                if (iVar12 < param2 && param3.y - 0x2800 < iVar12 &&
+                                    iVar12 < param3.y + 0x5000 && local_40.y < -2048)
+                                {
+                                    return iVar12;
+                                }
+                            }
+
+                            LAB_2F54C:
+                            psVar10 += brCollider.ReadUInt16(psVar10 + 2) * 12 + 4;
+                        }
+                    }
+
+                    LAB_2F568:
+                    sVar1 = brCollider.ReadInt16(psVar10);
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private int FUN_2F5AC(VigTransform param1, int param2, Vector3Int param3, out Vector3Int param4)
+    {
+        int iVar1;
+        VigObject oVar2;
+        VigTransform MStack64;
+
+        oVar2 = child2;
+        param4 = new Vector3Int(); //not in the original code
+
+        do
+        {
+            if (oVar2 == null)
+                return 0;
+
+            if (oVar2.vCollider == null)
+            {
+                if ((oVar2.flags & 0x800) != 0)
+                {
+                    MStack64 = Utilities.CompMatrixLV(param1, oVar2.vTransform);
+                    iVar1 = oVar2.FUN_2F5AC(MStack64, param2, param3, out param4);
+
+                    if (iVar1 != 0)
+                        return iVar1;
+                }
+            }
+            else
+            {
+                MStack64 = Utilities.CompMatrixLV(param1, oVar2.vTransform);
+
+                if (0 < MStack64.rotation.V11 ||
+                    2048 < MStack64.rotation.V01 * vTransform.rotation.V01 +
+                           MStack64.rotation.V11 * vTransform.rotation.V11 +
+                           MStack64.rotation.V21 * vTransform.rotation.V21)
+                {
+                    iVar1 = oVar2.FUN_2F16C(MStack64, param2, param3, out param4);
+
+                    if (iVar1 != 0)
+                        return iVar1;
+                }
+
+                if ((oVar2.flags & 0x800) != 0)
+                {
+                    iVar1 = oVar2.FUN_2F5AC(MStack64, param2, param3, out param4);
+
+                    if (iVar1 != 0)
+                        return iVar1;
+                }
+            }
+
+            oVar2 = oVar2.child;
+        } while (true);
+    }
+
+    private int FUN_2F710(int param1, Vector3Int param2, out Vector3Int param3)
+    {
+        int iVar1;
+
+        if ((flags & 0x800) != 0)
+        {
+            iVar1 = FUN_2F5AC(vTransform, param1, param2, out param3);
+
+            if (iVar1 != 0)
+                return iVar1;
+        }
+
+        return FUN_2F16C(vTransform, param1, param2, out param3);
     }
 }

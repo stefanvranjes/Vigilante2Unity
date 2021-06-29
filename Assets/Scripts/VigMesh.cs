@@ -56,6 +56,61 @@ public class VigMesh : MonoBehaviour
         
     }
 
+    public void FUN_2D2A8(VigTransform param1)
+    {
+        int iVar1;
+        Vector3Int auStack16;
+        int local_c;
+
+        auStack16 = Utilities.FUN_24148(GameManager.instance.DAT_F28, param1.position);
+        local_c = GameManager.instance.DAT_DB0 - auStack16.y;
+        iVar1 = local_c;
+
+        if (local_c < 0)
+            iVar1 = -local_c;
+
+        if (iVar1 < DAT_18)
+        {
+            //...
+        }
+        else
+            FUN_21F70(param1);
+    }
+
+    public void FUN_2D4D4(VigTransform param1, Vector3Int param2, Vector3Int param3)
+    {
+        int iVar1;
+        int iVar2;
+        VigTransform MStack48;
+        Vector3Int auStack16;
+
+        MStack48 = Utilities.CompMatrixLV(GameManager.instance.DAT_F28, param1);
+        iVar1 = (param3.x - MStack48.position.x) * param2.x +
+                (param3.y - MStack48.position.y) * param2.y +
+                (param3.z - MStack48.position.z) * param2.z;
+        iVar2 = -iVar1;
+
+        if (0 < iVar1)
+            iVar2 += 4095;
+
+        iVar2 >>= 12;
+        iVar1 = iVar2;
+
+        if (iVar2 < 0)
+            iVar1 = -iVar2;
+
+        if (iVar1 < DAT_18)
+        {
+            auStack16 = Utilities.FUN_24238(MStack48.rotation, param2);
+            //FUN_21ECC
+        }
+        else
+        {
+            if (0 < iVar2)
+                FUN_21F70(param1);
+        }
+    }
+
     public void FUN_21F70(VigTransform param1)
     {
         byte bVar1;
@@ -99,7 +154,7 @@ public class VigMesh : MonoBehaviour
 
         if ((bVar1 & 1) != 0)
         {
-            Matrix3x3 gp00000f48 = LevelManager.instance.DAT_F48;
+            Matrix3x3 gp00000f48 = GameManager.instance.DAT_F48;
             Coprocessor.rotationMatrix.rt11 = gp00000f48.V00;
             Coprocessor.rotationMatrix.rt12 = gp00000f48.V01;
             Coprocessor.rotationMatrix.rt13 = gp00000f48.V02;

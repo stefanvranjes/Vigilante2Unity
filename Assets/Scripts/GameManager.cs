@@ -1078,13 +1078,43 @@ public class GameManager : MonoBehaviour
     public VigConfig commonWheelConfiguration;
     public Vehicle[] players; //gp+FF8h
     public List<VigObject> worldObjs; //gp+1040h
-
+    public List<VigObject> interObjs; //gp+10B8h
+    
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
     public Matrix3x3 DAT_738; //gp+738h
     public bool DAT_83B; //gp+83Bh
     public Vector3Int DAT_A18; //gp+A18h
     public Vector3Int DAT_A24; //gp+A24h
+    public Color32[] DAT_CE0; //gp+CE0h
+    public ushort[] DAT_CF0; //gp+CF0h
+    public byte[] DAT_CF4; //gp+CF4h
+    public byte[] DAT_CF5; //gp+CF5h
+    public byte DAT_CF8; //gp+CF8h
+    public byte[] DAT_CFC; //gp+CFCh
+    public byte DAT_D08; //gp+D08h
+    public byte[] DAT_D18; //gp+D18h
+    public byte[] DAT_D19; //gp+D19h
+    public byte[] DAT_D1A; //gp+D1Ah
+    public byte[] DAT_D1B; //gp+D1Bh
+    public int DAT_DA0; //gp+DA0h
+    public Color32 DAT_DA4; //gp+DA4h
+    public ushort DAT_DA8; //gp+DA8h
+    public int DAT_DB0; //gp+DB0h
+    public short DAT_DB4; //gp+DB4h
+    public short DAT_DB6; //gp+DB6h
+    public short DAT_DB8; //gp+DB8h
+    public short DAT_DBA; //gp+DBAh
+    public Color32 DAT_DDC; //gp+DDCh
+    public VigTransform DAT_F00; //gp+F00h
+    public int DAT_F20; //gp+F20h
+    public VigTransform DAT_F28; //gp+F28h
+    public Matrix3x3 DAT_F48; //gp+F48h
+    public Matrix3x3 DAT_F68; //gp+F68h
+    public VigTransform DAT_F88; //gp+F88h
+    public Matrix3x3 DAT_FA8; //gp+FA8h
+    public Vector2Int DAT_FC8; //gp+FC8h
+    public Matrix3x3 DAT_FD8; //gp+FD8h
     public Color32 DAT_E04; //gp+E04h
     public short DAT_E1C; //gp+E1Ch
     public VigTransform DAT_EA8; //gp+EA8h
@@ -1121,9 +1151,51 @@ public class GameManager : MonoBehaviour
         Utilities.SetFogNearFar(2048, 8192, 0);
     }
 
+    public void FUN_30B24(List<VigObject> param1)
+    {
+        for (int i = 0; i <= param1.Count; i++)
+            FUN_2D9E0(param1[i]);
+    }
+
     public void FUN_31728()
     {
 
+    }
+
+    public void FUN_50B38()
+    {
+        bool bVar1;
+        int iVar4;
+        Vector3Int local_18;
+        List<Junction> roadList = levelManager.roadList;
+
+        for (int i = 0; i < roadList.Count - 1; i++)
+        {
+            bVar1 = FUN_2E22C(roadList[i].pos, roadList[i].DAT_18);
+
+            if (bVar1)
+            {
+                local_18 = Utilities.FUN_24148(DAT_F00, roadList[i].pos);
+
+                if (local_18.z < 0x200000)
+                {
+                    Utilities.SetRotMatrix(DAT_F00.rotation);
+                    Coprocessor.translationVector._trx = local_18.x >> 8;
+                    Coprocessor.translationVector._try = local_18.y >> 8;
+                    Coprocessor.translationVector._trz = local_18.z >> 8;
+                    levelManager.FUN_4F804(roadList[i]);
+                }
+            }
+        }
+
+        iVar4 = 0;
+
+        if (0 < levelManager.DAT_1184)
+        {
+            for (int i = 0; i < iVar4; i++)
+                if (levelManager.juncList[iVar4].DAT_18 != null)
+                    FUN_507DC(levelManager.juncList[iVar4]);
+        }
     }
 
     // Start is called before the first frame update
@@ -1856,6 +1928,116 @@ public class GameManager : MonoBehaviour
         FUN_2E0E8(tVar1, param2);
     }
 
+    private void FUN_2D9E0(VigObject param1)
+    {
+        bool bVar1;
+        int iVar1;
+        int iVar2;
+        Vector3Int v0;
+        uint rbk;
+        VigTransform t2;
+        Vector3Int local_20;
+
+        if ((param1.flags & 2) == 0)
+        {
+            bVar1 = FUN_2E22C(param1.vTransform.position, param1.DAT_58);
+
+            if (bVar1)
+            {
+                t2 = Utilities.CompMatrixLV(DAT_F00, param1.vTransform);
+
+                if (t2.position.z < 0x400000)
+                {
+                    if ((param1.flags & 0x10) != 0)
+                    {
+                        if ((param1.flags & 0x400) == 0)
+                        {
+                            if (param1.vTransform.padding == 0)
+                                t2.rotation = DAT_EE0.rotation;
+                            else
+                                t2.rotation = Utilities.FUN_2A4A4(t2.rotation);
+                        }
+                        else
+                            t2.rotation = param1.vTransform.rotation;
+                    }
+
+                    rbk = 0x40;
+
+                    if ((param1.flags & 0x2000) != 0)
+                    {
+                        iVar1 = param1.vTransform.position.x;
+
+                        if (iVar1 < 0)
+                            iVar1 += 0xffff;
+
+                        iVar2 = param1.vTransform.position.z;
+
+                        if (iVar2 < 0)
+                            iVar2 += 0xffff;
+
+                        rbk = (uint)(terrain.vertices[terrain.chunks[((uint)(iVar1 >> 16) >> 6) * 32 + ((uint)(iVar2 >> 16) >> 6)] * 4096
+                                        + (iVar2 >> 16 & 0x3fU) + (iVar1 >> 16 & 0x3fU) * 128] & 0xf800) >> 8;
+                    }
+
+                    Utilities.SetBackColor((int)rbk, (int)rbk, (int)rbk);
+
+                    if (param1.DAT_6C == 0 || t2.position.z <= param1.DAT_6C)
+                    {
+                        if ((param1.flags & 0x20000) == 0)
+                        {
+                            if ((param1.flags & 0x10000) == 0 ||
+                                DAT_DA0 <= param1.vTransform.position.z ||
+                                param1.vTransform.position.y + param1.DAT_58 <= DAT_DB0)
+                            {
+                                if (param1.vMesh != null)
+                                    param1.vMesh.FUN_21F70(t2);
+
+                                if (param1.child2 != null)
+                                    param1.child2.FUN_2D778(t2);
+                            }
+                            else
+                            {
+                                if (param1.vMesh != null)
+                                    param1.vMesh.FUN_2D2A8(t2);
+
+                                if (param1.child2 != null)
+                                    param1.child2.FUN_2D368(t2);
+                            }
+                        }
+                        else
+                        {
+                            local_20 = new Vector3Int(
+                                param1.vTransform.position.x,
+                                terrain.FUN_1B750((uint)param1.vTransform.position.x, (uint)param1.vTransform.position.z),
+                                param1.vTransform.position.y);
+                            v0 = terrain.FUN_1BB50(param1.vTransform.position.x, param1.vTransform.position.z);
+                            v0 = Utilities.VectorNormal(v0);
+
+                            if (param1.vMesh != null)
+                                param1.vMesh.FUN_2D4D4(t2, v0, local_20);
+
+                            if (param1.child2 != null)
+                                param1.child2.FUN_2D5EC(t2, v0, local_20);
+                        }
+                    }
+                    else
+                    {
+                        if (param1.vLOD != null)
+                            t2.rotation = param1.FUN_2D884(t2);
+                    }
+
+                    if ((param1.flags & 8) != 0)
+                    {
+                        if ((param1.flags & 0x200) == 0)
+                            param1.FUN_4C4F4();
+
+                        //FUN_4C73C
+                    }
+                }
+            }
+        }
+    }
+
     private void FUN_2DEE8(int param1, int param2)
     {
         Utilities.SetScreenOffset(param1, param2);
@@ -1897,6 +2079,42 @@ public class GameManager : MonoBehaviour
         //FUN_2DFF0
         DAT_EE0 = DAT_F00;
         DAT_EE0.rotation = Utilities.FUN_2A4A4(DAT_EE0.rotation);
+    }
+
+    private bool FUN_2E22C(Vector3Int param1, int param2)
+    {
+        int iVar1;
+        bool bVar2;
+
+        Coprocessor.rotationMatrix.rt11 = DAT_FD8.V00;
+        Coprocessor.rotationMatrix.rt12 = DAT_FD8.V01;
+        Coprocessor.rotationMatrix.rt13 = DAT_FD8.V02;
+        Coprocessor.rotationMatrix.rt21 = DAT_FD8.V10;
+        Coprocessor.rotationMatrix.rt22 = DAT_FD8.V11;
+        Coprocessor.rotationMatrix.rt23 = DAT_FD8.V12;
+        Coprocessor.rotationMatrix.rt31 = DAT_FD8.V20;
+        Coprocessor.rotationMatrix.rt32 = DAT_FD8.V21;
+        Coprocessor.rotationMatrix.rt33 = DAT_FD8.V22;
+        Coprocessor.accumulator.ir1 = (short)(param1.x - DAT_F28.position.x >> 8);
+        Coprocessor.accumulator.ir2 = (short)(param1.y - DAT_F28.position.y >> 8);
+        Coprocessor.accumulator.ir3 = (short)(param1.z - DAT_F28.position.z >> 8);
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        param2 >>= 8;
+        bVar2 = false;
+        iVar1 = Coprocessor.accumulator.ir1;
+
+        if (iVar1 < param2)
+        {
+            iVar1 = Coprocessor.accumulator.ir2;
+
+            if (iVar1 < param2)
+            {
+                iVar1 = Coprocessor.accumulator.ir3;
+                bVar2 = iVar1 < param2;
+            }
+        }
+
+        return bVar2;
     }
 
     private HitDetection FUN_2E998(VigObject param1, VigObject param2, VigTransform param3, VigTransform param4)
@@ -2254,6 +2472,29 @@ public class GameManager : MonoBehaviour
                 }
             }
         }*/
+    }
+
+    private void FUN_507DC(JUNC_DB param1)
+    {
+        bool bVar1;
+        Vector3Int local_28;
+        VigTransform local_18;
+
+        bVar1 = FUN_2E22C(param1.DAT_00, (int)param1.DAT_18.DAT_18);
+        local_28 = Utilities.FUN_24148(DAT_F00, param1.DAT_00);
+
+        if (bVar1 && local_28.z < 0x200000)
+        {
+            local_18.rotation = new Matrix3x3();
+            local_18.rotation.SetValue32(0, 0);
+            local_18.rotation.SetValue32(1, 0);
+            local_18.rotation.SetValue32(2, 0);
+            local_18.rotation.SetValue32(3, 0);
+            local_18.rotation.SetValue32(4, 0);
+            local_18.padding = 0;
+            local_18.position = local_28;
+            param1.DAT_18.FUN_21F70(local_18);
+        }
     }
 
     public static VigTransform FUN_2A39C()

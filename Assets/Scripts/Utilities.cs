@@ -338,6 +338,7 @@ public static class Utilities
         VigTransform tout;
 
         tout.rotation = TransposeMatrix(transform.rotation);
+        tout.padding = 0;
         tout.position = FUN_24094(tout.rotation, transform.position);
         iVar1 = tout.position.z;
         tout.position.x = -tout.position.x;
@@ -613,6 +614,20 @@ public static class Utilities
         int mac3_2 = Coprocessor.mathsAccumulator.mac3 + mac3_1;
 
         return new Vector3Int(mac1_2, mac2_2, mac3_2);
+    }
+
+    public static Vector3Int FUN_24238(Matrix3x3 m33, Vector3Int v3)
+    {
+        Coprocessor.vector0.vx0 = (short)v3.x;
+        Coprocessor.vector0.vy0 = (short)v3.y;
+        Coprocessor.vector0.vz0 = (short)v3.z;
+        FUN_243B4(m33);
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+
+        return new Vector3Int(
+            Coprocessor.accumulator.ir1,
+            Coprocessor.accumulator.ir2,
+            Coprocessor.accumulator.ir3);
     }
 
     public static Vector3Int FUN_24210(Matrix3x3 rot, Vector3Int normal)
@@ -1455,6 +1470,7 @@ public static class Utilities
         m2.position.x = iVar2 + iVar10 + m0.position.x;
         m2.position.y = iVar3 + iVar6 + iVar7;
         m2.position.z = iVar4 + iVar12 + iVar9;
+        m2.padding = 0;
 
         return m2;
     }

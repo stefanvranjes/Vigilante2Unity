@@ -96,7 +96,7 @@ public class RSEG_DB : MonoBehaviour
         int iVar2;
         int iVar3;
 
-        iVar1 = DAT_00[0].DAT_00 - DAT_00[1].DAT_00 << 1; //r4
+        iVar1 = DAT_00[0].DAT_00.x - DAT_00[1].DAT_00.x << 1; //r4
         iVar2 = DAT_10[0] - DAT_10[1]; //r3
         iVar3 = (iVar2 << 1) + iVar2; //r2
         iVar3 = iVar1 + iVar3;
@@ -105,7 +105,7 @@ public class RSEG_DB : MonoBehaviour
             iVar3 += 15;
 
         DAT_20 = iVar3 >> 4;
-        iVar1 = DAT_00[0].DAT_08 - DAT_00[1].DAT_08 << 1; //r4
+        iVar1 = DAT_00[0].DAT_00.z - DAT_00[1].DAT_00.z << 1; //r4
         iVar2 = DAT_14[0] - DAT_14[1]; //r3
         iVar3 = (iVar2 << 1) + iVar2; //r2
         iVar3 = iVar1 + iVar3;
@@ -114,7 +114,7 @@ public class RSEG_DB : MonoBehaviour
             iVar3 += 15;
 
         DAT_24 = iVar3 >> 4;
-        iVar3 = DAT_00[1].DAT_00 - DAT_00[0].DAT_00; //r2
+        iVar3 = DAT_00[1].DAT_00.x - DAT_00[0].DAT_00.x; //r2
         iVar2 = (iVar3 << 1) + iVar3; //r3
         iVar3 = (DAT_10[0] << 1) + DAT_10[0] << 1;
         iVar2 -= iVar3;
@@ -124,7 +124,7 @@ public class RSEG_DB : MonoBehaviour
             iVar3 += 15;
 
         DAT_28 = iVar3 >> 4;
-        iVar3 = DAT_00[1].DAT_08 - DAT_00[0].DAT_08; //r2
+        iVar3 = DAT_00[1].DAT_00.z - DAT_00[0].DAT_00.z; //r2
         iVar2 = (iVar3 << 1) + iVar3; //r3
         iVar3 = (DAT_14[0] << 1) + DAT_14[0] << 1;
         iVar2 -= iVar3;

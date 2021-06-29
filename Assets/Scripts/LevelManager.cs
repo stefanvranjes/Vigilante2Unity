@@ -7,35 +7,6 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager instance;
 
-    public Color32[] DAT_CE0; //gp+CE0h
-    public ushort[] DAT_CF0; //gp+CF0h
-    public byte[] DAT_CF4; //gp+CF4h
-    public byte[] DAT_CF5; //gp+CF5h
-    public byte DAT_CF8; //gp+CF8h
-    public byte[] DAT_CFC; //gp+CFCh
-    public byte DAT_D08; //gp+D08h
-    public byte[] DAT_D18; //gp+D18h
-    public byte[] DAT_D19; //gp+D19h
-    public byte[] DAT_D1A; //gp+D1Ah
-    public byte[] DAT_D1B; //gp+D1Bh
-    public int DAT_DA0; //gp+DA0h
-    public Color32 DAT_DA4; //gp+DA4h
-    public ushort DAT_DA8; //gp+DA8h
-    public int DAT_DB0; //gp+DB0h
-    public short DAT_DB4; //gp+DB4h
-    public short DAT_DB6; //gp+DB6h
-    public short DAT_DB8; //gp+DB8h
-    public short DAT_DBA; //gp+DBAh
-    public Color32 DAT_DDC; //gp+DDCh
-    public VigTransform DAT_F00; //gp+F00h
-    public int DAT_F20; //gp+F20h
-    public VigTransform DAT_F28; //gp+F28h
-    public Matrix3x3 DAT_F48; //gp+F48h
-    public Matrix3x3 DAT_F68; //gp+F68h
-    public VigTransform DAT_F88; //gp+F88h
-    public Matrix3x3 DAT_FA8; //gp+FA8h
-    public Vector2Int DAT_FC8; //gp+FC8h
-    public Matrix3x3 DAT_FD8; //gp+FD8h
     public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h
@@ -59,80 +30,9 @@ public class LevelManager : MonoBehaviour
         
     }
 
-    public void FUN_50B38()
-    {
-        bool bVar1;
-        int iVar4;
-        Vector3Int local_18;
-
-        for (int i = 0; i < roadList.Count - 1; i++)
-        {
-            bVar1 = FUN_2E22C(roadList[i].pos, roadList[i].DAT_18);
-
-            if (bVar1)
-            {
-                local_18 = Utilities.FUN_24148(DAT_F00, roadList[i].pos);
-
-                if (local_18.z < 0x200000)
-                {
-                    Utilities.SetRotMatrix(DAT_F00.rotation);
-                    Coprocessor.translationVector._trx = local_18.x >> 8;
-                    Coprocessor.translationVector._try = local_18.y >> 8;
-                    Coprocessor.translationVector._trz = local_18.z >> 8;
-                    FUN_4F804(roadList[i]);
-                }
-            }
-        }
-
-        iVar4 = 0;
-
-        if (0 < DAT_1184)
-        {
-            for (int i = 0; i < iVar4; i++)
-                if (juncList[iVar4].DAT_18 != null)
-                    FUN_507DC(juncList[iVar4]);
-        }
-    }
-
     public void FUN_4F804(Junction param1)
     {
         FUN_4F828(param1);
-    }
-
-    public bool FUN_2E22C(Vector3Int param1, int param2)
-    {
-        int iVar1;
-        bool bVar2;
-
-        Coprocessor.rotationMatrix.rt11 = DAT_FD8.V00;
-        Coprocessor.rotationMatrix.rt12 = DAT_FD8.V01;
-        Coprocessor.rotationMatrix.rt13 = DAT_FD8.V02;
-        Coprocessor.rotationMatrix.rt21 = DAT_FD8.V10;
-        Coprocessor.rotationMatrix.rt22 = DAT_FD8.V11;
-        Coprocessor.rotationMatrix.rt23 = DAT_FD8.V12;
-        Coprocessor.rotationMatrix.rt31 = DAT_FD8.V20;
-        Coprocessor.rotationMatrix.rt32 = DAT_FD8.V21;
-        Coprocessor.rotationMatrix.rt33 = DAT_FD8.V22;
-        Coprocessor.accumulator.ir1 = (short)(param1.x - DAT_F28.position.x >> 8);
-        Coprocessor.accumulator.ir2 = (short)(param1.y - DAT_F28.position.y >> 8);
-        Coprocessor.accumulator.ir3 = (short)(param1.z - DAT_F28.position.z >> 8);
-        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
-        param2 >>= 8;
-        bVar2 = false;
-        iVar1 = Coprocessor.accumulator.ir1;
-
-        if (iVar1 < param2)
-        {
-            iVar1 = Coprocessor.accumulator.ir2;
-
-            if (iVar1 < param2)
-            {
-                iVar1 = Coprocessor.accumulator.ir3;
-                bVar2 = iVar1 < param2;
-            }
-        }
-
-        return bVar2;
     }
 
     //FUN_9C10 (LOAD.DLL)
@@ -199,28 +99,6 @@ public class LevelManager : MonoBehaviour
             for (int i = 0; i < DAT_1180; i++)
                 if (xrtpList[i].timFarList != null)
                     FUN_50F0(xrtpList[i]);
-        }
-    }
-
-    private void FUN_507DC(JUNC_DB param1)
-    {
-        bool bVar1;
-        Vector3Int local_28;
-        VigTransform local_18;
-
-        bVar1 = FUN_2E22C(param1.DAT_00, (int)param1.DAT_18.DAT_18);
-        local_28 = Utilities.FUN_24148(DAT_F00, param1.DAT_00);
-
-        if (bVar1 && local_28.z < 0x200000)
-        {
-            local_18.rotation = new Matrix3x3();
-            local_18.rotation.SetValue32(0, 0);
-            local_18.rotation.SetValue32(1, 0);
-            local_18.rotation.SetValue32(2, 0);
-            local_18.rotation.SetValue32(3, 0);
-            local_18.rotation.SetValue32(4, 0);
-            local_18.position = local_28;
-            param1.DAT_18.FUN_21F70(local_18);
         }
     }
 
