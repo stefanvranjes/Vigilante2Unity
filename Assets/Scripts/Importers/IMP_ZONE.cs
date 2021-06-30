@@ -13,7 +13,7 @@ public class IMP_ZONE
         int zone = (name[4] - '0') + (name[5] - '0') + (name[6] - '0') + (name[7] - '0');
         zone++;
 
-        using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
+        /*using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
             int iVar1 = 0; //r10
 
@@ -48,6 +48,42 @@ public class IMP_ZONE
 
                 iVar1++;
             } while (iVar1 < 64);
+        }*/
+
+        using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
+        {
+            byte bVar1;
+            ushort uVar2;
+            long puVar5;
+            int iVar4;
+            int iVar6;
+            int iVar7;
+            int iVar8;
+
+            iVar8 = 0;
+
+            do
+            {
+                iVar6 = 0;
+                iVar7 = iVar8 << 6;
+                puVar5 = reader.BaseStream.Position + 3;
+
+                do
+                {
+                    uVar2 = reader.ReadUInt16();
+                    iVar4 = iVar6 + iVar8 * 64;
+                    iVar6++;
+                    terr.vertices[zone * 4096 + iVar7] =
+                        (ushort)((uVar2 >> 8 | (ushort)((uVar2 & 0xff) << 8)) - 0x200 |
+                        (ushort)((uint)reader.ReadByte((int)puVar5 - 1) >> 3) << 11);
+                    bVar1 = reader.ReadByte((int)puVar5);
+                    puVar5 += 4;
+                    terr.tiles[zone * 4096 + iVar4] = bVar1;
+                    iVar7++;
+                } while (iVar6 < 64);
+
+                iVar8++;
+            } while (iVar8 < 64);
         }
     }
 }

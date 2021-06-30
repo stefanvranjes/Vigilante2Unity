@@ -2252,7 +2252,7 @@ public class Vehicle : VigObject
 
     private void FUN_3E8C0()
     {
-        long lVar1;
+        /*long lVar1;
         int iVar2;
         int iVar3;
         int iVar4;
@@ -2435,7 +2435,7 @@ public class Vehicle : VigObject
                 if (19456 < physics1.Y)
                     flags |= 0x40000000;
             }
-        }
+        }*/
     }
 
     private int FUN_3A020(int pInt1, int pInt2, bool isPlayer)

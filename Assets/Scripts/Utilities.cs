@@ -523,6 +523,22 @@ public static class Utilities
         return new Vector3Int(iVar1, iVar2, iVar3);
     }
 
+    public static Matrix3x3 FUN_2449C(Matrix3x3 m33, Vector3Int v3)
+    {
+        return new Matrix3x3()
+        {
+            V00 = (short)((int)((uint)m33.V00 * (uint)v3.x) >> 12),
+            V01 = (short)((int)((uint)m33.V01 * (uint)v3.y) >> 12),
+            V02 = (short)((int)((uint)m33.V02 * (uint)v3.z) >> 12),
+            V10 = (short)((int)((uint)m33.V10 * (uint)v3.x) >> 12),
+            V11 = (short)((int)((uint)m33.V11 * (uint)v3.y) >> 12),
+            V12 = (short)((int)((uint)m33.V12 * (uint)v3.z) >> 12),
+            V20 = (short)((int)((uint)m33.V20 * (uint)v3.x) >> 12),
+            V21 = (short)((int)((uint)m33.V21 * (uint)v3.y) >> 12),
+            V22 = (short)((int)((uint)m33.V22 * (uint)v3.z) >> 12)
+        };
+    }
+
     public static void FUN_243B4(Matrix3x3 m33)
     {
         int iVar1 = m33.GetValue32(0) & 0xFFFF; //r8
@@ -674,7 +690,17 @@ public static class Utilities
         return new Vector3Int(mac1_2, mac2_2, mac3_2);
     }
 
-    
+    public static Vector3Int FUN_23EA0(Vector3Int v3)
+    {
+        Coprocessor.vector0.vx0 = (short)v3.x;
+        Coprocessor.vector0.vy0 = (short)v3.y;
+        Coprocessor.vector0.vz0 = (short)v3.z;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        return new Vector3Int(
+            Coprocessor.accumulator.ir1,
+            Coprocessor.accumulator.ir2,
+            Coprocessor.accumulator.ir3);
+    }
 
     public static void FUN_18C54(BinaryReader param1, int param2, BinaryWriter param3, long param4)
     {

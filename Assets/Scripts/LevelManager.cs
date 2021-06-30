@@ -7,6 +7,15 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager instance;
 
+    public Matrix3x3 DAT_738; //gp+738h
+    public Color32 DAT_D98; //gp+D98h
+    public Color32 DAT_DA4; //gp+DA4h
+    public Color32 DAT_DAC; //gp+DACh
+    public Color32 DAT_DBC; //gp+DBCh
+    public Color32 DAT_DDC; //gp+DDCh
+    public Color32 DAT_DE0; //gp+DE0h
+    public Color32 DAT_E04; //gp+E04h
+    public Color32 DAT_E08; //gp+E08h
     public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h

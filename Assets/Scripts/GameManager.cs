@@ -41,6 +41,15 @@ public enum _SCREEN_MODE
     Unknown
 }
 
+public class _CLASS_102C
+{
+    public int DAT_00; //0x00
+    public int DAT_04; //0x04
+    public List<VigObject> LDAT_04; //0x04
+    public _CLASS_102C DAT_08; //0x08
+    public _CLASS_102C DAT_0C; //0x0C
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -1077,12 +1086,12 @@ public class GameManager : MonoBehaviour
     public VigTerrain terrain;
     public VigConfig commonWheelConfiguration;
     public Vehicle[] players; //gp+FF8h
+    public _CLASS_102C staticObjs; //gp+102Ch
     public List<VigObject> worldObjs; //gp+1040h
     public List<VigObject> interObjs; //gp+10B8h
     
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
-    public Matrix3x3 DAT_738; //gp+738h
     public bool DAT_83B; //gp+83Bh
     public Vector3Int DAT_A18; //gp+A18h
     public Vector3Int DAT_A24; //gp+A24h
@@ -1098,14 +1107,12 @@ public class GameManager : MonoBehaviour
     public byte[] DAT_D1A; //gp+D1Ah
     public byte[] DAT_D1B; //gp+D1Bh
     public int DAT_DA0; //gp+DA0h
-    public Color32 DAT_DA4; //gp+DA4h
     public ushort DAT_DA8; //gp+DA8h
     public int DAT_DB0; //gp+DB0h
     public short DAT_DB4; //gp+DB4h
     public short DAT_DB6; //gp+DB6h
     public short DAT_DB8; //gp+DB8h
     public short DAT_DBA; //gp+DBAh
-    public Color32 DAT_DDC; //gp+DDCh
     public VigTransform DAT_F00; //gp+F00h
     public int DAT_F20; //gp+F20h
     public VigTransform DAT_F28; //gp+F28h
@@ -1115,7 +1122,6 @@ public class GameManager : MonoBehaviour
     public Matrix3x3 DAT_FA8; //gp+FA8h
     public Vector2Int DAT_FC8; //gp+FC8h
     public Matrix3x3 DAT_FD8; //gp+FD8h
-    public Color32 DAT_E04; //gp+E04h
     public short DAT_E1C; //gp+E1Ch
     public VigTransform DAT_EA8; //gp+EA8h
     public int DAT_ED8; //gp+ED8h
@@ -1155,6 +1161,125 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i <= param1.Count; i++)
             FUN_2D9E0(param1[i]);
+    }
+
+    public void FUN_30DE8(_CLASS_102C param1, int param2, int param3, int param4, int param5)
+    {
+        int iVar1;
+
+        iVar1 = param1.DAT_00;
+
+        if (iVar1 == 1)
+        {
+            iVar1 = param1.DAT_04;
+
+            if (param2 < iVar1)
+                FUN_30DE8(param1.DAT_08, param2, param3, param4, param5);
+
+            if (param3 <= iVar1)
+                return;
+        }
+        else
+        {
+            if (iVar1 == 0)
+            {
+                FUN_30B24(param1.LDAT_04);
+                return;
+            }
+
+            if (iVar1 == 2)
+            {
+                iVar1 = param1.DAT_04;
+
+                if (param4 < iVar1)
+                    FUN_30DE8(param1.DAT_08, param2, param3, param4, param5);
+
+                if (param5 <= iVar1)
+                    return;
+            }
+            else
+            {
+                if (iVar1 != 3)
+                    return;
+
+                FUN_30DE8(param1.DAT_08, param2, param3, param4, param5);
+            }
+        }
+
+        FUN_30DE8(param1.DAT_0C, param2, param3, param4, param5);
+    }
+
+    public void FUN_3150C()
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+        Vector3Int local_10;
+        Vector3Int local_8;
+
+        if (staticObjs != null)
+        {
+            local_10 = new Vector3Int();
+            local_10.x = -GameManager.instance.DAT_EDC / 2;
+            local_10.y = 0;
+            local_10.z = GameManager.instance.DAT_ED8;
+            local_8 = new Vector3Int();
+            local_8.x = GameManager.instance.DAT_EDC / 2;
+            local_8.y = 0;
+            local_8.z = GameManager.instance.DAT_ED8;
+            local_10 = Utilities.VectorNormal(local_10);
+            local_8 = Utilities.VectorNormal(local_8);
+            Utilities.SetRotMatrix(GameManager.instance.DAT_F28.rotation);
+            local_10 = Utilities.FUN_23EA0(local_10);
+            local_8 = Utilities.FUN_23EA0(local_8);
+            iVar4 = local_8.x;
+            iVar5 = local_10.x;
+            iVar2 = iVar4;
+
+            if (iVar5 < iVar4)
+                iVar2 = iVar5;
+
+            iVar1 = 0;
+
+            if (iVar2 < 0)
+                iVar1 = iVar2;
+
+            if (iVar4 < iVar5)
+                iVar4 = iVar5;
+
+            iVar2 = 0;
+
+            if (0 < iVar4)
+                iVar2 = iVar4;
+
+            iVar4 = local_8.z;
+            iVar6 = local_10.z;
+            iVar5 = iVar4;
+
+            if (iVar6 < iVar4)
+                iVar5 = iVar6;
+
+            iVar3 = 0;
+
+            if (iVar5 < 0)
+                iVar3 = iVar5;
+
+            if (iVar4 < iVar6)
+                iVar4 = iVar6;
+
+            iVar5 = 0;
+
+            if (0 < iVar4)
+                iVar5 = iVar4;
+
+            FUN_30DE8(staticObjs, GameManager.instance.DAT_F28.position.x + iVar1 * 0x400,
+                                  GameManager.instance.DAT_F28.position.x + iVar2 * 0x400,
+                                  GameManager.instance.DAT_F28.position.z + iVar3 * 0x400,
+                                  GameManager.instance.DAT_F28.position.z + iVar5 * 0x400);
+        }
     }
 
     public void FUN_31728()
@@ -2031,7 +2156,7 @@ public class GameManager : MonoBehaviour
                         if ((param1.flags & 0x200) == 0)
                             param1.FUN_4C4F4();
 
-                        //FUN_4C73C
+                        param1.vShadow.FUN_4C73C();
                     }
                 }
             }
@@ -2129,7 +2254,7 @@ public class GameManager : MonoBehaviour
 
         psVar6 = 0;
 
-        if (param1.vCollider[psVar6] != null)
+        /*if (param1.vCollider[psVar6] != null)
         {
             if (param2.vCollider == null)
                 return null;
@@ -2188,11 +2313,11 @@ public class GameManager : MonoBehaviour
 
                 }
             }
-        }
+        }*/
 
         return null;
 
-        code_r0x8002ea5c:
+        /*code_r0x8002ea5c:
         if (sVar1 == 2)
         {
             iVar3 = 0;
@@ -2213,7 +2338,7 @@ public class GameManager : MonoBehaviour
             {
 
             }
-        }
+        }*/
     }
 
     private HitDetection FUN_2ECF8(VigObject param1, VigObject param2, VigTransform param3)

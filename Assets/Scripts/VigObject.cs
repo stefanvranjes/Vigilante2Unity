@@ -1220,7 +1220,9 @@ public class VigObject : MonoBehaviour
         int iVar2;
         int iVar3;
         Vector3Int local_60;
+        Vector3Int local_58;
         Matrix3x3 local_48;
+        Matrix3x3 auStack40;
         VigTerrain terrain = GameManager.instance.terrain;
 
         tVar1 = terrain.GetTileByPosition((uint)vTransform.position.x, (uint)vTransform.position.z);
@@ -1278,7 +1280,29 @@ public class VigObject : MonoBehaviour
             else
                 local_48.V12 = (short)((local_60.z * -4096) / local_60.y);
 
+            local_58 = new Vector3Int();
+            local_58.x = vShadow.DAT_24;
 
+            if (vTransform.rotation.V11 < 1)
+                local_58.x = -local_58.x;
+
+            local_58.y = 0;
+            local_58.z = vShadow.DAT_28;
+            auStack40 = Utilities.FUN_2449C(vTransform.rotation, local_58);
+            vShadow.vTransform.rotation = Utilities.FUN_247C4(local_48, auStack40);
+        }
+        else
+        {
+            iVar2 = vShadow.DAT_24;
+            vShadow.vTransform.rotation.V21 = 0;
+            vShadow.vTransform.rotation.V20 = 0;
+            vShadow.vTransform.rotation.V11 = 0;
+            vShadow.vTransform.rotation.V02 = 0;
+            vShadow.vTransform.rotation.V01 = 0;
+            vShadow.vTransform.rotation.V22 = (short)iVar2;
+            vShadow.vTransform.rotation.V00 = (short)iVar2;
+            vShadow.vTransform.rotation.V10 = (short)((-local_60.x * iVar2) / local_60.y);
+            vShadow.vTransform.rotation.V12 = (short)((-local_60.z * iVar2) / local_60.y);
         }
     }
 
