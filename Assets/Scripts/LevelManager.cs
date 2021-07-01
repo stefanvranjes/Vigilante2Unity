@@ -7,15 +7,30 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager instance;
 
+    public string title;
+    public string desc;
+    public short DAT_63972;
+    public short DAT_6397A;
+    public short DAT_63982;
+    public short DAT_6398A;
+    public short DAT_63992;
+    public short DAT_6399A;
     public Matrix3x3 DAT_738; //gp+738h
+    public ushort[] DAT_C18; //gp+C18h
     public Color32 DAT_D98; //gp+D98h
     public Color32 DAT_DA4; //gp+DA4h
     public Color32 DAT_DAC; //gp+DACh
+    public short DAT_DBA; //gp+DBAh
     public Color32 DAT_DBC; //gp+DBCh
+    public Texture2D DAT_DD0; //gp+DD0h
     public Color32 DAT_DDC; //gp+DDCh
     public Color32 DAT_DE0; //gp+DE0h
+    public Texture2D[] DAT_DF8; //gp+DF8h
     public Color32 DAT_E04; //gp+E04h
     public Color32 DAT_E08; //gp+E08h
+    public Texture2D DAT_E48; //gp+E48h
+    public Texture2D DAT_E58; //gp+E58h
+    public _CLASS_102C staticObjs; //gp+102Ch
     public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h
@@ -23,6 +38,7 @@ public class LevelManager : MonoBehaviour
     public List<Junction> roadList = new List<Junction>(); //gp+1190h
     public List<XRTP_DB> xrtpList = new List<XRTP_DB>(); //gp+1194h
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
+    public List<XOBF_DB> charsList = new List<XOBF_DB>(); //0xC6178
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
 
     private VigTerrain terrain;

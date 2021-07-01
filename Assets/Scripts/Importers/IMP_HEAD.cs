@@ -14,7 +14,7 @@ public class IMP_HEAD
         ushort uVar4;
         int iVar5;
 
-        GameManager gameManager = GameObject.Find("GameControl").GetComponent<GameManager>();
+        LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
@@ -27,19 +27,19 @@ public class IMP_HEAD
 
             if (0 < iVar5)
             {
-                gameManager.DAT_C18 = new ushort[iVar5];
+                levelManager.DAT_C18 = new ushort[iVar5];
 
                 for (int i = 0; i < iVar5; i++)
                 {
                     uVar2 = reader.ReadUInt16BE();
-                    gameManager.DAT_C18[iVar5] = uVar2;
+                    levelManager.DAT_C18[iVar5] = uVar2;
                 }
             }
 
-            if ((gameManager.DAT_40 & 0x40) != 0)
-                gameManager.DAT_C18[4] = 0;
+            /*if ((gameManager.DAT_40 & 0x40) != 0) //this needs to change at runtime
+                gameManager.DAT_C18[4] = 0;*/ 
 
-            gameManager.DAT_DBA = (short)uVar1;
+            levelManager.DAT_DBA = (short)uVar1;
             FUN_508AC(uVar3, uVar4);
         }
     }

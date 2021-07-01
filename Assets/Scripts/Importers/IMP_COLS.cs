@@ -72,6 +72,18 @@ public class IMP_COLS
                 V21 = 0,
                 V22 = 0
             };
+
+            terrain.DAT_B9314 = new Color32[]
+            {
+                levelManager.DAT_E08,
+                levelManager.DAT_E08
+            };
+
+            terrain.DAT_B932C = new Color32[]
+            {
+                levelManager.DAT_DA4,
+                levelManager.DAT_DA4
+            };
         }
     }
 }

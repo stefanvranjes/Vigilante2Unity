@@ -75,6 +75,8 @@ public class VigTerrain : MonoBehaviour
     public int zoneCount;
     public float drawDistance;
     public Vector3Int[,] DAT_B9270 = new Vector3Int[2, 8];
+    public Color32[] DAT_B9314;
+    public Color32[] DAT_B932C;
     public short[,] DAT_B9318 = new short[2, 20];
     public Color32[] DAT_B9370 = new Color32[32];
     public Color32[] DAT_BA4F0 = new Color32[32];

@@ -48,6 +48,7 @@ public class _CLASS_102C
     public List<VigObject> LDAT_04; //0x04
     public _CLASS_102C DAT_08; //0x08
     public _CLASS_102C DAT_0C; //0x0C
+    public List<VigObject> LDAT_0C; //0x0C
 }
 
 public class GameManager : MonoBehaviour
@@ -908,8 +909,8 @@ public class GameManager : MonoBehaviour
         { { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 }, 
         { 0, 0, 0xB9C81007, 0x1000, 0xB9C81007, 0xB9C81D07 } };
 
-    public static Vector3Int[] DAT_63970 = { new Vector3Int(0xf800, 0xfac0, 0), new Vector3Int(0x800, 0xfac0, 0), new Vector3Int(0x1800, 0xfac0, 0),
-                                             new Vector3Int(0xf800, 0x80, 0), new Vector3Int(0x800, 0x80, 0), new Vector3Int(0x1800, 0x80, 0) }; //tmp
+    public static Vector3Int[] DAT_63970 = { new Vector3Int(0xf800, 0xfa40, 0), new Vector3Int(0x800, 0xfa40, 0), new Vector3Int(0x1800, 0xfa40, 0),
+                                             new Vector3Int(0xf800, 0, 0), new Vector3Int(0x800, 0, 0), new Vector3Int(0x1800, 0, 0) }; //tmp
     public static byte[] DAT_639A0 = { 0, 4, 1, 4, 2, 4, 3, 4, 0, 1, 0, 2, 1, 3, 2, 3 };
     public static uint[] DAT_639EC = { 0x004c0940, 0x0000530a, 0x00470a80, 0x0000530e, 0x00470940, 0x00076154, 0x018b1140,
                                        0x000052ca, 0x00012ad4, 0x000c5882, 0x00470940, 0x01875954, 0x00470940, 0x01875954,
@@ -1086,7 +1087,6 @@ public class GameManager : MonoBehaviour
     public VigTerrain terrain;
     public VigConfig commonWheelConfiguration;
     public Vehicle[] players; //gp+FF8h
-    public _CLASS_102C staticObjs; //gp+102Ch
     public List<VigObject> worldObjs; //gp+1040h
     public List<VigObject> interObjs; //gp+10B8h
     
@@ -1112,7 +1112,6 @@ public class GameManager : MonoBehaviour
     public short DAT_DB4; //gp+DB4h
     public short DAT_DB6; //gp+DB6h
     public short DAT_DB8; //gp+DB8h
-    public short DAT_DBA; //gp+DBAh
     public VigTransform DAT_F00; //gp+F00h
     public int DAT_F20; //gp+F20h
     public VigTransform DAT_F28; //gp+F28h
@@ -1127,7 +1126,6 @@ public class GameManager : MonoBehaviour
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_EE0; //gp+EE0h
-    public ushort[] DAT_C18; //gp+C18h
     public int DAT_C74; //gp+C74h
     public ushort unk7; //gp+EA0h
     public byte uvSize;
