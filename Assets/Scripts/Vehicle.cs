@@ -159,7 +159,7 @@ public class Vehicle : VigObject
                     wheelObject.physics2.X = -(currentObj.screen.y + previousContainer.v3_1.y + nextContainer.v3_1.y);
                 }
 
-                wheelObject.id = wheelObject.unk2;
+                wheelObject.id = wheelObject.DAT_1A;
                 wheelObject.screen = nextContainer.v3_1;
                 Utilities.FUN_2CC48(currentObj, wheelObject);
                 wheels[i] = wheelObject;

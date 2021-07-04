@@ -39,6 +39,7 @@ public class LevelManager : MonoBehaviour
     public List<XRTP_DB> xrtpList = new List<XRTP_DB>(); //gp+1194h
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
     public List<XOBF_DB> charsList = new List<XOBF_DB>(); //0xC6178
+    public XOBF_DB DAT_C61C0; //0xC61C0
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
 
     private VigTerrain terrain;

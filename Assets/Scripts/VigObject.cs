@@ -605,17 +605,18 @@ public struct VigTransform
 
 public class VigObject : MonoBehaviour
 {
-    public uint flags;
-    public byte type;
-    public byte ai;
-    public short id;
+    public uint flags; //0x04
+    public byte type; //0x08
+    public byte ai; //0x09
+    public short id; //0x0A
 
     public VigObject child; //0x0C
     public VigObject child2; //0x10
     public VigObject parent; //0x14
 
     public sbyte DAT_18; //0x18
-    public short unk2; //0x1A
+    public byte DAT_19; //0x19
+    public short DAT_1A; //0x1A
 
     public ushort maxHalfHealth; //0x1C
     public ushort maxFullHealth; //0x1E
@@ -629,7 +630,7 @@ public class VigObject : MonoBehaviour
     public ushort unk4; //0x4A
 
     public int DAT_58; //0x58
-    public VigConfig vConfig; //0x5C
+    public XOBF_DB vData; //0x5C
     public byte[] vCollider; //0x60
     public int unk3; //0x64
     public VigMesh vLOD; //0x68
@@ -670,6 +671,11 @@ public class VigObject : MonoBehaviour
 
         transform.localRotation = vTransform.rotation.Matrix2Quaternion;
         transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, -transform.localEulerAngles.z);
+    }
+
+    public virtual uint Execute(int arg1, int arg2)
+    {
+        return 0;
     }
 
     // FUN_2CF74
@@ -984,6 +990,52 @@ public class VigObject : MonoBehaviour
         return oVar1;
     }
 
+    public void FUN_2C958()
+    {
+        VigObject oVar1;
+
+        FUN_2C7D0();
+        oVar1 = child2;
+
+        while (oVar1 != null)
+        {
+            oVar1.FUN_2C958();
+            oVar1 = child;
+        }
+    }
+
+    public int FUN_2D1DC()
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        VigObject oVar4;
+        int iVar5;
+
+        iVar5 = 0;
+
+        if (vMesh != null)
+            iVar5 = (int)vMesh.DAT_18;
+
+        oVar4 = child2;
+
+        while(oVar4 != null)
+        {
+            iVar1 = oVar4.FUN_2D1DC();
+            iVar2 = Utilities.FUN_29E84(vTransform.position);
+            iVar3 = iVar1 + iVar2;
+
+            if (iVar1 + iVar2 < iVar5)
+                iVar3 = iVar5;
+
+            oVar4 = oVar4.child;
+            iVar5 = iVar3;
+        }
+
+        DAT_58 = iVar5;
+        return iVar5;
+    }
+
     public void FUN_2D368(VigTransform param1)
     {
         VigTransform t2;
@@ -1135,6 +1187,59 @@ public class VigObject : MonoBehaviour
     public virtual int FUN_2DD78(HitDetection param1)
     {
         return 0;
+    }
+
+    public uint FUN_2EC7C()
+    {
+        uint uVar1;
+        VigObject oVar2;
+        uint uVar3;
+
+        oVar2 = child2;
+        uVar3 = 0;
+
+        while(oVar2 != null)
+        {
+            uVar1 = oVar2.FUN_2EC7C();
+            oVar2 = oVar2.child;
+            uVar3 |= uVar1;
+        }
+
+        if (uVar3 != 0)
+            flags |= 0x800;
+
+        return uVar3 | (uint)(vCollider != null ? 1 : 0);
+    }
+
+    public bool FUN_3066C()
+    {
+        int iVar1;
+        bool bVar2;
+
+        ApplyTransformation();
+
+        if (!GetType().IsSubclassOf(typeof(VigObject)))
+            iVar1 = 0;
+        else
+            iVar1 = (int)Execute(1, 0);
+
+        bVar2 = false;
+
+        if (-1 < iVar1)
+        {
+            if ((flags & 8) != 0)
+            {
+                if (vShadow == null)
+                    FUN_4C98C();
+
+                FUN_4C4F4();
+            }
+
+            FUN_305FC();
+            bVar2 = true;
+        }
+
+        return bVar2;
     }
 
     public void FUN_3BFC0()
@@ -1306,35 +1411,101 @@ public class VigObject : MonoBehaviour
         }
     }
 
+    public void FUN_4C98C()
+    {
+        VigMesh mVar1;
+
+        mVar1 = GameManager.instance.levelManager.DAT_C61C0.FUN_2CB74(gameObject, 92);
+        FUN_4C7E0(mVar1);
+    }
+
     public int FUN_4DCD8()
     {
-        int configIndex = (unk2 << 3) - unk2 << 2;
-        int nextContainer = vConfig.configContainers[configIndex / 0x1C].next;
+        int configIndex = (DAT_1A << 3) - DAT_1A << 2;
+        int nextContainer = vData.configContainers[configIndex / 0x1C].next;
         int iVar1 = 0;
 
         while (nextContainer != -1)
         {
             configIndex = (nextContainer << 3) - nextContainer << 2;
-            int flag = vConfig.configContainers[configIndex / 0x1C].flag >> 12;
+            int flag = vData.configContainers[configIndex / 0x1C].flag >> 12;
 
             if (flag == 15)
             {
-                nextContainer = vConfig.configContainers[configIndex / 0x1C].next;
+                nextContainer = vData.configContainers[configIndex / 0x1C].next;
                 iVar1++;
             }
             else
             {
-                nextContainer = vConfig.configContainers[configIndex / 0x1C].previous;
+                nextContainer = vData.configContainers[configIndex / 0x1C].previous;
             }
         }
 
         return iVar1;
     }
 
+    private bool FUN_2C7D0()
+    {
+        ushort uVar1;
+        VigMesh mVar2;
+        int iVar3;
+        int iVar4;
+        List<ConfigContainer> ccVar5;
+
+        if (vData != null)
+        {
+            ccVar5 = vData.ini.configContainers;
+            uVar1 = (ushort)ccVar5[id].next;
+
+            while(uVar1 != 0xffff)
+            {
+                iVar4 = uVar1;
+
+                if (ccVar5[iVar4].flag >> 12 == 12)
+                {
+                    if ((ccVar5[iVar4].flag & 0x800) != 0)
+                        flags |= 0x1000;
+
+                    if ((ccVar5[iVar4].flag & 0x7ff) == 0x7ff)
+                        vLOD = null;
+                    else
+                    {
+                        if (((ccVar5[iVar4].flag ^ ccVar5[id].flag) & 0x7ff) == 0)
+                            vLOD = vMesh;
+                        else
+                        {
+                            mVar2 = vData.FUN_1FD18(gameObject, (ushort)ccVar5[iVar4].flag & 0x7ffU);
+                            vLOD = mVar2;
+                        }
+                    }
+
+                    iVar3 = ccVar5[iVar4].objID * 0x10000;
+
+                    if (ccVar5[iVar4].objID == 0)
+                        iVar3 = 0;
+
+                    iVar3 *= 255;
+
+                    if (iVar3 < 0)
+                        iVar3 += 255;
+
+                    DAT_6C = iVar3 >> 8;
+                    return true;
+                }
+
+                uVar1 = (ushort)ccVar5[iVar4].previous;
+            }
+        }
+
+        vLOD = null;
+        DAT_6C = 0;
+        return false;
+    }
+
     private ConfigContainer FUN_2C9A4()
     {
-        int configIndex = (unk2 << 3) - unk2 << 2;
-        short sVar1 = vConfig.configContainers[configIndex / 0x1C].next;
+        int configIndex = (DAT_1A << 3) - DAT_1A << 2;
+        short sVar1 = vData.configContainers[configIndex / 0x1C].next;
         ConfigContainer container;
 
         while (true)
@@ -1344,7 +1515,7 @@ public class VigObject : MonoBehaviour
 
             configIndex = (sVar1 << 3) - sVar1 << 2;
             configIndex = configIndex / 0x1C;
-            container = vConfig.configContainers[configIndex];
+            container = vData.configContainers[configIndex];
 
             if ((uint)container.flag >> 12 == 11)
                 break;
@@ -1767,5 +1938,136 @@ public class VigObject : MonoBehaviour
         }
 
         return FUN_2F16C(vTransform, param1, param2, out param3);
+    }
+
+    private void FUN_305FC()
+    {
+        FUN_2D1DC();
+
+        if ((flags & 4) != 0)
+            GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, this);
+
+        if ((flags & 0x80) != 0)
+            GameManager.instance.FUN_30080(GameManager.instance.DAT_1088, this);
+
+        GameManager.instance.FUN_30080(GameManager.instance.worldObjs, this);
+    }
+
+    private VigShadow FUN_4C44C(VigMesh param1, int param2, int param3)
+    {
+        VigShadow puVar1;
+
+        puVar1 = gameObject.AddComponent<VigShadow>();
+        puVar1.vMesh = param1;
+
+        if (param2 < 0)
+            param2 += 15;
+
+        puVar1.DAT_24 = param2 >> 4;
+
+        if (param3 < 0)
+            param3 += 15;
+
+        puVar1.DAT_28 = param3 >> 4;
+        return puVar1;
+    }
+
+    private void FUN_4C7E0(VigMesh param1)
+    {
+        short sVar1;
+        int iVar2;
+        VigShadow sVar3;
+        MemoryStream msVar4;
+        int iVar5;
+        bool bVar6;
+        int local_res0;
+        int local_res4;
+        int local_10;
+        int local_c;
+        int local_8;
+        int local_4;
+
+        bVar6 = true;
+
+        if (vCollider == null)
+        {
+            local_4 = DAT_58;
+            local_res4 = local_4;
+        }
+        else
+        {
+            msVar4 = new MemoryStream(vCollider);
+
+            using (BinaryReader reader = new BinaryReader(msVar4, Encoding.Default, true))
+            {
+                sVar1 = reader.ReadInt16(0);
+                local_10 = 0;  // not in original code
+                local_c = 0;   // -||-
+                local_8 = 0;   // -||-
+                local_4 = 0;   // -||-
+                local_res0 = 0; // -||-
+                local_res4 = 0; // -||-
+
+                joined_r0x8004c820:
+                if (sVar1 != 0)
+                {
+                    if (sVar1 != 1) goto code_r0x8004c83c;
+
+                    if (bVar6)
+                    {
+                        local_10 = reader.ReadInt16(4);
+                        local_c = reader.ReadInt16(8);
+                        local_8 = reader.ReadInt16(12);
+                        local_4 = reader.ReadInt16(16);
+                        local_res0 = reader.ReadInt16(20);
+                        local_res4 = reader.ReadInt16(24);
+                        bVar6 = false;
+                        iVar5 = 14;
+                        reader.BaseStream.Seek(iVar5, SeekOrigin.Current);
+                        sVar1 = reader.ReadInt16(0);
+                        goto joined_r0x8004c820;
+                    }
+                    else
+                    {
+                        if (reader.ReadInt16(4) < local_10)
+                            local_10 = reader.ReadInt16(2); //not used?
+
+                        if (reader.ReadInt16(8) < local_c)
+                            local_c = reader.ReadInt16(4); //not used?
+
+                        if (reader.ReadInt16(12) < local_8)
+                            local_8 = reader.ReadInt16(6); //not used?
+
+                        if (local_4 < reader.ReadInt16(16))
+                            local_4 = reader.ReadInt16(16);
+
+                        if (local_res0 < reader.ReadInt16(20))
+                            local_res0 = reader.ReadInt16(20);
+
+                        if (reader.ReadInt16(24) < local_res4)
+                            local_res4 = reader.ReadInt16(24);
+
+                        iVar5 = 14;
+                        reader.BaseStream.Seek(iVar5, SeekOrigin.Current);
+                        sVar1 = reader.ReadInt16(0);
+                        goto joined_r0x8004c820;
+                    }
+                }
+
+                sVar3 = FUN_4C44C(param1, local_4, local_res4);
+                vShadow = sVar3;
+                return;
+
+                code_r0x8004c83c:
+                if (sVar1 == 2)
+                {
+                    iVar5 = reader.ReadUInt16(2) * 6 + 2;
+                    reader.BaseStream.Seek(iVar5, SeekOrigin.Current);
+                    sVar1 = reader.ReadInt16(0);
+                }
+
+                goto joined_r0x8004c820;
+            }
+        }
     }
 }

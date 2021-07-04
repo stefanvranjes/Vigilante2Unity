@@ -39,7 +39,7 @@ public class VigConfig : MonoBehaviour
         {
             vObject=FUN_2BF44(containerID, allocSpace);
             currentID++;
-            vObject.unk2 = (short)int1;
+            vObject.DAT_1A = (short)int1;
             vObject.id = configContainers[containerID].objID;
 
             if ((int3 & 8) == 0)
@@ -56,7 +56,7 @@ public class VigConfig : MonoBehaviour
                 vObject.unk3 = iVar;
             }
 
-            vObject.unk4 = GameManager.instance.unk7;
+            vObject.unk4 = GameManager.instance.DAT_EA0;
 
             if ((int3 & 1) != 0 && configContainers[containerID].previous != -1)
             {
@@ -170,7 +170,7 @@ public class VigConfig : MonoBehaviour
         obj[currentID].flags = (uint)((configContainers[container].flag & 0x800) != 0 ? 1 : 0) << 4;
         obj[currentID].vr = configContainers[container].v3_2;
         obj[currentID].screen = configContainers[container].v3_1;
-        obj[currentID].vConfig = this;
+        obj[currentID].vData = this;
 
         if ((configContainers[container].flag & 0x7FF) < 0x7FF)
         {

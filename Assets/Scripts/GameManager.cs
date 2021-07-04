@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -1085,10 +1086,12 @@ public class GameManager : MonoBehaviour
     };
 
     public VigTerrain terrain;
+    public LevelManager levelManager;
     public VigConfig commonWheelConfiguration;
     public Vehicle[] players; //gp+FF8h
     public List<VigObject> worldObjs; //gp+1040h
     public List<VigObject> interObjs; //gp+10B8h
+    public List<VigObject> levelObjs; //ffffa718 (LOAD.DLL)
     
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
@@ -1126,8 +1129,13 @@ public class GameManager : MonoBehaviour
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_EE0; //gp+EE0h
+    public KeyValuePair<string, Type>[][] DAT_1050; //gp+1050h
+    public List<VigObject> DAT_1078; //gp+1078h
+    public List<VigObject> DAT_1088; //gp+1088h
+    public List<VigObject> DAT_1098; //gp+1098h
+    public List<VigObject> DAT_10A8; //gp+10A8h
     public int DAT_C74; //gp+C74h
-    public ushort unk7; //gp+EA0h
+    public ushort DAT_EA0; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
     public ushort[,] DAT_08; //gp+08h
@@ -1138,8 +1146,6 @@ public class GameManager : MonoBehaviour
     public bool DAT_36; //gp+36h
     public int gravityFactor; //gp+3Ch
     public int DAT_40; //gp+40h
-
-    private LevelManager levelManager;
 
     public void FUN_1C134()
     {
@@ -1153,6 +1159,14 @@ public class GameManager : MonoBehaviour
         Utilities.SetColorMatrix(DAT_FA8);
         Utilities.SetBackColor(64, 64, 64);
         Utilities.SetFogNearFar(2048, 8192, 0);
+    }
+
+    public void FUN_30080(List<VigObject> param1, VigObject param2)
+    {
+        if (param1 == null)
+            param1 = new List<VigObject>();
+
+        param1.Add(param2);
     }
 
     public void FUN_30B24(List<VigObject> param1)

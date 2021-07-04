@@ -24,6 +24,7 @@ public class XOBF_DB : MonoBehaviour
     public List<byte[]> cbbList = new List<byte[]>();
     public List<Texture2D> timList = new List<Texture2D>();
     public VigConfig ini;
+    public byte[] animations; //0x08
 
     private string prefabPath;
     private string prefabName;
@@ -335,7 +336,7 @@ public class XOBF_DB : MonoBehaviour
         }
     }
 
-    private VigMesh FUN_1FD18(GameObject param1, uint param2)
+    public VigMesh FUN_1FD18(GameObject param1, uint param2)
     {
         byte bVar1;
         ushort uVar2;

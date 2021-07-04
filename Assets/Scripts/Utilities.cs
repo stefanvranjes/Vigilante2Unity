@@ -5,8 +5,35 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using UnityEngine;
 
+
+
 public static class Utilities
 {
+    //0x80010084
+    public static KeyValuePair<string, Type>[][] CommonTypes =
+    {
+        //0x80010000
+        new KeyValuePair<string, Type>[]
+        {
+            new KeyValuePair<string, Type>("SunLensFlare", typeof(SunLensFlare)),
+            new KeyValuePair<string, Type>("PU_WeaponUpgrade", typeof(Powerup)),
+            new KeyValuePair<string, Type>("PU_RadarJammer", typeof(Powerup)),
+            new KeyValuePair<string, Type>("PU_Shield", typeof(Powerup)),
+            new KeyValuePair<string, Type>("PU_Health", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_RocktL", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_MisslL", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_Cannon", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_Mortar", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_MineDr", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_FlThrower", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_Special", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_Surprise", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_Hover", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_Float", typeof(Powerup)),
+            new KeyValuePair<string, Type>("I_Ski", typeof(Powerup))
+        }
+    };
+
     public static byte[] DAT_10AE0 =
     {
         0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5,
@@ -25,6 +52,30 @@ public static class Utilities
         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
         8, 8, 8, 8
     };
+
+    public static Type FUN_14DAC(KeyValuePair<string, Type>[] pairs, string cmp)
+    {
+        for (int i = 0; i < pairs.Length; i++)
+            if (String.Compare(pairs[i].Key, cmp) == 0)
+                return pairs[i].Value;
+
+        return null;
+    }
+
+    public static Type FUN_14E1C(int i, string cmp)
+    {
+        return FUN_14DAC(CommonTypes[i], cmp);
+    }
+
+    public static VigObject FUN_31D30(Type param1, XOBF_DB param2, short param3, uint param4)
+    {
+        GameObject obj = new GameObject();
+
+        if (param1.Equals(typeof(Destructible)))
+            return obj.AddComponent(typeof(Destructible)) as Destructible;
+        else if (param1.Equals(typeof(Powerup)))
+            return obj.AddComponent(typeof(Powerup)) as Powerup;
+    }
 
     public static bool FUN_281FC(BoundingBox param1, VigTransform param2, BoundingBox param3, VigTransform param4)
     {
@@ -2012,6 +2063,15 @@ public static class Utilities
         uint value = reader.ReadUInt32();
         reader.BaseStream.Seek(position, SeekOrigin.Begin);
         return value;
+    }
+
+    public static string ReadNullTerminatedString(this BinaryReader stream)
+    {
+        string str = "";
+        char ch;
+        while ((int)(ch = stream.ReadChar()) != 0)
+            str = str + ch;
+        return str;
     }
 
     public static void Write(this BinaryWriter writer, int offset, sbyte value)
