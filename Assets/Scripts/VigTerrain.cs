@@ -227,9 +227,9 @@ public class VigTerrain : MonoBehaviour
     {
         return;
 
-        for (int i = 0; i < GameManager.instance.players.Length; i++)
+        for (int i = 0; i < GameManager.instance.playerObjects.Length; i++)
         {
-            Vector3Int cameraPosition = GameManager.instance.players[i].vCamera.vTransform.position;
+            Vector3Int cameraPosition = GameManager.instance.playerObjects[i].vCamera.vTransform.position;
             Tile onTile = GetTileByPosition2((uint)cameraPosition.x, (uint)cameraPosition.y);
             List<Tile> closeTiles = BreadthFirstSearch(onTile, drawDistance);
 

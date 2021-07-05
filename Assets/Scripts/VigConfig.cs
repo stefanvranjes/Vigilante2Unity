@@ -56,7 +56,7 @@ public class VigConfig : MonoBehaviour
                 vObject.unk3 = iVar;
             }
 
-            vObject.unk4 = GameManager.instance.DAT_EA0;
+            vObject.unk4 = GameManager.instance.timer;
 
             if ((int3 & 1) != 0 && configContainers[containerID].previous != -1)
             {

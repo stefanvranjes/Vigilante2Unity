@@ -31,7 +31,9 @@ public enum _GAME_MODE
     Demo,
     Versus,
     Coop,
-    Quest2
+    Quest2,
+    Unk1,
+    Unk2
 }
 
 public enum _SCREEN_MODE
@@ -1088,10 +1090,10 @@ public class GameManager : MonoBehaviour
     public VigTerrain terrain;
     public LevelManager levelManager;
     public VigConfig commonWheelConfiguration;
-    public Vehicle[] players; //gp+FF8h
+    public Vehicle[] playerObjects; //gp+FF8h
+    public byte[] vehicles; //gp+1104; 
     public List<VigObject> worldObjs; //gp+1040h
     public List<VigObject> interObjs; //gp+10B8h
-    public List<VigObject> levelObjs; //ffffa718 (LOAD.DLL)
     
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h
@@ -1135,7 +1137,7 @@ public class GameManager : MonoBehaviour
     public List<VigObject> DAT_1098; //gp+1098h
     public List<VigObject> DAT_10A8; //gp+10A8h
     public int DAT_C74; //gp+C74h
-    public ushort DAT_EA0; //gp+EA0h
+    public ushort timer; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
     public ushort[,] DAT_08; //gp+08h
@@ -1161,12 +1163,18 @@ public class GameManager : MonoBehaviour
         Utilities.SetFogNearFar(2048, 8192, 0);
     }
 
-    public void FUN_30080(List<VigObject> param1, VigObject param2)
+    public void FUN_2DE84(int param1, Vector3Int param2, Color32 param3)
     {
-        if (param1 == null)
-            param1 = new List<VigObject>();
+        int iVar1;
 
-        param1.Add(param2);
+        iVar1 = param1;
+        param1 = iVar1 + param1;
+        DAT_F68.SetValue16(param1, param2.x);
+        DAT_F68.SetValue16(param1 + 1, param2.y);
+        DAT_F68.SetValue16(param1 + 2, param2.z);
+        DAT_FA8.SetValue16(iVar1, param3.r << 4);
+        DAT_FA8.SetValue16(iVar1 + 1, param3.g << 4);
+        DAT_FA8.SetValue16(iVar1 + 2, param3.b << 4);
     }
 
     public void FUN_30B24(List<VigObject> param1)
@@ -1419,14 +1427,14 @@ public class GameManager : MonoBehaviour
 
         if (screenMode == _SCREEN_MODE.Whole)
         {
-            if (gameMode < _GAME_MODE.Versus || players[0].maxHalfHealth != 0)
+            if (gameMode < _GAME_MODE.Versus || playerObjects[0].maxHalfHealth != 0)
             {
-                vVar12 = players[0];
+                vVar12 = playerObjects[0];
 
-                if (players[1] != null)
+                if (playerObjects[1] != null)
                 {
-                    uVar18 = players[1].flags;
-                    oVar7 = players[1];
+                    uVar18 = playerObjects[1].flags;
+                    oVar7 = playerObjects[1];
 
                     if ((uVar18 & 0x2000000) == 0)
                         oVar7.flags = uVar18 & 0xfffffffd;
@@ -1434,9 +1442,9 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                uVar18 = players[0].flags;
-                oVar7 = players[0];
-                vVar12 = players[1];
+                uVar18 = playerObjects[0].flags;
+                oVar7 = playerObjects[0];
+                vVar12 = playerObjects[1];
 
                 if ((uVar18 & 0x2000000) == 0)
                     oVar7.flags = uVar18 & 0xfffffffd;
@@ -2651,5 +2659,34 @@ public class GameManager : MonoBehaviour
         uVar3 = uVar3 ^ uVar1;
         DAT_63A64 = uVar3;
         return uVar3 & 0x7FFF;
+    }
+
+    public static void FUN_30080(List<VigObject> param1, VigObject param2)
+    {
+        if (param1 == null)
+            param1 = new List<VigObject>();
+
+        param1.Add(param2);
+    }
+
+    public static void FUN_30134(List<VigObject> param1, VigObject param2)
+    {
+        int ppiVar2;
+
+        if (param1 == null)
+            param1 = new List<VigObject>();
+
+        ppiVar2 = 0;
+
+        while (true)
+        {
+            if (ppiVar2 == param1.Count)
+                return;
+
+            if (param1[ppiVar2] == param2)
+                break;
+
+            ppiVar2++;
+        }
     }
 }

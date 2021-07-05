@@ -6,6 +6,7 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager instance;
+    private static Vector3Int DAT_15F0 = new Vector3Int(0, 4096, 0); //LOAD.DLL+15F0h
 
     public string title;
     public string desc;
@@ -41,13 +42,62 @@ public class LevelManager : MonoBehaviour
     public List<XOBF_DB> charsList = new List<XOBF_DB>(); //0xC6178
     public XOBF_DB DAT_C61C0; //0xC61C0
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
+    public List<VigObject> levelObjs; //ffffa718 (LOAD.DLL)
 
     private VigTerrain terrain;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        int iVar5;
+        int iVar6;
+        int iVar8;
+        int iVar21;
+        Vector3Int local_310;
+
+        iVar6 = 1;
+
+        if (_GAME_MODE.Demo < GameManager.instance.gameMode)
+        {
+            iVar6 = 4;
+
+            if (GameManager.instance.gameMode < _GAME_MODE.Unk2)
+                iVar6 = 2;
+        }
+
+        iVar8 = 0;
+
+        if (iVar6 != 0)
+        {
+            do
+            {
+                iVar21 = GameManager.instance.vehicles[iVar8];
+
+                if (-1 < iVar21)
+                {
+                    //Checking salvage points... (FUN_365E0)
+
+                }
+
+                iVar8++;
+            } while (iVar8 < iVar6);
+        }
+
+        GameManager.instance.timer = 0;
+        local_310 = new Vector3Int(
+            DAT_10F8.x * 0x1800 >> 12,
+            DAT_10F8.y * 0x1800 >> 12,
+            DAT_10F8.z * 0x1800 >> 12);
+        GameManager.instance.FUN_2DE84(0, local_310, DAT_DAC);
+        GameManager.instance.FUN_2DE84(1, DAT_15F0, DAT_D98);
+        local_310 = new Vector3Int(-DAT_10F8.x, DAT_10F8.y, -DAT_10F8.z);
+        GameManager.instance.FUN_2DE84(2, local_310, DAT_DBC);
+        iVar5 = GameManager.instance.interObjs.Count;
+        Utilities.SetColorMatrix(GameManager.instance.DAT_FA8);
+        Utilities.SetLightMatrix(GameManager.instance.DAT_F68);
+        Utilities.SetBackColor(64, 64, 64);
+
+        if ()
     }
 
     // Update is called once per frame

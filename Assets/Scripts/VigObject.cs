@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using MathExtended.Matrices;
 
@@ -468,6 +469,40 @@ public struct Matrix3x3
             case 3:
                 V20 = (short)value;
                 V21 = (short)(value >> 16);
+                break;
+            default:
+                V22 = (short)value;
+                break;
+        }
+    }
+
+    public void SetValue16(int index, int value)
+    {
+        switch (index)
+        {
+            case 0:
+                V00 = (short)value;
+                break;
+            case 1:
+                V01 = (short)value;
+                break;
+            case 2:
+                V02 = (short)value;
+                break;
+            case 3:
+                V10 = (short)value;
+                break;
+            case 4:
+                V11 = (short)value;
+                break;
+            case 5:
+                V12 = (short)value;
+                break;
+            case 6:
+                V20 = (short)value;
+                break;
+            case 7:
+                V21 = (short)value;
                 break;
             default:
                 V22 = (short)value;
@@ -1945,12 +1980,12 @@ public class VigObject : MonoBehaviour
         FUN_2D1DC();
 
         if ((flags & 4) != 0)
-            GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, this);
+            GameManager.FUN_30080(GameManager.instance.DAT_10A8, this);
 
         if ((flags & 0x80) != 0)
-            GameManager.instance.FUN_30080(GameManager.instance.DAT_1088, this);
+            GameManager.FUN_30080(GameManager.instance.DAT_1088, this);
 
-        GameManager.instance.FUN_30080(GameManager.instance.worldObjs, this);
+        GameManager.FUN_30080(GameManager.instance.worldObjs, this);
     }
 
     private VigShadow FUN_4C44C(VigMesh param1, int param2, int param3)

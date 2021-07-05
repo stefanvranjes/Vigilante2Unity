@@ -2683,7 +2683,7 @@ public class Vehicle : VigObject
         {
             if ((DAT_F6 & 64) != (uVar8 & 64))
             {
-                iVar2 = GameManager.instance.players[~id];
+                iVar2 = GameManager.instance.playerObjects[~id];
                 DAT_F6 ^= DAT_F6;
 
                 if ((uVar8 & 64) == 0)

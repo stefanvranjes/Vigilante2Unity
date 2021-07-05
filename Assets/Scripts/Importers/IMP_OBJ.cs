@@ -8,13 +8,16 @@ using UnityEngine;
 public class IMP_OBJ
 {
     //FUN_34F8 (LOAD.DLL)
-    public static void LoadAsset(string assetPath)
+    public static void LoadOBJ(byte[] obj)
     {
-        using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
-        {
-            string obj = new string(reader.ReadChars(4));
+        MemoryStream stream = new MemoryStream(obj);
 
-            if (obj == "OBJ ")
+        using (BinaryReader reader = new BinaryReader(stream, Encoding.Default, true))
+        {
+            string identifier = new string(reader.ReadChars(4));
+            VigObject oVar3 = null;
+
+            if (identifier == "OBJ ")
             {
                 if (reader.BaseStream.Position != reader.BaseStream.Length)
                 {
@@ -24,7 +27,16 @@ public class IMP_OBJ
                         int chunkSize = reader.ReadInt32BE();
 
                         if (header == "HEAD")
-                            LoadHEAD(reader, chunkSize);
+                            oVar3 = LoadHEAD(reader, chunkSize);
+                        else
+                        {
+                            if (header == "BSPI" && oVar3 != null)
+                                LoadBSPI(oVar3, reader);
+                            else if (header == "LGHT" && oVar3 != null)
+                                LoadLGHT(oVar3, reader);
+                            else if (header == "STRN" && oVar3 != null)
+                                LoadSTRN(oVar3, reader);
+                        }
                     } while (reader.BaseStream.Position != reader.BaseStream.Length);
                 }
             }
@@ -110,7 +122,7 @@ public class IMP_OBJ
             MemoryStream stream = new MemoryStream(levelManager.xobfList[iVar9].animations);
 
             using (BinaryReader reader2 = new BinaryReader(stream, Encoding.Default, true))
-                GameManager.instance.DAT_EA0 = (ushort)-(iVar11 * reader2.ReadInt32() >> 15);
+                GameManager.instance.timer = (ushort)-(iVar11 * reader2.ReadInt32() >> 15);
         }
 
         if (6 < uVar7)
@@ -149,13 +161,13 @@ public class IMP_OBJ
                         ppcVar12.FUN_4C98C();
 
                     if ((ppcVar12.flags & 4) != 0)
-                        GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, ppcVar12);
+                        GameManager.FUN_30080(GameManager.instance.DAT_10A8, ppcVar12);
 
                     if ((ppcVar12.flags & 0x80) != 0)
-                        GameManager.instance.FUN_30080(GameManager.instance.DAT_1078, ppcVar12);
+                        GameManager.FUN_30080(GameManager.instance.DAT_1078, ppcVar12);
 
                     ppcVar12.FUN_2EC7C();
-                    GameManager.instance.FUN_30080(GameManager.instance.interObjs, ppcVar12);
+                    GameManager.FUN_30080(GameManager.instance.interObjs, ppcVar12);
                     return ppcVar12;
                 }
 
@@ -266,7 +278,7 @@ public class IMP_OBJ
                 bVar1 = (byte)GameManager.FUN_2AC5C();
                 ppcVar12.DAT_19 = bVar1;
                 ppcVar12.ApplyTransformation();
-                GameManager.instance.FUN_30080(GameManager.instance.levelObjs, ppcVar12);
+                GameManager.FUN_30080(GameManager.instance.levelObjs, ppcVar12);
                 goto case 1;
             case 1:
                 return ppcVar12;
@@ -274,5 +286,63 @@ public class IMP_OBJ
 
         ppcVar12 = null;
         return ppcVar12;
+    }
+
+    private static void LoadBSPI(VigObject param1, BinaryReader reader)
+    {
+        uint uVar2;
+
+        GameManager.FUN_30134(GameManager.instance.interObjs, param1);
+        uVar2 = reader.ReadUInt32BE();
+    }
+
+    private static void LoadLGHT(VigObject param1, BinaryReader reader)
+    {
+        short sVar1;
+        int iVar2;
+
+        iVar2 = reader.ReadInt32BE();
+        param1.physics1.X = iVar2;
+        iVar2 = reader.ReadInt32BE();
+        param1.physics1.Y = iVar2;
+        iVar2 = reader.ReadInt32BE();
+        param1.physics1.Z = iVar2;
+        sVar1 = reader.ReadInt16BE();
+        param1.physics1.M6 = sVar1;
+        sVar1 = reader.ReadInt16BE();
+        param1.physics1.M7 = sVar1;
+        sVar1 = reader.ReadInt16BE();
+        param1.physics2.M0 = sVar1;
+    }
+
+    private static void LoadSTRN(VigObject param1, BinaryReader reader)
+    {
+        ushort uVar1;
+        ushort uVar2;
+        VigObject oVar3;
+
+        uVar1 = (ushort)reader.ReadInt32BE();
+
+        if (reader.BaseStream.Length < 5)
+        {
+            param1.maxHalfHealth = uVar1;
+            uVar2 = uVar1;
+        }
+        else
+        {
+            uVar2 = (ushort)reader.ReadInt32BE();
+            param1.maxHalfHealth = uVar1;
+        }
+
+        param1.maxFullHealth = uVar2;
+        oVar3 = param1.child2;
+
+        while(oVar3 != null)
+        {
+            if (oVar3.maxHalfHealth == 0)
+                oVar3.maxHalfHealth = uVar1;
+
+            oVar3 = oVar3.child;
+        }
     }
 }
