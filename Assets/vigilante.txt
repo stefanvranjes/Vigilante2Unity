@@ -1,0 +1,111 @@
+7F57DFE0‬+ePSXe.exe offset between emulator and console address (in ePSXe205)
+7F5AD160
+6B8F6
+6b820
+6B804
+115B8
+1373C
+34B08
+349CC
+80133918
+8004AFB8 -- Camera
+8003c118 -- Actor
+80032D34 -- Destructible Object
+80049D54 -- Powerup
+80187564 -- Donut
+0E09B474
+800B4A98
+79B4FFE0
+ff ff 42 24 - 0x0003c174, 0x0003c1ac, 0x0003a9dc, 0x0003c360, 0x00041ef8, 0x0002ef00, 0x0002ef04, 0x000378f4, 0x0003c314
+06 00 02 24 - 0x00036e78
+0x000FA202
+0x00161632
+0x0006A821
+8006A821
+0x00034168
+0x00034C54
+0x00034EE0
+0x0003513C
+0x000301a8
+
+0x0003cdd0
+0x0003cd1c
+0x0003aae4
+
+F0 - target offset
+
+80038F7C
+800384A4
+
+8010B976
+
+94 - vehicle rotation
+A8 - wheele rotation
+AA - speed
+B3 - max speed
+
+001675FE
+0x0019c430
+0x0019C504
+0x0006A7F0
+0x0003fc48
+0x0002b080
+0x000344A0
+6490020
+8016A9EC
+
+
+--unregisterSymbol('angel')
+--registerSymbol('angle',1234)
+
+function readWord(a)
+  local lowerhalf,higherhalf = readBytes(a,2)
+  return lowerhalf~=nil and ((higherhalf << 8) + lowerhalf) or nil
+end
+
+function writeWord(a,v)
+  return writeBytes(a,v & 0xFF,v >> 8 & 0xff) > 0
+end
+
+function readWordSigned(addr)
+  local val=readWord(addr)
+  local sign=bAnd(val,0x8000)
+  return sign==0 and val or val-0x10000
+end
+
+function CalculateAngleInRadians(rotX, rotY)
+  subFactor=rotY>=0 and 4066 or -4066
+  angleValue=rotX>=0 and rotY or (subFactor - rotY) + subFactor
+  return math.rad(angleValue / 45.17777777777778)
+end
+
+function MoveRelativeToRotation(sender)
+  moveX = 0.0078740157480315 * ((readBytes("00B07934") - 127) * -1)
+  moveY = 0.0078740157480315 * ((readBytes("00B07935") - 127) * -1)
+  x=readInteger("00B5E77C")
+  y=readInteger("00B5E784")
+  rotX=readWordSigned("00B5DD64")
+  rotY=readWordSigned("00B5DD70")
+  angle=CalculateAngleInRadians(rotX, rotY) + math.atan(moveX, moveY)
+  speed=1000 * math.max(math.abs(moveX), math.abs(moveY))
+  x = x + speed * math.cos(angle)
+  y = y + speed * math.sin(angle)
+  writeInteger("00B5E77C", x)
+  writeInteger("00B5E784", y)
+end
+
+t=createTimer(nil, true)
+timer_onTimer(t, MoveRelativeToRotation)
+timer_setInterval(t, 100) --check every 100 milliseconds
+
+680-2033
+800-2500
+850-2970
+900-3200
+760-3676
+630-3880
+500-3984
+250-4062
+
+formula collision size: x1 + x2
+formula collision center: (x1 / 2 + x2 / 2) - x1 or x2

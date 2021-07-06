@@ -1,0 +1,43 @@
+0x08 - Freandly Fire (set to 3; Byte)
+0x0A - ID
+0x0C - Child (pointer)
+0x10 - Child? (pointer)
+0x14 - Parent (pointer)
+0x1C - Max Half-Health (2 bytes)
+0x1E - Max Full-Health (2 bytes)
+0x20 - Rotation (20 bytes)
+0x34 - Position X
+0x38 - Position Y
+0x3C - Position Z
+0x40 - 3D Model
+0x60 - Collision
+0x68 - LOD (pointer)
+0x8C - Speed
+0xF0 - Target (Pointer)
+[0xF8]+0x1C - Health 1st Half
+[0xFC]+0x1C - Health 2nd Half
+0xA8 - Turning
+0xAA - Acceleration
+0xAC - Wheels Type (0 - Ground, 1 - Air, 2 - Sea, 3 - Snow; Byte)
+0xAD - Forward/Backward
+0xAE - Weapon Slot (0, 1, 2; Byte)
+0xB8 - Ignition (2 bytes)
+0xC1 - Break & Accelerate
+0xDC - Character ID (byte)
+0xEC - Camera (pointer) - 0x07 (byte) 1 default
+			- 0x80 (pointer)
+			- 0x92 (2 bytes) 0 default
+			- 0x9C (4 bytes) 122880 default
+[0x011C]+0x18 - MG Fire (byte)
+[0x011C]+0x19 - ServerSendFire (byte)
+[0x011C]+0x1A - ServerSendWheels (byte)
+[0x011C]+0x1C - MG Reload (2 byte)
+[0x0120]+0x09 - Weapon 1 Type (0 - NONE, 1 - Rocket, 2 - Missile, 3 - Cannon, 4 - Mortar, 5 - Mine, 6 - Firetrover, 7 - Special, 8 - Briefcase, 9 - Fuel, A - Dinamite, B - Briefcase (red)
+[0x0120]+0x1C - Weapon 1 Ammo
+[0x0124]+0x09 - Weapon 2 Type
+[0x0124]+0x1C - Weapon 2 Ammo
+[0x0128]+0x09 - Weapon 3 Type
+[0x0128]+0x1C - Weapon 3 Ammo
+0x12E - Double Damage (2 bytes)
+0x130 - Shield (2 bytes)
+0x132 - Jammer (2 bytes)

@@ -1093,7 +1093,7 @@ public class GameManager : MonoBehaviour
     public Vehicle[] playerObjects; //gp+FF8h
     public byte[] vehicles; //gp+1104; 
     public List<VigObject> worldObjs; //gp+1040h
-    public List<VigObject> interObjs; //gp+10B8h
+    public List<KeyValuePair<uint, VigObject>> interObjs; //gp+10B8h
     
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public Matrix3x3 DAT_718; //gp+718h

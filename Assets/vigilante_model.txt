@@ -1,0 +1,18 @@
+--------------------Model Data----------------------
+0x04 - Vertex Count (2 bytes)
+0x06 - ??? Count (2 bytes)
+0x08 - Vertices (pointer)
+0x0C - Normals (pointer)
+----------------------------------------------------
+-------------------Vertex Data----------------------
+0x00 - Vertex X Coordinate (2 bytes)
+0x02 - Vertex Y Coordinate (2 bytes)
+0x04 - Vertex Z Coordinate (2 bytes)
+0x06 - Padding (2 bytes)
+----------------------------------------------------
+-------------------Normal Data----------------------
+0x00 - Normal X Coordinate (2 bytes)
+0x02 - Normal Y Coordinate (2 bytes)
+0x04 - Normal Z Coordinate (2 bytes)
+0x06 - Padding? (2 bytes)
+----------------------------------------------------

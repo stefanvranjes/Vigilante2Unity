@@ -1,0 +1,56 @@
+801E7F6C - tim format decoder (109FC)
+801E7B44 - loader (105D4)
+801E8284 - decompressor (10D14)
+801E83C4 - (10E54)
+801E84B0
+801E8E08 - (11898)
+801E8E84 - convert to color (11914)
+801E7940 - draw image on vram
+801E7D24
+801E7D8C
+800212E4 - load tim image
+80021064 - decompressor
+8015A158 - load uvs (85F4)
+8015E37C - load tiles and vertices (88C4)
+8015E48C - load chunks (89D4)
+801584BC - load xobf (2A04)
+8015D458 - load junc (79A0)
+8015835C - load head (28A4)
+8015D7B8 - load rseg (7D00)
+8015D170 - load xrtp (76B8)
+8015DCE4 - load xbmp (822C)
+8015DA98 - load cols (7FE0)
+80158524 - load suna (2A6C)
+8015E5AC - load xbgm (8AF4)
+8015844C - load text (2994)
+8015866C - load bsp (2BB4)
+8015A09C - load pltx (45E4)
+80158694 - load aimp (2BDC)
+80159F70 - load xlsc (44B8)
+80158FB0 - load obj (34F8)
+8015D924 (7E6C)
+8015B308 (5850)
+
+801599C8 - load exp and dll (3F10)
+
+duckstation-qt-x64-ReleaseLTCG.exe+1364E1
+duckstation-qt-x64-ReleaseLTCG.exe+137060
+m_remaining_halfwords = 9280
+
+line 578 n >> 10
+line 597 (n >> 10) + 1
+
+800B93F0 (chunks 64*64)
+800B7270 (uvs)
+
+0x10000 xy tile size
+
+8003F224
+8003F4C4
+8003FA50
+80041FB0
+80041CD4
+
+E6 1F 01 05
+
+8003C464 -> load car stats

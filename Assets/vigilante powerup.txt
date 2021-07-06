@@ -1,0 +1,21 @@
+00x09 - Random Powerup (0 - Not, 1 - Yes)
+00x1A - Powerup Type (byte)
+0 - Repair
+2 - Target Jam
+3 - Double Damage
+4 - Shield
+6 - Special
+7 - Air Wheels
+8 - Sea Wheels
+9 - Snow Wheels
+A - Missile
+B - Cannon
+C - Rocket
+D - Mine
+E - Mortar
+F - Firethrower
+11 - Salvage Points
+14 - Briefcase
+15 - Fuel
+16 - Dinamite
+17 - Supply Box

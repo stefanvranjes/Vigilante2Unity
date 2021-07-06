@@ -295,6 +295,34 @@ public static class Utilities
             (v1.x - v2.x, v1.y - v2.y, v1.z - v2.z));
     }
 
+    public static int FUN_29FC8(Vector3Int vin, out Vector3Int vout)
+    {
+        int iVar1;
+        int iVar2;
+        uint uVar3;
+
+        iVar1 = FUN_29E84(vin);
+
+        if (iVar1 == 0)
+            vout = new Vector3Int(0, 0, 0);
+        else
+        {
+            iVar2 = LeadingZeros(iVar1);
+            uVar3 = 12;
+
+            if (iVar2 - 1 < 12)
+                uVar3 = (uint)iVar2 - 1;
+
+            iVar2 = iVar1 >> (int)(12 - uVar3 & 31);
+            vout = new Vector3Int(
+                (vin.x << (int)(uVar3 & 31)) / iVar2,
+                (vin.y << (int)(uVar3 & 31)) / iVar2,
+                (vin.z << (int)(uVar3 & 31)) / iVar2);
+        }
+
+        return iVar1;
+    }
+
     public static Vector2Int FUN_2ACD0(Vector3Int v3a, Vector3Int v3b)
     {
         long lVar1 = (long)v3a.x * v3b.x;
@@ -1668,6 +1696,23 @@ public static class Utilities
             Coprocessor.colorFIFO.r2, 
             Coprocessor.colorFIFO.g2, 
             Coprocessor.colorFIFO.b2, 
+            Coprocessor.colorFIFO.cd2);
+    }
+
+    public static Color32 NormalColorCol(Vector3Int v0, Color32 v1)
+    {
+        Coprocessor.vector0.vx0 = (short)v0.x;
+        Coprocessor.vector0.vy0 = (short)v0.y;
+        Coprocessor.vector0.vz0 = (short)v0.z;
+        Coprocessor.colorCode.r = v1.r;
+        Coprocessor.colorCode.g = v1.g;
+        Coprocessor.colorCode.b = v1.b;
+        Coprocessor.colorCode.code = v1.a;
+        Coprocessor.ExecuteNCCS(12, true);
+        return new Color32(
+            Coprocessor.colorFIFO.r2,
+            Coprocessor.colorFIFO.g2,
+            Coprocessor.colorFIFO.b2,
             Coprocessor.colorFIFO.cd2);
     }
 

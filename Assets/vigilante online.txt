@@ -1,0 +1,143 @@
+----------------------------Functions---------------------------------
+80055504 - disable write 0s to the Library
+
+801DCFC8 - left arrow disable (nop - 00000000)
+801DCFE0 - right arrow disable (nop - 00000000)
+801DD090 - button read starts here
+         - set r4 to 40004000 for change of status
+	 - set r4 to 00400040 and r2 to 00400000 for start match
+801DD1C4 - don't change cursor (nop - 00000000)
+801DD1EC - update on same slot (10420004)
+801DBB44 - include all maps (00000000)
+801DDC8C - load all characters (34040000)
+801DCA90 - don't randomize characters (00000000)
+801DCA20 - don't dafault spawn count (00000000)
+80064500 - set player data
+801DCF24 - when switching between slots update the pointer player name
+801DCC4C - start update player names
+8006459C - draw player names
+801DCCE8 - don't render car when player is non-existing
+800645D0
+801DB9D0 - for guests when selecting private (r6 = 9 - can't select)
+801E6994 - branch menus if player is host or guest
+801DB798 - color
+800645EC
+80064650
+80064690
+801E6A84 - if guest quit to main menu when going back
+800646A8
+800646C4
+800139F8 - start match when x pressed
+80195A60 - human player spawn
+800646E0
+8004A184 - Weapon pickup (get weapon position and store to r17)
+8004A198 - Weapon pickup (don't call for other players)
+8004A1A4 - Weapon pickup (set r16 to 0 for other players)
+8003A554 - Add Weapons when players are instantiated (include MG)
+80064710
+80064738
+80064794
+800647A4
+800647C8
+800647D4
+80013C20 - call for network pickup update
+8003A670 - human player normal attacks send
+8003AFA8 - human player combo attacks send
+80034734 - call recieve attack command
+80064800
+80064810
+80064818
+801DEEA0 - set value when switching characters ()
+80034AFC - only spawn once (34020000)
+800385AC - no perish (00000000)
+80038000 - 8003E300
+8003A300 - 8003B300
+8003A300 - 8003A900
+8003A500 - 8003A510
+800633BC - nop input
+801DD1C4
+801DD1EC
+80011D5C
+80014590 - pause
+80013A48
+80049F7C - pickup wheels
+80039FA4 - wrecked
+80039E98 - destroyed
+8003B51C - totaled
+800648A8
+800648F4
+801FBCE0 - trailer air wheels detach
+801FBA30
+801FBD28
+801FBE7C
+801FBF88
+801FC7F8
+8006B830 -> trailer somewhere in the pointers (0xC0) 
+801FC8DC
+80064928
+80064980
+80064998
+8003A480 -> AI drop special
+80011??? -> Don't overwrite characters ID
+801FC838 -> Sheila weapon drop
+80195B34 -> Bob weapon drop
+800649C8
+8003C2A4 -> AI Ignition (set to 0x0800F0C1)
+80011650 -> Reset spawn count (set to 0x00000000)
+801DCE48
+800649FC
+801DCE2C
+8003C464
+80036BE0
+800367D0
+80064A1C
+801DD1C4
+8003C17C
+8003B38C
+80039DCC -> damage calculator
+80045040 -> ricochet fix
+801FCA24
+801FCAE4 -> padre's special all conditions met
+80064A30
+80064A58
+80034B34 -> AI Respawn
+8016C600 - G-Man Hotrod's special
+80064A68
+----------------------------------------------------------------------
+
+----------------------------Variables---------------------------------
+80064480 - isHost (byte)
+80064481 - everyoneReady (byte)
+80064482 - ready (byte)
+80064483 - character & attackSlot (byte)
+80064484 - notReady & weaponSlot (byte)
+80064485 - disconnect (byte)
+80064486 - masterServerConnected (byte)
+80064487 - sendPickup & defeatSend & trailer & weaponDrop (byte)
+80064488 - pickup & defeat & trailer & weaponDrop (byte)
+80064489 - playerPickup_ID & defeat_ID & trailer_ID & weaponDrop_ID (byte)
+8006448A - pickupAmmo (2 byte) #send and recieve
+8006448C - sendAttack (2 byte)
+8006448E - recieveAttack (2 byte)
+
+80064490 - player2_Name (string)
+8006449C - player2_Actor (pointer)
+800644A0 - player3_Name (string)
+800644AC - player3_Actor (pointer)
+800644B0 - player4_Name (string)
+800644BC - player4_Actor (pointer)
+800644C0 - player5_Name (string)
+800644CC - player5_Actor (pointer)
+800644D0 - Rotation (8 bytes)
+800644D8 - spawnPoint_Position (Vector3)
+
+8006B7E8 - Player 1 (pointer)
+8006B81C (pointer)
+8006B818 (byte)
+8006B7B8 - Menu navigation (byte) #16 in map selection
+8006A824 - Match started (byte) #0 started, 1 ended
+8006B804 - Spawn Count (byte) #used for player status
+8006B8F6 - Player 2 character (byte)
+8006B418 - Map (byte)
+8006B9E8 - Hotrod stats (size 0x10, stats begin at offset 0x06)
+----------------------------------------------------------------------

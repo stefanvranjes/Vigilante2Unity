@@ -170,7 +170,7 @@ public class JUNC_DB : MonoBehaviour
         VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
 
         using (BinaryReader reader = new BinaryReader(param3, Encoding.Default, true))
-            local_8 = Utilities.FUN_23F58(new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32()));
+            local_8 = Utilities.FUN_23F58(new Vector3Int(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16()));
 
         if (local_8.x < 0)
             local_8.x += 0xffff;

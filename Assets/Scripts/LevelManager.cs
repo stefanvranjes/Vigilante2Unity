@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,18 +44,21 @@ public class LevelManager : MonoBehaviour
     public List<XOBF_DB> charsList = new List<XOBF_DB>(); //0xC6178
     public XOBF_DB DAT_C61C0; //0xC61C0
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
-    public List<VigObject> levelObjs; //ffffa718 (LOAD.DLL)
+    public List<KeyValuePair<uint, VigObject>> levelObjs; //ffffa718 (LOAD.DLL)
 
     private VigTerrain terrain;
 
     // Start is called before the first frame update
     void Start()
     {
+        KeyValuePair<uint, VigObject> ppiVar4;
         int iVar5;
         int iVar6;
         int iVar8;
         int iVar21;
         Vector3Int local_310;
+        List<KeyValuePair<uint, VigObject>> ppiVar15;
+        VigObject ppiVar18;
 
         iVar6 = 1;
 
@@ -97,7 +102,19 @@ public class LevelManager : MonoBehaviour
         Utilities.SetLightMatrix(GameManager.instance.DAT_F68);
         Utilities.SetBackColor(64, 64, 64);
 
-        if ()
+        if (GameManager.instance.interObjs.Count > 0)
+        {
+            ppiVar15 = GameManager.instance.interObjs;
+
+            do
+            {
+                ppiVar4 = ppiVar15[0];
+                ppiVar18 = ppiVar4.Value;
+                ppiVar15.RemoveAt(0);
+                FUN_3C8C(ppiVar4.Value, GameManager.DAT_878);
+                //Move image? ...
+            } while (GameManager.instance.interObjs.Count > 0);
+        }
     }
 
     // Update is called once per frame
@@ -714,6 +731,216 @@ public class LevelManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private uint FUN_3630(VigObject param1, Vector3Int param2, Vector3Int param3)
+    {
+        ushort uVar1;
+        int iVar2;
+        uint uVar3;
+        int iVar4;
+        int iVar5;
+        uint uVar6;
+        uint uVar7;
+        Vector3Int local_30;
+        Vector3Int local_28;
+        Vector3Int auStack24;
+
+        local_30 = new Vector3Int(
+            param1.vTransform.rotation.V01,
+            param1.vTransform.rotation.V11,
+            param1.vTransform.rotation.V21);
+        iVar2 = Utilities.FUN_29C5C(param3, local_30);
+        uVar3 = 0;
+
+        if (iVar2 < 0)
+        {
+            uVar7 = (ushort)GameManager.DAT_65C90[(param1.physics1.M7 & 0xfff) * 2 + 1];
+            uVar1 = (ushort)GameManager.DAT_65C90[(param1.physics1.M6 & 0xfff) * 2 + 1];
+            local_28 = new Vector3Int(
+                param2.x - param1.screen.x,
+                param2.y - param1.screen.y,
+                param2.z - param1.screen.z);
+            uVar3 = (uint)Utilities.FUN_29E84(local_28);
+            Utilities.FUN_29FC8(local_28, out auStack24);
+            iVar4 = Utilities.FUN_29C5C(auStack24, local_30);
+
+            if (iVar4 < 0)
+                iVar4 += 4095;
+
+            uVar6 = (uint)param1.physics1.Z;
+
+            if (uVar3 < uVar6)
+            {
+                iVar5 = -iVar2;
+
+                if ((int)uVar7 < iVar4 >> 12)
+                {
+                    if (0 < iVar2)
+                        iVar5 += 4095;
+
+                    uVar3 = (uVar6 - uVar3) / (uVar6 - (uint)param1.physics1.Y >> 12);
+
+                    if (4096 < (int)uVar3)
+                        uVar3 = 4096;
+
+                    iVar2 = (iVar5 >> 12) * (int)uVar3;
+
+                    if (iVar2 < 0)
+                        iVar2 += 4095;
+
+                    iVar4 = (int)((uVar7 - (iVar4 >> 12)) * 4096) / (int)(uVar7 - uVar1);
+
+                    if (4096 < iVar4)
+                        iVar4 = 4096;
+
+                    iVar4 = (iVar2 >> 12) * iVar4;
+
+                    if (iVar4 < 0)
+                        iVar4 += 4095;
+
+                    iVar2 = (iVar4 >> 12) * (ushort)param1.physics2.M0;
+
+                    if (iVar2 < 0)
+                        iVar2 += 4095;
+
+                    uVar3 = (uint)(iVar2 >> 12 & 0xffff);
+                }
+                else
+                    uVar3 = 0;
+            }
+            else
+                uVar3 = 0;
+        }
+
+        return uVar3;
+    }
+
+    private void FUN_3828(MemoryStream param1, MemoryStream param2, MemoryStream param3, MemoryStream param4)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        uint uVar4;
+        VigObject oVar5;
+        uint uVar6;
+        uint uVar7;
+        uint uVar8;
+        Vector3Int auStack48;
+        Vector3Int auStack32;
+        Color32 local_18;
+
+        using (BinaryReader reader = new BinaryReader(param3, Encoding.Default, true))
+            auStack48 = Utilities.FUN_23F58(new Vector3Int
+                (reader.ReadInt16(0), reader.ReadInt16(2), reader.ReadInt16(4)));
+
+        using (BinaryReader reader = new BinaryReader(param4, Encoding.Default, true))
+            auStack32 = Utilities.FUN_23EA0(new Vector3Int
+                (reader.ReadInt16(0), reader.ReadInt16(2), reader.ReadInt16(4)));
+
+        using (BinaryReader reader = new BinaryReader(param2, Encoding.Default, true))
+            local_18 = Utilities.NormalColorCol(auStack32, new Color32
+                (reader.ReadByte(0), reader.ReadByte(1), reader.ReadByte(2), reader.ReadByte(3)));
+
+        uVar6 = local_18.r;
+        uVar7 = local_18.g;
+        uVar8 = local_18.b;
+
+        if (levelObjs != null)
+        {
+            for (int i = 0; i < levelObjs.Count; i++)
+            {
+                oVar5 = levelObjs[i].Value;
+                uVar4 = FUN_3630(oVar5, auStack48, auStack32);
+                uVar4 &= 0xffff;
+
+                if (uVar4 != 0)
+                {
+                    iVar1 = (int)uVar4 * (byte)oVar5.physics1.M0;
+
+                    if (iVar1 < 0)
+                        iVar1 += 4095;
+
+                    uVar6 += (uint)(iVar1 >> 12);
+                    iVar2 = (int)uVar4 * (byte)(oVar5.physics1.M0 >> 8);
+
+                    if (iVar2 < 0)
+                        iVar2 += 4095;
+
+                    uVar7 += (uint)(iVar2 >> 12);
+                    iVar3 = (int)uVar4 * (byte)oVar5.physics1.M1;
+
+                    if (iVar3 < 0)
+                        iVar3 += 4095;
+
+                    uVar8 += (uint)(iVar3 >> 12);
+                }
+            }
+        }
+
+        using (BinaryWriter writer = new BinaryWriter(param1, Encoding.Default, true))
+        {
+            uVar4 = 255;
+
+            if ((int)uVar6 < 255)
+                uVar4 = uVar6;
+
+            writer.Write((byte)uVar4);
+            uVar6 = 255;
+
+            if ((int)uVar7 < 255)
+                uVar6 = uVar7;
+
+            writer.Write((byte)uVar6);
+            uVar6 = 255;
+
+            if ((int)uVar8 < 255)
+                uVar6 = uVar8;
+
+            writer.Write((byte)uVar6);
+        }
+    }
+
+    private void FUN_3C8C(VigObject param1, VigTransform param2)
+    {
+        VigMesh mVar1;
+        DELEGATE_79A0 dVar2;
+        VigTransform auStack32;
+
+        do
+        {
+            auStack32 = Utilities.CompMatrixLV(param2, param1.vTransform);
+            Utilities.FUN_246BC(auStack32);
+            mVar1 = param1.vMesh;
+            dVar2 = new DELEGATE_79A0(FUN_3828);
+
+            if (mVar1 != null)
+            {
+                if ((mVar1.DAT_00 & 1) != 0)
+                {
+                    mVar1.FUN_39A8(dVar2);
+                    mVar1.DAT_00 &= 254;
+                    mVar1.DAT_00 |= 4;
+                }
+            }
+
+            mVar1 = param1.vLOD;
+
+            if (mVar1 != null)
+            {
+                if ((mVar1.DAT_00 & 1) != 0)
+                {
+                    mVar1.FUN_39A8(FUN_3828);
+                    mVar1.DAT_00 &= 254;
+                    mVar1.DAT_00 |= 4;
+                }
+            }
+
+            if (param1.child2 != null)
+                FUN_3C8C(param1.child2, auStack32);
+
+            param1 = param1.child;
+        } while (param1 != null);
     }
 
     private void FUN_719C(RSEG_DB param1)

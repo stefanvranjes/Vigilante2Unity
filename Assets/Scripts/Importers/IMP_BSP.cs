@@ -33,7 +33,7 @@ public class IMP_BSP
         else
         {
             piVar2 = new _CLASS_102C();
-            piVar2.DAT_00 = 0;
+            piVar2.DAT_00 = iVar1;
             iVar1 = reader.ReadInt32BE();
             piVar2.DAT_04 = iVar1;
             cVar3 = FUN_26F0(reader);
