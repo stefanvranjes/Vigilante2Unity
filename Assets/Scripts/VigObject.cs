@@ -1277,6 +1277,41 @@ public class VigObject : MonoBehaviour
         return bVar2;
     }
 
+    public VigObject FUN_31DDC()
+    {
+        ushort uVar2;
+        ushort uVar3;
+        VigObject puVar4;
+        VigObject oVar7;
+
+        puVar4 = null; //tmp
+        uVar2 = maxHalfHealth;
+        uVar3 = maxFullHealth;
+        puVar4.flags |= flags;
+        puVar4.id = id;
+        puVar4.ai = ai;
+        puVar4.screen = screen;
+        puVar4.vr = vr;
+        puVar4.DAT_19 = DAT_19;
+
+        if (uVar2 != 0 || uVar3 != 0)
+        {
+            oVar7 = puVar4.child2;
+            puVar4.maxHalfHealth = uVar2;
+            puVar4.maxFullHealth = uVar3;
+
+            while (oVar7 != null)
+            {
+                oVar7.maxHalfHealth = uVar2;
+                oVar7 = oVar7.child;
+            }
+        }
+
+        puVar4.FUN_2D1DC();
+        puVar4.FUN_2C958();
+        return puVar4;
+    }
+
     public void FUN_3BFC0()
     {
         int iVar1;

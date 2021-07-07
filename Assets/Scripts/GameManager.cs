@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void _VEHICLE_INIT(); //needs parameters
+
 public struct VehicleData
 {
     public short[] unk0x0; //0x00
@@ -48,10 +50,10 @@ public class _CLASS_102C
 {
     public int DAT_00; //0x00
     public int DAT_04; //0x04
-    public List<VigObject> LDAT_04; //0x04
+    public List<KeyValuePair<uint, VigObject>> LDAT_04; //0x04
     public _CLASS_102C DAT_08; //0x08
     public _CLASS_102C DAT_0C; //0x0C
-    public List<VigObject> LDAT_0C; //0x0C
+    public List<KeyValuePair<uint, VigObject>> LDAT_0C; //0x0C
 }
 
 public class GameManager : MonoBehaviour
@@ -924,6 +926,8 @@ public class GameManager : MonoBehaviour
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
 
+    public static _VEHICLE_INIT[] DAT_63DE0; //needs to be initialized here
+
     public static ushort[] DAT_63F68 = { };
 
     // 18 Characters Data
@@ -1305,6 +1309,20 @@ public class GameManager : MonoBehaviour
     public void FUN_31728()
     {
 
+    }
+
+    public Vehicle FUN_3208C(int param1)
+    {
+        VigObject oVar1;
+        int iVar2;
+
+        oVar1 = FUN_30250(DAT_1078, param1);
+        iVar2 = param1 + 1;
+
+        if (param1 < 0)
+            iVar2 = ~param1;
+
+        return FUN_36C2C(oVar1, vehicles[iVar2], param1);
     }
 
     public void FUN_50B38()
@@ -2567,6 +2585,30 @@ public class GameManager : MonoBehaviour
         return uVar5;
     }
 
+    private Tuple<VigObject, uint> FUN_30180(List<Tuple<VigObject, uint>> param1, int param2, VigObject param3)
+    {
+        for (int i = 0; i < param1.Count; i++)
+            if (param1[i].Item1 != param3)
+                if (param1[i].Item1.id == param2)
+                    return param1[i];
+
+        return null;
+    }
+
+    private VigObject FUN_30250(List<Tuple<VigObject, uint>> param1, int param2)
+    {
+        Tuple<VigObject, uint> tVar1;
+        VigObject oVar2;
+
+        tVar1 = FUN_30180(param1, param2, null);
+        oVar2 = null;
+
+        if (tVar1 != null)
+            oVar2 = tVar1.Item1;
+
+        return oVar2;
+    }
+
     private void FUN_3174C()
     {
         int ppiVar1;
@@ -2617,6 +2659,78 @@ public class GameManager : MonoBehaviour
                 }
             }
         }*/
+    }
+
+    private _VEHICLE_INIT FUN_36B64(ushort param1)
+    {
+        _VEHICLE_INIT puVar1;
+
+        if (20 < param1)
+            param1 -= 21;
+
+        if (levelManager.components[param1] == null)
+            return DAT_63DE0[param1];
+
+        //puVar1 = Utilities.FUN_14DAC(levelManager.components[param1], "Custom");
+        return null;
+    }
+
+    private Vehicle FUN_36C2C(VigObject param1, int param2, int param3)
+    {
+        _VEHICLE_INIT dVar1;
+        XOBF_DB dbVar1;
+        Vehicle vVar2;
+        int iVar3;
+        int iVar4;
+
+        if (param2 < 0 || param1 == null)
+            return null;
+
+        dVar1 = FUN_36B64((ushort)(param2));
+        //assign delegate to object
+
+        if (param3 < 0)
+        {
+            iVar3 = (39 - param3) * 4;
+
+            if (levelManager.charsList[39 - param3] != null)
+                if (levelManager.charsList[39 - param3].ini != null)
+                    goto LAB_36CC8;
+
+            //FUN_36558 (salvage points)
+            //...
+        }
+
+        iVar3 = param2;
+        LAB_36CC8:
+        dbVar1 = levelManager.charsList[iVar3];
+        param1.DAT_1A = 0;
+        param1.vData = dbVar1;
+        vVar2 = (Vehicle)param1.FUN_31DDC();
+        iVar4 = 0;
+
+        for (; iVar4 < 2; iVar4++)
+            if (vVar2.body[iVar4] != null)
+                vVar2.body[iVar4].id = vVar2.id;
+
+        if (0 < param3)
+        {
+            iVar3 = vVar2.vTransform.rotation.V02 * 4577;
+
+            if (iVar3 < 0)
+                iVar3 += 31;
+
+            vVar2.physics1.X = iVar3 >> 5;
+            vVar2.physics1.Y = 0;
+            iVar3 = vVar2.vTransform.rotation.V22 * 4577;
+
+            if (iVar3 < 0)
+                iVar3 += 31;
+
+            vVar2.physics1.Z = iVar3 >> 5;
+        }
+
+        return vVar2;
     }
 
     private void FUN_507DC(JUNC_DB param1)

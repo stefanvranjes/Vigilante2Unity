@@ -41,6 +41,7 @@ public class LevelManager : MonoBehaviour
     public List<Junction> roadList = new List<Junction>(); //gp+1190h
     public List<XRTP_DB> xrtpList = new List<XRTP_DB>(); //gp+1194h
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
+    public KeyValuePair<string, Type>[][] components; //0xC6130
     public List<XOBF_DB> charsList = new List<XOBF_DB>(); //0xC6178
     public XOBF_DB DAT_C61C0; //0xC61C0
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
@@ -56,6 +57,7 @@ public class LevelManager : MonoBehaviour
         int iVar6;
         int iVar8;
         int iVar21;
+        _CLASS_102C cVar22;
         Vector3Int local_310;
         List<KeyValuePair<uint, VigObject>> ppiVar15;
         VigObject ppiVar18;
@@ -111,10 +113,30 @@ public class LevelManager : MonoBehaviour
                 ppiVar4 = ppiVar15[0];
                 ppiVar18 = ppiVar4.Value;
                 ppiVar15.RemoveAt(0);
-                FUN_3C8C(ppiVar4.Value, GameManager.DAT_878);
-                //Move image? ...
+                FUN_3C8C(ppiVar18, GameManager.DAT_878);
+                //Move image? (probably the loading bar) ... 
+                if (ppiVar4.Key == 0)
+                    FUN_278C(staticObjs, ppiVar4);
+                else
+                {
+                    cVar22 = FUN_284C((int)ppiVar4.Key & 0x7fffffff);
+                    cVar22.LDAT_04.Add(ppiVar4);
+                }
             } while (GameManager.instance.interObjs.Count > 0);
         }
+
+        //FUN_30A00
+        //FUN_7E6C (loading junction in editor)
+
+        if (GameManager.instance.gameMode == _GAME_MODE.Quest ||
+            GameManager.instance.gameMode == _GAME_MODE.Quest2)
+        {
+            //...
+        }
+        else
+            ; //...
+
+
     }
 
     // Update is called once per frame
@@ -186,7 +208,7 @@ public class LevelManager : MonoBehaviour
                 }
             }
         }
-
+        
         if (0 < DAT_1180)
         {
             for (int i = 0; i < DAT_1180; i++)
@@ -731,6 +753,70 @@ public class LevelManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void FUN_278C(_CLASS_102C param1, KeyValuePair<uint, VigObject> param2)
+    {
+        int iVar1;
+        _CLASS_102C ppiVar2;
+        _CLASS_102C cVar3;
+
+        iVar1 = param1.DAT_00;
+
+        if (iVar1 == 1)
+        {
+            if (param2.Value.screen.x <= param1.DAT_04)
+            {
+                cVar3 = param1.DAT_08;
+                goto LAB_2834;
+            }
+        }
+        else
+        {
+            if (iVar1 == 0)
+            {
+                param1.LDAT_04.Add(param2);
+                return;
+            }
+
+            if (iVar1 != 2)
+                return;
+
+            if (param2.Value.screen.z <= param1.DAT_04)
+            {
+                cVar3 = param1.DAT_08;
+                goto LAB_2834;
+            }
+        }
+
+        cVar3 = param1.DAT_0C;
+        LAB_2834:
+        FUN_278C(cVar3, param2);
+    }
+
+    private _CLASS_102C FUN_284C(int param1)
+    {
+        _CLASS_102C piVar1;
+
+        piVar1 = staticObjs;
+
+        if (0 < param1)
+        {
+            param1 <<= 1;
+
+            while (0 < param1)
+                param1 <<= 1;
+        }
+
+        for (param1 <<= 1; piVar1.DAT_00 != 0; param1 <<= 1)
+        {
+            if (param1 < 0)
+                piVar1 = piVar1.DAT_0C;
+            else
+                piVar1 = piVar1.DAT_08;
+        }
+
+        return piVar1;
     }
 
     private uint FUN_3630(VigObject param1, Vector3Int param2, Vector3Int param3)
