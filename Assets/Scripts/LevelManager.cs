@@ -50,6 +50,7 @@ public class LevelManager : MonoBehaviour
     private VigTerrain terrain;
 
     // Start is called before the first frame update
+    // FUN_3F10 (LOAD.DLL)
     void Start()
     {
         KeyValuePair<uint, VigObject> ppiVar4;
@@ -113,7 +114,7 @@ public class LevelManager : MonoBehaviour
                 ppiVar4 = ppiVar15[0];
                 ppiVar18 = ppiVar4.Value;
                 ppiVar15.RemoveAt(0);
-                FUN_3C8C(ppiVar18, GameManager.DAT_878);
+                FUN_3C8C(ppiVar18, GameManager.defaultTransform);
                 //Move image? (probably the loading bar) ... 
                 if (ppiVar4.Key == 0)
                     FUN_278C(staticObjs, ppiVar4);
@@ -136,7 +137,26 @@ public class LevelManager : MonoBehaviour
         else
             ; //...
 
+        if (GameManager.instance.playerObjects[0] == null)
+        {
+            GameManager.instance.playerObjects[0] = GameManager.instance.FUN_3208C(-1);
 
+            if (GameManager.instance.playerObjects[0] != null)
+            {
+                if (GameManager.instance.gameMode == _GAME_MODE.Demo)
+                {
+                    //...
+                }
+
+                GameManager.instance.playerObjects[0].FUN_3066C();
+            }
+        }
+
+        //second player...
+
+        FUN_3D94(GameManager.instance.playerObjects[0]);
+        //second player...
+        GameManager.instance.DAT_CC4 = 0;
     }
 
     // Update is called once per frame
@@ -1027,6 +1047,50 @@ public class LevelManager : MonoBehaviour
 
             param1 = param1.child;
         } while (param1 != null);
+    }
+
+    //FUN_3D94 (LOAD.DLL)
+    private void FUN_3D94(Vehicle param1)
+    {
+        VigCamera cVar1;
+        int iVar2;
+        VigObject oVar3;
+        ConfigContainer ccVar4;
+
+        param1.FUN_3CCD4(1);
+        cVar1 = GameManager.instance.FUN_4B914(param1, 256);
+        param1.vCamera = cVar1;
+        GameManager.instance.cameraObjects[~param1.id] = cVar1;
+
+        if (param1.vehicle == _VEHICLE.Livingston)
+            param1.vCamera.DAT_9C += 0x19000;
+
+        param1.view = _CAR_VIEW.Far;
+        param1.vCamera.FUN_30B78();
+        param1.vCamera.FUN_4BC0C();
+        param1.FUN_38408();
+        param1.FUN_3C9C4(~param1.id);
+        //...
+        GameObject obj = new GameObject();
+        oVar3 = obj.AddComponent<VigObject>();
+        obj.transform.parent = param1.transform;
+        param1.closeViewer = oVar3;
+        ccVar4 = param1.FUN_2C5F4(0x8100);
+
+        if (ccVar4 == null)
+        {
+            param1.closeViewer.screen.y = -21845;
+            param1.closeViewer.ApplyTransformation();
+            Utilities.FUN_2CC48(param1, param1.closeViewer);
+        }
+        else
+            Utilities.FUN_2CA94(param1, ccVar4, param1.closeViewer);
+
+        if ((GameManager.instance.DAT_40 & 0x8000) != 0)
+            param1.DAT_A6 = 0x5000;
+
+        if ((GameManager.instance.DAT_40 & 0x10000) != 0)
+            param1.lightness = 0;
     }
 
     private void FUN_719C(RSEG_DB param1)

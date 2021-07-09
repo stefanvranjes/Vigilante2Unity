@@ -29,6 +29,180 @@ public class XOBF_DB : MonoBehaviour
     private string prefabPath;
     private string prefabName;
 
+    public Vehicle FUN_3C464(short param1, VehicleData param2)
+    {
+        VigObject currentObj = config.FUN_2C17C(0, 308, 0); //r20
+        int configID = config.dataID;
+        int iVar1 = GameManager.vehicleConfigs[configID].unk0xC;
+
+        if ((iVar1 & 240) == 0)
+            iVar1 |= 48;
+
+        currentObj.id = 0;
+        currentObj.type = 2;
+        currentObj.maxHalfHealth = GameManager.vehicleConfigs[configID].maxHalfHealth;
+        vehicle = GameManager.vehicleConfigs[configID].vehicleID;
+        DAT_E0 = 0x400;
+        lightness = GameManager.vehicleConfigs[configID].lightness;
+        int iVar2 = iVar1 & 255; //r30
+
+        if (config.pointerUnk1 != 0)
+            currentObj.flags |= 4;
+
+        VigObject child2 = currentObj.child2; //r16
+        DAT_E4 = -currentObj.screen.y;
+
+        while (child2 != null)
+        {
+            VigObject child = child2.child; //r17
+
+            if ((ushort)child2.id < 4)
+            {
+                body[(child2.id << 16 >> 14) / 4] = child2;
+                child2.ai = (byte)(child2.FUN_4DCD8() + 1);
+                child2.maxHalfHealth = GameManager.vehicleConfigs[configID].maxHalfHealth;
+            }
+
+            child2 = child;
+        }
+
+        int iVar3 = 0; //r18
+        VigObject wheelObject; //r16
+        ConfigContainer nextContainer; //r19
+        ConfigContainer previousContainer; //r17
+        GameManager.instance.commonWheelConfiguration.currentID = 0;
+        wheels.CopyTo(GameManager.instance.commonWheelConfiguration.obj, 0);
+
+        for (int i = 0; i < wheels.Length; i++)
+        {
+            nextContainer = config.FUN_2C590(0, iVar3 - 0x8000 & 0xFFFF);
+
+            if (nextContainer != null)
+            {
+                previousContainer = config.FUN_2C6D0(nextContainer, 0);
+
+                if (previousContainer == null)
+                {
+                    int iVar = 12; //r16
+
+                    if ((GameManager.instance.DAT_40 & 1) == 0)
+                        iVar = GameManager.vehicleConfigs[configID].unk0x0[(((iVar3 < 2 ? 1 : 0) ^ 1) << 1) / 2];
+
+                    wheelObject = GameManager.instance.commonWheelConfiguration.FUN_2C17C(iVar, 156, 8); //r16
+                    int configIndex = (iVar << 3) - iVar << 2;
+                    wheelObject.physics2.X = -GameManager.instance.commonWheelConfiguration.configContainers[configIndex / 0x1C].v3_1.y;
+                    wheelObject.vr = new Vector3Int((int)GameManager.FUN_2AC5C(), 0, (iVar3 & 1) << 11);
+                }
+                else
+                {
+                    wheelObject = config.FUN_2C17C(config.FUN_2C73C(previousContainer) & 0xFFFF, 156, 8);
+                    wheelObject.physics2.X = -(currentObj.screen.y + previousContainer.v3_1.y + nextContainer.v3_1.y);
+                }
+
+                wheelObject.id = wheelObject.DAT_1A;
+                wheelObject.screen = nextContainer.v3_1;
+                Utilities.FUN_2CC48(currentObj, wheelObject);
+                wheels[i] = wheelObject;
+                nextContainer = config.FUN_2C5CC(nextContainer, 0x8000);
+                wheelObject.type = 9;
+
+                if (nextContainer == null)
+                    wheelObject.physics1.X = 0;
+                else
+                    wheelObject.physics1.X = nextContainer.v3_1.y;
+
+                wheelObject.physics1.Y = wheelObject.screen.y;
+                int index = (iVar3 >> 1 << 1) / 2;
+                wheelObject.physics1.M6 = GameManager.vehicleConfigs[configID].unk0x0[index + 2];
+                wheelObject.physics1.M7 = GameManager.vehicleConfigs[configID].unk0x0[index + 4];
+
+                if (wheelObject.vMesh != null)
+                {
+                    if ((wheelObject.flags & 16) == 0)
+                    {
+                        int iVar5 = wheelObject.physics2.X * 0x6486;
+
+                        if (iVar5 < 0)
+                            iVar5 += 0xFFF;
+
+                        wheelObject.physics2.Y = 0x1000000 / (iVar5 >> 12);
+                    }
+                    else
+                    {
+                        wheelObject.flags &= 0xffffffef;
+                        wheelObject.physics2.Y = 0;
+                    }
+                }
+
+                if ((GameManager.instance.DAT_40 & 0x40000) != 0)
+                    wheelObject.physics1.Y += 0x2800;
+
+                wheelObject.physics1.Z = wheelObject.physics2.X;
+
+                if (wheelObject.unk3 != 0)
+                {
+                    //...
+                }
+
+                iVar1 = (iVar2 >> iVar3 & 1) << 24;
+                int iVar4;
+
+                if ((iVar2 & 16 << iVar3) == 0)
+                    iVar4 = iVar3 << 28 | 48;
+                else
+                    iVar4 = iVar3 << 28 | 0x2000020;
+
+                iVar4 = iVar1 | iVar4;
+                wheelObject.flags |= (uint)iVar4;
+                wheelObject.ApplyTransformation();
+            }
+
+            iVar3++;
+        }
+
+        currentObj.vectorUnk1 = GameManager.vehicleConfigs[configID].vectorUnk;
+        currentObj.DAT_A6 = GameManager.vehicleConfigs[configID].unk0x2A;
+        wheelsType = _WHEELS.Ground;
+        direction = 1;
+        DAT_B3 = GameManager.vehicleConfigs[configID].unk0x13;
+        DAT_B1 = GameManager.vehicleConfigs[configID].unk0xE;
+        DAT_B2 = GameManager.vehicleConfigs[configID].unk0xF;
+        DAT_AF = GameManager.vehicleConfigs[configID].unk0x15;
+        DAT_C3 = GameManager.vehicleConfigs[configID].unk0x10;
+        DAT_C4 = GameManager.vehicleConfigs[configID].unk0x11;
+        DAT_C5 = GameManager.vehicleConfigs[configID].unk0x12;
+        byte[] local_28 = new byte[4]; //sp+10h
+        Array.Copy(GameManager.DAT_6B204, local_28, 4);
+        int iVar6;
+
+        do
+        {
+            iVar3 = 0;
+            iVar6 = iVar3;
+
+            do
+            {
+                int iVar5 = iVar3 + 1;
+                byte bVar1 = GameManager.vehicleConfigs[configID].unk0x2C[local_28[iVar3]];
+                byte bVar2 = GameManager.vehicleConfigs[configID].unk0x2C[local_28[iVar5]];
+                byte bVar3 = local_28[iVar3];
+                byte bVar4 = local_28[iVar5];
+
+                if (bVar1 < bVar2)
+                {
+                    iVar6 = 1;
+                    local_28[iVar3] = bVar4;
+                    local_28[iVar5] = bVar3;
+                }
+
+                iVar3 = iVar5;
+            } while (iVar3 < 3);
+        } while (iVar6 != 0);
+
+        DAT_C0 = (byte)(local_28[0] | local_28[1] << 2 | local_28[2] << 4 | local_28[3] << 6);
+        currentObj.PDAT_7C = currentObj.FUN_2CA1C();
+    }
+
     public VigMesh FUN_2CB74(GameObject param1, uint param2)
     {
         return FUN_1FD18(param1, (ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU);

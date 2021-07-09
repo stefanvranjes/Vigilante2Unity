@@ -6,13 +6,13 @@ using UnityEngine;
 [System.Serializable]
 public class ConfigContainer
 {
-    public short flag; //0x00
+    public ushort flag; //0x00
     public short colliderID; //0x02
     public Vector3Int v3_1; //0x04
     public Vector3Int v3_2; //0x10
-    public short objID; //0x16
-    public short previous; //0x18
-    public short next; //0x1A
+    public ushort objID; //0x16
+    public ushort previous; //0x18
+    public ushort next; //0x1A
 }
 
 public class VigConfig : MonoBehaviour
@@ -84,6 +84,29 @@ public class VigConfig : MonoBehaviour
         }
 
         return vObject;
+    }
+
+    public ConfigContainer FUN_2C534(ushort param1, ushort param2)
+    {
+        uint uVar1;
+        ConfigContainer psVar2;
+
+        if (param1 != 0xffff)
+        {
+            uVar1 = param1;
+
+            do
+            {
+                psVar2 = configContainers[(int)uVar1];
+
+                if (psVar2.flag == param2)
+                    return psVar2;
+
+                uVar1 = psVar2.previous;
+            } while (uVar1 != 0xffff);
+        }
+
+        return null;
     }
 
     public ConfigContainer FUN_2C590(int int1, int int2)

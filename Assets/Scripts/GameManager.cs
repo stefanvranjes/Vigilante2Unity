@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public delegate void _VEHICLE_INIT(); //needs parameters
+public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2); //needs parameters
 
 public struct VehicleData
 {
@@ -926,11 +926,31 @@ public class GameManager : MonoBehaviour
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
 
-    public static _VEHICLE_INIT[] DAT_63DE0; //needs to be initialized here
+    public static _VEHICLE_INIT[] DAT_63DE0 = new _VEHICLE_INIT[]
+    {
+        new _VEHICLE_INIT(LoadWonderwagon),
+        new _VEHICLE_INIT(LoadThunderbolt),
+        new _VEHICLE_INIT(LoadDakota),
+        new _VEHICLE_INIT(LoadSamson),
+        new _VEHICLE_INIT(LoadLivingston),
+        new _VEHICLE_INIT(LoadXanadu),
+        new _VEHICLE_INIT(LoadPalomino),
+        new _VEHICLE_INIT(LoadGuerrero),
+        new _VEHICLE_INIT(LoadBurro),
+        new _VEHICLE_INIT(LoadExcelsior),
+        new _VEHICLE_INIT(LoadTsunami),
+        new _VEHICLE_INIT(LoadMarathon),
+        new _VEHICLE_INIT(LoadTrekker),
+        new _VEHICLE_INIT(LoadLoader),
+        new _VEHICLE_INIT(LoadStinger),
+        new _VEHICLE_INIT(LoadVertigo),
+        new _VEHICLE_INIT(LoadGoliath),
+        new _VEHICLE_INIT(LoadWapiti)
+    };
 
     public static ushort[] DAT_63F68 = { };
 
-    // 18 Characters Data
+    //0x80063A80
     public static VehicleData[] vehicleConfigs =
     {
         new VehicleData
@@ -1074,7 +1094,8 @@ public class GameManager : MonoBehaviour
     public static Color32 DAT_1f800228;*/
 
     public static byte[] DAT_854 = { 12, 32, 20, 32, 12, 24, 12, 24, 16, 28, 12, 28, 24, 24, 0, 24 };
-    public static VigTransform DAT_878 = new VigTransform
+    //gp+878h
+    public static VigTransform defaultTransform = new VigTransform
     {
         rotation = new Matrix3x3
         {
@@ -1095,8 +1116,9 @@ public class GameManager : MonoBehaviour
     public LevelManager levelManager;
     public VigConfig commonWheelConfiguration;
     public Vehicle[] playerObjects; //gp+FF8h
+    public VigCamera[] cameraObjects; //gp+10E8h
     public byte[] vehicles; //gp+1104; 
-    public List<VigObject> worldObjs; //gp+1040h
+    public List<Tuple<VigObject, uint>> worldObjs; //gp+1040h
     public List<KeyValuePair<uint, VigObject>> interObjs; //gp+10B8h
     
     public Queue<ScreenPoly> DAT_610; //gp+610h
@@ -1137,10 +1159,12 @@ public class GameManager : MonoBehaviour
     public VigTransform DAT_EE0; //gp+EE0h
     public KeyValuePair<string, Type>[][] DAT_1050; //gp+1050h
     public List<VigObject> DAT_1078; //gp+1078h
-    public List<VigObject> DAT_1088; //gp+1088h
+    public List<Tuple<VigObject, uint>> DAT_1088; //gp+1088h
     public List<VigObject> DAT_1098; //gp+1098h
     public List<VigObject> DAT_10A8; //gp+10A8h
+    public sbyte[] DAT_1128; //gp+1128h
     public int DAT_C74; //gp+C74h
+    public int DAT_CC4; //gp+CC4h
     public ushort timer; //gp+EA0h
     public byte uvSize;
     public ushort unk3;
@@ -1323,6 +1347,19 @@ public class GameManager : MonoBehaviour
             iVar2 = ~param1;
 
         return FUN_36C2C(oVar1, vehicles[iVar2], param1);
+    }
+
+    public VigCamera FUN_4B914(Vehicle param1, ushort param2)
+    {
+        VigCamera ppcVar1;
+
+        GameObject obj = new GameObject();
+        ppcVar1 = obj.AddComponent<VigCamera>();
+        ppcVar1.target = param1;
+        ppcVar1.maxHalfHealth = param2;
+        ppcVar1.flags |= 0x1000000;
+        ppcVar1.FUN_4B898();
+        return ppcVar1;
     }
 
     public void FUN_50B38()
@@ -2686,8 +2723,7 @@ public class GameManager : MonoBehaviour
         if (param2 < 0 || param1 == null)
             return null;
 
-        dVar1 = FUN_36B64((ushort)(param2));
-        //assign delegate to object
+        dVar1 = FUN_36B64((ushort)param2);
 
         if (param3 < 0)
         {
@@ -2706,7 +2742,7 @@ public class GameManager : MonoBehaviour
         dbVar1 = levelManager.charsList[iVar3];
         param1.DAT_1A = 0;
         param1.vData = dbVar1;
-        vVar2 = (Vehicle)param1.FUN_31DDC();
+        vVar2 = (Vehicle)param1.FUN_31DDC(dVar1);
         iVar4 = 0;
 
         for (; iVar4 < 2; iVar4++)
@@ -2758,7 +2794,7 @@ public class GameManager : MonoBehaviour
 
     public static VigTransform FUN_2A39C()
     {
-        return DAT_878;
+        return defaultTransform;
     }
 
     public static uint FUN_2AC5C()
@@ -2775,10 +2811,10 @@ public class GameManager : MonoBehaviour
         return uVar3 & 0x7FFF;
     }
 
-    public static void FUN_30080(List<VigObject> param1, VigObject param2)
+    public static void FUN_30080(List<Tuple<VigObject, uint>> param1, VigObject param2)
     {
         if (param1 == null)
-            param1 = new List<VigObject>();
+            param1 = new List<Tuple<VigObject, uint>>();
 
         param1.Add(param2);
     }
@@ -2802,5 +2838,95 @@ public class GameManager : MonoBehaviour
 
             ppiVar2++;
         }
+    }
+
+    public static Vehicle LoadWonderwagon(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[0]);
+    }
+
+    public static Vehicle LoadThunderbolt(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[1]);
+    }
+
+    public static Vehicle LoadDakota(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[2]);
+    }
+
+    public static Vehicle LoadSamson(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[3]);
+    }
+
+    public static Vehicle LoadLivingston(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[4]);
+    }
+
+    public static Vehicle LoadXanadu(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[5]);
+    }
+
+    public static Vehicle LoadPalomino(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[6]);
+    }
+
+    public static Vehicle LoadGuerrero(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[7]);
+    }
+
+    public static Vehicle LoadBurro(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[8]);
+    }
+
+    public static Vehicle LoadExcelsior(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[9]);
+    }
+
+    public static Vehicle LoadTsunami(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[10]);
+    }
+
+    public static Vehicle LoadMarathon(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[11]);
+    }
+
+    public static Vehicle LoadTrekker(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[12]);
+    }
+
+    public static Vehicle LoadLoader(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[13]);
+    }
+
+    public static Vehicle LoadStinger(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[14]);
+    }
+
+    public static Vehicle LoadVertigo(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[15]);
+    }
+
+    public static Vehicle LoadGoliath(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[16]);
+    }
+
+    public static Vehicle LoadWapiti(XOBF_DB param1, int param2)
+    {
+        return param1.FUN_3C464(0, vehicleConfigs[17]);
     }
 }

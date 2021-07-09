@@ -5,7 +5,7 @@ using UnityEngine;
 public class VigCamera : VigObject
 {
     public short fieldOfView; //0x1C
-    public Vehicle target; //0x80
+    public VigObject target; //0x80
     public Vector3Int DAT_84; //0x84
     public int DAT_9C; //0x9C
     public int DAT_98; //0x98
@@ -334,5 +334,43 @@ public class VigCamera : VigObject
         DAT_9C = target.DAT_58 + iVar1;
         DAT_98 = 11444;
         DAT_A0 = 204800;
+    }
+
+    public void FUN_4BC0C()
+    {
+        long lVar1;
+        short sVar2;
+        int iVar3;
+        uint uVar4;
+        uint uVar5;
+        VigObject oVar6;
+        int iVar7;
+        uint uVar8;
+
+        sVar2 = Utilities.FUN_2A27C(target.vTransform.rotation);
+        uVar4 = (uint)DAT_9C;
+        iVar3 = ((sVar2 + DAT_92) & 0xfff) * 2;
+        uVar5 = (uint)((ushort)GameManager.DAT_65C90[iVar3] << 16 >> 16);
+        lVar1 = (long)((ulong)uVar4 * uVar5);
+        screen.x = target.vTransform.position.x -
+                   (int)((uint)lVar1 >> 12 |
+                   (uint)((int)((ulong)lVar1 >> 32) +
+                   (int)uVar4 * ((ushort)GameManager.DAT_65C90[iVar3] << 16 >> 31) +
+                   (int)uVar5 * ((int)uVar4 >> 31)) * 0x100000);
+        uVar8 = (uint)((long)(int)uVar4 * -GameManager.DAT_65C90[(DAT_90 & 0xfff) * 2]);
+        iVar7 = (int)((ulong)((long)(int)uVar4 * -GameManager.DAT_65C90[(DAT_90 & 0xfff) * 2]) >> 32);
+        uVar4 = (uint)DAT_9C;
+        screen.y = target.vTransform.position.y - (int)(uVar8 >> 12 | (uint)iVar7 << 20);
+        uVar5 = (uint)((ushort)GameManager.DAT_65C90[iVar3 + 1] << 16 >> 16);
+        lVar1 = (long)((ulong)uVar4 * uVar5);
+        oVar6 = target;
+        screen.z = target.vTransform.position.z -
+                   (int)((uint)lVar1 >> 12 |
+                   (uint)((int)((ulong)lVar1 >> 32) +
+                   (int)uVar4 * ((ushort)GameManager.DAT_65C90[iVar3 + 1] << 16 >> 31) +
+                   (int)uVar5 * ((int)uVar4 >> 31)) * 0x100000);
+        FUN_4BAFC(oVar6.vTransform.position);
+        vr.x += DAT_94;
+        ApplyTransformation();
     }
 }

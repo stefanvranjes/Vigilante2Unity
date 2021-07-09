@@ -67,7 +67,7 @@ public static class Utilities
         return FUN_14DAC(CommonTypes[i], cmp);
     }
 
-    public static VigObject FUN_31D30(Type param1, XOBF_DB param2, short param3, uint param4)
+    public static VigObject FUN_31D30(Type param1, XOBF_DB param2, ushort param3, uint param4)
     {
         GameObject obj = new GameObject();
 
@@ -75,6 +75,21 @@ public static class Utilities
             return obj.AddComponent(typeof(Destructible)) as Destructible;
         else if (param1.Equals(typeof(Powerup)))
             return obj.AddComponent(typeof(Powerup)) as Powerup;
+    }
+
+    public static VigObject FUN_31D30(_VEHICLE_INIT param1, XOBF_DB param2, ushort param3, uint param4)
+    {
+        VigObject oVar1;
+
+        if (param1 != null)
+        {
+            oVar1 = param1(param2, param3);
+
+            if (oVar1 != null)
+                return oVar1;
+
+            
+        }
     }
 
     public static bool FUN_281FC(BoundingBox param1, VigTransform param2, BoundingBox param3, VigTransform param4)
@@ -442,6 +457,14 @@ public static class Utilities
         return -Ratan2(m33.V10, m33.V11) << 16 >> 16;
     }
 
+    public static void FUN_2CA94(VigObject obj1, ConfigContainer cont, VigObject obj2)
+    {
+        obj2.vr = cont.v3_2;
+        obj2.screen = cont.v3_1;
+        obj2.ApplyTransformation();
+        FUN_2CC48(obj1, obj2);
+    }
+
     public static void FUN_2CC48(VigObject obj1, VigObject obj2)
     {
         if (obj1.child2 != null)
@@ -561,6 +584,32 @@ public static class Utilities
             V21 = IR3_2,
             V22 = IR3_3
         };
+    }
+
+    public static Vector3Int FUN_24008(Vector3Int v3)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+
+        Coprocessor.accumulator.ir1 = (short)(v3.x >> 15);
+        Coprocessor.accumulator.ir2 = (short)(v3.y >> 15);
+        Coprocessor.accumulator.ir3 = (short)(v3.z >> 15);
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 0, false);
+        Coprocessor.vector0.vx0 = (short)(v3.x & 0x7fff);
+        Coprocessor.vector0.vy0 = (short)(v3.y & 0x7fff);
+        Coprocessor.vector0.vz0 = (short)(v3.z & 0x7fff);
+        iVar4 = Coprocessor.mathsAccumulator.mac1;
+        iVar5 = Coprocessor.mathsAccumulator.mac2;
+        iVar6 = Coprocessor.mathsAccumulator.mac3;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.TR, 12, false);
+        iVar1 = Coprocessor.mathsAccumulator.mac1;
+        iVar2 = Coprocessor.mathsAccumulator.mac2;
+        iVar3 = Coprocessor.mathsAccumulator.mac3;
+        return new Vector3Int(iVar1 + iVar4 * 8, iVar2 + iVar5 * 8, iVar3 + iVar6 * 8);
     }
 
     public static Vector3Int FUN_2426C(Matrix3x3 m33, Matrix2x4 m24)

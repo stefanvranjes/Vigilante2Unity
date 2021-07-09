@@ -682,7 +682,7 @@ public class VigObject : MonoBehaviour
     public Matrix2x4 physics2;
 
     public Vector3Int vectorUnk1; //0xA0
-    public short unk1; //0xA6
+    public short DAT_A6; //0xA6
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -1025,6 +1025,14 @@ public class VigObject : MonoBehaviour
         return oVar1;
     }
 
+    public ConfigContainer FUN_2C5F4(ushort param2)
+    {
+        VigConfig cVar1;
+
+        cVar1 = vData.ini;
+        return cVar1.FUN_2C534(cVar1.configContainers[DAT_1A].next, param2);
+    }
+
     public void FUN_2C958()
     {
         VigObject oVar1;
@@ -1193,7 +1201,7 @@ public class VigObject : MonoBehaviour
             }
             else
             {
-                param1.rotation = GameManager.DAT_878.rotation;
+                param1.rotation = GameManager.defaultTransform.rotation;
             }
         }
 
@@ -1277,14 +1285,20 @@ public class VigObject : MonoBehaviour
         return bVar2;
     }
 
-    public VigObject FUN_31DDC()
+    public void FUN_30B78()
+    {
+        flags |= 0x80;
+        GameManager.FUN_30080(GameManager.instance.DAT_1088, this);
+    }
+
+    public VigObject FUN_31DDC(_VEHICLE_INIT param1)
     {
         ushort uVar2;
         ushort uVar3;
         VigObject puVar4;
         VigObject oVar7;
 
-        puVar4 = null; //tmp
+        puVar4 = Utilities.FUN_31D30(param1, vData, (ushort)DAT_1A, (flags & 4) << 1);
         uVar2 = maxHalfHealth;
         uVar3 = maxFullHealth;
         puVar4.flags |= flags;
