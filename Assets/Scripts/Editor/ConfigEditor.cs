@@ -24,13 +24,13 @@ public class ConfigEditor
             {
                 config.configContainers.Add(new ConfigContainer());
                 config.configContainers[i] = new ConfigContainer();
-                config.configContainers[i].flag = reader.ReadInt16();
+                config.configContainers[i].flag = reader.ReadUInt16();
                 config.configContainers[i].colliderID = reader.ReadInt16();
                 config.configContainers[i].v3_1 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
                 config.configContainers[i].v3_2 = new Vector3Int(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16());
-                config.configContainers[i].objID = reader.ReadInt16();
-                config.configContainers[i].previous = reader.ReadInt16();
-                config.configContainers[i].next = reader.ReadInt16();
+                config.configContainers[i].objID = reader.ReadUInt16();
+                config.configContainers[i].previous = reader.ReadUInt16();
+                config.configContainers[i].next = reader.ReadUInt16();
             }
         }
     }

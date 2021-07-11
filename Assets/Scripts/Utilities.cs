@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using UnityEngine;
-
+using UnityEditor;
 
 
 public static class Utilities
@@ -67,7 +67,7 @@ public static class Utilities
         return FUN_14DAC(CommonTypes[i], cmp);
     }
 
-    public static VigObject FUN_31D30(Type param1, XOBF_DB param2, ushort param3, uint param4)
+    public static VigObject FUN_31D30(Type param1, XOBF_DB param2, short param3, uint param4)
     {
         GameObject obj = new GameObject();
 
@@ -75,6 +75,8 @@ public static class Utilities
             return obj.AddComponent(typeof(Destructible)) as Destructible;
         else if (param1.Equals(typeof(Powerup)))
             return obj.AddComponent(typeof(Powerup)) as Powerup;
+        else
+            return null;
     }
 
     public static VigObject FUN_31D30(_VEHICLE_INIT param1, XOBF_DB param2, ushort param3, uint param4)
@@ -88,8 +90,10 @@ public static class Utilities
             if (oVar1 != null)
                 return oVar1;
 
-            
+            return null;
         }
+
+        return null;
     }
 
     public static bool FUN_281FC(BoundingBox param1, VigTransform param2, BoundingBox param3, VigTransform param4)
@@ -2223,6 +2227,13 @@ public static class Utilities
         writer.Write(value);
         writer.BaseStream.Seek(position, SeekOrigin.Begin);
     }
+
+    public static void SaveObjectToFile(UnityEngine.Object obj, string filename)
+    {
+        AssetDatabase.CreateAsset(obj, filename);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
 }
 
 public class FixedSizedQueue<T>
@@ -2251,5 +2262,17 @@ public class FixedSizedQueue<T>
         T result;
         q.TryPeek(out result);
         return result;
+    }
+}
+
+public class VigTuple
+{
+    public VigObject vObject;
+    public uint flag;
+
+    public VigTuple(VigObject o, uint f)
+    {
+        vObject = o;
+        flag = f;
     }
 }

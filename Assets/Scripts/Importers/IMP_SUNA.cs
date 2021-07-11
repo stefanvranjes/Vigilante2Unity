@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class IMP_SUNA
 {
@@ -15,7 +16,7 @@ public class IMP_SUNA
             uint uVar3;
             int iVar4;
             int iVar5;
-            LevelManager levelManager = GameObject.Find("Level Manager").GetComponent<LevelManager>();
+            LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
             if (reader.BaseStream.Length < 13)
                 uVar3 = 0x1000;
@@ -52,6 +53,7 @@ public class IMP_SUNA
 
             levelManager.DAT_10F8 = new Vector3Int
                 (iVar5 >> 12, iVar1 >> 12, iVar2 >> 12);
+            EditorUtility.SetDirty(levelManager.gameObject);
         }
     }
 }

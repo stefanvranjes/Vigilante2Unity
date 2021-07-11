@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class IMP_COLS
 {
@@ -15,8 +16,8 @@ public class IMP_COLS
             int iVar3;
             int iVar4;
             long lVar5;
-            LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-            VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
+            LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
+            VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
 
             iVar3 = 0;
             lVar5 = 0x84210843;
@@ -84,6 +85,9 @@ public class IMP_COLS
                 levelManager.DAT_DA4,
                 levelManager.DAT_DA4
             };
+
+            EditorUtility.SetDirty(levelManager.gameObject);
+            EditorUtility.SetDirty(terrain.gameObject);
         }
     }
 }

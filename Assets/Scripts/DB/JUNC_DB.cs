@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public delegate void DELEGATE_79A0(MemoryStream param1, MemoryStream param2, MemoryStream param3, MemoryStream param4);
 
@@ -38,12 +39,12 @@ public class JUNC_DB : MonoBehaviour
         DELEGATE_79A0 dVar18;
         VigTransform auStack72;
 
-        LevelManager levelManager = GameObject.Find("GameControl").GetComponent<LevelManager>();
+        LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
             long length = reader.BaseStream.Length;
-            VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
+            VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
             iVar3 = reader.ReadInt32BE();
             iVar4 = reader.ReadInt32BE();
             bVar1 = reader.ReadByte();
@@ -156,6 +157,9 @@ public class JUNC_DB : MonoBehaviour
         }
 
         levelManager.juncList.Add(this);
+        EditorUtility.SetDirty(gameObject);
+        EditorUtility.SetDirty(levelManager.gameObject);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
     }
 
     //FUN_78CC (LOAD.DLL)
@@ -167,7 +171,7 @@ public class JUNC_DB : MonoBehaviour
         long param2_pos = param2.Position;
         long param3_pos = param3.Position;
         long param4_pos = param4.Position;
-        VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
+        VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
 
         using (BinaryReader reader = new BinaryReader(param3, Encoding.Default, true))
             local_8 = Utilities.FUN_23F58(new Vector3Int(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16()));

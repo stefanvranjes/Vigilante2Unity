@@ -7,21 +7,21 @@ public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2); //needs par
 
 public struct VehicleData
 {
-    public short[] unk0x0; //0x00
-    public byte unk0xC; //0x0C
+    public short[] DAT_00; //0x00
+    public byte DAT_0C; //0x0C
     public _VEHICLE vehicleID; //0x0D
-    public sbyte unk0xE; //0x0E
-    public sbyte unk0xF; //0x0F
-    public byte unk0x10; //0x10
-    public byte unk0x11; //0x11
-    public byte unk0x12; //0x12
-    public byte unk0x13; //0x13
-    public byte unk0x15; //0x15
+    public sbyte DAT_0E; //0x0E
+    public sbyte DAT_0F; //0x0F
+    public byte DAT_10; //0x10
+    public byte DAT_11; //0x11
+    public byte DAT_12; //0x12
+    public byte DAT_13; //0x13
+    public byte DAT_15; //0x15
     public ushort maxHalfHealth; //0x18
     public int lightness; //0x1C
-    public Vector3Int vectorUnk; //0x24
-    public short unk0x2A; //0x2A
-    public byte[] unk0x2C; //0x2C
+    public Vector3Int DAT_24; //0x24
+    public short DAT_2A; //0x2A
+    public byte[] DAT_2C; //0x2C
 }
 
 public enum _GAME_MODE
@@ -46,20 +46,20 @@ public enum _SCREEN_MODE
     Unknown
 }
 
+[System.Serializable]
 public class _CLASS_102C
 {
     public int DAT_00; //0x00
     public int DAT_04; //0x04
-    public List<KeyValuePair<uint, VigObject>> LDAT_04; //0x04
+    public List<VigTuple> LDAT_04; //0x04
     public _CLASS_102C DAT_08; //0x08
     public _CLASS_102C DAT_0C; //0x0C
-    public List<KeyValuePair<uint, VigObject>> LDAT_0C; //0x0C
 }
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    public static int translateFactor = 10000;
+    public static int translateFactor = 4;
 
     public static short[] SQRT =
     {
@@ -905,8 +905,6 @@ public class GameManager : MonoBehaviour
         511, 511, 511, 512, 512
     };
 
-    public static byte[] DAT_6B204 = { 0, 1, 2, 3 };
-
     public static uint[,] DAT_637DC = 
         { { 0, 0, 0xA8563412, 0x123800, 0xA8563412, 0xA8563412 }, 
         { 0, 0, 0xA8563412, 0x123800, 0xA8563412, 0xA8563412 } };
@@ -959,20 +957,20 @@ public class GameManager : MonoBehaviour
         },
         new VehicleData
         {
-            unk0x0 = new short[6] { 4, 8, 48, 56, 92, 92 },
-            unk0xC=12,
+            DAT_00 = new short[6] { 4, 8, 48, 56, 92, 92 },
+            DAT_0C=12,
             vehicleID=_VEHICLE.Thunderbolt,
-            unk0xE=18,
-            unk0xF=-2,
-            unk0x10=19,
-            unk0x11=32,
-            unk0x12=57,
-            unk0x13=148,
-            unk0x15=50,
+            DAT_0E=18,
+            DAT_0F=-2,
+            DAT_10=19,
+            DAT_11=32,
+            DAT_12=57,
+            DAT_13=148,
+            DAT_15=50,
             lightness=4206,
-            vectorUnk=new Vector3Int(64, 64, 64),
-            unk0x2A=0x2999,
-            unk0x2C=new byte[4] { 200, 172, 91, 52 }
+            DAT_24=new Vector3Int(64, 64, 64),
+            DAT_2A=0x2999,
+            DAT_2C=new byte[4] { 200, 172, 91, 52 }
         },
         new VehicleData
         {
@@ -1000,20 +998,20 @@ public class GameManager : MonoBehaviour
         },
         new VehicleData
         {
-            unk0x0=new short[7]{ 32, 32, 40, 40, 48, 48, 0x803 }, //game stores 7th element for a wheel?
-            unk0xC=3,
+            DAT_00=new short[7]{ 32, 32, 40, 40, 48, 48, 0x803 }, //game stores 7th element for a wheel?
+            DAT_0C=3,
             vehicleID=_VEHICLE.BlueBurro,
-            unk0xE=0,
-            unk0xF=0,
-            unk0x10=28,
-            unk0x11=38,
-            unk0x12=80,
-            unk0x13=34,
-            unk0x15=49,
+            DAT_0E=0,
+            DAT_0F=0,
+            DAT_10=28,
+            DAT_11=38,
+            DAT_12=80,
+            DAT_13=34,
+            DAT_15=49,
             lightness=1945,
-            vectorUnk=new Vector3Int(64, 64, 64),
-            unk0x2A=0x4000,
-            unk0x2C=new byte[4]{ 64, 46, 176, 56 }
+            DAT_24=new Vector3Int(64, 64, 64),
+            DAT_2A=0x4000,
+            DAT_2C=new byte[4]{ 64, 46, 176, 56 }
         },
         new VehicleData
         {
@@ -1093,6 +1091,19 @@ public class GameManager : MonoBehaviour
     public static uint DAT_1f800224;
     public static Color32 DAT_1f800228;*/
 
+    //gp+718h
+    public static Matrix3x3 DAT_718 = new Matrix3x3()
+    {
+        V00 = 0x1000,
+        V01 = 0,
+        V02 = 0,
+        V10 = 0,
+        V11 = 0,
+        V12 = 0,
+        V20 = 0,
+        V21 = 0,
+        V22 = 0
+    };
     public static byte[] DAT_854 = { 12, 32, 20, 32, 12, 24, 12, 24, 16, 28, 12, 28, 24, 24, 0, 24 };
     //gp+878h
     public static VigTransform defaultTransform = new VigTransform
@@ -1111,6 +1122,7 @@ public class GameManager : MonoBehaviour
         },
         position = new Vector3Int(0, 0, 0)
     };
+    public static byte[] DAT_A14 = { 0, 1, 2, 3 };
 
     public VigTerrain terrain;
     public LevelManager levelManager;
@@ -1118,11 +1130,10 @@ public class GameManager : MonoBehaviour
     public Vehicle[] playerObjects; //gp+FF8h
     public VigCamera[] cameraObjects; //gp+10E8h
     public byte[] vehicles; //gp+1104; 
-    public List<Tuple<VigObject, uint>> worldObjs; //gp+1040h
-    public List<KeyValuePair<uint, VigObject>> interObjs; //gp+10B8h
+    public List<VigTuple> worldObjs; //gp+1040h
+    public List<VigTuple> interObjs; //gp+10B8h
     
     public Queue<ScreenPoly> DAT_610; //gp+610h
-    public Matrix3x3 DAT_718; //gp+718h
     public bool DAT_83B; //gp+83Bh
     public Vector3Int DAT_A18; //gp+A18h
     public Vector3Int DAT_A24; //gp+A24h
@@ -1158,16 +1169,14 @@ public class GameManager : MonoBehaviour
     public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_EE0; //gp+EE0h
     public KeyValuePair<string, Type>[][] DAT_1050; //gp+1050h
-    public List<VigObject> DAT_1078; //gp+1078h
-    public List<Tuple<VigObject, uint>> DAT_1088; //gp+1088h
-    public List<VigObject> DAT_1098; //gp+1098h
-    public List<VigObject> DAT_10A8; //gp+10A8h
+    public List<VigTuple> DAT_1078; //gp+1078h
+    public List<VigTuple> DAT_1088; //gp+1088h
+    public List<VigTuple> DAT_1098; //gp+1098h
+    public List<VigTuple> DAT_10A8; //gp+10A8h
     public sbyte[] DAT_1128; //gp+1128h
     public int DAT_C74; //gp+C74h
     public int DAT_CC4; //gp+CC4h
     public ushort timer; //gp+EA0h
-    public byte uvSize;
-    public ushort unk3;
     public ushort[,] DAT_08; //gp+08h
     public int DAT_20; //gp+20h
     public int DAT_24; //gp+24h
@@ -1205,10 +1214,10 @@ public class GameManager : MonoBehaviour
         DAT_FA8.SetValue16(iVar1 + 2, param3.b << 4);
     }
 
-    public void FUN_30B24(List<VigObject> param1)
+    public void FUN_30B24(List<VigTuple> param1)
     {
         for (int i = 0; i <= param1.Count; i++)
-            FUN_2D9E0(param1[i]);
+            FUN_2D9E0(param1[i].vObject);
     }
 
     public void FUN_30DE8(_CLASS_102C param1, int param2, int param3, int param4, int param5)
@@ -1268,7 +1277,7 @@ public class GameManager : MonoBehaviour
         Vector3Int local_10;
         Vector3Int local_8;
 
-        if (staticObjs != null)
+        if (levelManager.staticObjs != null)
         {
             local_10 = new Vector3Int();
             local_10.x = -GameManager.instance.DAT_EDC / 2;
@@ -1323,7 +1332,7 @@ public class GameManager : MonoBehaviour
             if (0 < iVar4)
                 iVar5 = iVar4;
 
-            FUN_30DE8(staticObjs, GameManager.instance.DAT_F28.position.x + iVar1 * 0x400,
+            FUN_30DE8(levelManager.staticObjs, GameManager.instance.DAT_F28.position.x + iVar1 * 0x400,
                                   GameManager.instance.DAT_F28.position.x + iVar2 * 0x400,
                                   GameManager.instance.DAT_F28.position.z + iVar3 * 0x400,
                                   GameManager.instance.DAT_F28.position.z + iVar5 * 0x400);
@@ -1531,7 +1540,7 @@ public class GameManager : MonoBehaviour
             }
 
             FUN_2D278(oVar7, sVar1);
-            terrain.DAT_BDFF0 = DAT_F00;
+            terrain.DAT_BDFF0[0] = DAT_F00;
             //FUN_14B3C
             terrain.FUN_31678();
         }
@@ -1867,16 +1876,16 @@ public class GameManager : MonoBehaviour
                     Coprocessor.translationVector._try = 0;
                     Coprocessor.translationVector._trz = 0;
                     iVar24 = 0;
-                    Utilities.SetColorMatrix(DAT_738);
+                    Utilities.SetColorMatrix(levelManager.DAT_738);
                     Utilities.SetLightMatrix(DAT_718);
-                    Utilities.SetBackColor(DAT_E04.r, DAT_E04.g, DAT_E04.b);
-                    Utilities.SetFarColor(DAT_DA4.r, DAT_DA4.g, DAT_DA4.b);
+                    Utilities.SetBackColor(levelManager.DAT_E04.r, levelManager.DAT_E04.g, levelManager.DAT_E04.b);
+                    Utilities.SetFarColor(levelManager.DAT_DA4.r, levelManager.DAT_DA4.g, levelManager.DAT_DA4.b);
                     DAT_1f800080 = 0x100; //DAT_CE0 + 0x100
                     Utilities.SetFogNearFar(DAT_DB6 << 8, DAT_DB4 << 8, DAT_ED8);
-                    Coprocessor.colorCode.r = DAT_DDC.r;
-                    Coprocessor.colorCode.g = DAT_DDC.g;
-                    Coprocessor.colorCode.b = DAT_DDC.b;
-                    Coprocessor.colorCode.code = DAT_DDC.a;
+                    Coprocessor.colorCode.r = levelManager.DAT_DDC.r;
+                    Coprocessor.colorCode.g = levelManager.DAT_DDC.g;
+                    Coprocessor.colorCode.b = levelManager.DAT_DDC.b;
+                    Coprocessor.colorCode.code = levelManager.DAT_DDC.a;
 
                     for (iVar24 = 0; iVar24 < 32; iVar24++)
                     {
@@ -2096,7 +2105,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            auStack8 = Utilities.FUN_24148(terrain.DAT_BDFF0, pos);
+            auStack8 = Utilities.FUN_24148(terrain.DAT_BDFF0[0], pos);
 
             if (!DAT_83B) 
             {
@@ -2622,26 +2631,26 @@ public class GameManager : MonoBehaviour
         return uVar5;
     }
 
-    private Tuple<VigObject, uint> FUN_30180(List<Tuple<VigObject, uint>> param1, int param2, VigObject param3)
+    private VigTuple FUN_30180(List<VigTuple> param1, int param2, VigObject param3)
     {
         for (int i = 0; i < param1.Count; i++)
-            if (param1[i].Item1 != param3)
-                if (param1[i].Item1.id == param2)
+            if (param1[i].vObject != param3)
+                if (param1[i].vObject.id == param2)
                     return param1[i];
 
         return null;
     }
 
-    private VigObject FUN_30250(List<Tuple<VigObject, uint>> param1, int param2)
+    private VigObject FUN_30250(List<VigTuple> param1, int param2)
     {
-        Tuple<VigObject, uint> tVar1;
+        VigTuple tVar1;
         VigObject oVar2;
 
         tVar1 = FUN_30180(param1, param2, null);
         oVar2 = null;
 
         if (tVar1 != null)
-            oVar2 = tVar1.Item1;
+            oVar2 = tVar1.vObject;
 
         return oVar2;
     }
@@ -2811,33 +2820,38 @@ public class GameManager : MonoBehaviour
         return uVar3 & 0x7FFF;
     }
 
-    public static void FUN_30080(List<Tuple<VigObject, uint>> param1, VigObject param2)
+    public static void FUN_30080(List<VigTuple> param1, VigObject param2)
     {
         if (param1 == null)
-            param1 = new List<Tuple<VigObject, uint>>();
+            param1 = new List<VigTuple>();
 
-        param1.Add(param2);
+        param1.Add(new VigTuple(param2, 0));
     }
 
-    public static void FUN_30134(List<VigObject> param1, VigObject param2)
+    public static VigTuple FUN_30134(List<VigTuple> param1, VigObject param2)
     {
+        VigTuple ppiVar1;
         int ppiVar2;
 
         if (param1 == null)
-            param1 = new List<VigObject>();
+            param1 = new List<VigTuple>();
 
         ppiVar2 = 0;
 
         while (true)
         {
             if (ppiVar2 == param1.Count)
-                return;
+                return null;
 
-            if (param1[ppiVar2] == param2)
+            ppiVar1 = param1[ppiVar2];
+
+            if (ppiVar1.vObject == param2)
                 break;
 
             ppiVar2++;
         }
+
+        return ppiVar1;
     }
 
     public static Vehicle LoadWonderwagon(XOBF_DB param1, int param2)

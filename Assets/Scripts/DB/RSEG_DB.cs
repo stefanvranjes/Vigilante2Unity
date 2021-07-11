@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class RSEG_DB : MonoBehaviour
 {
@@ -27,7 +28,7 @@ public class RSEG_DB : MonoBehaviour
         JUNC_DB dbVar6;
         JUNC_DB dbVar7;
 
-        LevelManager levelManager = GameObject.Find("GameControl").GetComponent<LevelManager>();
+        LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
@@ -87,6 +88,10 @@ public class RSEG_DB : MonoBehaviour
 
             dbVar6.DAT_1C[iVar5] = this;
             FUN_50EFC();
+
+            EditorUtility.SetDirty(gameObject);
+            EditorUtility.SetDirty(levelManager.gameObject);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
         }
     }
 

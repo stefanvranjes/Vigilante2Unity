@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class IMP_BSP
 {
@@ -9,9 +10,10 @@ public class IMP_BSP
     {
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
-            LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+            LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
             levelManager.staticObjs = FUN_26F0(reader);
+            EditorUtility.SetDirty(levelManager.gameObject);
         }
     }
 

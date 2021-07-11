@@ -1,11 +1,14 @@
+using System;
 using System.IO;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class XOBF_DB : MonoBehaviour
 {
+    [Serializable]
     public class TMD
     {
         public int vertices; //0x00
@@ -21,15 +24,23 @@ public class XOBF_DB : MonoBehaviour
     }
     
     public List<TMD> tmdList = new List<TMD>();
-    public List<byte[]> cbbList = new List<byte[]>();
-    public List<Texture2D> timList = new List<Texture2D>();
+    public List<VigCollider> cbbList = new List<VigCollider>();
+    public List<Material> timList = new List<Material>();
     public VigConfig ini;
     public byte[] animations; //0x08
 
     private string prefabPath;
     private string prefabName;
 
-    public Vehicle FUN_3C464(short param1, VehicleData param2)
+    private void Reset()
+    {
+        prefabName = name;
+        prefabPath = Application.dataPath.Remove(Application.dataPath.Length - 6, 6)
+            + Path.GetDirectoryName(AssetDatabase.GetAssetPath(gameObject));
+        prefabPath = prefabPath.Replace("\\", "/");
+    }
+
+    /*public Vehicle FUN_3C464(short param1, VehicleData param2)
     {
         VigObject currentObj = config.FUN_2C17C(0, 308, 0); //r20
         int configID = config.dataID;
@@ -201,6 +212,182 @@ public class XOBF_DB : MonoBehaviour
 
         DAT_C0 = (byte)(local_28[0] | local_28[1] << 2 | local_28[2] << 4 | local_28[3] << 6);
         currentObj.PDAT_7C = currentObj.FUN_2CA1C();
+    }*/
+
+    public Vehicle FUN_3C464(ushort param1, VehicleData param2)
+    {
+        _VEHICLE eVar1;
+        byte bVar2;
+        byte bVar3;
+        VigObject pcVar4;
+        sbyte sVar5;
+        short sVar6;
+        Vehicle ppcVar7;
+        ConfigContainer ccVar8;
+        ConfigContainer ccVar9;
+        uint uVar10;
+        uint uVar11;
+        int iVar14;
+        int iVar15;
+        VigObject pcVar16;
+        ushort local_20;
+        byte[] local_28;
+
+        local_20 = param1;
+        ppcVar7 = ini.FUN_2C17C(param1, typeof(Vehicle), (uint)(animations != null ? 1 : 0) << 3) as Vehicle;
+        uVar11 = param2.DAT_0C;
+
+        if ((param2.DAT_0C & 240) == 0)
+            uVar11 |= 48;
+
+        ppcVar7.id = 0;
+        ppcVar7.type = 2;
+        ppcVar7.maxHalfHealth = param2.maxHalfHealth;
+        eVar1 = param2.vehicleID;
+        ppcVar7.DAT_E0 = 1024;
+        ppcVar7.vehicle = eVar1;
+        ppcVar7.lightness = param2.lightness;
+
+        if (animations != null)
+            ppcVar7.flags |= 4;
+
+        ppcVar7.DAT_E4 = -ppcVar7.screen.y;
+        pcVar16 = ppcVar7.child2;
+        ppcVar7.body = new VigObject[2];
+
+        for (pcVar4 = pcVar16; pcVar4 != null; pcVar4 = pcVar16)
+        {
+            pcVar16 = pcVar4.child;
+
+            if (pcVar4.id < 4)
+            {
+                ppcVar7.body[pcVar4.id] = pcVar4;
+                sVar5 = (sbyte)pcVar4.FUN_4DCD8();
+                pcVar4.ai = (byte)(sVar5 + 1);
+                pcVar4.maxHalfHealth = param2.maxHalfHealth;
+            }
+        }
+
+        ppcVar7.wheels = new VigObject[6];
+
+        for (int i = 0; i < ppcVar7.wheels.Length; i++)
+        {
+            ccVar8 = ini.FUN_2C590(local_20, i - 0x8000 & 0xffff);
+
+            if (ccVar8 != null)
+            {
+                ccVar9 = ini.FUN_2C6D0(ccVar8, 0);
+
+                if (ccVar9 == null)
+                {
+                    uVar10 = 12;
+
+                    if ((GameManager.instance.DAT_40 & 1) == 0)
+                        uVar10 = (ushort)param2.DAT_00[(i < 2 ? 1 : 0) ^ 1];
+
+                    pcVar16 = LevelManager.instance.wheels.ini.FUN_2C17C((ushort)uVar10, typeof(VigObject), 8);
+                    pcVar16.physics2.X = -LevelManager.instance.wheels.ini.configContainers[(int)uVar10].v3_1.y;
+                    sVar6 = (short)GameManager.FUN_2AC5C();
+                    pcVar16.vr = new Vector3Int(sVar6, 0, (i & 1) << 11);
+                }
+                else
+                {
+                    sVar6 = (short)ini.FUN_2C73C(ccVar9);
+                    pcVar16 = ini.FUN_2C17C((ushort)sVar6, typeof(VigObject), 8);
+                    pcVar16.physics2.X = -(ppcVar7.screen.y + ccVar8.v3_1.y + ccVar9.v3_1.y);
+                }
+
+                pcVar16.id = pcVar16.DAT_1A;
+                pcVar16.screen = ccVar8.v3_1;
+                Utilities.FUN_2CC48(ppcVar7, pcVar16);
+                ppcVar7.wheels[i] = pcVar16;
+                ccVar8 = ini.FUN_2C5CC(ccVar8, 0x8000);
+                pcVar16.type = 9;
+
+                if (ccVar8 == null)
+                    pcVar16.physics1.X = 0;
+                else
+                    pcVar16.physics1.X = ccVar8.v3_1.y;
+
+                pcVar16.physics1.Y = pcVar16.screen.y;
+                pcVar16.physics1.M6 = param2.DAT_00[(i >> 1) + 4];
+                pcVar16.physics1.M7 = param2.DAT_00[(i >> 1) + 8]; //in original game goes beyond size of the array, can cause bugs probably?
+                
+                if (pcVar16.vMesh != null)
+                {
+                    if ((pcVar16.flags & 0x10) == 0)
+                    {
+                        iVar14 = pcVar16.physics2.X * 25734;
+
+                        if (iVar14 < 0)
+                            iVar14 += 4095;
+
+                        pcVar16.physics2.Y = 0x1000000 / (iVar14 >> 12);
+                    }
+                    else
+                    {
+                        pcVar16.flags &= 0xffffffef;
+                        pcVar16.physics2.Y = 0;
+                    }
+                }
+
+                if ((GameManager.instance.DAT_40 & 0x40000) != 0)
+                    pcVar16.physics1.Y += 10240;
+
+                pcVar16.physics1.Z = pcVar16.physics2.X;
+
+                if (pcVar16.DAT_64 != 0)
+                    ; //animations
+
+                if ((uVar11 & 16 << (i & 31)) == 0)
+                    uVar10 = (uint)i << 28 | 32;
+                else
+                    uVar10 = (uint)i << 28 | 0x2000020;
+
+                pcVar16.flags |= (uint)((int)uVar11 >> (i & 31) & 1) << 24 | uVar10;
+                pcVar16.ApplyTransformation();
+            }
+        }
+
+        ppcVar7.DAT_A0 = param2.DAT_24;
+        ppcVar7.DAT_A6 = param2.DAT_2A;
+        //set 0xA8-0xCA all to zero
+        ppcVar7.wheelsType = _WHEELS.Ground;
+        ppcVar7.direction = 1;
+        ppcVar7.DAT_B3 = param2.DAT_13;
+        ppcVar7.DAT_B1 = param2.DAT_0E;
+        ppcVar7.DAT_B2 = param2.DAT_0F;
+        ppcVar7.DAT_AF = param2.DAT_15;
+        ppcVar7.DAT_C3 = param2.DAT_10;
+        ppcVar7.DAT_C4 = param2.DAT_11;
+        ppcVar7.DAT_C5 = param2.DAT_12;
+        local_28 = new byte[4];
+        Array.Copy(GameManager.DAT_A14, local_28, 4);
+
+        do
+        {
+            iVar15 = 0;
+            iVar14 = iVar15;
+
+            do
+            {
+                iVar14++;
+                bVar2 = local_28[iVar14 - 1];
+                bVar3 = local_28[iVar14];
+
+                if (param2.DAT_2C[bVar2] < param2.DAT_2C[bVar3])
+                {
+                    iVar15 = 1;
+                    local_28[iVar14 - 1] = bVar3;
+                    local_28[iVar14] = bVar2;
+                }
+            } while (iVar14 < 3);
+        } while (iVar15 != 0);
+
+        ppcVar7.DAT_C0 = (byte)(local_28[0] | local_28[1] << 2 | local_28[2] << 4 | local_28[3] << 6);
+        pcVar16 = ppcVar7.FUN_2CA1C();
+        ppcVar7.PDAT_7C = pcVar16;
+        return ppcVar7;
     }
 
     public VigMesh FUN_2CB74(GameObject param1, uint param2)
@@ -209,7 +396,7 @@ public class XOBF_DB : MonoBehaviour
     }
 
     //FUN_32F40
-    public void LoadDB(string assetPath, int param2)
+    public void LoadDB(string assetPath, string identifier)
     {
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
@@ -222,18 +409,21 @@ public class XOBF_DB : MonoBehaviour
                     do
                     {
                         headerString = new string(reader.ReadChars(4));
+                        int size = reader.ReadInt32BE();
 
-                        if (headerString == "BIN ")
+                        if (headerString == identifier)
                         {
-                            LoadBIN(reader);
+                            if (identifier == "BIN ")
+                                LoadBIN(reader);
+
+                            break;
                         }
+                        else
+                            reader.BaseStream.Seek(size + ((-(size % 4) + 4) % 4), SeekOrigin.Current);
                     } while (reader.BaseStream.Position != reader.BaseStream.Length);
                 }
             }
         }
-
-        LevelManager levelManager = GameObject.Find("GameControl").GetComponent<LevelManager>();
-        levelManager.xobfList.Add(this);
     }
 
     //FUN_1E914
@@ -287,6 +477,7 @@ public class XOBF_DB : MonoBehaviour
                     {
                         for (int j = 0; j < newTMD.faces; j++)
                         {
+                            lVar9 = reader.BaseStream.Position;
                             writer.Write(reader.ReadByte());
                             writer.Write(reader.ReadByte());
                             writer.Write(reader.ReadByte());
@@ -306,7 +497,6 @@ public class XOBF_DB : MonoBehaviour
                             writer.Write((short)(reader.ReadInt16() << 3));
                             writer.Write((short)(reader.ReadInt16() << 3));
                             writer.Write((short)(reader.ReadInt16() << 3));
-                            lVar9 = elementPosition + facesOffset;
 
                             switch (bVar6 >> 2 & 15)
                             {
@@ -406,11 +596,15 @@ public class XOBF_DB : MonoBehaviour
                 int elementOffset = reader.ReadInt32();
                 int elementSize = reader.ReadInt32() - elementOffset;
                 long elementPosition = reader.BaseStream.Seek(cbbPosition + elementOffset, SeekOrigin.Begin);
-                cbbList.Add(reader.ReadBytes(elementSize));
+                cbbList.Add(new VigCollider(reader.ReadBytes(elementSize)));
             }
         }
 
         reader.BaseStream.Seek(timPosition, SeekOrigin.Begin);
+        string relativePath = prefabPath;
+
+        if (prefabPath.StartsWith(Application.dataPath))
+            relativePath = "Assets" + prefabPath.Substring(Application.dataPath.Length);
 
         if (0 < timElements)
         {
@@ -420,14 +614,16 @@ public class XOBF_DB : MonoBehaviour
                 int elementOffset = reader.ReadInt32();
                 int elementSize = reader.ReadInt32() - elementOffset;
                 long elementPosition = reader.BaseStream.Seek(timPosition + elementOffset, SeekOrigin.Begin);
-                MemoryStream stream = new MemoryStream();
-
-                using (BinaryReader reader2 = new BinaryReader(stream, Encoding.Default, true))
-                {
-                    string bmpPath = Application.dataPath + "/Resources/" + prefabPath + prefabName + ".bmp";
-                    IMP_TIM.LoadTIM(reader2, bmpPath);
-                    timList.Add(Resources.Load<Texture2D>(bmpPath.Substring(Application.dataPath.Length + 16)));
-                }
+                string bmpApsolute = prefabPath + "/Textures/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".bmp";
+                string bmpRelative = relativePath + "/Textures/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".bmp";
+                string matPath = relativePath + "/Materials/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".mat";
+                reader.ReadInt32();
+                IMP_TIM.LoadTIM(reader, bmpApsolute);
+                AssetDatabase.Refresh();
+                Material newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
+                newMaterial.mainTexture = AssetDatabase.LoadAssetAtPath(bmpRelative, typeof(Texture2D)) as Texture2D;
+                Utilities.SaveObjectToFile(newMaterial, matPath);
+                timList.Add(newMaterial);
             }
         }
 
@@ -436,21 +632,26 @@ public class XOBF_DB : MonoBehaviour
         if (0 < iniElements)
         {
             VigConfig newConfig = gameObject.AddComponent<VigConfig>();
+            newConfig.configContainers = new List<ConfigContainer>();
+            newConfig.xobf = this;
 
             for (int i = 0; i < iniElements; i++)
             {
                 reader.BaseStream.Seek(iniPosition + i * 4, SeekOrigin.Begin);
                 ConfigContainer newContainer = new ConfigContainer();
-                newContainer.flag = reader.ReadInt16();
+                newContainer.flag = reader.ReadUInt16();
                 newContainer.colliderID = reader.ReadInt16();
                 newContainer.v3_1 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
                 newContainer.v3_2 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
-                newContainer.objID = reader.ReadInt16();
-                newContainer.previous = reader.ReadInt16();
-                newContainer.next = reader.ReadInt16();
+                newContainer.objID = reader.ReadUInt16();
+                newContainer.previous = reader.ReadUInt16();
+                newContainer.next = reader.ReadUInt16();
                 newConfig.configContainers.Add(newContainer);
             }
         }
+
+        EditorUtility.SetDirty(gameObject);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
     }
 
     private void FUN_1F2FC(uint param2)
@@ -514,22 +715,33 @@ public class XOBF_DB : MonoBehaviour
     {
         byte bVar1;
         ushort uVar2;
+        int iVar3;
+        int iVar4;
         int iVar5;
         VigMesh pbVar3;
         VigMesh pbVar6;
         TMD puVar7;
+        long lVar8;
 
         puVar7 = tmdList[(int)(param2 & 0xffff)];
         pbVar3 = param1.AddComponent<VigMesh>();
+        MeshFilter meshFilter = param1.AddComponent<MeshFilter>();
+        meshFilter.mesh = new Mesh();
+        MeshRenderer meshRenderer = param1.AddComponent<MeshRenderer>();
         pbVar6 = pbVar3;
         iVar5 = 0;
 
         if (puVar7.DAT_19 != 0)
         {
-            pbVar3.DAT_1C = new Texture2D[puVar7.DAT_19];
+            pbVar3.DAT_1C = new int[puVar7.DAT_19];
 
             for (int i = 0; i < puVar7.DAT_19; i++)
-                pbVar3.DAT_1C[i] = timList[0];
+            {
+                pbVar3.DAT_1C[i] = 0;
+
+                if (!pbVar3.materialIDs.Contains(pbVar3.DAT_1C[i]))
+                    pbVar3.materialIDs.Add(pbVar3.DAT_1C[i]);
+            }
         }
 
         pbVar3.DAT_00 = (byte)(((uint)(short)puVar7.flag >> 15) & 1);
@@ -548,6 +760,92 @@ public class XOBF_DB : MonoBehaviour
 
         if ((puVar7.flag & 0x4000) == 0)
             FUN_1F6AC(puVar7);
+
+        MemoryStream stream = new MemoryStream(pbVar3.faceStream);
+
+        using (BinaryReader reader = new BinaryReader(stream, Encoding.Default, true))
+        {
+            if (0 < pbVar3.faces)
+            {
+                for (int i = 0; i < pbVar3.faces; i++)
+                {
+                    lVar8 = reader.BaseStream.Position;
+                    bVar1 = reader.ReadByte(3);
+
+                    switch ((uint)bVar1 >> 2 & 15)
+                    {
+                        case 1:
+                        case 5:
+                            iVar5 = reader.ReadUInt16(22) & 0x3fff;
+                            break;
+                        case 9:
+                            iVar5 = reader.ReadUInt16(26) & 0x3fff;
+                            break;
+                        case 10:
+                            iVar3 = 0;
+
+                            if (reader.ReadUInt16(10) != 0)
+                            {
+                                iVar4 = 10;
+
+                                do
+                                {
+                                    iVar3++;
+                                    iVar5 = reader.ReadUInt16(iVar4 - 2) & 0x3fff;
+
+                                    if (pbVar3.materialIDs.Contains(iVar5))
+                                        pbVar3.materialIDs.Add(iVar5);
+
+                                    iVar5 += 8;
+                                } while (iVar3 < reader.ReadUInt16(10));
+                            }
+
+                            lVar8 += reader.ReadUInt16() * 8;
+                            break;
+                        case 12:
+                            if ((reader.ReadUInt16(16) & 0x3fff) == 0x3ffe)
+                                iVar5 = 0x3ffe;
+                            else
+                            {
+                                if ((reader.ReadUInt16(16) & 0x3fff) == 0x3fff)
+                                    iVar5 = 0x3fff;
+                                else
+                                    iVar5 = reader.ReadUInt16(16) & 0x3fff;
+                            }
+
+                            break;
+                        case 13:
+                            if (reader.ReadUInt16(22) == 0xffff)
+                                iVar5 = 0xffff;
+                            else
+                                iVar5 = reader.ReadUInt16(22) & 0x3fff;
+                            break;
+                    }
+
+                    if (pbVar3.materialIDs.Contains(iVar5))
+                        pbVar3.materialIDs.Add(iVar5);
+                    
+                    reader.BaseStream.Seek(lVar8, SeekOrigin.Begin);
+                    reader.BaseStream.Seek(GameManager.DAT_854[bVar1 >> 2 & 15], SeekOrigin.Current);
+                }
+            }
+        }
+
+        List<Material> materialList = new List<Material>();
+        materialList.Add(LevelManager.instance.defaultMaterial);
+
+        for (int i = 0; i < pbVar3.materialIDs.Count; i++)
+        {
+            if (pbVar3.materialIDs[i] == 0xffff ||
+                pbVar3.materialIDs[i] == 0x3fff)
+                materialList.Add(LevelManager.instance.DAT_E48);
+            else if (pbVar3.materialIDs[i] == 0x3ffe)
+                materialList.Add(LevelManager.instance.DAT_E58);
+            else
+                materialList.Add(timList[pbVar3.materialIDs[i]]);
+        }
+
+        meshRenderer.sharedMaterials = materialList.ToArray();
 
         return pbVar3;
     }

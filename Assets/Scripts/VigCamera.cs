@@ -9,7 +9,7 @@ public class VigCamera : VigObject
     public Vector3Int DAT_84; //0x84
     public int DAT_9C; //0x9C
     public int DAT_98; //0x98
-    public int DAT_A0; //0xA0
+    public int DAT_A0_1; //0xA0
     public short DAT_90; //0x90
     public short DAT_92; //0x92
     public short DAT_94; //0x94
@@ -50,6 +50,7 @@ public class VigCamera : VigObject
         ulong uVar11;
         Vector3Int local_28;
         Vector3Int local_20;
+        Vehicle targetVehicle = (Vehicle)target;
 
         if (param2 != 0)
         {
@@ -58,11 +59,11 @@ public class VigCamera : VigObject
             
             flags &= 0xebffffff;
 
-            if (target.vCamera == this)
+            if (targetVehicle.vCamera == this)
                 return;
 
             //FUN_30CB0
-            target.vCamera = this;
+            targetVehicle.vCamera = this;
             return;
         }
 
@@ -81,7 +82,7 @@ public class VigCamera : VigObject
             goto LAB_4B694;
         }
 
-        iVar6 = DAT_A0;
+        iVar6 = DAT_A0_1;
 
         if ((uVar5 & 0x2000000) == 0)
         {
@@ -333,7 +334,7 @@ public class VigCamera : VigObject
 
         DAT_9C = target.DAT_58 + iVar1;
         DAT_98 = 11444;
-        DAT_A0 = 204800;
+        DAT_A0_1 = 204800;
     }
 
     public void FUN_4BC0C()

@@ -795,29 +795,32 @@ public static class IMP_TIM
         short clutHeight = 0;
         short imageWidth = 0;
         short imageHeight = 0;
-        ushort[] colors;
+        ushort[] colors = new ushort[16];
         byte[] indices;
 
         InitGlobals(reader);
 
         #region CLUT
-        if ((FLAG & 0x20) == 0)
+        if (POS_CLUT_RECT != 0)
         {
-            reader.BaseStream.Seek(POS_CLUT_RECT + 0x04, SeekOrigin.Begin);
-            clutWidth = reader.ReadInt16();
-            clutHeight = reader.ReadInt16();
-        }
-        else
-        {
-            clutWidth = 16;
-            if (16 < reader.ReadInt16())
-                clutWidth = 256;
-        }
+            if ((FLAG & 0x20) == 0)
+            {
+                reader.BaseStream.Seek(POS_CLUT_RECT + 0x04, SeekOrigin.Begin);
+                clutWidth = reader.ReadInt16();
+                clutHeight = reader.ReadInt16();
+            }
+            else
+            {
+                clutWidth = 16;
+                if (16 < reader.ReadInt16())
+                    clutWidth = 256;
+            }
 
-        colors = new ushort[clutHeight * clutWidth];
-        reader.BaseStream.Seek(POS_CLUT_COLORS, SeekOrigin.Begin);
-        for (int i = 0; i < colors.Length; i++)
-            colors[i] = reader.ReadUInt16();
+            colors = new ushort[clutHeight * clutWidth];
+            reader.BaseStream.Seek(POS_CLUT_COLORS, SeekOrigin.Begin);
+            for (int i = 0; i < colors.Length; i++)
+                colors[i] = reader.ReadUInt16();
+        }
 
         //_clutWidth = (byte)clutWidth;
         goto SET_IMAGE;
@@ -1029,7 +1032,7 @@ public static class IMP_TIM
     private static List<byte> Decompressor(BinaryReader reader, RECT rect)
     {
         long begin = reader.BaseStream.Position;
-        byte[] pixelBuffer = new byte[2048 + 400];
+        byte[] pixelBuffer = new byte[2048 + 800];
         int index1 = 0;
         int index2 = 0;
         uint flag = 256;
@@ -1045,7 +1048,7 @@ public static class IMP_TIM
             int chunk = 2048;
             if (size < 2048)
                 chunk = size;
-            int bufferPos = 200 + index1;
+            int bufferPos = 400 + index1;
             do
             {
                 if ((flag & 0x100) != 0)
@@ -1079,7 +1082,7 @@ public static class IMP_TIM
                             uVar3++;
                             index1++;
                             iVar5--;
-                            byte bVar = pixelBuffer[200 + uVar4];
+                            byte bVar = pixelBuffer[400 + uVar4];
                             pixelBuffer[bufferPos] = bVar;
                             bufferPos++;
                         }
@@ -1089,7 +1092,7 @@ public static class IMP_TIM
                         int iVar5 = (int)uVar4 + 1;
                         while (iVar5 != -1)
                         {
-                            byte bVar = pixelBuffer[200 + uVar3];
+                            byte bVar = pixelBuffer[400 + uVar3];
                             uVar3++;
                             index1++;
                             iVar5--;
@@ -1110,11 +1113,11 @@ public static class IMP_TIM
                 chunkHeight = (short)(hS - 1);
 
             for (int i = 0; i < width * chunkHeight; i++)
-                decompressedData.Add(pixelBuffer[200 + index2 + i]);
+                decompressedData.Add(pixelBuffer[400 + index2 + i]);
             
             chunkPosY = (short)(chunkHeight + chunkPosY);
             index2 += ((chunkHeight << 0x10) >> 0x10) * width;
-            InitBuffer(pixelBuffer, 200 + index2 - 2048, 200 + index2, index1 - index2);
+            InitBuffer(pixelBuffer, 400 + index2 - 2048, 400 + index2, index1 - index2);
 
             index2 -= 2048;
             index1 -= 2048;

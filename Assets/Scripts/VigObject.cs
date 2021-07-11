@@ -662,12 +662,12 @@ public class VigObject : MonoBehaviour
 
     public Vector3Int screen; //0x4C
     public Vector3Int vr; //0x44
-    public ushort unk4; //0x4A
+    public ushort DAT_4A; //0x4A
 
     public int DAT_58; //0x58
     public XOBF_DB vData; //0x5C
-    public byte[] vCollider; //0x60
-    public int unk3; //0x64
+    public VigCollider vCollider; //0x60
+    public int DAT_64; //0x64
     public VigMesh vLOD; //0x68
     public int DAT_6C; //0x6C
     public VigShadow vShadow; //0x70
@@ -681,7 +681,7 @@ public class VigObject : MonoBehaviour
     public Matrix2x4 physics1;
     public Matrix2x4 physics2;
 
-    public Vector3Int vectorUnk1; //0xA0
+    public Vector3Int DAT_A0; //0xA0
     public short DAT_A6; //0xA6
 
     // Start is called before the first frame update
@@ -815,7 +815,7 @@ public class VigObject : MonoBehaviour
         physics1.Y = physics1.Y + v1.y;
         physics1.Z = physics1.Z + v1.z;
 
-        int iVar1 = v2.x * vectorUnk1.x; //r3
+        int iVar1 = v2.x * DAT_A0.x; //r3
 
         if (iVar1 < 0)
             iVar1 += 63;
@@ -832,7 +832,7 @@ public class VigObject : MonoBehaviour
         }
 
         physics2.X = iVar1;
-        iVar1 = v2.y * vectorUnk1.y;
+        iVar1 = v2.y * DAT_A0.y;
 
         if (iVar1 < 0)
             iVar1 += 63;
@@ -849,7 +849,7 @@ public class VigObject : MonoBehaviour
         }
 
         physics2.Y = iVar1;
-        iVar1 = v2.z * vectorUnk1.z;
+        iVar1 = v2.z * DAT_A0.z;
 
         if (iVar1 < 0)
             iVar1 += 63;
@@ -924,21 +924,21 @@ public class VigObject : MonoBehaviour
         physics1.Z += local_10.z;
 
         iVar1 = Coprocessor.mathsAccumulator.mac1;
-        iVar1 = iVar1 * vectorUnk1.x;
+        iVar1 = iVar1 * DAT_A0.x;
 
         if (iVar1 < 0)
             iVar1 += 63;
 
         physics2.X += iVar1 >> 6;
         iVar1 = Coprocessor.mathsAccumulator.mac2;
-        iVar1 = iVar1 * vectorUnk1.y;
+        iVar1 = iVar1 * DAT_A0.y;
 
         if (iVar1 < 0)
             iVar1 += 63;
 
         physics2.Y += iVar1 >> 6;
         iVar1 = Coprocessor.mathsAccumulator.mac3;
-        iVar1 = iVar1 * vectorUnk1.z;
+        iVar1 = iVar1 * DAT_A0.z;
 
         if (iVar1 < 0)
             iVar1 += 63;
@@ -1506,22 +1506,22 @@ public class VigObject : MonoBehaviour
     public int FUN_4DCD8()
     {
         int configIndex = (DAT_1A << 3) - DAT_1A << 2;
-        int nextContainer = vData.configContainers[configIndex / 0x1C].next;
+        int nextContainer = vData.ini.configContainers[configIndex / 0x1C].next;
         int iVar1 = 0;
 
         while (nextContainer != -1)
         {
             configIndex = (nextContainer << 3) - nextContainer << 2;
-            int flag = vData.configContainers[configIndex / 0x1C].flag >> 12;
+            int flag = vData.ini.configContainers[configIndex / 0x1C].flag >> 12;
 
             if (flag == 15)
             {
-                nextContainer = vData.configContainers[configIndex / 0x1C].next;
+                nextContainer = vData.ini.configContainers[configIndex / 0x1C].next;
                 iVar1++;
             }
             else
             {
-                nextContainer = vData.configContainers[configIndex / 0x1C].previous;
+                nextContainer = vData.ini.configContainers[configIndex / 0x1C].previous;
             }
         }
 
@@ -1589,7 +1589,7 @@ public class VigObject : MonoBehaviour
     private ConfigContainer FUN_2C9A4()
     {
         int configIndex = (DAT_1A << 3) - DAT_1A << 2;
-        short sVar1 = vData.configContainers[configIndex / 0x1C].next;
+        short sVar1 = (short)vData.ini.configContainers[configIndex / 0x1C].next;
         ConfigContainer container;
 
         while (true)
@@ -1599,12 +1599,12 @@ public class VigObject : MonoBehaviour
 
             configIndex = (sVar1 << 3) - sVar1 << 2;
             configIndex = configIndex / 0x1C;
-            container = vData.configContainers[configIndex];
+            container = vData.ini.configContainers[configIndex];
 
             if ((uint)container.flag >> 12 == 11)
                 break;
 
-            sVar1 = container.previous;
+            sVar1 = (short)container.previous;
         }
 
         return container;
@@ -1636,7 +1636,7 @@ public class VigObject : MonoBehaviour
 
         if (vCollider != null)
         {
-            MemoryStream msCollider = new MemoryStream(vCollider);
+            MemoryStream msCollider = new MemoryStream(vCollider.buffer);
 
             using (BinaryReader brCollider = new BinaryReader(msCollider, Encoding.Default, true))
             {
@@ -1810,7 +1810,7 @@ public class VigObject : MonoBehaviour
 
         if (vCollider != null)
         {
-            MemoryStream msCollider = new MemoryStream(vCollider);
+            MemoryStream msCollider = new MemoryStream(vCollider.buffer);
 
             using (BinaryReader brCollider = new BinaryReader(msCollider, Encoding.Default, true))
             {
@@ -2080,7 +2080,7 @@ public class VigObject : MonoBehaviour
         }
         else
         {
-            msVar4 = new MemoryStream(vCollider);
+            msVar4 = new MemoryStream(vCollider.buffer);
 
             using (BinaryReader reader = new BinaryReader(msVar4, Encoding.Default, true))
             {

@@ -70,14 +70,15 @@ public class IMP_ZONE
 
                 do
                 {
-                    uVar2 = reader.ReadUInt16();
+                    uVar2 = reader.ReadUInt16(0);
                     iVar4 = iVar6 + iVar8 * 64;
                     iVar6++;
                     terr.vertices[zone * 4096 + iVar7] =
                         (ushort)((uVar2 >> 8 | (ushort)((uVar2 & 0xff) << 8)) - 0x200 |
-                        (ushort)((uint)reader.ReadByte((int)puVar5 - 1) >> 3) << 11);
-                    bVar1 = reader.ReadByte((int)puVar5);
+                        (ushort)((uint)reader.ReadByte(2) >> 3) << 11);
+                    bVar1 = reader.ReadByte(3);
                     puVar5 += 4;
+                    reader.BaseStream.Seek(4, SeekOrigin.Current);
                     terr.tiles[zone * 4096 + iVar4] = bVar1;
                     iVar7++;
                 } while (iVar6 < 64);

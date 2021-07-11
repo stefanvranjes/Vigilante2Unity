@@ -85,6 +85,7 @@ public class TerrainEditor : Editor
         List<Vector3> newVertices = new List<Vector3>();
         List<Vector2> newUV = new List<Vector2>();
         List<int> newTriangles = new List<int>();
+        terrain = GameObject.FindObjectOfType<VigTerrain>();
         Material mat = terrain.GetComponent<MeshRenderer>().sharedMaterial;
         int vertIndex = 0;
 

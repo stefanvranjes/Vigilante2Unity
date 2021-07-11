@@ -23,27 +23,30 @@ public class VigConfig : MonoBehaviour
     public VigObject[] obj;
     public int currentID=0;
 
-    public VigObject FUN_2C17C(int int1, int allocSpace, int int3) //int3 = r19, configContainers = r20, int1 = r18
+    [HideInInspector]
+    public XOBF_DB xobf;
+
+    /*public VigObject FUN_2C17C(ushort param1, Type param2, uint param3)
     {
-        int containerID = ((((int1 & 0xFFFF) << 3) - (int1 & 0xFFFF)) << 2) / 0x1C;
+        int containerID = ((((param1 & 0xFFFF) << 3) - (param1 & 0xFFFF)) << 2) / 0x1C;
         VigObject vObject;
 
-        if (configContainers[containerID].flag < 0 || (0xFF < configContainers[containerID].objID && (int3 & 0x20) != 0))
+        if (configContainers[containerID].flag < 0 || (0xFF < configContainers[containerID].objID && (param3 & 0x20) != 0))
         {
-            if ((int3 & 1) == 0 || configContainers[containerID].previous == -1)
+            if ((param3 & 1) == 0 || configContainers[containerID].previous == -1)
                 vObject=null; //no need to return null
             else
-                vObject=FUN_2C17C(configContainers[containerID].previous, 128, int3);
+                vObject=FUN_2C17C(configContainers[containerID].previous, 128, param3);
         }
         else
         {
-            vObject=FUN_2BF44(containerID, allocSpace);
+            vObject=FUN_2BF44(containerID, param2);
             currentID++;
-            vObject.DAT_1A = (short)int1;
+            vObject.DAT_1A = (short)param1;
             vObject.id = configContainers[containerID].objID;
 
-            if ((int3 & 8) == 0)
-                vObject.unk3 = 0;
+            if ((param3 & 8) == 0)
+                vObject.DAT_64 = 0;
             else
             {
                 int iVar = 0;
@@ -53,14 +56,14 @@ public class VigConfig : MonoBehaviour
                     //...
                 }
 
-                vObject.unk3 = iVar;
+                vObject.DAT_64 = iVar;
             }
 
             vObject.unk4 = GameManager.instance.timer;
 
-            if ((int3 & 1) != 0 && configContainers[containerID].previous != -1)
+            if ((param3 & 1) != 0 && configContainers[containerID].previous != -1)
             {
-                VigObject previous = FUN_2C17C(configContainers[containerID].previous, 128, int3);
+                VigObject previous = FUN_2C17C(configContainers[containerID].previous, 128, param3);
                 vObject.child = previous;
 
                 if (previous != null)
@@ -70,9 +73,9 @@ public class VigConfig : MonoBehaviour
                 }
             }
 
-            if ((int3 & 2) == 0 && configContainers[containerID].next != -1)
+            if ((param3 & 2) == 0 && configContainers[containerID].next != -1)
             {
-                VigObject next = FUN_2C17C(configContainers[containerID].next, 128, int3 | 33);
+                VigObject next = FUN_2C17C(configContainers[containerID].next, 128, param3 | 33);
                 vObject.child2 = next;
 
                 if (next != null)
@@ -84,6 +87,57 @@ public class VigConfig : MonoBehaviour
         }
 
         return vObject;
+    }*/
+
+    public VigObject FUN_2C17C(ushort param1, Type param2, uint param3)
+    {
+        VigObject oVar1;
+        VigObject oVar3;
+        ConfigContainer psVar5;
+
+        psVar5 = configContainers[param1];
+
+        if ((short)psVar5.flag < 0 || (255 < (short)psVar5.objID && (param3 & 0x20) != 0))
+        {
+            if ((param3 & 1) == 0 || (short)psVar5.previous == -1)
+                oVar1 = null;
+            else
+                oVar1 = FUN_2C17C(psVar5.previous, typeof(VigObject), param3);
+        }
+        else
+        {
+            oVar1 = FUN_2BF44(psVar5, param2);
+            oVar1.DAT_1A = (short)param1;
+            oVar1.id = (short)psVar5.objID;
+            //animation
+            oVar1.DAT_4A = GameManager.instance.timer;
+
+            if ((param3 & 1) != 0 && (short)psVar5.previous != -1)
+            {
+                oVar3 = FUN_2C17C(psVar5.previous, typeof(VigObject), param3);
+                oVar1.child = oVar3;
+
+                if (oVar3 != null)
+                {
+                    oVar3.parent = oVar1;
+                    oVar1.child.ApplyTransformation();
+                }
+            }
+
+            if ((param3 & 2) == 0 && (short)psVar5.next != -1)
+            {
+                oVar3 = FUN_2C17C(psVar5.next, typeof(VigObject), param3 | 33);
+                oVar1.child2 = oVar3;
+
+                if (oVar3 != null)
+                {
+                    oVar3.parent = oVar1;
+                    oVar1.child2.ApplyTransformation();
+                }
+            }
+        }
+
+        return oVar1;
     }
 
     public ConfigContainer FUN_2C534(ushort param1, ushort param2)
@@ -188,7 +242,7 @@ public class VigConfig : MonoBehaviour
         return null;
     }
 
-    private VigObject FUN_2BF44(int container, int allocSpace)
+    /*private VigObject FUN_2BF44(ConfigContainer container, Type component)
     {
         obj[currentID].flags = (uint)((configContainers[container].flag & 0x800) != 0 ? 1 : 0) << 4;
         obj[currentID].vr = configContainers[container].v3_2;
@@ -206,6 +260,32 @@ public class VigConfig : MonoBehaviour
         }
 
         return obj[currentID];
+    }*/
+
+    private VigObject FUN_2BF44(ConfigContainer container, Type component)
+    {
+        ushort uVar2;
+        VigObject oVar3;
+        VigMesh mVar4;
+
+        GameObject obj = new GameObject();
+        oVar3 = obj.AddComponent(component) as VigObject;
+        uVar2 = container.flag;
+        oVar3.flags = (uint)((uVar2 & 0x800) != 0 ? 1 : 0) << 4;
+        oVar3.vr = container.v3_2;
+        oVar3.screen = container.v3_1;
+        oVar3.vData = xobf;
+
+        if ((uVar2 & 0x7ff) < 0x7ff)
+        {
+            mVar4 = xobf.FUN_1FD18(obj, (uint)(uVar2 & 0x7ff));
+            oVar3.vMesh = mVar4;
+        }
+
+        if (-1 < container.colliderID)
+            oVar3.vCollider = xobf.cbbList[container.colliderID];
+
+        return oVar3;
     }
 
     private void Awake()

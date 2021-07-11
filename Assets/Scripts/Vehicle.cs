@@ -42,20 +42,20 @@ public enum _CAR_VIEW
 
 public class Vehicle : VigObject
 {
-    public short turning;
-    public short acceleration;
-    public _WHEELS wheelsType;
-    public sbyte direction;
-    public byte weaponSlot;
+    public short turning; //0xA8
+    public short acceleration; //0xAA
+    public _WHEELS wheelsType; //0xAC
+    public sbyte direction; //0xAD
+    public byte weaponSlot; //0xAE
     public byte DAT_AF; //0xAF
     public sbyte DAT_B0; //0xB0
     public sbyte DAT_B1; //0xB1
     public sbyte DAT_B2; //0xB2
     public byte DAT_B3; //0xB3
     public ushort DAT_B4; //0xB4
-    public short ignition;
+    public short ignition; //0xB8
     public byte DAT_C0; //0xC0
-    public sbyte breaking;
+    public sbyte breaking; //0xC1
     public byte DAT_C2; //0xC2
     public byte DAT_C3; //0xC3
     public byte DAT_C4; //0xC4
@@ -74,7 +74,7 @@ public class Vehicle : VigObject
     public ushort DAT_F6; //0xF6
     public VigObject[] body;
     public VigObject closeViewer; //0x100
-    public VigObject[] wheels;
+    public VigObject[] wheels; //0x104
     public Weapon[] weapons;
     public ushort doubleDamage;
     public ushort shield;
@@ -2085,7 +2085,7 @@ public class Vehicle : VigObject
     {
         sbyte sVar1;
         int ppiVar2;
-        Tuple<VigObject, uint> ppiVar3;
+        VigTuple ppiVar3;
         int ppiVar4;
         int iVar5;
         uint uVar6;
@@ -2125,7 +2125,7 @@ public class Vehicle : VigObject
         for (int i = 0; i < GameManager.instance.worldObjs.Count; i++)
         {
             ppiVar3 = GameManager.instance.worldObjs[i];
-            oVar10 = ppiVar3.Item1;
+            oVar10 = ppiVar3.vObject;
             oVar7 = oVar11;
             uVar6 = uVar12;
             iVar8 = unaff_s5;
@@ -2239,9 +2239,9 @@ public class Vehicle : VigObject
             //hotrod stuff
         }
 
-        DAT_B3 = GameManager.vehicleConfigs[(int)vehicle].unk0x13; //tmp
+        DAT_B3 = GameManager.vehicleConfigs[(int)vehicle].DAT_13; //tmp
         lightness = GameManager.vehicleConfigs[(int)vehicle].lightness; //tmp
-        DAT_AF = GameManager.vehicleConfigs[(int)vehicle].unk0x15; //tmp
+        DAT_AF = GameManager.vehicleConfigs[(int)vehicle].DAT_15; //tmp
         //FUN_3C404
     }
 
@@ -2706,7 +2706,7 @@ public class Vehicle : VigObject
                     iVar2.physics2.M1 = 2048;
 
                 closeViewer.vr.y = physics2.M1;
-                vectorUnk1.x = -vectorUnk1.x;
+                DAT_A0.x = -DAT_A0.x;
                 closeViewer.ApplyRotationMatrix();
             }
         }

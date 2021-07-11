@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class IMP_HEAD
 {
@@ -14,7 +15,7 @@ public class IMP_HEAD
         ushort uVar4;
         int iVar5;
 
-        LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
@@ -32,7 +33,7 @@ public class IMP_HEAD
                 for (int i = 0; i < iVar5; i++)
                 {
                     uVar2 = reader.ReadUInt16BE();
-                    levelManager.DAT_C18[iVar5] = uVar2;
+                    levelManager.DAT_C18[i] = uVar2;
                 }
             }
 
@@ -41,12 +42,13 @@ public class IMP_HEAD
 
             levelManager.DAT_DBA = (short)uVar1;
             FUN_508AC(uVar3, uVar4);
+            EditorUtility.SetDirty(levelManager.gameObject);
         }
     }
 
     private static void FUN_508AC(int param1, int param2)
     {
-        LevelManager levelManager = GameObject.Find("GameControl").GetComponent<LevelManager>();
+        LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
         levelManager.DAT_118C = 0;
         levelManager.DAT_1180 = param1;
         levelManager.DAT_1184 = param2;

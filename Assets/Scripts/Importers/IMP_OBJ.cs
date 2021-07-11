@@ -234,7 +234,7 @@ public class IMP_OBJ
                     {
                         do
                         {
-                            if (sVar2 <= GameManager.instance.DAT_1078[ppiVar16].id)
+                            if (sVar2 <= GameManager.instance.DAT_1078[ppiVar16].vObject.id)
                                 break;
 
                             ppiVar16++;
@@ -242,7 +242,7 @@ public class IMP_OBJ
 
                         if (ppiVar16 < GameManager.instance.DAT_1078.Count)
                         {
-                            piVar15 = GameManager.instance.DAT_1078[ppiVar16];
+                            piVar15 = GameManager.instance.DAT_1078[ppiVar16].vObject;
 
                             if (sVar2 == piVar15.id)
                             {
@@ -261,7 +261,7 @@ public class IMP_OBJ
                         }
                     }
 
-                    GameManager.instance.DAT_1078.Add(ppcVar12);
+                    GameManager.instance.DAT_1078.Add(new VigTuple(ppcVar12, 0));
                     return ppcVar12;
                 }
 
@@ -278,7 +278,7 @@ public class IMP_OBJ
                 bVar1 = (byte)GameManager.FUN_2AC5C();
                 ppcVar12.DAT_19 = bVar1;
                 ppcVar12.ApplyTransformation();
-                GameManager.FUN_30080(GameManager.instance.levelObjs, ppcVar12);
+                GameManager.FUN_30080(LevelManager.instance.levelObjs, ppcVar12);
                 goto case 1;
             case 1:
                 return ppcVar12;
@@ -290,10 +290,12 @@ public class IMP_OBJ
 
     private static void LoadBSPI(VigObject param1, BinaryReader reader)
     {
+        VigTuple tVar1;
         uint uVar2;
 
-        GameManager.FUN_30134(GameManager.instance.interObjs, param1);
+        tVar1 = GameManager.FUN_30134(GameManager.instance.interObjs, param1);
         uVar2 = reader.ReadUInt32BE();
+        tVar1.flag = uVar2 | 0x80000000;
     }
 
     private static void LoadLGHT(VigObject param1, BinaryReader reader)

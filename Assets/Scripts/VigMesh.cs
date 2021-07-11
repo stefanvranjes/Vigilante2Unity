@@ -16,12 +16,12 @@ public class VigMesh : MonoBehaviour
     public byte[] faceStream; //0x10
     public byte[] DAT_14; //0x14
     public uint DAT_18; //0x18
-    public Texture2D[] DAT_1C; //0x1C
+    public int[] DAT_1C; //0x1C
+    public List<int> materialIDs;
 
     private VigMesh instance;
     private MeshRenderer meshRenderer;
     private MeshFilter meshFilter;
-    private List<int> materialIDs;
     private List<Vector3> newVertices;
     private List<Vector2> newUVs;
     private List<Color32> newColors;

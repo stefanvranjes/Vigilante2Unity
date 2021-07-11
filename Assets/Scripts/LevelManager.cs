@@ -18,6 +18,7 @@ public class LevelManager : MonoBehaviour
     public short DAT_6398A;
     public short DAT_63992;
     public short DAT_6399A;
+    public Material defaultMaterial;
     public Matrix3x3 DAT_738; //gp+738h
     public ushort[] DAT_C18; //gp+C18h
     public Color32 DAT_D98; //gp+D98h
@@ -25,14 +26,14 @@ public class LevelManager : MonoBehaviour
     public Color32 DAT_DAC; //gp+DACh
     public short DAT_DBA; //gp+DBAh
     public Color32 DAT_DBC; //gp+DBCh
-    public Texture2D DAT_DD0; //gp+DD0h
+    public Material DAT_DD0; //gp+DD0h
     public Color32 DAT_DDC; //gp+DDCh
     public Color32 DAT_DE0; //gp+DE0h
-    public Texture2D[] DAT_DF8; //gp+DF8h
+    public Material[] DAT_DF8; //gp+DF8h
     public Color32 DAT_E04; //gp+E04h
     public Color32 DAT_E08; //gp+E08h
-    public Texture2D DAT_E48; //gp+E48h
-    public Texture2D DAT_E58; //gp+E58h
+    public Material DAT_E48; //gp+E48h
+    public Material DAT_E58; //gp+E58h
     public _CLASS_102C staticObjs; //gp+102Ch
     public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
@@ -43,9 +44,10 @@ public class LevelManager : MonoBehaviour
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
     public KeyValuePair<string, Type>[][] components; //0xC6130
     public List<XOBF_DB> charsList = new List<XOBF_DB>(); //0xC6178
+    public XOBF_DB wheels; //0xC61C0
     public XOBF_DB DAT_C61C0; //0xC61C0
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
-    public List<KeyValuePair<uint, VigObject>> levelObjs; //ffffa718 (LOAD.DLL)
+    public List<VigTuple> levelObjs; //ffffa718 (LOAD.DLL)
 
     private VigTerrain terrain;
 
@@ -53,14 +55,14 @@ public class LevelManager : MonoBehaviour
     // FUN_3F10 (LOAD.DLL)
     void Start()
     {
-        KeyValuePair<uint, VigObject> ppiVar4;
+        VigTuple ppiVar4;
         int iVar5;
         int iVar6;
         int iVar8;
         int iVar21;
         _CLASS_102C cVar22;
         Vector3Int local_310;
-        List<KeyValuePair<uint, VigObject>> ppiVar15;
+        List<VigTuple> ppiVar15;
         VigObject ppiVar18;
 
         iVar6 = 1;
@@ -112,15 +114,15 @@ public class LevelManager : MonoBehaviour
             do
             {
                 ppiVar4 = ppiVar15[0];
-                ppiVar18 = ppiVar4.Value;
+                ppiVar18 = ppiVar4.vObject;
                 ppiVar15.RemoveAt(0);
                 FUN_3C8C(ppiVar18, GameManager.defaultTransform);
                 //Move image? (probably the loading bar) ... 
-                if (ppiVar4.Key == 0)
+                if (ppiVar4.flag == 0)
                     FUN_278C(staticObjs, ppiVar4);
                 else
                 {
-                    cVar22 = FUN_284C((int)ppiVar4.Key & 0x7fffffff);
+                    cVar22 = FUN_284C((int)ppiVar4.flag & 0x7fffffff);
                     cVar22.LDAT_04.Add(ppiVar4);
                 }
             } while (GameManager.instance.interObjs.Count > 0);
@@ -775,7 +777,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void FUN_278C(_CLASS_102C param1, KeyValuePair<uint, VigObject> param2)
+    private void FUN_278C(_CLASS_102C param1, VigTuple param2)
     {
         int iVar1;
         _CLASS_102C ppiVar2;
@@ -785,7 +787,7 @@ public class LevelManager : MonoBehaviour
 
         if (iVar1 == 1)
         {
-            if (param2.Value.screen.x <= param1.DAT_04)
+            if (param2.vObject.screen.x <= param1.DAT_04)
             {
                 cVar3 = param1.DAT_08;
                 goto LAB_2834;
@@ -802,7 +804,7 @@ public class LevelManager : MonoBehaviour
             if (iVar1 != 2)
                 return;
 
-            if (param2.Value.screen.z <= param1.DAT_04)
+            if (param2.vObject.screen.z <= param1.DAT_04)
             {
                 cVar3 = param1.DAT_08;
                 goto LAB_2834;
@@ -956,7 +958,7 @@ public class LevelManager : MonoBehaviour
         {
             for (int i = 0; i < levelObjs.Count; i++)
             {
-                oVar5 = levelObjs[i].Value;
+                oVar5 = levelObjs[i].vObject;
                 uVar4 = FUN_3630(oVar5, auStack48, auStack32);
                 uVar4 &= 0xffff;
 

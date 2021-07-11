@@ -16,21 +16,13 @@ public class HitDetection
     public VigObject object2;
 }
 
-public class VigCollider : MonoBehaviour
+[System.Serializable]
+public class VigCollider
 {
-    public ushort header; //0x00
-    public ushort flags; //0x02
-    public BoundingBox bounds; //0x04
+    public byte[] buffer;
 
-    // Start is called before the first frame update
-    void Start()
+    public VigCollider(byte[] b)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        buffer = b;
     }
 }

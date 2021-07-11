@@ -861,10 +861,10 @@ public class VigTerrain : MonoBehaviour
         Coprocessor.ExecuteAVSZ4();
         uVar7 = (uint)(iVar9 < (int)uVar7 ? 1 : 0) << 3;
         uVar21 = uVar20 | uVar6 | uVar7;
-        Coprocessor.colorCode.r = GameManager.instance.DAT_DDC.r;
-        Coprocessor.colorCode.g = GameManager.instance.DAT_DDC.g;
-        Coprocessor.colorCode.b = GameManager.instance.DAT_DDC.b;
-        Coprocessor.colorCode.code = GameManager.instance.DAT_DDC.a;
+        Coprocessor.colorCode.r = LevelManager.instance.DAT_DDC.r;
+        Coprocessor.colorCode.g = LevelManager.instance.DAT_DDC.g;
+        Coprocessor.colorCode.b = LevelManager.instance.DAT_DDC.b;
+        Coprocessor.colorCode.code = LevelManager.instance.DAT_DDC.a;
 
         if (uVar21 == 15) //uVar21==15
         {

@@ -20,7 +20,8 @@ public class IMP_TIN
     public static List<TileData> LoadAsset(string assetPath1)
     {
         List<TileData> output = new List<TileData>();
-        GameManager gameManager = GameObject.FindObjectOfType<GameManager>();
+        LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
+        VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath1, FileMode.Open)))
         {
@@ -39,7 +40,7 @@ public class IMP_TIN
                     if (aVar1[arrayIndex] == 0)
                         iVar3 = 0;
                     else
-                        iVar3 = gameManager.uvSize - 1;
+                        iVar3 = levelManager.DAT_DBA - 1;
 
                     aVar1[arrayIndex] = (byte)iVar3;
                     iVar3 = aVar1[arrayIndex + 1];
@@ -47,7 +48,7 @@ public class IMP_TIN
                     if (iVar3 == 0)
                         iVar3 = 0;
                     else
-                        iVar3 = gameManager.uvSize - 1;
+                        iVar3 = levelManager.DAT_DBA - 1;
 
                     aVar1[arrayIndex + 1] = (byte)iVar3;
                     arrayIndex += 2;
@@ -63,8 +64,8 @@ public class IMP_TIN
             {
                 reader.BaseStream.Seek(chunkEnd - 32, SeekOrigin.Begin);
                 uint uVar1 = reader.ReadByte(); //r6
-                int iVar4 = (int)(uVar1 & 15) * gameManager.uvSize; //r9
-                uVar1 = (uVar1 >> 4) * gameManager.uvSize;
+                int iVar4 = (int)(uVar1 & 15) * levelManager.DAT_DBA; //r9
+                uVar1 = (uint)((int)(uVar1 >> 4) * levelManager.DAT_DBA);
                 reader.BaseStream.Seek(chunkEnd - 31, SeekOrigin.Begin);
                 int iVar5 = reader.ReadByte(); //r20
                 int arrayIndex = (iVar5 & 7) << 3; //r5
@@ -78,17 +79,17 @@ public class IMP_TIN
                 uint uVar2 = reader.ReadUInt16(); //r7
 
                 TileData newTile = new TileData();
-                newTile.uv1_x = gameManager.unk3 + uv & 0xFF;
-                newTile.uv1_y = gameManager.unk3 + uv >> 8;
+                newTile.uv1_x = uv & 0xFF;
+                newTile.uv1_y = uv >> 8;
                 uv = (aVar1[arrayIndex + 2] + iVar6) | (aVar1[arrayIndex + 3] + (int)uVar1 << 8);
-                newTile.uv2_x = gameManager.unk3 + uv & 0xFF;
-                newTile.uv2_y = gameManager.unk3 + uv >> 8;
+                newTile.uv2_x = uv & 0xFF;
+                newTile.uv2_y = uv >> 8;
                 uv = (aVar1[arrayIndex + 4] + iVar6) | (aVar1[arrayIndex + 5] + (int)uVar1 << 8);
-                newTile.uv3_x = gameManager.unk3 + uv & 0xFF;
-                newTile.uv3_y = gameManager.unk3 + uv >> 8;
+                newTile.uv3_x = uv & 0xFF;
+                newTile.uv3_y = uv >> 8;
                 uv = (aVar1[arrayIndex + 6] + iVar6) | (aVar1[arrayIndex + 7] + (int)uVar1 << 8);
-                newTile.uv4_x = gameManager.unk3 + uv & 0xFF;
-                newTile.uv4_y = gameManager.unk3 + uv >> 8;
+                newTile.uv4_x = uv & 0xFF;
+                newTile.uv4_y = uv >> 8;
 
                 uint uVar3 = uVar2 >> 8;
                 uVar2 = (uVar2 & 0xFF) << 8;
@@ -98,7 +99,7 @@ public class IMP_TIN
                 if ((uVar4 & 16) == 0)
                 {
                     uVar7 = (uint)iVar4 >> 7;
-                    int iVar = (gameManager.terrain.bitmapID & 3) + 5;
+                    int iVar = (terrain.bitmapID & 3) + 5;
                     uVar7 = uVar7 << iVar;
                     uVar7 = (uVar7 / 64) * 128; // need to test if the scale is right
                     newTile.uv4_x += (int)uVar7;

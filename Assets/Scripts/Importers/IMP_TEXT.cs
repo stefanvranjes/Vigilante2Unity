@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class IMP_TEXT
 {
@@ -8,9 +9,10 @@ public class IMP_TEXT
     {
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
-            LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+            LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
             levelManager.desc = new string(reader.ReadChars((int)reader.BaseStream.Length - 1));
+            EditorUtility.SetDirty(levelManager.gameObject);
         }
     }
 }

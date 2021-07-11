@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2696279913899804962
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8411965975258102301}
+  - component: {fileID: 2944829995881254336}
+  m_Layer: 0
+  m_Name: XRTP01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8411965975258102301
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2696279913899804962}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2944829995881254336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2696279913899804962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e45072bfca89e3e47966d4fee255579b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timFarList:
+  - {fileID: 2100000, guid: d29466209a403d24da464805563dd1f0, type: 2}
+  - {fileID: 2100000, guid: 8113887b37ffa104381a0f4710059f3f, type: 2}
+  - {fileID: 2100000, guid: dcd49a43915dbca4f867ba082b15ae16, type: 2}
+  - {fileID: 2100000, guid: 95fa15f002b0ce64fa6500c0aa405211, type: 2}
+  - {fileID: 2100000, guid: 4f83d723ba00cd34e8d7ac3664202630, type: 2}
+  - {fileID: 2100000, guid: 4431d8ab6e125ac4588de38c6cc46b38, type: 2}
+  - {fileID: 2100000, guid: 097e64cf6055c9c4b9b309a4c29fd771, type: 2}
+  - {fileID: 2100000, guid: a054537fc1f8ce1468a10cfe7b442529, type: 2}
+  - {fileID: 2100000, guid: b6483f36ab9afcd418a67abff8dc55db, type: 2}
+  - {fileID: 2100000, guid: 2e1a92aa99b924d42ae6946310ee44a2, type: 2}
+  - {fileID: 2100000, guid: 0aca2e25ff7427545a8899af7eae84b6, type: 2}
+  - {fileID: 2100000, guid: 5d49123de19693f4bb86e730fced9436, type: 2}
+  - {fileID: 2100000, guid: 33711369fc1f9ce47aa25be62e22f173, type: 2}
+  - {fileID: 2100000, guid: e26123f1ac9a50a4db51762dcd753406, type: 2}
+  - {fileID: 2100000, guid: 8984b95bbc025b14f8bcde47681ea3e0, type: 2}
+  - {fileID: 2100000, guid: e85cb94af4fd2bb4a81486505821acbf, type: 2}
+  V3_DAT_0C: []
+  C32_DAT_0C: []
+  V3_DAT_10: []
+  C32_DAT_10: []
+  DAT_14: 0
+  DAT_18: 0
+  DAT_1C: 48
+  DAT_20: 0
+  DAT_24: 122880
+  DAT_28: 81920
+  DAT_2C: 258
+  DAT_2E: 1200
+  DAT_30: 448
