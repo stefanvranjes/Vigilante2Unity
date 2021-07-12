@@ -1169,6 +1169,7 @@ public class VigMesh : MonoBehaviour
         long lVar9;
         MemoryStream msVar7;
         MemoryStream msVar8;
+        byte[] aVar9;
 
         iVar4 = 0;
         msVar6 = new MemoryStream(faceStream);
@@ -1208,8 +1209,9 @@ public class VigMesh : MonoBehaviour
             }
         }
 
-        msVar4 = new MemoryStream(new byte[iVar4 << 2]);
-        DAT_14 = msVar4.GetBuffer();
+        aVar9 = new byte[iVar4 << 2];
+        msVar4 = new MemoryStream(aVar9);
+        DAT_14 = aVar9;
 
         if (0 < faces)
         {
@@ -1224,14 +1226,14 @@ public class VigMesh : MonoBehaviour
                         switch((uint)brVar6.ReadByte(3) >> 2 & 15)
                         {
                             case 4:
-                                bwVar4.Write((byte)(brVar6.ReadByte(3) & 3 | 0x20), 3);
+                                bwVar4.Write(3, (byte)(brVar6.ReadByte(3) & 3 | 0x20));
                                 uVar3 = brVar6.ReadUInt16(4);
                                 msVar5 = new MemoryStream(vertexStream);
                                 uVar2 = brVar6.ReadUInt16(10);
                                 lVar8 = bwVar4.BaseStream.Position + 4;
                                 break;
                             case 5:
-                                bwVar4.Write((byte)(brVar6.ReadByte(3) & 3 | 0x24), 3);
+                                bwVar4.Write(3, (byte)(brVar6.ReadByte(3) & 3 | 0x24));
                                 uVar3 = brVar6.ReadUInt16(4);
                                 msVar5 = new MemoryStream(vertexStream);
                                 uVar2 = brVar6.ReadUInt16(10);
@@ -1240,7 +1242,7 @@ public class VigMesh : MonoBehaviour
                             default:
                                 goto switchD_00003ae4_caseD_6;
                             case 7:
-                                bwVar4.Write((byte)(brVar6.ReadByte(3) & 3 | 0x24), 3);
+                                bwVar4.Write(3, (byte)(brVar6.ReadByte(3) & 3 | 0x24));
                                 uVar3 = brVar6.ReadUInt16(4);
                                 msVar5 = new MemoryStream(vertexStream);
                                 uVar2 = brVar6.ReadUInt16(10);
@@ -1253,9 +1255,9 @@ public class VigMesh : MonoBehaviour
                             case 11:
                                 bVar1 = (byte)(brVar6.ReadByte(3) & 3 | 0x34);
                                 LAB_00003bb8:
-                                bwVar4.Write(bVar1, 11);
-                                bwVar4.Write(bVar1, 7);
-                                bwVar4.Write(bVar1, 3);
+                                bwVar4.Write(11, bVar1);
+                                bwVar4.Write(7, bVar1);
+                                bwVar4.Write(3, bVar1);
                                 msVar7 = new MemoryStream(vertexStream);
                                 msVar7.Seek(brVar6.ReadUInt16(4), SeekOrigin.Begin);
                                 msVar8 = new MemoryStream(normalStream);

@@ -145,8 +145,7 @@ public class RSEG_DB : MonoBehaviour
             iVar2 += 15;
 
         DAT_30 = iVar2 >> 4;
-        iVar2 = DAT_14[0] << 1; //r3
-        iVar3 = iVar2 + iVar3; //r2
+        iVar3 = (DAT_14[0] << 1) + DAT_14[0]; //r3
 
         if (iVar3 < 0)
             iVar3 += 15;

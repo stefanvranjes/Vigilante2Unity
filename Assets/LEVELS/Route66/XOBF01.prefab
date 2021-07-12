@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4606708509786397433}
   - component: {fileID: -5635016771136022544}
-  - component: {fileID: -1776725849503248267}
+  - component: {fileID: -4479320317654441089}
   m_Layer: 0
   m_Name: XOBF01
   m_TagString: Untagged
@@ -345,9 +345,9 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 1db13b6e030e9894b86c58460a102c69, type: 2}
   - {fileID: 2100000, guid: 3f0f0308b8ead5946a6a7e3e0345db96, type: 2}
   - {fileID: 2100000, guid: a7cec9c0d4db00c4f855b265d0815e19, type: 2}
-  ini: {fileID: 0}
+  ini: {fileID: -4479320317654441089}
   animations: 
---- !u!114 &-1776725849503248267
+--- !u!114 &-4479320317654441089
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -364,171 +364,171 @@ MonoBehaviour:
   - flag: 0
     colliderID: 0
     v3_1: {x: -757, y: -103924, z: 780321}
-    v3_2: {x: 0, y: -1431699456, z: 65538}
-    objID: 49153
-    previous: 65535
-    next: 65528
-  - flag: 64779
-    colliderID: -1
-    v3_1: {x: -103924, y: 780321, z: 0}
-    v3_2: {x: -1431699456, y: 65538, z: -16383}
-    objID: 65528
-    previous: 65535
-    next: 0
-  - flag: 27148
-    colliderID: -2
-    v3_1: {x: 780321, y: 0, z: -1431699456}
-    v3_2: {x: 65538, y: -16383, z: -8}
-    objID: 0
-    previous: 0
-    next: 0
-  - flag: 59425
-    colliderID: 11
-    v3_1: {x: 0, y: -1431699456, z: 65538}
-    v3_2: {x: -16383, y: -8, z: 0}
-    objID: 0
-    previous: 0
-    next: 0
-  - flag: 0
-    colliderID: 0
-    v3_1: {x: -1431699456, y: 65538, z: -16383}
-    v3_2: {x: -8, y: 0, z: 0}
-    objID: 0
-    previous: 0
-    next: 0
-  - flag: 0
-    colliderID: -21846
-    v3_1: {x: 65538, y: -16383, z: -8}
     v3_2: {x: 0, y: 0, z: 0}
-    objID: 0
-    previous: 11
-    next: 65535
-  - flag: 2
-    colliderID: 1
-    v3_1: {x: -16383, y: -8, z: 0}
-    v3_2: {x: 0, y: 0, z: 720896}
-    objID: 65535
-    previous: 65535
-    next: 2
+    objID: 43690
+    previous: 2
+    next: 1
   - flag: 49153
     colliderID: -1
     v3_1: {x: -8, y: 0, z: 0}
-    v3_2: {x: 0, y: 720896, z: -1}
-    objID: 2
-    previous: 1
-    next: 0
-  - flag: 65528
-    colliderID: -1
-    v3_1: {x: 0, y: 0, z: 0}
-    v3_2: {x: 720896, y: -1, z: 65538}
-    objID: 0
-    previous: 0
-    next: 27005
-  - flag: 0
-    colliderID: 0
-    v3_1: {x: 0, y: 0, z: 720896}
-    v3_2: {x: -1, y: 65538, z: 0}
-    objID: 27005
-    previous: 65534
-    next: 22988
-  - flag: 0
-    colliderID: 0
-    v3_1: {x: 0, y: 720896, z: -1}
-    v3_2: {x: 65538, y: 0, z: -104067}
-    objID: 22988
-    previous: 6
-    next: 0
-  - flag: 0
-    colliderID: 0
-    v3_1: {x: 720896, y: -1, z: 65538}
-    v3_2: {x: 0, y: -104067, z: 416204}
-    objID: 0
-    previous: 0
-    next: 0
-  - flag: 0
-    colliderID: 11
-    v3_1: {x: -1, y: 65538, z: 0}
-    v3_2: {x: -104067, y: 416204, z: 0}
-    objID: 0
-    previous: 43690
-    next: 3
-  - flag: 65535
-    colliderID: -1
-    v3_1: {x: 65538, y: 0, z: -104067}
-    v3_2: {x: 416204, y: 0, z: -1431699456}
-    objID: 3
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 11
     previous: 65535
-    next: 3
+    next: 65535
   - flag: 2
     colliderID: 1
     v3_1: {x: 0, y: -104067, z: 416204}
-    v3_2: {x: 0, y: -1431699456, z: -65533}
-    objID: 3
-    previous: 2
-    next: 0
-  - flag: 0
-    colliderID: 0
-    v3_1: {x: -104067, y: 416204, z: 0}
-    v3_2: {x: -1431699456, y: -65533, z: 131075}
-    objID: 0
-    previous: 0
-    next: 27038
-  - flag: 27005
-    colliderID: -2
-    v3_1: {x: 416204, y: 0, z: -1431699456}
-    v3_2: {x: -65533, y: 131075, z: 0}
-    objID: 27038
-    previous: 65534
-    next: 34285
-  - flag: 22988
-    colliderID: 6
-    v3_1: {x: 0, y: -1431699456, z: -65533}
-    v3_2: {x: 131075, y: 0, z: -104034}
-    objID: 34285
-    previous: 9
-    next: 0
-  - flag: 0
-    colliderID: 0
-    v3_1: {x: -1431699456, y: -65533, z: 131075}
-    v3_2: {x: 0, y: -104034, z: 624109}
-    objID: 0
-    previous: 0
-    next: 0
-  - flag: 0
-    colliderID: -21846
-    v3_1: {x: -65533, y: 131075, z: 0}
-    v3_2: {x: -104034, y: 624109, z: 0}
-    objID: 0
-    previous: 43690
-    next: 4
-  - flag: 3
-    colliderID: -1
-    v3_1: {x: 131075, y: 0, z: -104034}
-    v3_2: {x: 624109, y: 0, z: -1431699456}
-    objID: 4
-    previous: 65535
-    next: 4
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 3
+    next: 65535
   - flag: 3
     colliderID: 2
     v3_1: {x: 0, y: -104034, z: 624109}
-    v3_2: {x: 0, y: -1431699456, z: -65532}
-    objID: 4
-    previous: 3
-    next: 0
-  - flag: 0
-    colliderID: 0
-    v3_1: {x: -104034, y: 624109, z: 0}
-    v3_2: {x: -1431699456, y: -65532, z: 196612}
-    objID: 0
-    previous: 0
-    next: 26964
-  - flag: 27038
-    colliderID: -2
-    v3_1: {x: 624109, y: 0, z: -1431699456}
-    v3_2: {x: -65532, y: 196612, z: 0}
-    objID: 26964
-    previous: 65534
-    next: 50006
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 4
+    next: 65535
+  - flag: 4
+    colliderID: 3
+    v3_1: {x: 0, y: -104108, z: 312150}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 5
+    next: 65535
+  - flag: 5
+    colliderID: 4
+    v3_1: {x: -245, y: -104153, z: -426622}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 6
+    next: 65535
+  - flag: 6
+    colliderID: 5
+    v3_1: {x: -245, y: -104153, z: -319180}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 7
+    next: 65535
+  - flag: 7
+    colliderID: 6
+    v3_1: {x: -14, y: -104034, z: 520154}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 8
+    next: 65535
+  - flag: 8
+    colliderID: 7
+    v3_1: {x: -14, y: -2829, z: 520606}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 9
+    next: 65535
+  - flag: 9
+    colliderID: 8
+    v3_1: {x: -13, y: -2829, z: 415375}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 10
+    next: 65535
+  - flag: 10
+    colliderID: 9
+    v3_1: {x: 400, y: -103946, z: 208030}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 11
+    next: 65535
+  - flag: 11
+    colliderID: 10
+    v3_1: {x: 253, y: -103977, z: 104123}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 12
+    next: 65535
+  - flag: 12
+    colliderID: 11
+    v3_1: {x: 177, y: -103973, z: 244}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 13
+    next: 65535
+  - flag: 13
+    colliderID: 12
+    v3_1: {x: 820, y: -103973, z: -103712}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 14
+    next: 65535
+  - flag: 14
+    colliderID: 13
+    v3_1: {x: 69, y: -103917, z: -208027}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 15
+    next: 65535
+  - flag: 15
+    colliderID: 14
+    v3_1: {x: -52, y: -208708, z: 102043}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 16
+    next: 65535
+  - flag: 16
+    colliderID: 15
+    v3_1: {x: 0, y: -363949, z: 780133}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 17
+    next: 65535
+  - flag: 17
+    colliderID: 16
+    v3_1: {x: 0, y: -363949, z: 676388}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 18
+    next: 65535
+  - flag: 18
+    colliderID: 17
+    v3_1: {x: 0, y: -363949, z: 572334}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 19
+    next: 65535
+  - flag: 19
+    colliderID: 18
+    v3_1: {x: 0, y: -363949, z: 468346}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 20
+    next: 65535
+  - flag: 20
+    colliderID: 19
+    v3_1: {x: -213, y: 130684, z: 277}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 21
+    next: 65535
+  - flag: 21
+    colliderID: 20
+    v3_1: {x: -230, y: 130686, z: -131357}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 22
+    next: 65535
+  - flag: 22
+    colliderID: 21
+    v3_1: {x: -215, y: 131166, z: -262941}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 23
+    next: 65535
+  - flag: 23
+    colliderID: 22
+    v3_1: {x: 85, y: 130684, z: -393576}
+    v3_2: {x: 0, y: 0, z: 0}
+    objID: 43690
+    previous: 65535
+    next: 65535
   pointerUnk1: 0
   obj: []
   currentID: 0

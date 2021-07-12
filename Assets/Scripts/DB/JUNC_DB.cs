@@ -36,6 +36,7 @@ public class JUNC_DB : MonoBehaviour
         short sVar15;
         short sVar16;
         short sVar17;
+        byte[] aVar18;
         DELEGATE_79A0 dVar18;
         VigTransform auStack72;
 
@@ -102,10 +103,11 @@ public class JUNC_DB : MonoBehaviour
                 DAT_18 = pbVar8;
                 pbVar8.DAT_00 = (byte)(pbVar8.DAT_00 & 0xfe | 4);
                 psVar13 = new MemoryStream(DAT_18.vertexStream);
-                psVar9 = new MemoryStream(new byte[DAT_18.vertices << 3]);
+                aVar18 = new byte[DAT_18.vertices << 3];
+                psVar9 = new MemoryStream(aVar18);
                 bVar1 = DAT_18.DAT_01;
                 DAT_18.DAT_02 = 16;
-                DAT_18.vertexStream = psVar9.GetBuffer();
+                DAT_18.vertexStream = aVar18;
                 uVar14 = 16 - (uint)bVar1;
 
                 if (0 < DAT_18.vertices)

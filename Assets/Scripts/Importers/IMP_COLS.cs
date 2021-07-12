@@ -20,7 +20,7 @@ public class IMP_COLS
             VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
 
             iVar3 = 0;
-            lVar5 = 0x84210843;
+            unchecked { lVar5 = (int)0x84210843; }
             levelManager.DAT_E08 = new Color32
                 (reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
             levelManager.DAT_DA4 = new Color32

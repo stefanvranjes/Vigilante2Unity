@@ -632,17 +632,17 @@ public class XOBF_DB : MonoBehaviour
         if (0 < iniElements)
         {
             VigConfig newConfig = gameObject.AddComponent<VigConfig>();
+            ini = newConfig;
             newConfig.configContainers = new List<ConfigContainer>();
             newConfig.xobf = this;
 
             for (int i = 0; i < iniElements; i++)
             {
-                reader.BaseStream.Seek(iniPosition + i * 4, SeekOrigin.Begin);
                 ConfigContainer newContainer = new ConfigContainer();
                 newContainer.flag = reader.ReadUInt16();
                 newContainer.colliderID = reader.ReadInt16();
                 newContainer.v3_1 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
-                newContainer.v3_2 = new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+                newContainer.v3_2 = new Vector3Int(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16());
                 newContainer.objID = reader.ReadUInt16();
                 newContainer.previous = reader.ReadUInt16();
                 newContainer.next = reader.ReadUInt16();
@@ -722,9 +722,14 @@ public class XOBF_DB : MonoBehaviour
         VigMesh pbVar6;
         TMD puVar7;
         long lVar8;
+        LevelManager levelManager = LevelManager.instance;
+
+        if (levelManager == null)
+            levelManager = GameObject.FindObjectOfType<LevelManager>();
 
         puVar7 = tmdList[(int)(param2 & 0xffff)];
         pbVar3 = param1.AddComponent<VigMesh>();
+        pbVar3.materialIDs = new List<int>();
         MeshFilter meshFilter = param1.AddComponent<MeshFilter>();
         meshFilter.mesh = new Mesh();
         MeshRenderer meshRenderer = param1.AddComponent<MeshRenderer>();
@@ -793,7 +798,7 @@ public class XOBF_DB : MonoBehaviour
                                     iVar3++;
                                     iVar5 = reader.ReadUInt16(iVar4 - 2) & 0x3fff;
 
-                                    if (pbVar3.materialIDs.Contains(iVar5))
+                                    if (!pbVar3.materialIDs.Contains(iVar5))
                                         pbVar3.materialIDs.Add(iVar5);
 
                                     iVar5 += 8;
@@ -822,7 +827,7 @@ public class XOBF_DB : MonoBehaviour
                             break;
                     }
 
-                    if (pbVar3.materialIDs.Contains(iVar5))
+                    if (!pbVar3.materialIDs.Contains(iVar5))
                         pbVar3.materialIDs.Add(iVar5);
                     
                     reader.BaseStream.Seek(lVar8, SeekOrigin.Begin);
@@ -832,15 +837,15 @@ public class XOBF_DB : MonoBehaviour
         }
 
         List<Material> materialList = new List<Material>();
-        materialList.Add(LevelManager.instance.defaultMaterial);
+        materialList.Add(levelManager.defaultMaterial);
 
         for (int i = 0; i < pbVar3.materialIDs.Count; i++)
         {
             if (pbVar3.materialIDs[i] == 0xffff ||
                 pbVar3.materialIDs[i] == 0x3fff)
-                materialList.Add(LevelManager.instance.DAT_E48);
+                materialList.Add(levelManager.DAT_E48);
             else if (pbVar3.materialIDs[i] == 0x3ffe)
-                materialList.Add(LevelManager.instance.DAT_E58);
+                materialList.Add(levelManager.DAT_E58);
             else
                 materialList.Add(timList[pbVar3.materialIDs[i]]);
         }

@@ -48,7 +48,6 @@ public enum _SCREEN_MODE
     Unknown
 }
 
-[System.Serializable]
 public class BSP
 {
     public int DAT_00; //0x00
