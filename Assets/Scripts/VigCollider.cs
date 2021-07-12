@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,11 +8,17 @@ public struct BoundingBox
     public Vector3Int min, max;
 }
 
+public struct Radius
+{
+    public Vector3Int matrixSV;
+    public int contactOffset;
+}
+
 public class HitDetection
 {
     public VigObject self;
-    public VigCollider collider1;
-    public VigCollider collider2;
+    public BinaryReader collider1;
+    public BinaryReader collider2;
     public VigObject object1;
     public VigObject object2;
 }

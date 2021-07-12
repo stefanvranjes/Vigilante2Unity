@@ -1227,7 +1227,7 @@ public class VigObject : MonoBehaviour
         return param1.rotation;
     }
 
-    public virtual int FUN_2DD78(HitDetection param1)
+    public virtual uint FUN_2DD78(HitDetection param1)
     {
         return 0;
     }

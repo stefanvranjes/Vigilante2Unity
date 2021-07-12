@@ -96,6 +96,80 @@ public static class Utilities
         return null;
     }
 
+    public static uint FUN_2E2E8(BoundingBox param1, VigTransform param2, Radius param3, VigTransform param4)
+    {
+        long lVar1;
+        long lVar2;
+        long lVar3;
+        uint uVar4;
+        uint uVar5;
+        uint uVar6;
+        uint uVar7;
+        uint uVar8;
+        int iVar9;
+        uint uVar10;
+        int iVar11;
+        uint uVar12;
+        uint uVar13;
+        uint uVar14;
+        uint uVar15;
+        Vector3Int local_48;
+        Vector3Int local_40;
+        int local_38;
+        VigTransform local_30;
+
+        local_30 = param2;
+        local_48 = ApplyMatrixSV(param4.rotation, param3.matrixSV);
+        uVar10 = (uint)(local_48.x << 16 >> 16);
+        uVar4 = (uint)(local_30.position.x + (param1.min.x + param1.max.x) / 2 - param4.position.x);
+        lVar1 = (long)((ulong)uVar10 * uVar4);
+        uVar12 = (uint)(local_48.y << 16 >> 16);
+        uVar5 = (uint)(local_30.position.y + (param1.min.y + param1.max.y) / 2 - param4.position.y);
+        lVar2 = (long)((ulong)uVar12 * uVar5);
+        uVar14 = (uint)lVar2;
+        uVar13 = (uint)(local_48.z << 16 >> 16);
+        uVar6 = (uint)(local_30.position.z + (param1.min.z + param1.max.z) / 2 - param4.position.z);
+        lVar3 = (long)((ulong)uVar13 * uVar6);
+        uVar15 = (uint)lVar3;
+        uVar7 = (uint)lVar1 + uVar14;
+        uVar8 = uVar7 + uVar15;
+        iVar9 = (int)((ulong)lVar1 >> 32) + (int)uVar10 * ((int)uVar4 >> 31) +
+                (int)uVar4 * (local_48.x << 16 >> 31) +
+                (int)((ulong)lVar2 >> 32) + (int)uVar12 * ((int)uVar5 >> 31) +
+                (int)uVar5 * (local_48.y << 16 >> 31) + (uVar7 < uVar14 ? 1 : 0) +
+                (int)((ulong)lVar3 >> 32) + (int)uVar13 * ((int)uVar6 >> 31) +
+                (int)uVar6 * (local_48.z << 16 >> 31) + (uVar8 < uVar15 ? 1 : 0);
+        iVar11 = (int)(uVar8 >> 12 | (uint)(iVar9 * 0x100000)) - param3.contactOffset;
+
+        if (iVar11 < 0)
+            uVar4 = 1;
+        else
+        {
+            local_40 = FUN_24210(local_30.rotation, local_48);
+            local_40.x *= param1.max.x - param1.min.x;
+            local_40.y *= param1.max.y - param1.min.y;
+            local_40.z *= param1.max.z - param1.min.z;
+
+            if (local_40.x < 0)
+                local_40.x = -local_40.x;
+
+            if (local_40.y < 0)
+                local_40.y = -local_40.y;
+
+            if (local_40.z < 0)
+                local_40.z = -local_40.z;
+
+            local_38 = local_40.x + local_40.y + local_40.z;
+
+            if (local_38 < 0)
+                local_38 += 0x1fff;
+
+            uVar4 = (uint)(iVar11 - (local_38 >> 13)) >> 31;
+        }
+
+        return uVar4;
+    }
+
     public static bool FUN_281FC(BoundingBox param1, VigTransform param2, BoundingBox param3, VigTransform param4)
     {
         int iVar1;

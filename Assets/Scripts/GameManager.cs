@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -47,13 +49,13 @@ public enum _SCREEN_MODE
 }
 
 [System.Serializable]
-public class _CLASS_102C
+public class BSP
 {
     public int DAT_00; //0x00
     public int DAT_04; //0x04
     public List<VigTuple> LDAT_04; //0x04
-    public _CLASS_102C DAT_08; //0x08
-    public _CLASS_102C DAT_0C; //0x0C
+    public BSP DAT_08; //0x08
+    public BSP DAT_0C; //0x0C
 }
 
 public class GameManager : MonoBehaviour
@@ -1220,7 +1222,7 @@ public class GameManager : MonoBehaviour
             FUN_2D9E0(param1[i].vObject);
     }
 
-    public void FUN_30DE8(_CLASS_102C param1, int param2, int param3, int param4, int param5)
+    public void FUN_30DE8(BSP param1, int param2, int param3, int param4, int param5)
     {
         int iVar1;
 
@@ -1277,7 +1279,7 @@ public class GameManager : MonoBehaviour
         Vector3Int local_10;
         Vector3Int local_8;
 
-        if (levelManager.staticObjs != null)
+        if (levelManager.bspTree != null)
         {
             local_10 = new Vector3Int();
             local_10.x = -GameManager.instance.DAT_EDC / 2;
@@ -1332,7 +1334,7 @@ public class GameManager : MonoBehaviour
             if (0 < iVar4)
                 iVar5 = iVar4;
 
-            FUN_30DE8(levelManager.staticObjs, GameManager.instance.DAT_F28.position.x + iVar1 * 0x400,
+            FUN_30DE8(levelManager.bspTree, GameManager.instance.DAT_F28.position.x + iVar1 * 0x400,
                                   GameManager.instance.DAT_F28.position.x + iVar2 * 0x400,
                                   GameManager.instance.DAT_F28.position.z + iVar3 * 0x400,
                                   GameManager.instance.DAT_F28.position.z + iVar5 * 0x400);
@@ -1341,7 +1343,7 @@ public class GameManager : MonoBehaviour
 
     public void FUN_31728()
     {
-
+        FUN_3174C();
     }
 
     public Vehicle FUN_3208C(int param1)
@@ -2332,97 +2334,227 @@ public class GameManager : MonoBehaviour
         int iVar2;
         bool bVar3;
         int iVar3;
-        int psVar4;
+        BinaryReader brVar4;
         int iVar5;
-        int psVar6;
+        BinaryReader brVar6;
 
-        psVar6 = 0;
-
-        /*if (param1.vCollider[psVar6] != null)
+        if (param1.vCollider != null)
         {
             if (param2.vCollider == null)
                 return null;
 
-            sVar1 = (short)param1.vCollider[psVar6].header;
-
-            while (sVar1 != 0)
+            using (brVar6 = new BinaryReader(new MemoryStream(param1.vCollider.buffer), Encoding.Default, true))
             {
-                sVar1 = (short)param1.vCollider[psVar6].header;
-                psVar4 = 0;
-
-                if (sVar1 == 1)
+                using (brVar4 = new BinaryReader(new MemoryStream(param2.vCollider.buffer), Encoding.Default, true))
                 {
-                    if ((param1.vCollider[psVar6].flags & 0x8000U) == 0)
+                    sVar1 = brVar6.ReadInt16(0);
+
+                    while (sVar1 != 0)
                     {
-                        sVar1 = (short)param2.vCollider[psVar4].header;
+                        sVar1 = brVar6.ReadInt16(0);
+                        brVar4.BaseStream.Seek(0, SeekOrigin.Begin);
 
-                        joined_r0x8002ea44:
-                        if (sVar1 != 0)
+                        if (sVar1 == 1)
                         {
-                            sVar1 = (short)param2.vCollider[psVar4].header;
-
-                            if (sVar1 != 1) ;//goto code_r0x8002EA5C;
-
-                            if ((param2.vCollider[psVar4].flags & 0x8000U) == 0)
+                            if ((brVar6.ReadUInt16(2) & 0x8000U) == 0)
                             {
-                                bVar3 = Utilities.FUN_281FC(param1.vCollider[psVar6].bounds, param3, param2.vCollider[psVar4].bounds, param4);
+                                sVar1 = brVar4.ReadInt16(0);
 
-                                if (bVar3)
+                                joined_r0x8002ea44:
+                                if (sVar1 != 0)
                                 {
-                                    bVar3 = Utilities.FUN_281FC(param2.vCollider[psVar4].bounds, param4, param1.vCollider[psVar6].bounds, param3);
+                                    sVar1 = brVar4.ReadInt16(0);
 
-                                    if (bVar3)
+                                    if (sVar1 != 1)
                                     {
-                                        HitDetection hit = new HitDetection();
-                                        hit.collider1 = param1.vCollider[psVar6];
-                                        hit.collider2 = param2.vCollider[psVar4];
-                                        hit.object1 = param1;
-                                        hit.object2 = param2;
-                                        return hit;
+                                        if (sVar1 == 2)
+                                        {
+                                            iVar3 = 0;
+
+                                            if (brVar4.ReadUInt16(2) == 0)
+                                            {
+                                                return new HitDetection()
+                                                {
+                                                    collider1 = brVar6,
+                                                    collider2 = brVar4,
+                                                    object1 = param1,
+                                                    object2 = param2
+                                                };
+                                            }
+
+                                            iVar5 = 4;
+
+                                            while (true)
+                                            {
+                                                BoundingBox bbox = new BoundingBox()
+                                                {
+                                                    min = new Vector3Int(brVar6.ReadInt32(4), brVar6.ReadInt32(8), brVar6.ReadInt32(12)),
+                                                    max = new Vector3Int(brVar6.ReadInt32(16), brVar6.ReadInt32(20), brVar6.ReadInt32(24))
+                                                };
+                                                Radius radius = new Radius()
+                                                {
+                                                    matrixSV = new Vector3Int(brVar4.ReadInt16(iVar5), brVar4.ReadInt16(iVar5 + 2), brVar4.ReadInt16(iVar5 + 4)),
+                                                    contactOffset = brVar4.ReadInt32(iVar5 + 8)
+                                                };
+                                                iVar2 = (int)Utilities.FUN_2E2E8(bbox, param3, radius, param4);
+                                                iVar3++;
+
+                                                if (iVar2 == 0) break;
+
+                                                iVar5 += 12;
+
+                                                if (brVar4.ReadUInt16(2) <= iVar3)
+                                                {
+                                                    return new HitDetection()
+                                                    {
+                                                        collider1 = brVar6,
+                                                        collider2 = brVar4,
+                                                        object1 = param1,
+                                                        object2 = param2
+                                                    };
+                                                }
+                                            }
+
+                                            brVar4.BaseStream.Seek(brVar4.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
+                                            sVar1 = brVar4.ReadInt16(0);
+                                        }
+
+                                        goto joined_r0x8002ea44;
                                     }
+
+                                    if ((brVar4.ReadUInt16(2) & 0x8000U) == 0)
+                                    {
+                                        BoundingBox bbox1 = new BoundingBox()
+                                        {
+                                            min = new Vector3Int(brVar6.ReadInt32(4), brVar6.ReadInt32(8), brVar6.ReadInt32(12)),
+                                            max = new Vector3Int(brVar6.ReadInt32(16), brVar6.ReadInt32(20), brVar6.ReadInt32(24))
+                                        };
+                                        BoundingBox bbox2 = new BoundingBox()
+                                        {
+                                            min = new Vector3Int(brVar4.ReadInt32(4), brVar4.ReadInt32(8), brVar4.ReadInt32(12)),
+                                            max = new Vector3Int(brVar4.ReadInt32(16), brVar4.ReadInt32(20), brVar4.ReadInt32(24))
+                                        };
+                                        bVar3 = Utilities.FUN_281FC(bbox1, param3, bbox2, param4);
+
+                                        if (bVar3)
+                                        {
+                                            bVar3 = Utilities.FUN_281FC(bbox2, param4, bbox1, param3);
+
+                                            if (bVar3)
+                                            {
+                                                return new HitDetection()
+                                                {
+                                                    collider1 = brVar6,
+                                                    collider2 = brVar4,
+                                                    object1 = param1,
+                                                    object2 = param2
+                                                };
+                                            }
+                                        }
+                                    }
+
+                                    brVar4.BaseStream.Seek(28, SeekOrigin.Current);
+                                    sVar1 = brVar4.ReadInt16(0);
+                                    goto joined_r0x8002ea44;
                                 }
                             }
 
-                            psVar4++;
-                            sVar1 = (short)param2.vCollider[psVar4].header;
-                            goto joined_r0x8002ea44;                       
+                            brVar6.BaseStream.Seek(28, SeekOrigin.Current);
+                            sVar1 = brVar6.ReadInt16(0);
+                        }
+                        else
+                        {
+                            if (sVar1 == 2)
+                            {
+                                LAB_2EBE0:
+                                bool doBreak = false;
+
+                                do
+                                {
+                                    sVar1 = brVar4.ReadInt16(0);
+
+                                    while (true)
+                                    {
+                                        if (sVar1 == 0)
+                                        {
+                                            brVar6.BaseStream.Seek(brVar6.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
+                                            sVar1 = brVar6.ReadInt16(0);
+                                            doBreak = true;
+                                            break;
+                                        }
+
+                                        sVar1 = brVar4.ReadInt16(0);
+
+                                        if (sVar1 == 1) break;
+
+                                        if (sVar1 == 2)
+                                        {
+                                            brVar4.BaseStream.Seek(brVar4.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
+                                            goto LAB_2EBE0;
+                                        }
+                                    }
+
+                                    if (doBreak) break;
+
+                                    if ((brVar4.ReadUInt16(2) & 0x8000U) == 0)
+                                    {
+                                        iVar3 = 0;
+
+                                        if (brVar6.ReadUInt16(2) == 0)
+                                        {
+                                            return new HitDetection()
+                                            {
+                                                collider1 = brVar6,
+                                                collider2 = brVar4,
+                                                object1 = param1,
+                                                object2 = param2
+                                            };
+                                        }
+
+                                        iVar5 = 4;
+
+                                        while (true)
+                                        {
+                                            BoundingBox bbox = new BoundingBox()
+                                            {
+                                                min = new Vector3Int(brVar4.ReadInt32(4), brVar4.ReadInt32(8), brVar4.ReadInt32(12)),
+                                                max = new Vector3Int(brVar4.ReadInt32(16), brVar4.ReadInt32(20), brVar4.ReadInt32(24))
+                                            };
+                                            Radius radius = new Radius()
+                                            {
+                                                matrixSV = new Vector3Int(brVar6.ReadInt16(iVar5), brVar6.ReadInt16(iVar5 + 2), brVar6.ReadInt16(iVar5 + 4)),
+                                                contactOffset = brVar6.ReadInt32(iVar5 + 8)
+                                            };
+                                            iVar2 = (int)Utilities.FUN_2E2E8(bbox, param4, radius, param3);
+                                            iVar3++;
+
+                                            if (iVar2 == 0) break;
+
+                                            iVar5 += 12;
+
+                                            if (brVar6.ReadUInt16(2) <= iVar3)
+                                            {
+                                                return new HitDetection()
+                                                {
+                                                    collider1 = brVar6,
+                                                    collider2 = brVar4,
+                                                    object1 = param1,
+                                                    object2 = param2
+                                                };
+                                            }
+                                        }
+                                    }
+
+                                    brVar4.BaseStream.Seek(28, SeekOrigin.Current);
+                                } while (true);
+                            }
                         }
                     }
-
-                    psVar6++;
-                    sVar1 = (short)param1.vCollider[psVar6].header;
-                }
-                else
-                {
-
                 }
             }
-        }*/
+        }
 
         return null;
-
-        /*code_r0x8002ea5c:
-        if (sVar1 == 2)
-        {
-            iVar3 = 0;
-
-            if (param2.vCollider[psVar4].flags == 0)
-            {
-                HitDetection hit = new HitDetection();
-                hit.collider1 = param1.vCollider[psVar6];
-                hit.collider1 = param2.vCollider[psVar4];
-                hit.object1 = param1;
-                hit.object2 = param2;
-                return hit;
-            }
-
-            iVar5 = 4;
-
-            while (true)
-            {
-
-            }
-        }*/
     }
 
     private HitDetection FUN_2ECF8(VigObject param1, VigObject param2, VigTransform param3)
@@ -2520,7 +2652,7 @@ public class GameManager : MonoBehaviour
         bool bVar1;
         int iVar2;
         Vector3Int v3Var2;
-        VigCollider cVar2;
+        BinaryReader brVar2;
         int iVar3;
         HitDetection hit;
         uint uVar5;
@@ -2609,18 +2741,18 @@ public class GameManager : MonoBehaviour
         }
 
         hit.self = param2;
-        uVar5 = (uint)param1.FUN_2DD78(hit);
+        uVar5 = param1.FUN_2DD78(hit);
 
         if (uVar5 + 1 < 2)
         {
-            cVar2 = hit.collider2;
+            brVar2 = hit.collider2;
             oVar6 = hit.object2;
             uVar5 >>= 31;
             hit.collider2 = hit.collider1;
-            hit.collider1 = cVar2;
+            hit.collider1 = brVar2;
             hit.object2 = hit.object1;
             hit.object1 = oVar6;
-            iVar2 = param2.FUN_2DD78(hit);
+            iVar2 = (int)param2.FUN_2DD78(hit);
 
             if (iVar2 < 0)
                 uVar5 |= 2;
@@ -2655,56 +2787,152 @@ public class GameManager : MonoBehaviour
         return oVar2;
     }
 
+    private bool FUN_30F20(BSP param1, VigObject param2)
+    {
+        VigTuple ppiVar1;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+        BSP piVar7;
+        int iVar8;
+        int ppiVar9;
+        int iVar10;
+        BSP[] local_98 = new BSP[32];
+
+        iVar3 = param2.vTransform.position.x;
+        iVar5 = param2.DAT_58;
+        iVar8 = param2.vTransform.position.z;
+        local_98[0] = param1;
+        ppiVar9 = 0;
+        iVar4 = 1;
+
+        do
+        {
+            piVar7 = local_98[ppiVar9];
+            iVar6 = piVar7.DAT_00;
+            iVar10 = iVar4 + 1;
+
+            if (iVar6 == 1)
+            {
+                if (iVar3 - iVar5 < piVar7.DAT_04)
+                {
+                    local_98[ppiVar9] = piVar7.DAT_08;
+                    ppiVar9++;
+                    iVar10 = iVar4;
+                }
+
+                if (piVar7.DAT_04 < iVar3 + iVar5)
+                {
+                    piVar7 = piVar7.DAT_0C;
+                    iVar10++;
+                    local_98[ppiVar9] = piVar7;
+                    ppiVar9++;
+                }
+            }
+            else
+            {
+                if (iVar6 == 0)
+                {
+                    for (int i = 0; i < piVar7.LDAT_04.Count; i++)
+                    {
+                        ppiVar1 = piVar7.LDAT_04[i];
+
+                        if ((ppiVar1.vObject.flags & 0x20) == 0)
+                        {
+                            iVar4 = (int)FUN_2EEE0(param2, ppiVar1.vObject);
+
+                            if (iVar4 != 0)
+                                return false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (iVar6 == 2)
+                    {
+                        if (iVar8 - iVar5 < piVar7.DAT_04)
+                        {
+                            local_98[ppiVar9] = piVar7.DAT_08;
+                            ppiVar9++;
+                            iVar10 = iVar4;
+                        }
+
+                        if (piVar7.DAT_04 < iVar8 + iVar5)
+                        {
+                            piVar7 = piVar7.DAT_0C;
+                            iVar10++;
+                            local_98[ppiVar9] = piVar7;
+                            ppiVar9++;
+                        }
+                    }
+                    else
+                    {
+                        if (iVar6 == 3)
+                        {
+                            iVar10 = iVar4 + 1;
+                            local_98[ppiVar9] = piVar7.DAT_08;
+                            piVar7 = piVar7.DAT_0C;
+                            ppiVar9++;
+                            local_98[ppiVar9] = piVar7;
+                            ppiVar9++;
+                        }
+                    }
+                }
+            }
+
+            ppiVar9--;
+            iVar4 = iVar10;
+
+            if (iVar10 == 0)
+                return true;
+        } while (true);
+    }
+
     private void FUN_3174C()
     {
-        int ppiVar1;
-        int ppiVar2;
-        int piVar3;
-        int ppiVar4;
-        int piVar5;
+        int iVar6;
         uint uVar7;
         VigObject oVar8;
+        VigObject oVar9;
 
-        ppiVar4 = 1;
-        ppiVar2 = 0;
-
-        /*do
+        for (int i = 0; i < worldObjs.Count; i++)
         {
-            ppiVar1 = ppiVar4;
-
-            if (ppiVar1 == worldObjs.Count)
-                return;
-
-            oVar8 = worldObjs[ppiVar2];
+            oVar8 = worldObjs[i].vObject;
 
             if (oVar8 != null)
             {
                 if ((oVar8.flags & 0x20) == 0)
                 {
-                    oVar8.DAT_78 = 0;
-                    oVar8.DAT_74 = 0;
-                    piVar5 = ppiVar1 + 1;
-                    ppiVar2 = ppiVar1;
-                    piVar3 = piVar5;
+                    oVar8.IDAT_78 = 0;
+                    oVar8.IDAT_74 = 0;
+                    oVar8.PDAT_78 = null;
+                    oVar8.PDAT_74 = null;
 
-                    while(piVar3 != worldObjs.Count)
+                    for (int j = i + 1; j < worldObjs.Count; j++)
                     {
-                        if (worldObjs[ppiVar2] != null)
+                        oVar9 = worldObjs[j].vObject;
+
+                        if (oVar9 != null)
                         {
-                            uVar7 = worldObjs[ppiVar2].flags;
+                            uVar7 = oVar9.flags;
 
-                            if ((uVar7 & 0x20) == 0)
+                            if ((uVar7 & 0x20) == 0 && 
+                                (uVar7 & oVar8.flags & 0x200) == 0)
                             {
-                                if ((uVar7 & oVar8.flags & 0x20) == 0)
-                                {
+                                iVar6 = (int)FUN_2EEE0(oVar8, oVar9);
 
-                                }
+                                if (iVar6 != 0)
+                                    return;
                             }
                         }
                     }
+
+                    if (levelManager.bspTree != null && (oVar8.flags & 0x100) == 0)
+                        FUN_30F20(levelManager.bspTree, oVar8);
                 }
             }
-        }*/
+        }
     }
 
     private _VEHICLE_INIT FUN_36B64(ushort param1)

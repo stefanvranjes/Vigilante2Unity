@@ -34,7 +34,7 @@ public class LevelManager : MonoBehaviour
     public Color32 DAT_E08; //gp+E08h
     public Material DAT_E48; //gp+E48h
     public Material DAT_E58; //gp+E58h
-    public _CLASS_102C staticObjs; //gp+102Ch
+    public BSP bspTree; //gp+102Ch
     public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h
@@ -60,7 +60,7 @@ public class LevelManager : MonoBehaviour
         int iVar6;
         int iVar8;
         int iVar21;
-        _CLASS_102C cVar22;
+        BSP cVar22;
         Vector3Int local_310;
         List<VigTuple> ppiVar15;
         VigObject ppiVar18;
@@ -119,7 +119,7 @@ public class LevelManager : MonoBehaviour
                 FUN_3C8C(ppiVar18, GameManager.defaultTransform);
                 //Move image? (probably the loading bar) ... 
                 if (ppiVar4.flag == 0)
-                    FUN_278C(staticObjs, ppiVar4);
+                    FUN_278C(bspTree, ppiVar4);
                 else
                 {
                     cVar22 = FUN_284C((int)ppiVar4.flag & 0x7fffffff);
@@ -777,11 +777,11 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void FUN_278C(_CLASS_102C param1, VigTuple param2)
+    private void FUN_278C(BSP param1, VigTuple param2)
     {
         int iVar1;
-        _CLASS_102C ppiVar2;
-        _CLASS_102C cVar3;
+        BSP ppiVar2;
+        BSP cVar3;
 
         iVar1 = param1.DAT_00;
 
@@ -816,11 +816,11 @@ public class LevelManager : MonoBehaviour
         FUN_278C(cVar3, param2);
     }
 
-    private _CLASS_102C FUN_284C(int param1)
+    private BSP FUN_284C(int param1)
     {
-        _CLASS_102C piVar1;
+        BSP piVar1;
 
-        piVar1 = staticObjs;
+        piVar1 = bspTree;
 
         if (0 < param1)
         {
