@@ -2138,6 +2138,180 @@ public class GameManager : MonoBehaviour
         FUN_2E0E8(tVar1, param2);
     }
 
+    public HitDetection FUN_2F798(VigObject obj, HitDetection hit)
+    {
+        VigTransform t;
+        uint uVar1;
+        int iVar2;
+        BinaryReader brVar3;
+        BinaryReader brVar4;
+        int iVar5;
+        int iVar6;
+        int iVar7;
+        BoundingBox puVar8;
+        uint uVar9;
+        Vector3Int local_30;
+        Radius local_28;
+        long c1_pos;
+        long c2_pos;
+
+        t = FUN_2CDF4(hit.object2);
+        brVar3 = hit.collider1;
+        c1_pos = hit.collider1.BaseStream.Position;
+        c2_pos = hit.collider2.BaseStream.Position;
+
+        if (brVar3.ReadUInt16(0) == 1)
+        {
+            brVar4 = hit.collider2;
+            puVar8 = new BoundingBox()
+            {
+                min = new Vector3Int(brVar3.ReadInt32(4), brVar3.ReadInt32(8), brVar3.ReadInt32(12)),
+                max = new Vector3Int(brVar3.ReadInt32(16), brVar3.ReadInt32(20), brVar3.ReadInt32(24))
+            };
+
+            if (brVar4.ReadUInt16(0) == 1)
+            {
+                iVar7 = 0;
+                uVar9 = 0x80000000;
+                iVar5 = 0;
+
+                do
+                {
+                    brVar4.BaseStream.Seek(4, SeekOrigin.Current);
+                    local_28 = new Radius();
+                    local_28.matrixSV = new Vector3Int();
+
+                    if (iVar5 == 0)
+                        local_28.matrixSV.x = ((iVar5 == 3 ? 1 : 0) - 1) * 0x1000;
+                    else
+                        local_28.matrixSV.x = (iVar5 == 3 ? 1 : 0) << 12;
+
+                    if (iVar5 == 1)
+                        local_28.matrixSV.y = ((iVar5 == 4 ? 1 : 0) - 1) * 0x1000;
+                    else
+                        local_28.matrixSV.y = (iVar5 == 4 ? 1 : 0) << 12;
+
+                    if (iVar5 == 2)
+                        local_28.matrixSV.z = ((iVar5 == 5 ? 1 : 0) - 1) * 0x1000;
+                    else
+                        local_28.matrixSV.z = (iVar5 == 5 ? 1 : 0) << 12;
+
+                    local_28.contactOffset = brVar4.ReadInt32(0);
+
+                    if (iVar5 < 3)
+                        local_28.contactOffset = -local_28.contactOffset;
+
+                    iVar6 = Utilities.FUN_2E5B0(puVar8, obj.vTransform, local_28, t);
+
+                    if ((int)uVar9 < iVar6)
+                    {
+                        iVar7 = iVar5;
+                        uVar9 = (uint)iVar6;
+                    }
+
+                    iVar5++;
+                } while (iVar5 < 6);
+
+                uVar1 = (uint)(iVar7 == 3 ? 1 : 0);
+
+                if (iVar7 == 0)
+                    uVar1--;
+
+                local_30 = new Vector3Int();
+                local_30.x = (short)(uVar1 << 12);
+
+                if (iVar7 == 1)
+                    local_30.y = ((iVar7 == 4 ? 1 : 0) - 1) * 0x1000;
+                else
+                    local_30.y = (iVar7 == 4 ? 1 : 0) << 12;
+
+                if (iVar7 == 2)
+                    local_30.z = ((iVar7 == 5 ? 1 : 0) - 1) * 0x1000;
+                else
+                    local_30.z = (iVar7 == 5 ? 1 : 0) << 12;
+
+                hit.normal1 = Utilities.ApplyMatrixSV(t.rotation, local_30);
+                hit.normal2 = Utilities.FUN_24238(obj.vTransform.rotation, hit.normal1);
+
+                if (hit.normal2.x < 0)
+                    hit.position.x = puVar8.max.x;
+                else
+                    hit.position.x = puVar8.min.x;
+
+                if (hit.normal2.y < 0)
+                    hit.position.y = puVar8.max.y;
+                else
+                    hit.position.y = puVar8.min.y;
+
+                if (hit.normal2.z < 0)
+                    hit.position.z = puVar8.max.z;
+                else
+                    hit.position.z = puVar8.min.z;
+
+                hit.distance = (int)uVar9;
+            }
+            else
+            {
+                if (brVar4.ReadUInt16(0) == 2)
+                {
+                    uVar9 = 0x80000000;
+                    iVar5 = 0;
+                    iVar7 = 0;
+
+                    if (brVar4.ReadUInt16(2) != 0)
+                    {
+                        iVar6 = 4;
+
+                        do
+                        {
+                            Radius radius = new Radius()
+                            {
+                                matrixSV = new Vector3Int(brVar4.ReadInt16(iVar6), brVar4.ReadInt16(iVar6 + 2), brVar4.ReadInt16(iVar6 + 4)),
+                                contactOffset = brVar4.ReadInt16(iVar6 + 8)
+                            };
+                            iVar2 = Utilities.FUN_2E5B0(puVar8, obj.vTransform, radius, t);
+
+                            if ((int)uVar9 < iVar2)
+                            {
+                                iVar7 = iVar5;
+                                uVar9 = (uint)iVar2;
+                            }
+
+                            iVar5++;
+                            iVar6 += 12;
+                        } while (iVar5 < brVar4.ReadUInt16(2));
+                    }
+
+                    iVar7 = iVar7 * 12 + 4;
+                    Vector3Int svector = new Vector3Int(brVar4.ReadInt16(iVar7), brVar4.ReadInt16(iVar7 + 2), brVar4.ReadInt16(iVar7 + 4));
+                    hit.normal1 = Utilities.ApplyMatrixSV(t.rotation, svector);
+                    hit.normal2 = Utilities.FUN_24238(obj.vTransform.rotation, hit.normal1);
+
+                    if (hit.normal2.x < 0)
+                        hit.position.x = puVar8.max.x;
+                    else
+                        hit.position.x = puVar8.min.x;
+
+                    if (hit.normal2.y < 0)
+                        hit.position.y = puVar8.max.y;
+                    else
+                        hit.position.y = puVar8.min.y;
+
+                    if (hit.normal2.z < 0)
+                        hit.position.z = puVar8.max.z;
+                    else
+                        hit.position.z = puVar8.min.z;
+
+                    hit.distance = (int)uVar9;
+                }
+            }
+        }
+
+        hit.collider1.BaseStream.Seek(c1_pos, SeekOrigin.Begin);
+        hit.collider2.BaseStream.Seek(c2_pos, SeekOrigin.Begin);
+        return hit;
+    }
+
     private void FUN_2D9E0(VigObject param1)
     {
         bool bVar1;

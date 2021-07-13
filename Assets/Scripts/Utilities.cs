@@ -96,6 +96,77 @@ public static class Utilities
         return null;
     }
 
+    public static int FUN_2E5B0(BoundingBox bbox, VigTransform t1, Radius radius, VigTransform t2)
+    {
+        long lVar1;
+        long lVar2;
+        long lVar3;
+        uint uVar4;
+        uint uVar5;
+        uint uVar6;
+        int iVar7;
+        uint uVar8;
+        uint uVar9;
+        uint uVar10;
+        uint uVar11;
+        uint uVar12;
+        uint uVar13;
+        uint uVar14;
+        uint uVar15;
+        uint uVar16;
+        uint uVar17;
+        int iVar18;
+        int iVar19;
+        int iVar20;
+        Vector3Int local_38;
+
+        local_38 = ApplyMatrixSV(t2.rotation, radius.matrixSV);
+        uVar4 = (ushort)local_38.x;
+        uVar13 = (uint)((int)uVar4 << 16 >> 16);
+        uVar8 = (uint)(t1.position.x + (bbox.min.x + bbox.max.x) / 2 - t2.position.x);
+        uVar5 = (ushort)local_38.y;
+        lVar1 = (long)((ulong)uVar13 * uVar8);
+        uVar14 = (uint)((int)uVar5 << 16 >> 16);
+        uVar9 = (uint)(t1.position.y + (bbox.min.y + bbox.max.y) / 2 - t2.position.y);
+        uVar6 = (ushort)local_38.z;
+        lVar2 = (long)((ulong)uVar14 * uVar9);
+        uVar16 = (uint)lVar2;
+        uVar15 = (uint)((int)uVar6 << 16 >> 16);
+        uVar10 = (uint)(t1.position.z + (bbox.min.z + bbox.max.z) / 2 - t2.position.z);
+        lVar3 = (long)((ulong)uVar15 * uVar10);
+        uVar17 = (uint)lVar3;
+        uVar11 = (uint)lVar1 + uVar16;
+        uVar12 = uVar11 + uVar17;
+        iVar7 = radius.contactOffset;
+        local_38 = FUN_24238(t1.rotation, local_38);
+        iVar18 = local_38.x * (bbox.max.x - bbox.min.x);
+        iVar19 = local_38.y * (bbox.max.y - bbox.min.y);
+        iVar20 = local_38.z * (bbox.max.z - bbox.min.z);
+
+        if (iVar18 < 0)
+            iVar18 = -iVar18;
+
+        if (iVar19 < 0)
+            iVar19 = -iVar19;
+
+        if (iVar20 < 0)
+            iVar20 = -iVar20;
+
+        iVar20 = iVar18 + iVar19 + iVar20;
+
+        if (iVar20 < 0)
+            iVar20 += 0x1fff;
+
+        return ((int)(uVar12 >> 12 |
+                (uint)((int)((ulong)lVar1 >> 32) + (int)uVar13 * ((int)uVar8 >> 31) +
+                (int)uVar8 * ((int)(uVar4 << 16) >> 31) +
+                (int)((ulong)lVar2 >> 32) + (int)uVar14 * ((int)uVar9 >> 31) +
+                (int)uVar9 * ((int)(uVar5 << 16) >> 31) + (uVar11 < uVar16 ? 1 : 0) +
+                (int)((ulong)lVar3 >> 32) + (int)uVar15 * ((int)uVar10 >> 31) +
+                (int)uVar10 * ((int)(uVar6 << 16) >> 31) + (uVar12 < uVar17 ? 1 : 0)) *
+                0x100000) - iVar7) - (iVar20 >> 13);
+    }
+
     public static uint FUN_2E2E8(BoundingBox param1, VigTransform param2, Radius param3, VigTransform param4)
     {
         long lVar1;

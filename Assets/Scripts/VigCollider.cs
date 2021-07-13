@@ -16,11 +16,15 @@ public struct Radius
 
 public class HitDetection
 {
-    public VigObject self;
-    public BinaryReader collider1;
-    public BinaryReader collider2;
-    public VigObject object1;
-    public VigObject object2;
+    public VigObject self; //0x00
+    public BinaryReader collider1; //0x04
+    public BinaryReader collider2; //0x08
+    public VigObject object1; //0x0C
+    public VigObject object2; //0x10
+    public Vector3Int position; //0x14
+    public Vector3Int normal1; //0x20
+    public Vector3Int normal2; //0x28
+    public int distance; //0x30
 }
 
 [System.Serializable]

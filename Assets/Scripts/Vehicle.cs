@@ -76,9 +76,10 @@ public class Vehicle : VigObject
     public VigObject closeViewer; //0x100
     public VigObject[] wheels; //0x104
     public Weapon[] weapons;
-    public ushort doubleDamage;
-    public ushort shield;
-    public ushort jammer;
+    public ushort transformation; //0x12C
+    public ushort doubleDamage; //0x12E
+    public ushort shield; //0x130
+    public ushort jammer; //0x132
 
     private VigConfig config;
 
@@ -98,6 +99,27 @@ public class Vehicle : VigObject
     protected override void Update()
     {
         base.Update();
+    }
+
+    public override uint FUN_2DD78(HitDetection param1)
+    {
+        int iVar4;
+        uint uVar6;
+        VigObject ppcVar8;
+
+        ppcVar8 = param1.object1;
+        uVar6 = 0;
+
+        if (ppcVar8 != this && !ppcVar8.GetType().IsSubclassOf(typeof(VigObject)))
+        {
+            iVar4 = (int)ppcVar8.FUN_2DD78(param1);
+            uVar6 = (uint)(iVar4 != 0 ? 1 : 0);
+        }
+
+        if (uVar6 != 0)
+            return uVar6;
+
+
     }
 
     private void FixedUpdate()
@@ -2245,6 +2267,171 @@ public class Vehicle : VigObject
         //FUN_3C404
     }
 
+    public int FUN_3B424(VigObject param1, HitDetection param2)
+    {
+        sbyte sVar1;
+        VigObject ppcVar11;
+
+        ppcVar11 = param2.self;
+
+        if (param2.object2.type != 3)
+        {
+            if (param2.object2.type == 10)
+                return 0;
+
+            GameManager.instance.FUN_2F798(param1, param2);
+            sVar1 = (sbyte)ppcVar11.type;
+
+            if (sVar1 == 8)
+            {
+                if (param2.object1.type == 3)
+                    return 0;
+
+                if (shield != 0)
+                {
+                    //FUN_393F8
+                    return 0;
+                }
+
+                if (param1.type == 2)
+                {
+                    if ((ppcVar11.flags & 0x20000000) == 0)
+                    {
+                        Vehicle v = (Vehicle)param1;
+                        v.FUN_39DCC(-ppcVar11.maxHalfHealth, param2.position, true);
+                        return 0;
+                    }
+
+                    //...
+                }
+                else
+                {
+                    //...
+                }
+            }
+            else
+            {
+                if (sVar1 == 7)
+                {
+                    //...
+                }
+                else
+                {
+                    if (sVar1 == 2)
+                    {
+                        //...
+                    }
+
+
+                }
+            }
+        }
+    }
+
+    public bool FUN_39DCC(int param1, Vector3Int param2, bool param3)
+    {
+        ushort uVar1;
+        ushort uVar2;
+        VigObject oVar3;
+        uint uVar4;
+        uint uVar5;
+        uint uVar6;
+
+        uVar1 = maxHalfHealth;
+        uVar4 = uVar1;
+
+        if (param1 < 0)
+        {
+            if (uVar4 == 0)
+                return false;
+
+            uVar2 = transformation;
+
+            if (uVar2 != 0)
+            {
+                if (-param1 < uVar2)
+                    transformation = (ushort)(uVar2 + param1);
+                else
+                    ; //FUN_3E32C
+            }
+
+            if (body[0] == null)
+            {
+                if ((int)uVar4 + param1 < 1)
+                {
+                    if (param3)
+                    {
+                        if (param1 < -20)
+                        {
+                            //FUN_38C40
+                            return true;
+                        }
+
+                        //FUN_38DA8
+                        return false;
+                    }
+                }
+                else
+                    maxHalfHealth = (ushort)((int)uVar4 + param1);
+            }
+            else
+            {
+                uVar5 = (uint)(param2.z < 1 ? 1 : 0);
+                oVar3 = body[(int)uVar5];
+                uVar6 = (uint)uVar1 >> 1;
+
+                while(oVar3 != null)
+                {
+                    param1 = oVar3.maxHalfHealth + param1;
+
+                    if ((oVar3.maxHalfHealth * (sbyte)oVar3.ai + (int)uVar6) / (int)uVar4 
+                        != (param1 * (sbyte)oVar3.ai + (int)uVar6) / (int)uVar4)
+                    {
+                        //FUN_4DC94
+                        oVar3.IDAT_78 = 0;
+                        oVar3.IDAT_74 = 0;
+                        oVar3.PDAT_78 = null;
+                        oVar3.PDAT_74 = null;
+
+                        if (oVar3 == body[0] && (DAT_F6 & 0x80) != 0)
+                            ; //FUN_36634
+                    }
+
+                    if (-1 < param1)
+                    {
+                        oVar3.maxHalfHealth = (ushort)param1;
+                        return false;
+                    }
+
+                    oVar3.maxHalfHealth = 0;
+                    uVar5 = 1 - uVar5;
+
+                    if (body[0].maxHalfHealth == 0 && 
+                        body[1].maxHalfHealth == 0)
+                    {
+                        if (param3)
+                        {
+                            if (param1 < -20)
+                            {
+                                //FUN_38C40
+                                return true;
+                            }
+
+                            //FUN_38DA8
+                            return false;
+                        }
+
+                        return false;
+                    }
+
+                    oVar3 = body[(int)uVar5];
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void FUN_38408()
     {
         sbyte sVar1;
@@ -2452,6 +2639,8 @@ public class Vehicle : VigObject
         }*/
     }
 
+
+
     private int FUN_3A020(int pInt1, int pInt2, bool isPlayer)
     {
         int iVar1;
@@ -2465,11 +2654,6 @@ public class Vehicle : VigObject
         }
 
         return iVar1;
-    }
-
-    private int FUN_39DCC(int pInt1, int pInt2, bool isPlayer)
-    {
-        return 0;
     }
 
     private void FUN_393F8()
