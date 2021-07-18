@@ -85,6 +85,31 @@ public class LevelEditor
         IMP_BSP.LoadAsset(file);
     }
 
+    [MenuItem("CONTEXT/LevelManager/Import OBJ")]
+    public static void ImportOBJ(MenuCommand menuCommand)
+    {
+        string file = EditorUtility.OpenFilePanel("Open obj file to load asset", previousOpen, "");
+        previousOpen = Path.GetDirectoryName(file);
+        string name = Path.GetFileNameWithoutExtension(file);
+        int index = (byte)name[name.Length - 1] - 0x30;
+
+        while (true)
+        {
+            if (!IMP_OBJ.LoadAsset(file)) break;
+
+            index++;
+            file = previousOpen + "\\FORM" + index.ToString().PadLeft(4, '0');
+        }
+    }
+
+    [MenuItem("CONTEXT/LevelManager/Build Junction")]
+    public static void BuildJunction(MenuCommand menuCommand)
+    {
+        LevelManager levelManager = menuCommand.context as LevelManager;
+        levelManager.FUN_7E6C();
+        EditorUtility.SetDirty(levelManager);
+    }
+
     [MenuItem("CONTEXT/XOBF_DB/Import BIN")]
     public static void ImportBIN(MenuCommand menuCommand)
     {

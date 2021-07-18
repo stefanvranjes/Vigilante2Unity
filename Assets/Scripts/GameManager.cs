@@ -60,7 +60,6 @@ public class BSP
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    public static int translateFactor = 4;
 
     public static short[] SQRT =
     {
@@ -920,7 +919,7 @@ public class GameManager : MonoBehaviour
                                        0x000052ca, 0x00012ad4, 0x000c5882, 0x00470940, 0x01875954, 0x00470940, 0x01875954,
                                        0x004702d4, 0x00005b0e, 0x00470940, 0x01875954, 0x018b3844, 0x000b5040, 0x00470940,
                                        0x01875954, 0x014559d8, 0x00072880, 0x00470940, 0x01875954, 0x00470940, 0x01875954,
-                                       0x00470940, 0x01875954, 0x31415926, 0x00000000 };
+                                       0x00470940, 0x01875954 };
 
     public static uint DAT_63A64 = 0;
     public static uint DAT_63A68 = 0;
@@ -1131,9 +1130,12 @@ public class GameManager : MonoBehaviour
     public Vehicle[] playerObjects; //gp+FF8h
     public VigCamera[] cameraObjects; //gp+10E8h
     public byte[] vehicles; //gp+1104; 
+    public BSP bspTree; //gp+102Ch
     public List<VigTuple> worldObjs; //gp+1040h
     public List<VigTuple> interObjs; //gp+10B8h
-    
+    public int translateFactor = 10000;
+    public int translateFactor2 = 1000;
+
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public bool DAT_83B; //gp+83Bh
     public Vector3Int DAT_A18; //gp+A18h
@@ -1186,6 +1188,7 @@ public class GameManager : MonoBehaviour
     public bool DAT_36; //gp+36h
     public int gravityFactor; //gp+3Ch
     public int DAT_40; //gp+40h
+    public float max;
 
     public void FUN_1C134()
     {
@@ -1198,7 +1201,7 @@ public class GameManager : MonoBehaviour
     {
         Utilities.SetColorMatrix(DAT_FA8);
         Utilities.SetBackColor(64, 64, 64);
-        Utilities.SetFogNearFar(2048, 8192, 0);
+        Utilities.SetFogNearFar(2048, 8192, DAT_ED8);
     }
 
     public void FUN_2DE84(int param1, Vector3Int param2, Color32 param3)
@@ -1278,7 +1281,7 @@ public class GameManager : MonoBehaviour
         Vector3Int local_10;
         Vector3Int local_8;
 
-        if (levelManager.bspTree != null)
+        if (bspTree != null)
         {
             local_10 = new Vector3Int();
             local_10.x = -GameManager.instance.DAT_EDC / 2;
@@ -1333,11 +1336,18 @@ public class GameManager : MonoBehaviour
             if (0 < iVar4)
                 iVar5 = iVar4;
 
-            FUN_30DE8(levelManager.bspTree, GameManager.instance.DAT_F28.position.x + iVar1 * 0x400,
-                                  GameManager.instance.DAT_F28.position.x + iVar2 * 0x400,
-                                  GameManager.instance.DAT_F28.position.z + iVar3 * 0x400,
-                                  GameManager.instance.DAT_F28.position.z + iVar5 * 0x400);
+            FUN_30DE8(bspTree, GameManager.instance.DAT_F28.position.x + iVar1 * 0x400,
+                               GameManager.instance.DAT_F28.position.x + iVar2 * 0x400,
+                               GameManager.instance.DAT_F28.position.z + iVar3 * 0x400,
+                               GameManager.instance.DAT_F28.position.z + iVar5 * 0x400);
         }
+    }
+
+    public void FUN_31678()
+    {
+        FUN_1C134();
+        FUN_2DE18();
+        FUN_50B38();
     }
 
     public void FUN_31728()
@@ -1359,12 +1369,13 @@ public class GameManager : MonoBehaviour
         return FUN_36C2C(oVar1, vehicles[iVar2], param1);
     }
 
-    public VigCamera FUN_4B914(Vehicle param1, ushort param2)
+    public VigCamera FUN_4B914(Vehicle param1, ushort param2, Camera cam)
     {
         VigCamera ppcVar1;
 
         GameObject obj = new GameObject();
         ppcVar1 = obj.AddComponent<VigCamera>();
+        cam.transform.parent = obj.transform;
         ppcVar1.target = param1;
         ppcVar1.maxHalfHealth = param2;
         ppcVar1.flags |= 0x1000000;
@@ -1389,16 +1400,23 @@ public class GameManager : MonoBehaviour
 
                 if (local_18.z < 0x200000)
                 {
+                    roadList[i].vTransform.position = roadList[i].pos;
                     Utilities.SetRotMatrix(DAT_F00.rotation);
                     Coprocessor.translationVector._trx = local_18.x >> 8;
                     Coprocessor.translationVector._try = local_18.y >> 8;
                     Coprocessor.translationVector._trz = local_18.z >> 8;
-                    levelManager.FUN_4F804(roadList[i]);
+                    roadList[i].FUN_4F804();
                 }
+                else
+                    roadList[i].ClearRoadData();
             }
+            else
+                roadList[i].ClearRoadData();
         }
 
         iVar4 = 0;
+
+        return;
 
         if (0 < levelManager.DAT_1184)
         {
@@ -1416,12 +1434,28 @@ public class GameManager : MonoBehaviour
             instance = this;
         }
 
+        levelManager = GameObject.FindObjectOfType<LevelManager>();
+        vehicles = new byte[] { 1, 0, 0, 0, 0, 0 };
+        playerObjects = new Vehicle[2];
+        cameraObjects = new VigCamera[2];
+        DAT_1078 = new List<VigTuple>();
+        DAT_1088 = new List<VigTuple>();
+        DAT_10A8 = new List<VigTuple>();
+        worldObjs = new List<VigTuple>();
+        interObjs = new List<VigTuple>();
+
         DAT_D18 = new byte[2];
         DAT_D19 = new byte[2];
         DAT_D1A = new byte[2];
         DAT_D1B = new byte[2];
         DAT_CF0 = new ushort[2];
         DAT_CFC = new byte[4];
+        DAT_1128 = new sbyte[6];
+    }
+
+    private void Start()
+    {
+        levelManager.LoadData();
     }
 
     // Update is called once per frame
@@ -1543,7 +1577,7 @@ public class GameManager : MonoBehaviour
             FUN_2D278(oVar7, sVar1);
             terrain.DAT_BDFF0[0] = DAT_F00;
             //FUN_14B3C
-            terrain.FUN_31678();
+            FUN_31678();
         }
     }
 
@@ -1929,6 +1963,7 @@ public class GameManager : MonoBehaviour
         int iVar10;
         int iVar11;
         int iVar12;
+        int index = 0;
 
         iVar8 = 0;
         iVar11 = 0;
@@ -1972,6 +2007,9 @@ public class GameManager : MonoBehaviour
                 unaff_s0 = iVar3 < in_t0;
             } while (!unaff_s0);
 
+            if (in_t0 == 0 || unaff_s4 == 0)
+                Debug.Log("!");
+
             iVar3 = iVar10;
 
             if (param1[piVar9].y < iVar2)
@@ -2000,6 +2038,9 @@ public class GameManager : MonoBehaviour
                 } while (param1[piVar1].y < iVar2);
             }
 
+            if (in_t1 == 0 || unaff_s5 == 0)
+                Debug.Log("!");
+
             if (!unaff_s0)
             {
                 iVar12 = unaff_s4 +
@@ -2024,6 +2065,7 @@ public class GameManager : MonoBehaviour
                 iVar6 = iVar3 + 2046;
 
             terrain.FUN_1BE68((iVar4 >> 10) << 2, (iVar6 >> 10) << 2, iVar7);
+            
             iVar7 += 4;
 
             if (unaff_s0)
@@ -3101,8 +3143,8 @@ public class GameManager : MonoBehaviour
                         }
                     }
 
-                    if (levelManager.bspTree != null && (oVar8.flags & 0x100) == 0)
-                        FUN_30F20(levelManager.bspTree, oVar8);
+                    if (bspTree != null && (oVar8.flags & 0x100) == 0)
+                        FUN_30F20(bspTree, oVar8);
                 }
             }
         }
@@ -3223,9 +3265,6 @@ public class GameManager : MonoBehaviour
 
     public static void FUN_30080(List<VigTuple> param1, VigObject param2)
     {
-        if (param1 == null)
-            param1 = new List<VigTuple>();
-
         param1.Add(new VigTuple(param2, 0));
     }
 

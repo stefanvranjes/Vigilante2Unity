@@ -51,7 +51,7 @@ public class TerrainEditor : Editor
         if (GUILayout.Button("TIN"))
         {
             string file = EditorUtility.OpenFilePanel("Open TIN file to load asset", "", "");
-            terrain.tileData = IMP_TIN.LoadAsset(file);
+            IMP_TIN.LoadAsset(file);
             EditorUtility.SetDirty(terrain);
         }
 
@@ -93,7 +93,7 @@ public class TerrainEditor : Editor
 
         for (int i = 0; i < terrain.chunks.Length; i++)
         {
-            int tFactor = GameManager.translateFactor;
+            int tFactor = GameManager.instance.translateFactor;
             int tileXZ = terrain.tileXZ;
             int tileY = terrain.tileY;
 
@@ -107,21 +107,21 @@ public class TerrainEditor : Editor
                 for (int y = 0; y < 64; y++)
                 {
                     float vert1_x = Utilities.MoveDecimal((long)x * tileXZ + (long)tileXZ * 64 * (i / 32), tFactor);
-                    float vert1_y = -Utilities.MoveDecimal((long)((short)(terrain.vertices[zone * 4096 + x * 64 + y] & 0x7FF)) * tileY, tFactor);
+                    float vert1_y = -Utilities.MoveDecimal((long)((int)((short)terrain.vertices[zone * 4096 + x * 64 + y] & 0x7FF)) * tileY, tFactor);
                     float vert1_z = Utilities.MoveDecimal((long)y * tileXZ + (long)tileXZ * 64 * (i % 32), tFactor);
                     newVertices.Add(new Vector3(vert1_x, vert1_y, vert1_z));
 
                     float vert2_x = Utilities.MoveDecimal((long)(x + 1) * tileXZ + (long)tileXZ * 64 * (i / 32), tFactor);
                     int nextZone = x + 1 < 64 ? zone : terrain.chunks[i + 32];
                     int nextX = x + 1 < 64 ? x + 1 : 0;
-                    float vert2_y = -Utilities.MoveDecimal((long)((short)(terrain.vertices[nextZone * 4096 + nextX * 64 + y] & 0x7FF)) * tileY, tFactor);
+                    float vert2_y = -Utilities.MoveDecimal((long)((int)((short)terrain.vertices[nextZone * 4096 + nextX * 64 + y] & 0x7FF)) * tileY, tFactor);
                     float vert2_z = Utilities.MoveDecimal((long)y * tileXZ + (long)tileXZ * 64 * (i % 32), tFactor);
                     newVertices.Add(new Vector3(vert2_x, vert2_y, vert2_z));
 
                     float vert3_x = Utilities.MoveDecimal((long)x * tileXZ + (long)tileXZ * 64 * (i / 32), tFactor);
                     nextZone = y + 1 < 64 ? zone : terrain.chunks[i + 1];
                     int nextY = y + 1 < 64 ? y + 1 : 0;
-                    float vert3_y = -Utilities.MoveDecimal((long)((short)(terrain.vertices[nextZone * 4096 + x * 64 + nextY] & 0x7FF)) * tileY, tFactor);
+                    float vert3_y = -Utilities.MoveDecimal((long)((int)((short)terrain.vertices[nextZone * 4096 + x * 64 + nextY] & 0x7FF)) * tileY, tFactor);
                     float vert3_z = Utilities.MoveDecimal((long)(y + 1) * tileXZ + (long)tileXZ * 64 * (i % 32), tFactor);
                     newVertices.Add(new Vector3(vert3_x, vert3_y, vert3_z));
 
@@ -150,7 +150,7 @@ public class TerrainEditor : Editor
                         nextX = x + 1;
                         nextY = y + 1;
                     }
-                    float vert4_y = -Utilities.MoveDecimal((long)((short)(terrain.vertices[nextZone * 4096 + nextX * 64 + nextY] & 0x7FF)) * tileY, tFactor);
+                    float vert4_y = -Utilities.MoveDecimal((long)((int)((short)terrain.vertices[nextZone * 4096 + nextX * 64 + nextY] & 0x7FF)) * tileY, tFactor);
                     float vert4_z = Utilities.MoveDecimal((long)(y + 1) * tileXZ + (long)tileXZ * 64 * (i % 32), tFactor);
                     newVertices.Add(new Vector3(vert4_x, vert4_y, vert4_z));
 

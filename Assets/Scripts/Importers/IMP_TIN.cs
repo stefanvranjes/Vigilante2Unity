@@ -6,18 +6,7 @@ using UnityEngine;
 
 public class IMP_TIN
 {
-    public static byte[] BYTES =
-    {
-        0x00, 0x1F, 0x1F, 0x1F, 0x00, 0x00, 0x1F, 0x00, 0x1F, 0x1F,
-        0x00, 0x1F, 0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F,
-        0x1F, 0x00, 0x1F, 0x1F, 0x00, 0x1F, 0x00, 0x00, 0x1F, 0x1F,
-        0x1F, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x00, 0x1F,
-        0x00, 0x00, 0x1F, 0x00, 0x00, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F,
-        0x1F, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x1F, 0x00, 0x1F, 0x1F,
-        0x00, 0x00, 0x00, 0x1F
-    };
-
-    public static List<TileData> LoadAsset(string assetPath1)
+    /*public static List<TileData> LoadAsset(string assetPath1)
     {
         List<TileData> output = new List<TileData>();
         LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
@@ -145,5 +134,127 @@ public class IMP_TIN
         }
 
         return output;
+    }*/
+
+    public static void LoadAsset(string assetPath)
+    {
+        using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
+        {
+            int puVar1;
+            byte bVar2;
+            ushort uVar3;
+            ushort uVar4;
+            sbyte sVar5;
+            short sVar6;
+            uint uVar6;
+            int iVar7;
+            int iVar8;
+            int iVar9;
+            int puVar10;
+            int puVar11;
+            TileData psVar12;
+            uint uVar13;
+            LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
+            VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
+
+            byte[] BYTES =
+            {
+                0x00, 0x1F, 0x1F, 0x1F, 0x00, 0x00, 0x1F, 0x00, 0x1F, 0x1F,
+                0x00, 0x1F, 0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F,
+                0x1F, 0x00, 0x1F, 0x1F, 0x00, 0x1F, 0x00, 0x00, 0x1F, 0x1F,
+                0x1F, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x00, 0x1F,
+                0x00, 0x00, 0x1F, 0x00, 0x00, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F,
+                0x1F, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x1F, 0x00, 0x1F, 0x1F,
+                0x00, 0x00, 0x00, 0x1F
+            };
+
+            iVar9 = 0;
+
+            if (terrain.tileData == null)
+                terrain.tileData = new List<TileData>();
+
+            terrain.tileData.Clear();
+
+            do
+            {
+                iVar8 = 0;
+                iVar7 = iVar9 << 3;
+
+                do
+                {
+                    if (BYTES[iVar7] == 0)
+                        sVar5 = 0;
+                    else
+                        sVar5 = (sbyte)((byte)levelManager.DAT_DBA - 1);
+
+                    BYTES[iVar7] = (byte)sVar5;
+
+                    if (BYTES[iVar7 + 1] == 0)
+                        sVar5 = 0;
+                    else
+                        sVar5 = (sbyte)((byte)levelManager.DAT_DBA - 1);
+
+                    BYTES[iVar7 + 1] = (byte)sVar5;
+                    iVar8++;
+                    iVar7 += 2;
+                } while (iVar8 < 4);
+
+                iVar9++;
+            } while (iVar9 < 8);
+
+            puVar11 = (int)(reader.BaseStream.Position + 0x22);
+            iVar9 = 0;
+
+            do
+            {
+                uVar13 = (uint)(reader.ReadByte(puVar11 - 0x20) & 15) * (ushort)levelManager.DAT_DBA;
+                sVar6 = (short)(((uint)reader.ReadByte(puVar11 - 0x20) >> 4) * (ushort)levelManager.DAT_DBA);
+                bVar2 = reader.ReadByte(puVar11 - 0x1f);
+                iVar7 = (bVar2 & 7) * 8;
+                uVar4 = (ushort)(uVar13 & 0x7f);
+                uVar3 = reader.ReadUInt16(puVar11 - 0x22);
+                psVar12 = new TileData();
+                terrain.tileData.Add(psVar12);
+                psVar12.uv1_x = BYTES[iVar7] + uVar4;
+                psVar12.uv1_y = BYTES[iVar7 + 1] + sVar6;
+                psVar12.uv2_x = BYTES[iVar7 + 2] + uVar4;
+                psVar12.uv2_y = BYTES[iVar7 + 3] + sVar6;
+                psVar12.uv3_x = BYTES[iVar7 + 4] + uVar4;
+                psVar12.uv3_y = BYTES[iVar7 + 5] + sVar6;
+                psVar12.uv4_x = BYTES[iVar7 + 6] + uVar4;
+                psVar12.uv4_y = BYTES[iVar7 + 7] + sVar6;
+
+                if ((uVar3 >> 8 & 16) == 0)
+                {
+                    uVar6 = (uVar13 >> 7) << (terrain.bitmapID & 3) + 5;
+                    uVar6 = (uVar6 / 64) * 128;
+                    psVar12.uv4_x += (int)uVar6;
+                }
+                else
+                    uVar6 = 0;
+
+                iVar8 = 0;
+                psVar12.flags = (byte)((byte)((uint)uVar3 >> 12) & 1 | (byte)((uint)(bVar2 & 0x18) >> 2));
+                psVar12.uv3_x += (int)uVar6;
+                psVar12.uv2_x += (int)uVar6;
+                psVar12.uv1_x += (int)uVar6;
+                puVar10 = puVar11 - 0x22;
+                psVar12.DAT_10 = new short[6];
+
+                do
+                {
+                    puVar1 = puVar10 + 4;
+                    puVar10 += 2;
+                    psVar12.DAT_10[iVar8] = (short)((uint)reader.ReadUInt16(puVar1) >> 8 | (uint)((reader.ReadUInt16(puVar1) & 0xff) << 8));
+                    iVar8++;
+                } while (iVar8 < 6);
+
+                iVar9 += 0x20;
+                psVar12.DAT_1C = reader.ReadByte(puVar11 - 2);
+                psVar12.DAT_1D = reader.ReadByte(puVar11 - 1);
+                psVar12.DAT_1E = reader.ReadByte(puVar11);
+                puVar11 += 0x24;
+            } while (iVar9 < 0x2000);
+        }
     }
 }

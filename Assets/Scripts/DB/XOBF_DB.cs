@@ -234,7 +234,7 @@ public class XOBF_DB : MonoBehaviour
         byte[] local_28;
 
         local_20 = param1;
-        ppcVar7 = ini.FUN_2C17C(param1, typeof(Vehicle), (uint)(animations != null ? 1 : 0) << 3) as Vehicle;
+        ppcVar7 = ini.FUN_2C17C(param1, typeof(Vehicle), (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
         uVar11 = param2.DAT_0C;
 
         if ((param2.DAT_0C & 240) == 0)
@@ -248,7 +248,7 @@ public class XOBF_DB : MonoBehaviour
         ppcVar7.vehicle = eVar1;
         ppcVar7.lightness = param2.lightness;
 
-        if (animations != null)
+        if (animations.Length > 0)
             ppcVar7.flags |= 4;
 
         ppcVar7.DAT_E4 = -ppcVar7.screen.y;
@@ -310,8 +310,8 @@ public class XOBF_DB : MonoBehaviour
                     pcVar16.physics1.X = ccVar8.v3_1.y;
 
                 pcVar16.physics1.Y = pcVar16.screen.y;
-                pcVar16.physics1.M6 = param2.DAT_00[(i >> 1) + 4];
-                pcVar16.physics1.M7 = param2.DAT_00[(i >> 1) + 8]; //in original game goes beyond size of the array, can cause bugs probably?
+                pcVar16.physics1.M6 = param2.DAT_00[(i >> 1) + 2];
+                pcVar16.physics1.M7 = param2.DAT_00[(i >> 1) + 4]; //in original game goes beyond size of the array, can cause bugs probably?
                 
                 if (pcVar16.vMesh != null)
                 {
@@ -503,16 +503,18 @@ public class XOBF_DB : MonoBehaviour
                                 case 1:
                                 case 3:
                                     writer.Write(reader.ReadBytes(17));
-                                    writer.Write(0x34);
-                                    writer.Write(0x34);
-                                    reader.ReadBytes(2);
+                                    writer.Write((byte)0x34);
+                                    reader.ReadByte();
+                                    writer.Write(reader.ReadBytes(2));
+                                    writer.Write((byte)0x34);
+                                    reader.ReadByte();
                                     break;
                                 case 2:
                                     writer.Write(reader.ReadBytes(5));
-                                    writer.Write(0x30);
+                                    writer.Write((byte)0x30);
                                     reader.ReadByte();
-                                    writer.Write(reader.ReadBytes(4));
-                                    writer.Write(0x30);
+                                    writer.Write(reader.ReadBytes(3));
+                                    writer.Write((byte)0x30);
                                     reader.ReadByte();
                                     break;
                                 case 4:
@@ -537,8 +539,8 @@ public class XOBF_DB : MonoBehaviour
                                 case 10:
                                     uVar12 = reader.ReadUInt16();
                                     writer.Write(uVar12);
-                                    writer.Write(reader.ReadBytes(uVar12 * 8 - 12));
-                                    lVar9 += uVar12 * 8 + 12;
+                                    writer.Write(reader.ReadBytes(uVar12 * 8));
+                                    lVar9 += uVar12 * 8;
                                     break;
                             }
 

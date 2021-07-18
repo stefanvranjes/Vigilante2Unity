@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
@@ -2406,6 +2407,12 @@ public class FixedSizedQueue<T>
     {
         T result;
         q.TryPeek(out result);
+        return result;
+    }
+    public T PeekAt(int index)
+    {
+        T result;
+        result = q.ElementAt(index);
         return result;
     }
 }

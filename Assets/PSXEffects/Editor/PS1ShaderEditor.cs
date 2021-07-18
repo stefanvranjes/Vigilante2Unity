@@ -54,11 +54,14 @@ public class PS1ShaderEditor : ShaderGUI
 		public static string blendOpText = "Blend Operation";
 		public static string diffuseModeText = "Diffuse Mode";
 		public static string specularModeText = "Specular Mode";
+        public static string colorOnlyText = "Color Only";
 		public static string unlitText = "Unlit";
 		public static string drawDistText = "Draw Distance Influence";
 		public static string texturesText = "Textures";
 		public static string settingsText = "Settings";
 		public static string vertInnText = "Override Vertex Inaccuracy";
+        public static string offsetFactorText = "Offset Factor";
+        public static string offsetUnitsText = "Offset Units";
 		public static string uvMapText = "Override UV Mapping";
 		public static readonly string[] blendNames = Enum.GetNames(typeof(RenderModes));
 		public static readonly string[] diffuseNames = Enum.GetNames(typeof(DiffuseModels));
@@ -71,9 +74,12 @@ public class PS1ShaderEditor : ShaderGUI
 	MaterialProperty _Color = null;
 	MaterialProperty _RenderMode = null;
 	MaterialProperty _BlendOp = null;
+    MaterialProperty _ColorOnly = null;
 	MaterialProperty _Unlit = null;
 	MaterialProperty _DrawDist = null;
 	MaterialProperty _VertexInaccuracy = null;
+    MaterialProperty _OffsetFactor = null;
+    MaterialProperty _OffsetUnits = null;
 	MaterialProperty _DiffModel = null;
 	MaterialProperty _NormalMap = null;
 	MaterialProperty _NormalMapDepth = null;
@@ -94,9 +100,12 @@ public class PS1ShaderEditor : ShaderGUI
 		_Color = FindProperty("_Color", props);
 		_RenderMode = FindProperty("_RenderMode", props);
 		_BlendOp = FindProperty("_BlendOp", props);
+        _ColorOnly = FindProperty("_ColorOnly", props);
 		_Unlit = FindProperty("_Unlit", props);
 		_DrawDist = FindProperty("_DrawDist", props);
 		_VertexInaccuracy = FindProperty("_VertexInaccuracy", props);
+        _OffsetFactor = FindProperty("_OffsetFactor", props);
+        _OffsetUnits = FindProperty("_OffsetUnits", props);
 		_DiffModel = FindProperty("_DiffModel", props);
 		_NormalMap = FindProperty("_NormalMap", props);
 		_NormalMapDepth = FindProperty("_NormalMapDepth", props);
@@ -128,11 +137,14 @@ public class PS1ShaderEditor : ShaderGUI
 			depthWrite = EditorGUILayout.Toggle("Ignore Depth Buffer", depthWrite);
 		}
 		culling = EditorGUILayout.Toggle("Backface Culling", culling);
-		_Unlit.floatValue = EditorGUILayout.Toggle(Styles.unlitText, _Unlit.floatValue > 0.0f) ? 1.0f : 0.0f;
+        _ColorOnly.floatValue = EditorGUILayout.Toggle(Styles.colorOnlyText, _ColorOnly.floatValue > 0.0f) ? 1.0f : 0.0f;
+        _Unlit.floatValue = EditorGUILayout.Toggle(Styles.unlitText, _Unlit.floatValue > 0.0f) ? 1.0f : 0.0f;
 		_DrawDist.floatValue = EditorGUILayout.Toggle(Styles.drawDistText, _DrawDist.floatValue > 0.0f) ? 1.0f : 0.0f;
 		EditorGUIUtility.labelWidth = Screen.width - 85;
 		EditorGUIUtility.fieldWidth = 1;
 		_VertexInaccuracy.floatValue = EditorGUILayout.FloatField(Styles.vertInnText, _VertexInaccuracy.floatValue);
+        _OffsetFactor.floatValue = EditorGUILayout.FloatField(Styles.offsetFactorText, _OffsetFactor.floatValue);
+        _OffsetUnits.floatValue = EditorGUILayout.FloatField(Styles.offsetUnitsText, _OffsetUnits.floatValue);
 		EditorGUIUtility.labelWidth = 0;
 		EditorGUIUtility.fieldWidth = 0;
 		EditorGUILayout.Separator();

@@ -198,7 +198,7 @@ public class VigConfig : MonoBehaviour
     {
         int2 &= 0xFFFF;
 
-        if (int1 != -1)
+        if (int1 != 0xffff)
         {
             int iVar1;
 
@@ -208,11 +208,11 @@ public class VigConfig : MonoBehaviour
                 int configIndex = (iVar1 << 3) - iVar1 << 2;
                 configIndex = configIndex / 0x1C;
 
-                if ((ushort)configContainers[configIndex].objID == int2)
+                if (configContainers[configIndex].objID == int2)
                     return configContainers[configIndex];
 
                 int1 = configContainers[configIndex].previous;
-            } while (int1 != -1);
+            } while (int1 != 0xffff);
         }
 
         return null;
@@ -222,7 +222,7 @@ public class VigConfig : MonoBehaviour
     {
         int2 &= 0xFFFF;
 
-        if (int1 != -1)
+        if (int1 != 0xffff)
         {
             int iVar1;
 
@@ -236,7 +236,7 @@ public class VigConfig : MonoBehaviour
                     return configContainers[configIndex];
 
                 int1 = configContainers[configIndex].previous;
-            } while (int1 != -1);
+            } while (int1 != 0xffff);
         }
 
         return null;

@@ -166,7 +166,7 @@ public class Coprocessor
     {
         TruncateAndSetMAC((long)screenXYFIFO.sx0 * screenXYFIFO.sy1 + (long)screenXYFIFO.sx1 * screenXYFIFO.sy2 +
                             (long)screenXYFIFO.sx2 * screenXYFIFO.sy0 - (long)screenXYFIFO.sx0 * screenXYFIFO.sy2 -
-                            (long)screenXYFIFO.sy1 * screenXYFIFO.sy0 - (long)screenXYFIFO.sx2 * screenXYFIFO.sy1,
+                            (long)screenXYFIFO.sx1 * screenXYFIFO.sy0 - (long)screenXYFIFO.sx2 * screenXYFIFO.sy1,
                             0, 0);
     }
 

@@ -11,25 +11,12 @@ public class TileData
     public int uv3_x, uv3_y;
     public int uv4_x, uv4_y;
 
-    public short[] unk2;
+    public short[] DAT_10;
 
-    public byte unk3; // 0x1C
-    public byte unk4; // 0x1D
-    public byte unk5; // 0x1E
-    public byte unk1; // 0x1F
-}
-
-[Serializable]
-public class Junction
-{
-    public XRTP_DB xrtp; //0x08
-    public Vector3Int pos; //0x0C
-    public int DAT_18; //0x18
-    public int DAT_1C; //0x1C
-    public List<Vector3Int> DAT_20; //0x20
-    public List<short> DAT_26; //0x26
-    public List<Vector3Int> DAT_28; //0x28
-    public List<short> DAT_2E; //0x2E
+    public byte DAT_1C; // 0x1C
+    public byte DAT_1D; // 0x1D
+    public byte DAT_1E; // 0x1E
+    public byte flags; // 0x1F
 }
 
 public class Tile
@@ -81,6 +68,7 @@ public class VigTerrain : MonoBehaviour
     public Color32[] DAT_B9370 = new Color32[32];
     public Color32[] DAT_BA4F0 = new Color32[32];
     public VigTransform[] DAT_BDFF0;
+    public VigCamera vCamera;
 
     private Vector3[] terrainWorld = new Vector3[40];
     private Dictionary<int, List<int>> verticesDict;
@@ -90,7 +78,8 @@ public class VigTerrain : MonoBehaviour
     private List<Vector3> newVertices;
     private List<Vector2> newUVs;
     private List<Color32> newColors;
-    private List<int> newTriangles;
+    private List<List<int>> newTriangles;
+    private Texture mainT;
     private uint in_t0, in_t1, in_t2, in_t3;
     private int in_t4;
     private int puVar14;
@@ -107,8 +96,11 @@ public class VigTerrain : MonoBehaviour
         }
 
         terrainMesh = new Mesh();
+        terrainMesh.subMeshCount = 17;
         skyboxMesh = new Mesh();
         GetComponent<MeshFilter>().mesh = terrainMesh;
+        Material mat = GetComponent<MeshRenderer>().materials[1];
+        mainT = GetComponent<MeshRenderer>().materials[1].mainTexture as Texture;
         GameObject.Find("SkyBox").GetComponent<MeshFilter>().mesh = skyboxMesh;
     }
 
@@ -118,7 +110,11 @@ public class VigTerrain : MonoBehaviour
         newVertices = new List<Vector3>();
         newColors = new List<Color32>();
         newUVs = new List<Vector2>();
-        newTriangles = new List<int>();
+        newTriangles = new List<List<int>>();
+        newTriangles.Add(new List<int>());
+
+        for (int i = 0; i < 16; i++)
+            newTriangles.Add(new List<int>());
 
         return;
 
@@ -223,8 +219,10 @@ public class VigTerrain : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+        transform.position = vCamera.gameObject.transform.position;
+
         return;
 
         for (int i = 0; i < GameManager.instance.playerObjects.Length; i++)
@@ -241,23 +239,25 @@ public class VigTerrain : MonoBehaviour
         newVertices.Clear();
         newColors.Clear();
         newUVs.Clear();
-        newTriangles.Clear();
+
+        for (int i = 0; i < newTriangles.Count; i++)
+            newTriangles[i].Clear();
+
         terrainMesh.Clear();
     }
 
     public void CreateTerrainMesh()
     {
+        terrainMesh.subMeshCount = 17;
+
         for (int i = 0; i < newVertices.Count; i++)
             newVertices[i] = new Vector3(newVertices[i].x, -newVertices[i].y, newVertices[i].z);
         terrainMesh.SetVertices(newVertices);
         terrainMesh.SetColors(newColors);
-        terrainMesh.SetTriangles(newTriangles, 0);
-    }
-    
-    public void FUN_31678()
-    {
-        GameManager.instance.FUN_1C134();
-        FUN_1C910();
+        terrainMesh.SetUVs(0, newUVs);
+
+        for (int i = 0; i < newTriangles.Count; i++)
+            terrainMesh.SetTriangles(newTriangles[i], i);
     }
 
     private bool InsideCircle(Tile center, Tile tile, float radius)
@@ -474,7 +474,7 @@ public class VigTerrain : MonoBehaviour
             DAT_B9318[iVar5, 3] = sVar1;
         }
 
-        newVertices.Clear();
+        /*newVertices.Clear();
         newTriangles.Clear();
         newUVs.Clear();
         skyboxMesh.Clear();
@@ -508,16 +508,18 @@ public class VigTerrain : MonoBehaviour
         newTriangles.Add(5);
         skyboxMesh.SetVertices(newVertices);
         skyboxMesh.SetUVs(0, newUVs);
-        skyboxMesh.SetTriangles(newTriangles, 0);
+        skyboxMesh.SetTriangles(newTriangles, 0);*/
     }
 
     public void FUN_1BE68(int param1, int param2, int param3)
     {
         if (param1 < param2)
         {
+            int index = 0;
+
             do
             {
-                FUN_288E0((uint)param1, (uint)param3, GameManager.instance.DAT_610);
+                FUN_288E0((uint)param1, (uint)param3, index++);
                 param1 += 4;
 
             } while (param1 < param2);
@@ -774,7 +776,7 @@ public class VigTerrain : MonoBehaviour
         return v3;
     }
 
-    private void FUN_288E0(uint param1, uint param2, Queue<ScreenPoly> param3)
+    private void FUN_288E0(uint param1, uint param2, int param3)
     {
         int iVar1;
         int iVar2;
@@ -822,24 +824,24 @@ public class VigTerrain : MonoBehaviour
         uVar4 = (uint)((int)param1 * 256 + GameManager.DAT_1f800084.x & 0xffff);
         iVar5 = GameManager.DAT_1f800084.y * 0x10000;
         Coprocessor.vector0.vx0 = (short)uVar4;
-        Coprocessor.vector0.vy0 = (short)((vertices[puVar14] & 0x7ff) * 0x80000 + iVar5 >> 16);
+        Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar14] & 0x7ffU) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)iVar1;
         terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         Coprocessor.ExecuteRTPS(12, false);
         uVar7 = (uint)GameManager.DAT_1f800098;
         uVar6 = uVar4 + 0x400 & 0xffff;
-        iVar2 = Coprocessor.screenZFIFO.sz2;
+        iVar2 = Coprocessor.screenZFIFO.sz3;
         GameManager.terrainScreen[0].ir0 = Coprocessor.accumulator.ir0;
         Coprocessor.vector0.vx0 = (short)uVar6;
-        Coprocessor.vector0.vy0 = (short)((vertices[puVar15] & 0x7ff) * 0x80000 + iVar5 >> 16);
+        Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar15] & 0x7ffU) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)iVar1;
         terrainVertices[1] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         Coprocessor.ExecuteRTPS(12, false);
         uVar19 = (uint)(iVar2 < (int)uVar7 ? 1 : 0);
-        iVar9 = Coprocessor.screenZFIFO.sz2;
+        iVar9 = Coprocessor.screenZFIFO.sz3;
         GameManager.terrainScreen[4].ir0 = Coprocessor.accumulator.ir0;
         Coprocessor.vector0.vx0 = (short)uVar4;
-        Coprocessor.vector0.vy0 = (short)((vertices[puVar16] & 0x7ff) * 0x80000 + iVar5 >> 16);
+        Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar16] & 0x7ffU) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)(iVar1 + 1024);
         v2Var2 = new Vector2Int(Coprocessor.screenXYFIFO.sx1, Coprocessor.screenXYFIFO.sy1);
         terrainVertices[2] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
@@ -850,7 +852,7 @@ public class VigTerrain : MonoBehaviour
         GameManager.terrainScreen[20].ir0 = Coprocessor.accumulator.ir0;
         Coprocessor.ExecuteNCLIP();
         Coprocessor.vector0.vx0 = (short)uVar6;
-        Coprocessor.vector0.vy0 = (short)((vertices[puVar17] & 0x7ff) * 0x80000 + iVar5 >> 16);
+        Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar17] & 0x7ffU) * 0x80000 + iVar5 >> 16);
         Coprocessor.vector0.vz0 = (short)(iVar1 + 1024);
         terrainVertices[3] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
         iVar5 = Coprocessor.mathsAccumulator.mac0;
@@ -878,27 +880,27 @@ public class VigTerrain : MonoBehaviour
             terrainWorld[4].z = terrainVertices[1].z;
             terrainWorld[20].z = terrainVertices[2].z;
             terrainWorld[24].z = terrainVertices[3].z;
-            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14] >> 13 << 7);
+            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14] >> 11 << 7);
             Coprocessor.ExecuteCC(12, true);
             GameManager.terrainScreen[4].vert.x = Coprocessor.screenXYFIFO.sx0;
             GameManager.terrainScreen[4].vert.y = Coprocessor.screenXYFIFO.sy0;
             terrainWorld[4].x = terrainVertices[1].x;
             terrainWorld[4].y = terrainVertices[1].y;
-            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15] >> 13 << 7);
+            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15] >> 11 << 7);
             GameManager.terrainScreen[0].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteCC(12, true);
             GameManager.terrainScreen[20].vert.x = Coprocessor.screenXYFIFO.sx1;
             GameManager.terrainScreen[20].vert.y = Coprocessor.screenXYFIFO.sy1;
             terrainWorld[20].x = terrainVertices[2].x;
             terrainWorld[20].y = terrainVertices[2].y;
-            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar16] >> 13 << 7);
+            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar16] >> 11 << 7);
             GameManager.terrainScreen[4].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteCC(12, true);
             GameManager.terrainScreen[24].vert.x = Coprocessor.screenXYFIFO.sx2;
             GameManager.terrainScreen[24].vert.y = Coprocessor.screenXYFIFO.sy2;
             terrainWorld[24].x = terrainVertices[3].x;
             terrainWorld[24].y = terrainVertices[3].y;
-            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar17] >> 13 << 7);
+            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar17] >> 11 << 7);
             GameManager.terrainScreen[20].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteCC(12, true);
             uVar7 = (uint)(GameManager.DAT_1f800084.y * 0x10000);
@@ -906,9 +908,9 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.vector1.vz1 = (short)(iVar1 + 512);
             Coprocessor.vector2.vz2 = (short)(iVar1 + 1024);
             uVar6 = uVar4 + 512 & 0xffff | uVar7;
-            uint cop2r0 = (uint)(vertices[puVar14 + 128] & 0x7ff) * 0x80000 + uVar6;
-            uint cop2r2 = (uint)(vertices[puVar14 + 130] & 0x7ff) * 0x80000 + uVar6;
-            uint cop2r4 = (uint)(vertices[puVar16 + 128] & 0x7ff) * 0x80000 + uVar6;
+            uint cop2r0 = (uint)(vertices[puVar14 + 128] & 0x7ffU) * 0x80000 + uVar6;
+            uint cop2r2 = (uint)(vertices[puVar14 + 130] & 0x7ffU) * 0x80000 + uVar6;
+            uint cop2r4 = (uint)(vertices[puVar16 + 128] & 0x7ffU) * 0x80000 + uVar6;
             Coprocessor.vector0.vx0 = (short)cop2r0;
             Coprocessor.vector0.vy0 = (short)(cop2r0 >> 16);
             Coprocessor.vector1.vx1 = (short)cop2r2;
@@ -929,8 +931,8 @@ public class VigTerrain : MonoBehaviour
             terrainWorld[22].x = terrainVertices[2].x;
             terrainWorld[22].y = terrainVertices[2].y;
             Coprocessor.vector0.vx0 = (short)uVar4;
-            Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 2] & 0x7ff) * 0x80000 + uVar7 >> 16);
-            cop2r4 = (uint)(vertices[puVar15 + 2] & 0x7ff) * 0x80000 +
+            Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar14 + 2] & 0x7ffU) * 0x80000 + uVar7 >> 16);
+            cop2r4 = (uint)(vertices[puVar15 + 2] & 0x7ffU) * 0x80000 +
                         (uVar4 + 1024 & 0xffff | uVar7);
             Coprocessor.vector2.vx2 = (short)cop2r4;
             Coprocessor.vector2.vy2 = (short)(cop2r4 >> 16);
@@ -951,9 +953,9 @@ public class VigTerrain : MonoBehaviour
             terrainWorld[10].y = terrainVertices[0].y;
             terrainWorld[12].x = terrainVertices[1].x;
             terrainWorld[12].y = terrainVertices[1].y;
-            cop2r0 = (uint)vertices[puVar14 + 128] >> 13 << 7;
-            cop2r2 = (uint)vertices[puVar14 + 130] >> 13 << 7;
-            cop2r4 = (uint)vertices[puVar16 + 128] >> 13 << 7;
+            cop2r0 = (uint)vertices[puVar14 + 128] >> 11 << 7;
+            cop2r2 = (uint)vertices[puVar14 + 130] >> 11 << 7;
+            cop2r4 = (uint)vertices[puVar16 + 128] >> 11 << 7;
             Coprocessor.vector0.vx0 = (short)cop2r0;
             Coprocessor.vector0.vy0 = (short)(cop2r0 >> 16);
             Coprocessor.vector1.vx1 = (short)cop2r2;
@@ -966,12 +968,12 @@ public class VigTerrain : MonoBehaviour
             terrainWorld[12].z = terrainVertices[1].z;
             Coprocessor.ExecuteNCCT(12, true);
             GameManager.terrainScreen[2].color = new Color32(Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0);
-            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14 + 2] >> 13 << 7);
+            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar14 + 2] >> 11 << 7);
             GameManager.terrainScreen[12].color = new Color32(Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1);
             GameManager.terrainScreen[22].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
             Coprocessor.ExecuteCC(12, true);
-            GameManager.terrainScreen[5].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
-            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15 + 2] >> 13 << 7);
+            GameManager.terrainScreen[10].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+            Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar15 + 2] >> 11 << 7);
             GameManager.terrainScreen[14].vert.x = Coprocessor.screenXYFIFO.sx2;
             GameManager.terrainScreen[14].vert.y = Coprocessor.screenXYFIFO.sy2;
             GameManager.terrainScreen[14].vert.z = Coprocessor.screenZFIFO.sz3;
@@ -1024,7 +1026,7 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.accumulator.ir0 = (short)GameManager.terrainScreen[20].ir0;
             Coprocessor.accumulator.ir1 = (short)((uint)vertices[puVar16] >> 11 << 7);
             Coprocessor.ExecuteCDP(12, true);
-            int tFactor = 1;
+            int tFactor = GameManager.instance.translateFactor2;
             int index;
 
             if (uVar21 == 0)
@@ -1041,9 +1043,9 @@ public class VigTerrain : MonoBehaviour
                     newUVs.Add(new Vector2(0, 0));
                     newUVs.Add(new Vector2(0, 0));
                     index = newVertices.Count - 1;
-                    newTriangles.Add(index);
-                    newTriangles.Add(index - 1);
-                    newTriangles.Add(index - 2);
+                    newTriangles[0].Add(index);
+                    newTriangles[0].Add(index - 1);
+                    newTriangles[0].Add(index - 2);
                 //}
 
                 Coprocessor.ExecuteNCLIP();
@@ -1064,9 +1066,9 @@ public class VigTerrain : MonoBehaviour
                     newUVs.Add(new Vector2(0, 0));
                     newUVs.Add(new Vector2(0, 0));
                     index = newVertices.Count - 1;
-                    newTriangles.Add(index - 2);
-                    newTriangles.Add(index - 1);
-                    newTriangles.Add(index);
+                    newTriangles[0].Add(index - 2);
+                    newTriangles[0].Add(index - 1);
+                    newTriangles[0].Add(index);
                 //}
             }
             else
@@ -1098,10 +1100,10 @@ public class VigTerrain : MonoBehaviour
                 GameManager.terrainScreen[24].color = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
                 iVar5 = GameManager.DAT_1f800084.y * 0x10000;
 
-                if (uVar20 != 0)
+                if ((uVar21 & 3) != 0) //(uVar20 != 0)
                 {
                     Coprocessor.vector0.vx0 = (short)(uVar4 + 512 & 0xffff);
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 128] & 0x7ff) * 0x80000 + iVar5 >> 16);
+                    Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar14 + 128] & 0x7ffU) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)iVar1;
                     terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     Coprocessor.ExecuteRTPS(12, false);
@@ -1115,10 +1117,10 @@ public class VigTerrain : MonoBehaviour
                     Coprocessor.ExecuteCDP(12, true);
                 }
 
-                if ((uVar19 | uVar6) != 0)
+                if ((uVar21 & 5) != 0) //((uVar19 | uVar6) != 0)
                 {
                     Coprocessor.vector0.vx0 = (short)uVar4;
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar14 + 2] & 0x7ff) * 0x80000 + iVar5 >> 16);
+                    Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar14 + 2] & 0x7ffU) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)(iVar1 + 512);
                     terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     uVar11 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
@@ -1137,10 +1139,10 @@ public class VigTerrain : MonoBehaviour
                     Coprocessor.ExecuteCDP(12, true);
                 }
 
-                if ((uVar10 | uVar7) != 0)
+                if ((uVar21 & 10) != 0) //((uVar10 | uVar7) != 0)
                 {
                     Coprocessor.vector0.vx0 = (short)(uVar4 + 1024 & 0xffff);
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar15 + 2] & 0x7ff) * 0x80000 + iVar5 >> 16);
+                    Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar15 + 2] & 0x7ffU) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)(iVar1 + 512);
                     terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     uVar12 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
@@ -1166,7 +1168,7 @@ public class VigTerrain : MonoBehaviour
                     Coprocessor.ExecuteCDP(12, true);
                 }
 
-                if ((uVar6 | uVar7) == 0)
+                if ((uVar21 & 12) == 0) //((uVar6 | uVar7) == 0)
                 {
                     if ((uVar10 | uVar7) == 0)
                     {
@@ -1184,7 +1186,7 @@ public class VigTerrain : MonoBehaviour
                 else
                 {
                     Coprocessor.vector0.vx0 = (short)(uVar4 + 512 & 0xffff);
-                    Coprocessor.vector0.vy0 = (short)((vertices[puVar16 + 128] & 0x7ff) * 0x80000 + iVar5 >> 16);
+                    Coprocessor.vector0.vy0 = (short)((int)(vertices[puVar16 + 128] & 0x7ffU) * 0x80000 + iVar5 >> 16);
                     Coprocessor.vector0.vz0 = (short)(iVar1 + 1024);
                     terrainVertices[0] = new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0);
                     uVar13 = new Color32(Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
@@ -1227,12 +1229,12 @@ public class VigTerrain : MonoBehaviour
                 GameManager.terrainScreen[20].vert.y = v2Var8.y;
                 in_t1 = GameManager.DAT_639EC[(uVar21 - 1) * 2];
                 in_t0 = GameManager.DAT_639EC[(uVar21 - 1) * 2 + 1];
-                FUN_297E8(uVar4, iVar1, param3, 0);
+                FUN_297E8(uVar4, iVar1, 0);
             }
         }
     }
 
-    private void FUN_290A8(uint param1, int param2, Queue<ScreenPoly> param3, int param4)
+    private void FUN_290A8(uint param1, int param2, int param3, int param4)
     {
         short sVar1;
         uint uVar2;
@@ -1258,7 +1260,7 @@ public class VigTerrain : MonoBehaviour
         int cop2r4;
         Vector3Int[] terrainVertices = new Vector3Int[4];
 
-        int tFactor = 1;
+        int tFactor = GameManager.instance.translateFactor2;
         uVar2 = (ushort)GameManager.DAT_1f80009a;
         iVar4 = GameManager.terrainScreen[param4].vert.z;
         iVar6 = GameManager.terrainScreen[param4 + 2].vert.z;
@@ -1278,7 +1280,7 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.screenXYFIFO.sy2 = (short)GameManager.terrainScreen[param4 + 10].vert.y;
             Coprocessor.ExecuteNCLIP();
             puVar17_1 = GameManager.DAT_1f800080 + (int)((uint)(iVar4 + iVar6 + iVar9 + iVar11) >> 5);
-            clrVar9 = GameManager.terrainScreen[param4 + 4].color;
+            clrVar9 = GameManager.terrainScreen[param4 + 2].color;
             clrVar11 = GameManager.terrainScreen[param4 + 10].color;
             iVar6 = Coprocessor.mathsAccumulator.mac0;
             //param3[1].v2 = new Vector2Int(Coprocessor.screenXYFIFO.sx0, Coprocessor.screenXYFIFO.sy0);
@@ -1303,11 +1305,11 @@ public class VigTerrain : MonoBehaviour
                 param3[3].clr = clrVar11;
                 param3[1].clr = clrVar4;*/
                 index = newVertices.Count - 1;
-                newTriangles.Add(index);
-                newTriangles.Add(index - 1);
-                newTriangles.Add(index - 2);
+                newTriangles[0].Add(index);
+                newTriangles[0].Add(index - 1);
+                newTriangles[0].Add(index - 2);
             //}
-
+            
             Coprocessor.ExecuteNCLIP();
             iVar6 = Coprocessor.mathsAccumulator.mac0;
 
@@ -1323,9 +1325,9 @@ public class VigTerrain : MonoBehaviour
                 newVertices.Add(terrainWorld[param4 + 2] / tFactor);
                 newVertices.Add(terrainWorld[param4 + 10] / tFactor);
                 index = newVertices.Count - 1;
-                newTriangles.Add(index - 2);
-                newTriangles.Add(index - 1);
-                newTriangles.Add(index);
+                newTriangles[0].Add(index - 2);
+                newTriangles[0].Add(index - 1);
+                newTriangles[0].Add(index);
             //}
 
             return;
@@ -1384,9 +1386,9 @@ public class VigTerrain : MonoBehaviour
             Coprocessor.vector1.vz1 = (short)(param2 + 256);
             Coprocessor.vector2.vz2 = (short)(param2 + 512);
             uVar13 = param1 + 256 & 0xffff | uVar2;
-            cop2r0 = (vertices[puVar14 + 64] & 0x7ff) * 0x80000 + (int)uVar13;
-            cop2r2 = (vertices[puVar14 + 65] & 0x7ff) * 0x80000 + (int)uVar13;
-            cop2r4 = (vertices[puVar16 + 64] & 0x7ff) * 0x80000 + (int)uVar13;
+            cop2r0 = (int)(vertices[puVar14 + 64] & 0x7ffU) * 0x80000 + (int)uVar13;
+            cop2r2 = (int)(vertices[puVar14 + 65] & 0x7ffU) * 0x80000 + (int)uVar13;
+            cop2r4 = (int)(vertices[puVar16 + 64] & 0x7ffU) * 0x80000 + (int)uVar13;
             Coprocessor.vector0.vx0 = (short)cop2r0;
             Coprocessor.vector0.vy0 = (short)(cop2r0 >> 16);
             Coprocessor.vector1.vx1 = (short)cop2r2;
@@ -1406,8 +1408,8 @@ public class VigTerrain : MonoBehaviour
             terrainWorld[param4 + 1] = terrainVertices[0];
             terrainWorld[param4 + 11] = terrainVertices[2];
             Coprocessor.vector0.vx0 = (short)param1;
-            Coprocessor.vector0.vy0 = (short)((sVar1 & 0x7ff) * 0x80000 + uVar2 >> 16);
-            cop2r4 = (sVar3 & 0x7ff) * 0x80000 + (int)(param1 + 512 & 0xffff | uVar2);
+            Coprocessor.vector0.vy0 = (short)((int)(sVar1 & 0x7ffU) * 0x80000 + uVar2 >> 16);
+            cop2r4 = (int)(sVar3 & 0x7ffU) * 0x80000 + (int)(param1 + 512 & 0xffff | uVar2);
             Coprocessor.vector2.vx2 = (short)cop2r4;
             Coprocessor.vector2.vy2 = (short)(cop2r4 >> 16);
             Coprocessor.vector0.vz0 = (short)(param2 + 256);
@@ -1454,7 +1456,7 @@ public class VigTerrain : MonoBehaviour
         }
         
         uVar13 = (uint)(GameManager.DAT_1f800084.y << 16);
-        cop2r0 = (vertices[puVar14 + 1] & 0x7ff) * 0x80000 + (int)(uVar13 | param1);
+        cop2r0 = (int)(vertices[puVar14 + 1] & 0x7ffU) * 0x80000 + (int)(uVar13 | param1);
         Coprocessor.vector0.vx0 = (short)cop2r0;
         Coprocessor.vector0.vy0 = (short)(cop2r0 >> 16);
         Coprocessor.vector0.vz0 = (short)(param2 + 256);
@@ -1495,10 +1497,10 @@ public class VigTerrain : MonoBehaviour
         terrainWorld[param4 + 1] = terrainVertices[0];
         terrainWorld[param4 + 11] = terrainVertices[1];
         terrainWorld[param4 + 7] = terrainVertices[2];
-        FUN_297E8(param1, param2, param3, param4);
+        FUN_297E8(param1, param2, param4);
     }
 
-    private void FUN_29520(int param1, int param2, Queue<ScreenPoly> param3, int param4)
+    private void FUN_29520(int param1, int param2, int param3, int param4)
     {
         int iVar3;
         Color32 clrVar3;
@@ -1514,11 +1516,12 @@ public class VigTerrain : MonoBehaviour
         uint uVar13;
         int index;
 
-        int tFactor = 1;
+        int tFactor = GameManager.instance.translateFactor2;
         iVar3 = (ushort)GameManager.DAT_1f80009a - 4096;
         iVar9 = in_t4;
+        param3 = Mathf.Clamp(param3, 1, 16);
 
-        if ((tileData[iVar9].unk1 & 1) == 0)
+        if ((tileData[iVar9].flags & 1) == 0)
         {
             uVar5 = (uint)GameManager.terrainScreen[param4].vert.z;
 
@@ -1544,7 +1547,7 @@ public class VigTerrain : MonoBehaviour
                 Coprocessor.screenXYFIFO.sx1 = (short)GameManager.terrainScreen[param4 + 1].vert.x;
                 Coprocessor.screenXYFIFO.sy1 = (short)GameManager.terrainScreen[param4 + 1].vert.y;
 
-                if ((tileData[iVar9].unk1 & 2) == 0)
+                if ((tileData[iVar9].flags & 2) == 0)
                 {
                     Coprocessor.screenXYFIFO.sx2 = (short)GameManager.terrainScreen[param4 + 5].vert.x;
                     Coprocessor.screenXYFIFO.sy2 = (short)GameManager.terrainScreen[param4 + 5].vert.y;
@@ -1565,16 +1568,19 @@ public class VigTerrain : MonoBehaviour
                         newVertices.Add(terrainWorld[param4] / tFactor);
                         newVertices.Add(terrainWorld[param4 + 1] / tFactor);
                         newVertices.Add(terrainWorld[param4 + 5] / tFactor);
+                    index = newVertices.Count - 1;
+                    float distance = Vector3.Distance(new Vector3(0, 0, 0), new Vector3(newVertices[index].x, 0f, newVertices[index].z));
+                    param3 = (int)Mathf.Clamp(distance / 16, 1, 16);
                         newColors.Add(clrVar4);
                         newColors.Add(clrVar6);
                         newColors.Add(clrVar7);
-                        newUVs.Add(new Vector2(tileData[iVar9].uv1_x, tileData[iVar9].uv1_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv2_x, tileData[iVar9].uv2_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv3_x, tileData[iVar9].uv2_y));
-                        index = newVertices.Count - 1;
-                        newTriangles.Add(index);
-                        newTriangles.Add(index - 1);
-                        newTriangles.Add(index - 2);
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv1_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv1_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv2_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv2_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv3_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv3_y / (mainT.height - 1)));
+                        
+                        newTriangles[param3].Add(index);
+                        newTriangles[param3].Add(index - 1);
+                        newTriangles[param3].Add(index - 2);
                     //}
 
                     Coprocessor.screenXYFIFO.sx0 = (short)GameManager.terrainScreen[param4 + 6].vert.x;
@@ -1590,13 +1596,13 @@ public class VigTerrain : MonoBehaviour
                         newColors.Add(clrVar4);
                         newColors.Add(clrVar6);
                         newColors.Add(clrVar7);
-                        newUVs.Add(new Vector2(tileData[iVar9].uv4_x, tileData[iVar9].uv4_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv2_x, tileData[iVar9].uv2_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv3_x, tileData[iVar9].uv3_y));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv4_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv4_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv2_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv2_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv3_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv3_y / (mainT.height - 1)));
                         index = newVertices.Count - 1;
-                        newTriangles.Add(index - 2);
-                        newTriangles.Add(index - 1);
-                        newTriangles.Add(index);
+                        newTriangles[param3].Add(index - 2);
+                        newTriangles[param3].Add(index - 1);
+                        newTriangles[param3].Add(index);
                     //}
                 }
                 else
@@ -1619,16 +1625,19 @@ public class VigTerrain : MonoBehaviour
                         newVertices.Add(terrainWorld[param4] / tFactor);
                         newVertices.Add(terrainWorld[param4 + 1] / tFactor);
                         newVertices.Add(terrainWorld[param4 + 6] / tFactor);
-                        newColors.Add(clrVar4);
+                    index = newVertices.Count - 1;
+                    float distance = Vector3.Distance(new Vector3(0, 0, 0), new Vector3(newVertices[index].x, 0f, newVertices[index].z));
+                    param3 = (int)Mathf.Clamp(distance / 16, 1, 16);
+                    newColors.Add(clrVar4);
                         newColors.Add(clrVar6);
                         newColors.Add(clrVar8);
-                        newUVs.Add(new Vector2(tileData[iVar9].uv1_x, tileData[iVar9].uv1_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv2_x, tileData[iVar9].uv2_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv4_x, tileData[iVar9].uv4_y));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv1_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv1_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv2_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv2_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv4_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv4_y / (mainT.height - 1)));
                         index = newVertices.Count - 1;
-                        newTriangles.Add(index);
-                        newTriangles.Add(index - 1);
-                        newTriangles.Add(index - 2);
+                        newTriangles[param3].Add(index);
+                        newTriangles[param3].Add(index - 1);
+                        newTriangles[param3].Add(index - 2);
                     //}
 
                     Coprocessor.screenXYFIFO.sx1 = (short)GameManager.terrainScreen[param4 + 5].vert.x;
@@ -1638,26 +1647,26 @@ public class VigTerrain : MonoBehaviour
 
                     //if (-1 < Coprocessor.mathsAccumulator.mac0)
                     //{
-                        newVertices.Add(terrainWorld[param1] / tFactor);
-                        newVertices.Add(terrainWorld[param1 + 5] / tFactor);
-                        newVertices.Add(terrainWorld[param1 + 6] / tFactor);
+                        newVertices.Add(terrainWorld[param4] / tFactor);
+                        newVertices.Add(terrainWorld[param4 + 5] / tFactor);
+                        newVertices.Add(terrainWorld[param4 + 6] / tFactor);
                         newColors.Add(clrVar4);
                         newColors.Add(clrVar3);
                         newColors.Add(clrVar8);
-                        newUVs.Add(new Vector2(tileData[iVar9].uv1_x, tileData[iVar9].uv1_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv3_x, tileData[iVar9].uv3_y));
-                        newUVs.Add(new Vector2(tileData[iVar9].uv4_x, tileData[iVar9].uv4_y));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv1_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv1_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv3_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv3_y / (mainT.height - 1)));
+                        newUVs.Add(new Vector2((float)tileData[iVar9].uv4_x / (mainT.width - 1), 1.0f - (float)tileData[iVar9].uv4_y / (mainT.height - 1)));
                         index = newVertices.Count - 1;
-                        newTriangles.Add(index - 2);
-                        newTriangles.Add(index - 1);
-                        newTriangles.Add(index);
+                        newTriangles[param3].Add(index - 2);
+                        newTriangles[param3].Add(index - 1);
+                        newTriangles[param3].Add(index);
                     //}
                 }
             }
         }
     }
 
-    private void FUN_297E8(uint param1, int param2, Queue<ScreenPoly> param3, int param4)
+    private void FUN_297E8(uint param1, int param2, int param4)
     {
         uint uVar2;
         int iVar4;
@@ -1671,7 +1680,7 @@ public class VigTerrain : MonoBehaviour
         Color32 clrVar14;
         int index;
 
-        int tFactor = 1;
+        int tFactor = GameManager.instance.translateFactor2;
         iVar4 = (int)(in_t1 & 0x1f) + param4;
         iVar6 = (int)(in_t1 >> 1 & 0x1f0) / 16 + param4;
         iVar9 = (int)(in_t1 >> 6 & 0x1f0) / 16 + param4;
@@ -1697,9 +1706,9 @@ public class VigTerrain : MonoBehaviour
             newUVs.Add(new Vector2(0, 0));
             newUVs.Add(new Vector2(0, 0));
             index = newVertices.Count - 1;
-            newTriangles.Add(index - 2);
-            newTriangles.Add(index - 1);
-            newTriangles.Add(index);
+            newTriangles[0].Add(index - 2);
+            newTriangles[0].Add(index - 1);
+            newTriangles[0].Add(index);
         //}
 
         int _iVar9 = iVar9;
@@ -1725,9 +1734,9 @@ public class VigTerrain : MonoBehaviour
             newUVs.Add(new Vector2(0, 0));
             newUVs.Add(new Vector2(0, 0));
             index = newVertices.Count - 1;
-            newTriangles.Add(index);
-            newTriangles.Add(index - 1);
-            newTriangles.Add(index - 2);
+            newTriangles[0].Add(index);
+            newTriangles[0].Add(index - 1);
+            newTriangles[0].Add(index - 2);
         //}
 
         Coprocessor.ExecuteNCLIP();
@@ -1744,9 +1753,9 @@ public class VigTerrain : MonoBehaviour
             newUVs.Add(new Vector2(0, 0));
             newUVs.Add(new Vector2(0, 0));
             index = newVertices.Count - 1;
-            newTriangles.Add(index - 2);
-            newTriangles.Add(index - 1);
-            newTriangles.Add(index);
+            newTriangles[0].Add(index - 2);
+            newTriangles[0].Add(index - 1);
+            newTriangles[0].Add(index);
         //}
         
         iVar6 = (int)(in_t0 & 0x1f) + param4;
@@ -1778,9 +1787,9 @@ public class VigTerrain : MonoBehaviour
                 newUVs.Add(new Vector2(0, 0));
                 newUVs.Add(new Vector2(0, 0));
                 index = newVertices.Count - 1;
-                newTriangles.Add(index);
-                newTriangles.Add(index - 1);
-                newTriangles.Add(index - 2);
+                newTriangles[0].Add(index);
+                newTriangles[0].Add(index - 1);
+                newTriangles[0].Add(index - 2);
             //}
             
             Coprocessor.screenXYFIFO.sx0 = (short)GameManager.terrainScreen[iVar4].vert.x;
@@ -1805,9 +1814,9 @@ public class VigTerrain : MonoBehaviour
                 newUVs.Add(new Vector2(0, 0));
                 newUVs.Add(new Vector2(0, 0));
                 index = newVertices.Count - 1;
-                newTriangles.Add(index - 2);
-                newTriangles.Add(index - 1);
-                newTriangles.Add(index);
+                newTriangles[0].Add(index - 2);
+                newTriangles[0].Add(index - 1);
+                newTriangles[0].Add(index);
                 return;
             }
 
@@ -1827,9 +1836,9 @@ public class VigTerrain : MonoBehaviour
                 newUVs.Add(new Vector2(0, 0));
                 newUVs.Add(new Vector2(0, 0));
                 index = newVertices.Count - 1;
-                newTriangles.Add(index - 2);
-                newTriangles.Add(index - 1);
-                newTriangles.Add(index);
+                newTriangles[0].Add(index - 2);
+                newTriangles[0].Add(index - 1);
+                newTriangles[0].Add(index);
             //}
 
             Coprocessor.ExecuteNCLIP();
@@ -1847,14 +1856,14 @@ public class VigTerrain : MonoBehaviour
             newUVs.Add(new Vector2(0, 0));
             newUVs.Add(new Vector2(0, 0));
             index = newVertices.Count - 1;
-            newTriangles.Add(index);
-            newTriangles.Add(index - 1);
-            newTriangles.Add(index - 2);
+            newTriangles[0].Add(index);
+            newTriangles[0].Add(index - 1);
+            newTriangles[0].Add(index - 2);
         }
         else
         {
-            /*if (0 < Coprocessor.mathsAccumulator.mac0)
-                return;*/
+            //if (0 < Coprocessor.mathsAccumulator.mac0)
+                //return;
 
             newVertices.Add(terrainWorld[iVar6] / tFactor);
             newVertices.Add(terrainWorld[iVar9] / tFactor);
@@ -1866,9 +1875,9 @@ public class VigTerrain : MonoBehaviour
             newUVs.Add(new Vector2(0, 0));
             newUVs.Add(new Vector2(0, 0));
             index = newVertices.Count - 1;
-            newTriangles.Add(index);
-            newTriangles.Add(index - 1);
-            newTriangles.Add(index - 2);
+            newTriangles[0].Add(index);
+            newTriangles[0].Add(index - 1);
+            newTriangles[0].Add(index - 2);
         }
     }
 }

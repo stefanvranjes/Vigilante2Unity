@@ -4,7 +4,8 @@
 Preset:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Example
   m_TargetType:
     m_NativeTypeID: 114
@@ -19,10 +20,6 @@ Preset:
   - target: {fileID: 0}
     propertyPath: m_EditorHideFlags
     value: 0
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_Name
-    value: 
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_EditorClassIdentifier
@@ -103,7 +100,7 @@ Preset:
   - target: {fileID: 0}
     propertyPath: ditherTexture
     value: 
-    objectReference: {fileID: 2800000, guid: 8dd5bb07501448a4e9631457f7f63a13, type: 3}
+    objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: dithering
     value: 1
@@ -164,3 +161,12 @@ Preset:
     propertyPath: shadowType
     value: 0
     objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: ditherSky
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: ditherType
+    value: 1
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []

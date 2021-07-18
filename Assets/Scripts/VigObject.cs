@@ -687,12 +687,12 @@ public class VigObject : MonoBehaviour
     // Start is called before the first frame update
     protected virtual void Start()
     {
-        vTransform.position = new Vector3Int(
+        /*vTransform.position = new Vector3Int(
             (int)(transform.localPosition.x * GameManager.translateFactor), 
             (int)(-transform.localPosition.y * GameManager.translateFactor), 
             (int)(transform.localPosition.z * GameManager.translateFactor));
 
-        ApplyRotationMatrix();
+        ApplyRotationMatrix();*/
         //screen = position;
     }
 
@@ -700,9 +700,9 @@ public class VigObject : MonoBehaviour
     protected virtual void Update()
     {
         transform.localPosition = new Vector3(
-            (float)vTransform.position.x / GameManager.translateFactor, 
-            (float)-vTransform.position.y / GameManager.translateFactor, 
-            (float)vTransform.position.z / GameManager.translateFactor);
+            (float)vTransform.position.x / GameManager.instance.translateFactor, 
+            (float)-vTransform.position.y / GameManager.instance.translateFactor, 
+            (float)vTransform.position.z / GameManager.instance.translateFactor);
 
         transform.localRotation = vTransform.rotation.Matrix2Quaternion;
         transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, -transform.localEulerAngles.z);
@@ -952,7 +952,7 @@ public class VigObject : MonoBehaviour
         TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
         int vertexHeight = 0x2f0000; //r16
 
-        if ((tile.unk1 & 4) == 0)
+        if ((tile.flags & 4) == 0)
             vertexHeight = gameManager.terrain.FUN_1B750((uint)pos.x, (uint)pos.z);
         else
             vertexHeight = 0x2ff800;
@@ -975,7 +975,7 @@ public class VigObject : MonoBehaviour
         TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
         int vertexHeight = 0x2f0000; //r16
 
-        if ((tile.unk1 & 4) == 0)
+        if ((tile.flags & 4) == 0)
             vertexHeight = gameManager.terrain.FUN_1B750((uint)pos.x, (uint)pos.z);
         else
             vertexHeight = 0x2ff800;
@@ -996,7 +996,7 @@ public class VigObject : MonoBehaviour
         TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
         int vertexHeight = 0x2f0000; //r16
 
-        if ((tile.unk1 & 4) == 0)
+        if ((tile.flags & 4) == 0)
             vertexHeight = gameManager.terrain.FUN_1B750((uint)pos.x, (uint)pos.z);
         else
             vertexHeight = 0x2ff800;
@@ -1065,7 +1065,7 @@ public class VigObject : MonoBehaviour
         while(oVar4 != null)
         {
             iVar1 = oVar4.FUN_2D1DC();
-            iVar2 = Utilities.FUN_29E84(vTransform.position);
+            iVar2 = Utilities.FUN_29E84(oVar4.vTransform.position);
             iVar3 = iVar1 + iVar2;
 
             if (iVar1 + iVar2 < iVar5)
@@ -1359,7 +1359,7 @@ public class VigObject : MonoBehaviour
         TileData tile = VigTerrain.instance.GetTileByPosition
             ((uint)vTransform.position.x, (uint)vTransform.position.z);
 
-        if (tile.unk2[3] == 7)
+        if (tile.DAT_10[3] == 7)
         {
             uVar3 = (uint)vTransform.position.x;
             uVar4 = (uint)vTransform.position.z;
@@ -1371,7 +1371,7 @@ public class VigObject : MonoBehaviour
                 uVar3 += (uint)local_18.x;
                 uVar4 += (uint)local_18.z;
                 tile = VigTerrain.instance.GetTileByPosition(uVar3, uVar4);
-            } while (tile.unk2[3] == 7);
+            } while (tile.DAT_10[3] == 7);
 
             vTransform.position.x = (int)((uVar3 & 0xffff0000) + 0x8000);
             vTransform.position.z = (int)((uVar4 & 0xffff0000) + 0x8000);
@@ -1416,7 +1416,7 @@ public class VigObject : MonoBehaviour
 
         tVar1 = terrain.GetTileByPosition((uint)vTransform.position.x, (uint)vTransform.position.z);
 
-        if ((tVar1.unk1 & 4) == 0)
+        if ((tVar1.flags & 4) == 0)
             iVar2 = terrain.FUN_1B750((uint)vTransform.position.x, (uint)vTransform.position.z);
         else
             iVar2 = 0x2ff800;
@@ -1509,7 +1509,7 @@ public class VigObject : MonoBehaviour
         int nextContainer = vData.ini.configContainers[configIndex / 0x1C].next;
         int iVar1 = 0;
 
-        while (nextContainer != -1)
+        while (nextContainer != 0xffff)
         {
             configIndex = (nextContainer << 3) - nextContainer << 2;
             int flag = vData.ini.configContainers[configIndex / 0x1C].flag >> 12;
@@ -1539,7 +1539,7 @@ public class VigObject : MonoBehaviour
         if (vData != null)
         {
             ccVar5 = vData.ini.configContainers;
-            uVar1 = (ushort)ccVar5[id].next;
+            uVar1 = ccVar5[(ushort)DAT_1A].next;
 
             while(uVar1 != 0xffff)
             {
@@ -1554,11 +1554,11 @@ public class VigObject : MonoBehaviour
                         vLOD = null;
                     else
                     {
-                        if (((ccVar5[iVar4].flag ^ ccVar5[id].flag) & 0x7ff) == 0)
+                        if (((ccVar5[iVar4].flag ^ ccVar5[(ushort)DAT_1A].flag) & 0x7ff) == 0)
                             vLOD = vMesh;
                         else
                         {
-                            mVar2 = vData.FUN_1FD18(gameObject, (ushort)ccVar5[iVar4].flag & 0x7ffU);
+                            mVar2 = vData.FUN_1FD18(gameObject, ccVar5[iVar4].flag & 0x7ffU);
                             vLOD = mVar2;
                         }
                     }

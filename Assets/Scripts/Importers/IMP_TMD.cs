@@ -260,7 +260,7 @@ public class IMP_TMD
     {
         List<Vector3> output = new List<Vector3>();
         List<int> indices = new List<int>();
-        int tFactor = GameManager.translateFactor;
+        int tFactor = GameManager.instance.translateFactor2;
 
         for (int i = 0; i < numIndices; i++)
             indices.Add(reader.ReadInt16());
@@ -287,7 +287,7 @@ public class IMP_TMD
     {
         List<Vector3> output = new List<Vector3>();
         List<int> indices = new List<int>();
-        int tFactor = GameManager.translateFactor;
+        int tFactor = GameManager.instance.translateFactor2;
 
         for (int i = 0; i < numIndices; i++)
             indices.Add(reader.ReadInt16());
@@ -314,7 +314,7 @@ public class IMP_TMD
     {
         List<Vector3> output = new List<Vector3>();
         List<int> indices = new List<int>();
-        int tFactor = GameManager.translateFactor;
+        int tFactor = GameManager.instance.translateFactor2;
 
         for (int i = 0; i < numIndices; i++)
             indices.Add(index);

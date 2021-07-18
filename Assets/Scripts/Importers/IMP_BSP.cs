@@ -1,19 +1,30 @@
 ﻿using System.IO;
+using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
 public class IMP_BSP
 {
-    //FUN_2BB4 (LOAD.DLL)
     public static void LoadAsset(string assetPath)
     {
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
             LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
-            levelManager.bspTree = FUN_26F0(reader);
-            EditorUtility.SetDirty(levelManager.gameObject);
+            levelManager.bspData = reader.ReadBytes((int)reader.BaseStream.Length);
+            EditorUtility.SetDirty(levelManager);
+        }
+    }
+
+    //FUN_2BB4 (LOAD.DLL)
+    public static void LoadData(byte[] bytes)
+    {
+        MemoryStream stream = new MemoryStream(bytes);
+
+        using (BinaryReader reader = new BinaryReader(stream, Encoding.Default, true))
+        {
+            GameManager.instance.bspTree = FUN_26F0(reader);
         }
     }
 
@@ -29,6 +40,7 @@ public class IMP_BSP
         if (iVar1 == 0)
         {
             piVar2 = new BSP();
+            piVar2.LDAT_04 = new List<VigTuple>();
             piVar2.DAT_00 = 0; //not sure
             piVar2.DAT_08 = null; //not sure
         }

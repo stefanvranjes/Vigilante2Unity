@@ -4,9 +4,25 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class IMP_OBJ
 {
+    public static bool LoadAsset(string assetPath)
+    {
+        using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
+        {
+            if (reader == null) return false;
+
+            LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
+
+            levelManager.objData.Add(new OBJ(reader.ReadBytes((int)reader.BaseStream.Length)));
+            EditorUtility.SetDirty(levelManager);
+        }
+
+        return true;
+    }
+
     //FUN_34F8 (LOAD.DLL)
     public static void LoadOBJ(byte[] obj)
     {
@@ -70,6 +86,7 @@ public class IMP_OBJ
         LevelManager levelManager = GameManager.instance.levelManager;
         GameObject obj;
 
+        long begin = reader.BaseStream.Position;
         local_30 = reader.ReadByte();
         uVar7 = reader.ReadByte();
         sVar2 = reader.ReadInt16BE();
@@ -90,7 +107,7 @@ public class IMP_OBJ
         iVar9 = sVar5 + 42;
         sVar3 = reader.ReadInt16BE();
         uVar6 = (ushort)reader.ReadInt32BE();
-        auStack112 = reader.ReadNullTerminatedString();
+        auStack112 = new string(reader.ReadChars((int)(size - begin)));
         pcVar10 = Utilities.FUN_14E1C(0, auStack112);
 
         if (pcVar10 is null)
@@ -116,10 +133,10 @@ public class IMP_OBJ
         }
 
         LAB_2E74:
-        if ((pcVar17 & 4) != 0 && levelManager.xobfList[iVar9].animations != null)
+        if ((pcVar17 & 4) != 0 && levelManager.charsList[iVar9].animations.Length > 0)
         {
             iVar11 = (int)GameManager.FUN_2AC5C();
-            MemoryStream stream = new MemoryStream(levelManager.xobfList[iVar9].animations);
+            MemoryStream stream = new MemoryStream(levelManager.charsList[iVar9].animations);
 
             using (BinaryReader reader2 = new BinaryReader(stream, Encoding.Default, true))
                 GameManager.instance.timer = (ushort)-(iVar11 * reader2.ReadInt32() >> 15);
@@ -230,7 +247,7 @@ public class IMP_OBJ
                 {
                     ppiVar16 = 0;
 
-                    if (GameManager.instance.DAT_1078 != null)
+                    if (GameManager.instance.DAT_1078.Count > 0)
                     {
                         do
                         {

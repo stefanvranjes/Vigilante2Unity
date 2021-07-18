@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VigCamera : VigObject
 {
-    public short fieldOfView; //0x1C
+    public short fieldOfView { get { return (short)maxHalfHealth; } } //0x1C
     public VigObject target; //0x80
     public Vector3Int DAT_84; //0x84
     public int DAT_9C; //0x9C

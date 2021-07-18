@@ -87,6 +87,7 @@ public class Vehicle : VigObject
     void Awake()
     {
         config = GetComponent<VigConfig>();
+        weapons = new Weapon[3];
     }
 
     // Start is called before the first frame update
@@ -119,7 +120,7 @@ public class Vehicle : VigObject
         if (uVar6 != 0)
             return uVar6;
 
-
+        return 0;
     }
 
     private void FixedUpdate()
@@ -129,7 +130,7 @@ public class Vehicle : VigObject
             TileData tile = GameManager.instance.terrain.GetTileByPosition
                 ((uint)vTransform.position.x, (uint)vTransform.position.z);
 
-            if (tile.unk2[3] == 7)
+            if (tile.DAT_10[3] == 7)
                 FUN_3BFC0();
 
             if ((flags & 0x20000000) == 0)
@@ -143,12 +144,12 @@ public class Vehicle : VigObject
             }
             else
             {
-                if (tile.unk2[4] != DAT_DE)
+                if (tile.DAT_10[4] != DAT_DE)
                 {
                     //sound effect FUN_1DE78
-                    DAT_DE = (byte)tile.unk2[4];
+                    DAT_DE = (byte)tile.DAT_10[4];
 
-                    if ((byte)tile.unk2[4] == 0)
+                    if ((byte)tile.DAT_10[4] == 0)
                         DAT_DF = 0;
                     else
                     {
@@ -579,7 +580,7 @@ public class Vehicle : VigObject
 
                             if (tile == null)
                                 iVar12 = -local_c0.y;
-                            else if (tile.unk2[4] != 2)
+                            else if (tile.DAT_10[4] != 2)
                                 iVar12 = -local_c0.y;
                             else
                                 iVar12 = 0x7fffffff;
@@ -735,14 +736,14 @@ public class Vehicle : VigObject
 
                             if (tile != null)
                             {
-                                if (tile.unk2[3] != 0 && tile.unk2[3] != 7)
+                                if (tile.DAT_10[3] != 0 && tile.DAT_10[3] != 7)
                                 {
                                     //function call by register
                                 }
 
                                 if (i < 2) goto LAB_41944;
 
-                                if (tile.unk2[4] == 2)
+                                if (tile.DAT_10[4] == 2)
                                 {
                                     //...
                                 }
@@ -1195,8 +1196,8 @@ public class Vehicle : VigObject
             local_b0.z += iVar5;
 
             if (local_28 != null)
-                if (local_28.unk2[3] != 0)
-                    if (local_28.unk2[3] != 7)
+                if (local_28.DAT_10[3] != 0)
+                    if (local_28.DAT_10[3] != 7)
                         ; //function call by register
         }
     }
@@ -1356,7 +1357,7 @@ public class Vehicle : VigObject
 
                 if (local_20 != null)
                 {
-                    if (local_20.unk2[3] != 0 && local_20.unk2[3] != 7)
+                    if (local_20.DAT_10[3] != 0 && local_20.DAT_10[3] != 7)
                     {
                         //function jump by register
                     }
@@ -1825,10 +1826,10 @@ public class Vehicle : VigObject
                             {
                                 if (local_44 == null)
                                     iVar9 = local_b8.y * -2;
-                                else if (local_44.unk2[0] == 0)
+                                else if (local_44.DAT_10[0] == 0)
                                     iVar9 = local_b8.y * -2;
                                 else
-                                    iVar9 = -local_b8.y * (256 - local_44.unk2[0]) >> 7;
+                                    iVar9 = -local_b8.y * (256 - local_44.DAT_10[0]) >> 7;
 
                                 if (local_4c == 0)
                                 {
@@ -1934,14 +1935,14 @@ public class Vehicle : VigObject
 
                                 if (local_44 != null)
                                 {
-                                    if (local_44.unk2[1] != 0)
+                                    if (local_44.DAT_10[1] != 0)
                                     {
                                         iVar8 = iVar12;
 
                                         if (iVar12 < 0)
                                             iVar8 = -iVar12;
 
-                                        iVar7 -= iVar12 * iVar8 * local_44.unk2[1] >> 12;
+                                        iVar7 -= iVar12 * iVar8 * local_44.DAT_10[1] >> 12;
                                     }
                                 }
 
@@ -2029,7 +2030,7 @@ public class Vehicle : VigObject
 
                             if (local_44 != null)
                             {
-                                if (local_44.unk2[3] != 0 && local_44.unk2[3] != 7)
+                                if (local_44.DAT_10[3] != 0 && local_44.DAT_10[3] != 7)
                                 {
                                     //function call by register
                                 }
@@ -2326,6 +2327,8 @@ public class Vehicle : VigObject
                 }
             }
         }
+
+        return 0;
     }
 
     public bool FUN_39DCC(int param1, Vector3Int param2, bool param3)
@@ -2646,7 +2649,7 @@ public class Vehicle : VigObject
         int iVar1;
 
         if (shield == 0)
-            iVar1 = FUN_39DCC(pInt1, pInt2, isPlayer);
+            iVar1=0;//iVar1 = FUN_39DCC(pInt1, pInt2, isPlayer);
         else
         {
             FUN_393F8();

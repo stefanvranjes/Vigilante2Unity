@@ -5,6 +5,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public class OBJ
+{
+    public byte[] buffer;
+
+    public OBJ(byte[] b)
+    {
+        buffer = b;
+    }
+}
+
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager instance;
@@ -19,6 +30,8 @@ public class LevelManager : MonoBehaviour
     public short DAT_63992;
     public short DAT_6399A;
     public Material defaultMaterial;
+    public Camera defaultCamera;
+    public VigTerrain terrain;
     public Matrix3x3 DAT_738; //gp+738h
     public ushort[] DAT_C18; //gp+C18h
     public Color32 DAT_D98; //gp+D98h
@@ -34,11 +47,12 @@ public class LevelManager : MonoBehaviour
     public Color32 DAT_E08; //gp+E08h
     public Material DAT_E48; //gp+E48h
     public Material DAT_E58; //gp+E58h
-    public BSP bspTree; //gp+102Ch
     public Vector3Int DAT_10F8; //gp+10F8h
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h
     public int DAT_118C; //gp+118Ch
+    public byte[] bspData;
+    public List<OBJ> objData;
     public List<Junction> roadList = new List<Junction>(); //gp+1190h
     public List<XRTP_DB> xrtpList = new List<XRTP_DB>(); //gp+1194h
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
@@ -49,7 +63,17 @@ public class LevelManager : MonoBehaviour
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6220
     public List<VigTuple> levelObjs; //ffffa718 (LOAD.DLL)
 
-    private VigTerrain terrain;
+    private int counter;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+
+        components = new KeyValuePair<string, Type>[18][];
+    }
 
     // Start is called before the first frame update
     // FUN_3F10 (LOAD.DLL)
@@ -119,7 +143,7 @@ public class LevelManager : MonoBehaviour
                 FUN_3C8C(ppiVar18, GameManager.defaultTransform);
                 //Move image? (probably the loading bar) ... 
                 if (ppiVar4.flag == 0)
-                    FUN_278C(bspTree, ppiVar4);
+                    FUN_278C(GameManager.instance.bspTree, ppiVar4);
                 else
                 {
                     cVar22 = FUN_284C((int)ppiVar4.flag & 0x7fffffff);
@@ -167,9 +191,12 @@ public class LevelManager : MonoBehaviour
         
     }
 
-    public void FUN_4F804(Junction param1)
+    public void LoadData()
     {
-        FUN_4F828(param1);
+        IMP_BSP.LoadData(bspData);
+
+        for (int i = 0; i < objData.Count; i++)
+            IMP_OBJ.LoadOBJ(objData[i].buffer);
     }
 
     //FUN_9C10 (LOAD.DLL)
@@ -210,6 +237,7 @@ public class LevelManager : MonoBehaviour
         JUNC_DB dbVar5;
 
         iVar4 = 0;
+        counter = 0;
 
         if (0 < DAT_1184)
         {
@@ -236,544 +264,6 @@ public class LevelManager : MonoBehaviour
             for (int i = 0; i < DAT_1180; i++)
                 if (xrtpList[i].timFarList != null)
                     FUN_50F0(xrtpList[i]);
-        }
-    }
-
-    private void FUN_4F828(Junction param1)
-    {
-        uint uVar1;
-        Color32 clrVar1;
-        int iVar3;
-        int iVar4;
-        uint uVar5;
-        uint uVar6;
-        uint uVar7;
-        Color32 clrVar7;
-        int puVar8;
-        int puVar9;
-        int iVar10;
-        uint uVar11;
-        int iVar12;
-        int iVar13;
-        int puVar14;
-        int puVar15;
-        XRTP_DB dbVar16;
-        int puVar18;
-        int puVar19;
-        uint uVar20;
-        Color32[] local_f0 = new Color32[32];
-        int local_38;
-        short local_30;
-        ushort local_28;
-        FixedSizedQueue<Vector3Int> roadVertices = new FixedSizedQueue<Vector3Int>();
-
-        roadVertices.Limit = 3;
-        int tFactor = 1;
-
-        puVar18 = 0;
-        dbVar16 = param1.xrtp;
-        uVar7 = 0x2C;
-
-        if ((dbVar16.DAT_2C & 2) != 0)
-            uVar7 = 0x3C;
-
-        if ((dbVar16.DAT_2C & 0x100) != 0)
-            uVar7 |= 2;
-
-        local_28 = (ushort)dbVar16.DAT_2E;
-        
-        for (int i = 0; i < 32; i++)
-        {
-            local_f0[i] = new Color32
-                (
-                    terrain.DAT_B9370[i].r,
-                    terrain.DAT_B9370[i].g,
-                    terrain.DAT_B9370[i].b,
-                    (byte)uVar7
-                );
-        }
-
-        Coprocessor.vector0.vx0 = (short)param1.DAT_20[0].x;
-        Coprocessor.vector0.vy0 = (short)param1.DAT_20[0].y;
-        Coprocessor.vector0.vz0 = (short)param1.DAT_20[0].z;
-        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-        Coprocessor.ExecuteRTPS(12, false);
-        Coprocessor.vector0.vx0 = (short)param1.DAT_28[0].x;
-        Coprocessor.vector0.vy0 = (short)param1.DAT_28[0].y;
-        Coprocessor.vector0.vz0 = (short)param1.DAT_28[0].z;
-        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-        Coprocessor.ExecuteRTPS(12, false);
-
-        if (dbVar16.DAT_14 < dbVar16.DAT_18 + param1.DAT_1C)
-            dbVar16.DAT_18 = 0;
-
-        if ((dbVar16.DAT_2C & 2) == 0)
-        {
-            if (0 < param1.DAT_1C)
-            {
-                puVar15 = dbVar16.DAT_18 * 10;
-
-                for (int i = 0; i < param1.DAT_1C; i++)
-                {
-                    puVar14 = i + 1;
-                    Coprocessor.vector0.vx0 = (short)param1.DAT_20[puVar14].x;
-                    Coprocessor.vector0.vy0 = (short)param1.DAT_20[puVar14].y;
-                    Coprocessor.vector0.vz0 = (short)param1.DAT_20[puVar14].z;
-                    roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                    Coprocessor.ExecuteRTPS(12, false);
-                    Coprocessor.ExecuteNCLIP();
-                    iVar3 = Coprocessor.mathsAccumulator.mac0;
-
-                    if (iVar3 < 0)
-                    {
-                        iVar3 = Coprocessor.screenZFIFO.sz2;
-
-                        if (iVar3 < (int)(uint)local_28)
-                        {
-                            if (0 < Coprocessor.screenZFIFO.sz1 || 0 < Coprocessor.screenZFIFO.sz2 || 
-                                0 < Coprocessor.screenZFIFO.sz3)
-                            {
-                                puVar8 = dbVar16.DAT_20 * 40;
-                                uVar1 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                dbVar16.V3_DAT_10[puVar8 + 2] = roadVertices.Dequeue();
-                                uVar1 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                dbVar16.V3_DAT_10[puVar8 + 14] = roadVertices.Dequeue();
-                                uVar1 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                                dbVar16.V3_DAT_10[puVar8 + 26] = roadVertices.Dequeue();
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                uVar5 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                uVar1 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar11 = uVar1;
-
-                                if ((int)uVar5 < (int)uVar1)
-                                    uVar11 = uVar5;
-
-                                if ((int)uVar1 < (int)uVar5)
-                                    uVar1 = uVar5;
-
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                                uVar5 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar6 = uVar5;
-
-                                if ((int)uVar11 < (int)uVar5)
-                                    uVar6 = uVar11;
-
-                                if ((int)uVar5 < (int)uVar1)
-                                    uVar5 = uVar1;
-
-                                iVar12 = Coprocessor.screenZFIFO.sz1;
-                                iVar3 = Coprocessor.screenZFIFO.sz2;
-                                iVar4 = Coprocessor.screenZFIFO.sz3;
-                                iVar13 = iVar12 * 4 + (iVar3 - iVar12) + (iVar4 - iVar12);
-                                Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
-                                Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
-                                Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                                Coprocessor.vector1.vx1 = (short)((param1.DAT_20[puVar18].x + param1.DAT_28[puVar14 - 1].x) / 2);
-                                Coprocessor.vector1.vy1 = (short)((param1.DAT_20[puVar14 - 1].y + param1.DAT_28[puVar14 - 1].y) / 2);
-                                Coprocessor.vector1.vz1 = (short)((param1.DAT_20[puVar14 - 1].z + param1.DAT_28[puVar14 - 1].z) / 2);
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1));
-                                iVar10 = (param1.DAT_20[puVar14 - 1].y + param1.DAT_20[puVar14].y) / 2;
-                                Coprocessor.vector2.vx2 = (short)((param1.DAT_20[puVar18].x + param1.DAT_20[puVar14].x) / 2);
-                                Coprocessor.vector2.vy2 = (short)iVar10;
-                                Coprocessor.vector2.vz2 = (short)((param1.DAT_20[puVar14 - 1].z + param1.DAT_20[puVar14].z) / 2);
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2));
-                                Coprocessor.ExecuteRTPT(12, false);
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                uVar1 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar11 = uVar1;
-
-                                if ((int)uVar6 < (int)uVar1)
-                                    uVar11 = uVar6;
-
-                                uVar6 = (uint)((int)uVar1 < (int)uVar5 ? 1 : 0);
-
-                                if ((int)uVar11 < 320)
-                                {
-                                    if (uVar6 != 0)
-                                        uVar1 = uVar5;
-
-                                    if (-1 < (int)uVar1)
-                                    {
-                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                        dbVar16.V3_DAT_10[puVar8 + 38] = roadVertices.Dequeue();
-                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                        dbVar16.V3_DAT_10[puVar8 + 12] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 4] = roadVertices.Dequeue();
-                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                                        dbVar16.V3_DAT_10[puVar8 + 22] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 6] = roadVertices.Dequeue();
-                                        iVar10 = 0;
-
-                                        if (0 < iVar13)
-                                            iVar10 = iVar13;
-
-                                        puVar9 = iVar10 >> 5;
-                                        iVar10 = iVar13 + (iVar3 - iVar12) * 2;
-                                        iVar3 = 0;
-
-                                        if (0 < iVar10)
-                                            iVar3 = iVar10;
-
-                                        puVar9 = iVar3 >> 5;
-                                        iVar4 = (iVar4 - iVar12) * 2;
-                                        iVar13 += iVar4;
-                                        iVar3 = 0;
-
-                                        if (0 < iVar13)
-                                            iVar3 = iVar13;
-
-                                        puVar9 = iVar3 >> 5;
-                                        iVar10 += iVar4;
-                                        iVar3 = 0;
-
-                                        if (0 < iVar10)
-                                            iVar3 = iVar10;
-
-                                        puVar9 = iVar3 >> 5;
-                                        Coprocessor.vector0.vx0 = (short)((param1.DAT_28[puVar14 - 1].x + param1.DAT_28[puVar14].x) / 2);
-                                        Coprocessor.vector0.vy0 = (short)((param1.DAT_28[puVar14 - 1].y + param1.DAT_28[puVar14].y) / 2);
-                                        Coprocessor.vector0.vz0 = (short)((param1.DAT_28[puVar14 - 1].z + param1.DAT_28[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                                        iVar10 = (param1.DAT_20[puVar14].y + param1.DAT_28[puVar14].y) / 2;
-                                        Coprocessor.vector1.vx1 = (short)((param1.DAT_20[puVar14].x + param1.DAT_28[puVar14].x) / 2);
-                                        Coprocessor.vector1.vy1 = (short)iVar10;
-                                        Coprocessor.vector1.vz1 = (short)((param1.DAT_20[puVar14].z + param1.DAT_28[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1));
-                                        Coprocessor.vector2.vx2 = (short)((param1.DAT_28[puVar14 - 1].x + param1.DAT_20[puVar14].x) / 2);
-                                        Coprocessor.vector2.vy2 = (short)((param1.DAT_28[puVar14 - 1].y + param1.DAT_20[puVar14].y) / 2);
-                                        Coprocessor.vector2.vz2 = (short)((param1.DAT_28[puVar14 - 1].z + param1.DAT_20[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2));
-                                        Coprocessor.ExecuteRTPT(12, false);
-                                        clrVar1 = local_f0[param1.DAT_26[puVar14 - 1] >> 2];
-                                        dbVar16.C32_DAT_10[puVar8 + 1] = clrVar1;
-                                        dbVar16.C32_DAT_10[puVar8 + 31] = clrVar1;
-                                        dbVar16.C32_DAT_10[puVar8 + 21] = clrVar1;
-                                        dbVar16.C32_DAT_10[puVar8 + 11] = clrVar1;
-                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                        dbVar16.V3_DAT_10[puVar8 + 34] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 18] = roadVertices.Dequeue();
-                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                        dbVar16.V3_DAT_10[puVar8 + 36] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 28] = roadVertices.Dequeue();
-                                        uVar1 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                                        dbVar16.V3_DAT_10[puVar8 + 32] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 24] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 16] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 8] = roadVertices.Dequeue();
-                                        uVar1 = (uint)dbVar16.DAT_1C;
-                                        uVar6 = (uint)dbVar16.DAT_20 + 1;
-                                        uVar11 = 0;
-
-                                        if (uVar6 != uVar1)
-                                            uVar11 = uVar6;
-
-                                        dbVar16.DAT_20 = (int)uVar11;
-                                    }
-                                }
-
-                                Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14 - 1].x;
-                                Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14 - 1].y;
-                                Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14 - 1].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                                Coprocessor.vector1.vx1 = (short)param1.DAT_20[puVar14].x;
-                                Coprocessor.vector1.vy1 = (short)param1.DAT_20[puVar14].y;
-                                Coprocessor.vector1.vz1 = (short)param1.DAT_20[puVar14].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1));
-                                Coprocessor.vector2.vx2 = (short)param1.DAT_28[puVar14].x;
-                                Coprocessor.vector2.vy2 = (short)param1.DAT_28[puVar14].y;
-                                Coprocessor.vector2.vz2 = (short)param1.DAT_28[puVar14].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2));
-                                Coprocessor.ExecuteRTPT(12, false);
-                            }
-                        }
-                        else
-                        {
-                            uVar1 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                            dbVar16.V3_DAT_0C[puVar15 + 12] = roadVertices.Dequeue();
-                            uVar1 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                            dbVar16.V3_DAT_0C[puVar15 + 14] = roadVertices.Dequeue();
-                            uVar1 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                            dbVar16.V3_DAT_0C[puVar15 + 16] = roadVertices.Dequeue();
-                            Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
-                            Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
-                            Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
-                            roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                            Coprocessor.ExecuteRTPS(12, false);
-                            dbVar16.C32_DAT_0C[puVar15 + 11] = local_f0[param1.DAT_26[puVar14 - 1] >> 2];
-                            uVar1 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                            dbVar16.V3_DAT_0C[puVar15 + 18] = roadVertices.Dequeue();
-                            Coprocessor.ExecuteAVSZ4();
-                            iVar3 = Coprocessor.accumulator.ir0;
-
-                            if (iVar3 < 0)
-                                iVar3 += 255;
-
-                            //...
-                            iVar3 = Coprocessor.averageZ;
-                            puVar15 += 10;
-                            dbVar16.DAT_18++;
-                        }
-                    }
-                    else
-                    {
-                        Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
-                        Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
-                        Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
-                        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                        Coprocessor.ExecuteRTPS(12, false);
-                    }
-
-                    puVar18++;
-                }
-            }
-        }
-        else
-        {
-            puVar19 = dbVar16.DAT_18 * 13;
-            //...
-
-            if (0 < param1.DAT_1C)
-            {
-                puVar15 = puVar19 - 13;
-
-                for (int i = 0; i < param1.DAT_1C; i++)
-                {
-                    puVar14 = i + 1;
-                    Coprocessor.vector0.vx0 = (short)param1.DAT_20[puVar14].x;
-                    Coprocessor.vector0.vy0 = (short)param1.DAT_20[puVar14].y;
-                    Coprocessor.vector0.vz0 = (short)param1.DAT_20[puVar14].z;
-                    Coprocessor.ExecuteRTPS(12, false);
-                    Coprocessor.ExecuteNCLIP();
-                    iVar3 = Coprocessor.mathsAccumulator.mac0;
-
-                    if (iVar3 < 0)
-                    {
-                        iVar3 = Coprocessor.screenZFIFO.sz2;
-
-                        if (iVar3 < local_28)
-                        {
-                            iVar3 = Coprocessor.screenZFIFO.sz1;
-
-                            if (0 < iVar3 || 0 < Coprocessor.screenZFIFO.sz2 || 
-                                0 < Coprocessor.screenZFIFO.sz3)
-                            {
-                                puVar8 = dbVar16.DAT_20 * 52;
-                                uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                dbVar16.V3_DAT_10[puVar8 + 2] = roadVertices.Dequeue();
-                                uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                dbVar16.V3_DAT_10[puVar8 + 18] = roadVertices.Dequeue();
-                                uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                                dbVar16.V3_DAT_10[puVar8 + 34] = roadVertices.Dequeue();
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                uVar11 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                uVar7 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar1 = uVar7;
-
-                                if ((int)uVar11 < (int)uVar7)
-                                    uVar1 = uVar11;
-
-                                if ((int)uVar7 < (int)uVar11)
-                                    uVar7 = uVar11;
-
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                                uVar11 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar5 = uVar11;
-
-                                if ((int)uVar1 < (int)uVar11)
-                                    uVar5 = uVar1;
-
-                                if ((int)uVar11 < (int)uVar7)
-                                    uVar11 = uVar7;
-
-                                iVar12 = Coprocessor.screenZFIFO.sz1;
-                                iVar3 = Coprocessor.screenZFIFO.sz2;
-                                iVar4 = Coprocessor.screenZFIFO.sz3;
-                                iVar13 = iVar12 * 4 + (iVar3 - iVar12) + (iVar4 - iVar12);
-                                Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
-                                Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
-                                Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                                Coprocessor.vector1.vx1 = (short)((param1.DAT_20[puVar18].x + param1.DAT_28[puVar14 - 1].x) / 2);
-                                Coprocessor.vector1.vy1 = (short)((param1.DAT_20[puVar14 - 1].y + param1.DAT_28[puVar14 - 1].y) / 2);
-                                Coprocessor.vector1.vz1 = (short)((param1.DAT_20[puVar14 - 1].z + param1.DAT_28[puVar14 - 1].z) / 2);
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1));
-                                iVar10 = (param1.DAT_20[puVar14 - 1].y + param1.DAT_20[puVar14].y) / 2;
-                                Coprocessor.vector2.vx2 = (short)((param1.DAT_20[puVar18].x + param1.DAT_20[puVar14].x) / 2);
-                                Coprocessor.vector2.vy2 = (short)iVar10;
-                                Coprocessor.vector2.vz2 = (short)((param1.DAT_20[puVar14 - 1].z + param1.DAT_20[puVar14].z) / 2);
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2));
-                                Coprocessor.ExecuteRTPT(12, false);
-                                dbVar16.C32_DAT_10[puVar8 + 1] = local_f0[param1.DAT_26[puVar14 - 1] >> 2];
-                                dbVar16.C32_DAT_10[puVar8 + 17] = local_f0[param1.DAT_2E[puVar14 - 1] >> 2];
-                                dbVar16.C32_DAT_10[puVar8 + 33] = local_f0[param1.DAT_26[puVar14] >> 2];
-                                dbVar16.C32_DAT_10[puVar8 + 49] = local_f0[param1.DAT_2E[puVar14] >> 2];
-                                uVar20 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                uVar7 = (uint)((int)uVar20 << 16 >> 16);
-                                uVar1 = uVar7;
-
-                                if ((int)uVar5 < (int)uVar7)
-                                    uVar1 = uVar5;
-
-                                uVar5 = (uint)((int)uVar7 < (int)uVar11 ? 1 : 0);
-
-                                if ((int)uVar1 < 320)
-                                {
-                                    if (uVar5 != 0)
-                                        uVar7 = uVar11;
-
-                                    if (-1 < (int)uVar7)
-                                    {
-                                        uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                        dbVar16.V3_DAT_10[puVar8 + 50] = roadVertices.Dequeue();
-                                        uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                        dbVar16.V3_DAT_10[puVar8 + 15] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 5] = roadVertices.Dequeue();
-                                        uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sy2;
-                                        dbVar16.V3_DAT_10[puVar8 + 28] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar8 + 8] = roadVertices.Dequeue();
-                                        iVar10 = 0;
-
-                                        if (0 < iVar13)
-                                            iVar10 = iVar13;
-
-                                        iVar10 = iVar13 + (iVar3 - iVar12) * 2;
-                                        iVar3 = 0;
-
-                                        if (0 < iVar10)
-                                            iVar3 = iVar10;
-
-                                        iVar4 = (iVar4 - iVar12) * 2;
-                                        iVar13 += iVar4;
-                                        iVar3 = 0;
-
-                                        if (0 < iVar13)
-                                            iVar3 = iVar13;
-
-                                        iVar10 += iVar4;
-                                        iVar3 = 0;
-
-                                        if (0 < iVar10)
-                                            iVar3 = iVar10;
-
-                                        Coprocessor.vector0.vx0 = (short)((param1.DAT_28[puVar14 - 1].x + param1.DAT_28[puVar14].x) / 2);
-                                        Coprocessor.vector0.vy0 = (short)((param1.DAT_28[puVar14 - 1].y + param1.DAT_28[puVar14].y) / 2);
-                                        Coprocessor.vector0.vz0 = (short)((param1.DAT_28[puVar14 - 1].z + param1.DAT_28[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                                        iVar10 = (param1.DAT_20[puVar14].y + param1.DAT_28[puVar14].y) / 2;
-                                        Coprocessor.vector1.vx1 = (short)((param1.DAT_20[puVar14].x + param1.DAT_28[puVar14].x) / 2);
-                                        Coprocessor.vector1.vy1 = (short)iVar10;
-                                        Coprocessor.vector1.vz1 = (short)((param1.DAT_20[puVar14].z + param1.DAT_28[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1));
-                                        Coprocessor.vector2.vx2 = (short)((param1.DAT_28[puVar14 - 1].x + param1.DAT_20[puVar14].x) / 2);
-                                        Coprocessor.vector2.vy2 = (short)((param1.DAT_28[puVar14 - 1].y + param1.DAT_20[puVar14].y) / 2);
-                                        Coprocessor.vector2.vz2 = (short)((param1.DAT_28[puVar14 - 1].z + param1.DAT_20[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2));
-                                        Coprocessor.ExecuteRTPT(12, false);
-                                        clrVar7 = local_f0[param1.DAT_26[puVar14 - 1] +
-                                                           param1.DAT_2E[puVar14 - 1] >> 3];
-                                        dbVar16.C32_DAT_10[puVar8 + 14] = clrVar7;
-                                        dbVar16.C32_DAT_10[puVar8 + 4] = clrVar7;
-                                        clrVar7 = local_f0[param1.DAT_26[puVar14 - 1] +
-                                                           param1.DAT_26[puVar14] >> 3];
-                                        dbVar16.C32_DAT_10[puVar8 + 27] = clrVar7;
-                                        dbVar16.C32_DAT_10[puVar8 + 7] = clrVar7;
-                                        clrVar7 = local_f0[param1.DAT_26[puVar14] +
-                                                           param1.DAT_2E[puVar14] >> 3];
-                                        dbVar16.C32_DAT_10[puVar8 + 46] = clrVar7;
-                                        dbVar16.C32_DAT_10[puVar8 + 36] = clrVar7;
-                                        clrVar7 = local_f0[param1.DAT_2E[puVar14 - 1] +
-                                                           param1.DAT_2E[puVar14] >> 3];
-                                        dbVar16.C32_DAT_10[puVar14 + 43] = clrVar7;
-                                        dbVar16.C32_DAT_10[puVar14 + 23] = clrVar7;
-                                        clrVar7 = local_f0[param1.DAT_2E[puVar14 - 1] +
-                                                           param1.DAT_26[puVar14] >> 3];
-                                        dbVar16.C32_DAT_10[puVar14 + 40] = clrVar7;
-                                        dbVar16.C32_DAT_10[puVar14 + 30] = clrVar7;
-                                        dbVar16.C32_DAT_10[puVar14 + 20] = clrVar7;
-                                        dbVar16.C32_DAT_10[puVar14 + 10] = clrVar7;
-                                        uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                                        dbVar16.V3_DAT_10[puVar14 + 44] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar14 + 24] = roadVertices.Dequeue();
-                                        uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                                        dbVar16.V3_DAT_10[puVar14 + 47] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar14 + 37] = roadVertices.Dequeue();
-                                        uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                                        dbVar16.V3_DAT_10[puVar14 + 41] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar14 + 31] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar14 + 21] = roadVertices.Peek();
-                                        dbVar16.V3_DAT_10[puVar14 + 11] = roadVertices.Dequeue();
-                                        uVar7 = (uint)dbVar16.DAT_1C;
-                                        uVar5 = (uint)dbVar16.DAT_20 + 1;
-                                        uVar1 = 0;
-
-                                        if (uVar5 != uVar7)
-                                            uVar1 = uVar5;
-
-                                        dbVar16.DAT_20 = (int)uVar1;
-                                    }
-                                }
-
-                                Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14 - 1].x;
-                                Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14 - 1].y;
-                                Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14 - 1].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                                Coprocessor.vector1.vx1 = (short)param1.DAT_20[puVar14].x;
-                                Coprocessor.vector1.vy1 = (short)param1.DAT_20[puVar14].y;
-                                Coprocessor.vector1.vz1 = (short)param1.DAT_20[puVar14].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1));
-                                Coprocessor.vector2.vx2 = (short)param1.DAT_28[puVar14].x;
-                                Coprocessor.vector2.vy2 = (short)param1.DAT_28[puVar14].y;
-                                Coprocessor.vector2.vz2 = (short)param1.DAT_28[puVar14].z;
-                                roadVertices.Enqueue(new Vector3Int(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2));
-                                Coprocessor.ExecuteRTPT(12, false);
-                            }
-                        }
-                        else
-                        {
-                            uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
-                            dbVar16.V3_DAT_0C[puVar15 + 15] = roadVertices.Dequeue();
-                            uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
-                            dbVar16.V3_DAT_0C[puVar15 + 18] = roadVertices.Dequeue();
-                            uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                            dbVar16.V3_DAT_0C[puVar15 + 21] = roadVertices.Dequeue();
-                            Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
-                            Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
-                            Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
-                            roadVertices.Enqueue(new Vector3Int(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0));
-                            Coprocessor.ExecuteRTPS(12, false);
-                            dbVar16.C32_DAT_0C[puVar15 + 15] = local_f0[param1.DAT_26[puVar14 - 1] >> 2];
-                            dbVar16.C32_DAT_0C[puVar15 + 17] = local_f0[param1.DAT_2E[puVar14 - 1] >> 2];
-                            dbVar16.C32_DAT_0C[puVar15 + 20] = local_f0[param1.DAT_26[puVar14] >> 2];
-                            dbVar16.C32_DAT_0C[puVar15 + 23] = local_f0[param1.DAT_2E[puVar14] >> 2];
-                            uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
-                            dbVar16.V3_DAT_0C[puVar15 + 24] = roadVertices.Dequeue();
-                            Coprocessor.ExecuteAVSZ4();
-                            iVar3 = Coprocessor.accumulator.ir0;
-
-                            if (iVar3 < 0)
-                                iVar3 += 255;
-
-                            //...
-                            iVar3 = Coprocessor.averageZ;
-                            puVar15 += 13;
-                            puVar19 += 13;
-                            dbVar16.DAT_18++;
-                        }
-                    }
-                    else
-                    {
-                        Coprocessor.vector0.vx0 = (short)param1.DAT_28[puVar14].x;
-                        Coprocessor.vector0.vy0 = (short)param1.DAT_28[puVar14].y;
-                        Coprocessor.vector0.vz0 = (short)param1.DAT_28[puVar14].z;
-                        Coprocessor.ExecuteRTPS(12, false);
-                    }
-
-                    puVar18 += 4;
-                }
-            }
         }
     }
 
@@ -820,7 +310,7 @@ public class LevelManager : MonoBehaviour
     {
         BSP piVar1;
 
-        piVar1 = bspTree;
+        piVar1 = GameManager.instance.bspTree;
 
         if (0 < param1)
         {
@@ -1060,7 +550,8 @@ public class LevelManager : MonoBehaviour
         ConfigContainer ccVar4;
 
         param1.FUN_3CCD4(1);
-        cVar1 = GameManager.instance.FUN_4B914(param1, 256);
+        cVar1 = GameManager.instance.FUN_4B914(param1, 256, defaultCamera);
+        terrain.vCamera = cVar1;
         param1.vCamera = cVar1;
         GameManager.instance.cameraObjects[~param1.id] = cVar1;
 
@@ -1114,7 +605,7 @@ public class LevelManager : MonoBehaviour
         int local_3c;
         int local_30;
 
-        VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
+        VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
 
         local_80 = new int[,]
         {
@@ -1237,7 +728,7 @@ public class LevelManager : MonoBehaviour
                     iVar10 = (iVar5 >> 12) * iVar10;
                     lVar5 = Utilities.Divdi3(uVar15.x, uVar15.y, iVar10, iVar10 >> 31);
 
-                    if (local_3c < iVar5)
+                    if (local_3c < (int)lVar5)
                     {
                         local_3c = (int)lVar5;
                         local_80[1, 0] = local_80[2, 0];
@@ -1251,10 +742,10 @@ public class LevelManager : MonoBehaviour
                     local_30 = iVar5;
                 }
 
-                local_b0[local_30, 1] = piVar7.DAT_00.x + local_80[1, 0];
-                local_b0[local_30, 3] = piVar7.DAT_00.z + local_80[1, 2];
-                uVar3 = terrain.FUN_1B750((uint)local_b0[local_30, 1], (uint)local_b0[local_30, 3]);
-                local_b0[local_30, 2] = uVar3;
+                local_b0[local_30, 0 + i] = piVar7.DAT_00.x + local_80[1, 0];
+                local_b0[local_30, 2 + i] = piVar7.DAT_00.z + local_80[1, 2];
+                uVar3 = terrain.FUN_1B750((uint)local_b0[local_30, 0 + i], (uint)local_b0[local_30, 2 + i]);
+                local_b0[local_30, 1 + i] = uVar3;
             }
 
             local_30 += 2;
@@ -1265,8 +756,15 @@ public class LevelManager : MonoBehaviour
 
     private Junction FUN_50C0(int param1)
     {
-        Junction newJunc = new Junction();
+        GameObject obj = new GameObject("ROAD" + counter.ToString().PadLeft(2, '0'));
+        Junction newJunc = obj.AddComponent<Junction>();
+        obj.AddComponent<MeshFilter>();
+        obj.AddComponent<MeshRenderer>();
         newJunc.DAT_1C = param1;
+        newJunc.DAT_20 = new List<Vector3Int>();
+        newJunc.DAT_26 = new List<short>();
+        newJunc.DAT_28 = new List<Vector3Int>();
+        newJunc.DAT_2E = new List<short>();
         return newJunc;
     }
 
@@ -1283,14 +781,21 @@ public class LevelManager : MonoBehaviour
         param1.DAT_20 = 0;
         param1.DAT_18 = 0;
 
-        if ((param1.DAT_2C & 2) == 0)
+        /*if ((param1.DAT_2C & 2) == 0)
         {
-            param1.V3_DAT_0C = new Vector3[param1.DAT_14 * 10];
+            param1.V3_DAT_0C = new Vector3[param1.DAT_14 * 4];
             param1.C32_DAT_0C = new Color32[param1.DAT_14 * 10];
-            param1.V3_DAT_10 = new Vector3[param1.DAT_1C * 40];
+            param1.V3_DAT_10 = new Vector3[param1.DAT_1C * 14];
             param1.C32_DAT_10 = new Color32[param1.DAT_1C * 40];
             //...
         }
+        else
+        {
+            param1.V3_DAT_0C = new Vector3[param1.DAT_14 * 5];
+            param1.C32_DAT_0C = new Color32[param1.DAT_14 * 13];
+            param1.V3_DAT_10 = new Vector3[param1.DAT_1C * 18];
+            param1.C32_DAT_10 = new Color32[param1.DAT_1C * 52];
+        }*/
     }
 
     private int FUN_57AC(int[] param1)
@@ -1388,7 +893,7 @@ public class LevelManager : MonoBehaviour
         uint local_30;
         int local_2c;
 
-        VigTerrain terrain = GameObject.Find("Terrain").GetComponent<VigTerrain>();
+        VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
 
         iVar4 = (param1[0, 3] * 3 - param1[0, 0]) + param1[1, 2] * -3 + param1[2, 1];
 
@@ -1480,6 +985,7 @@ public class LevelManager : MonoBehaviour
         uVar14 = (uint)terrain.FUN_1B750((uint)iVar21, (uint)iVar22);
         jVar20.pos = new Vector3Int(iVar21, (int)uVar14, iVar22);
         jVar20.xrtp = param2;
+        jVar20.GetComponent<MeshRenderer>().materials = jVar20.xrtp.timFarList.ToArray();
         iVar21 = 0;
 
         if (-1 < local_50)
@@ -1518,6 +1024,11 @@ public class LevelManager : MonoBehaviour
                 if (iVar17 < 0)
                     iVar17 += 4095;
 
+                iVar17 = (iVar17 >> 12) + iVar8;
+
+                if (iVar17 < 0)
+                    iVar17 += 255;
+
                 iVar13 = (int)uVar3 * iVar13 + iVar16 * iVar21;
                 iVar17 >>= 8;
 
@@ -1554,9 +1065,9 @@ public class LevelManager : MonoBehaviour
                     if (iVar17 < 0)
                         iVar17 += 0xffff;
 
-                    local_64.y = (int)((uint)terrain.vertices[terrain.chunks[((uint)(iVar17 >> 16) >> 6) +
-                                                                ((uint)(iVar13 >> 16) >> 6) * 128] * 4096 +
-                                               (iVar17 >> 16 & 63) + (iVar13 >> 16 & 63) * 128] >> 11) << 2;
+                    local_64.y = (int)((uint)terrain.vertices[terrain.chunks[(((uint)(iVar17 >> 16) >> 6) * 4 +
+                                                                ((uint)(iVar13 >> 16) >> 6) * 128) / 4] * 4096 +
+                                               ((iVar17 >> 16 & 63) * 2 + (iVar13 >> 16 & 63) * 128) / 2] >> 11) << 2;
                     jVar20.DAT_20.Add(new Vector3Int(local_68.x, local_68.y, local_64.x));
                     jVar20.DAT_26.Add((short)local_64.y);
                     local_68.x = iVar22 - jVar20.pos.x >> 8;
@@ -1571,9 +1082,9 @@ public class LevelManager : MonoBehaviour
                         iVar18 += 0xffff;
 
                     local_64.x = iVar13 >> 8;
-                    local_64.y = (int)((uint)terrain.vertices[terrain.chunks[((uint)(iVar18 >> 16) >> 6) +
-                                                                          ((uint)(iVar22 >> 16) >> 6) * 128] +
-                                                           (iVar18 >> 16 & 63) + (iVar22 >> 16 & 63) * 128] >> 11) << 2;
+                    local_64.y = (int)((uint)terrain.vertices[terrain.chunks[(((uint)(iVar18 >> 16) >> 6) * 4 +
+                                                                          ((uint)(iVar22 >> 16) >> 6) * 128) / 4] * 4096 +
+                                                           ((iVar18 >> 16 & 63) * 2 + (iVar22 >> 16 & 63) * 128) / 2] >> 11) << 2;
                     jVar20.DAT_28.Add(new Vector3Int(local_68.x, local_68.y, local_64.x));
                     jVar20.DAT_2E.Add((short)local_64.y);
                 }
@@ -1688,6 +1199,7 @@ public class LevelManager : MonoBehaviour
         if (iVar3 < 0x100000)
         {
             jVar4 = FUN_5850(param1, param2, param3);
+            counter++;
             roadList.Add(jVar4);
         }
         else

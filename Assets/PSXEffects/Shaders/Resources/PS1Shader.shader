@@ -2,9 +2,12 @@ Shader "PSXEffects/PS1Shader"
 {
 	Properties
 	{
+		[Toggle] _ColorOnly("Color Only", Float) = 0.0
 		[Toggle] _Unlit("Unlit", Float) = 0.0
 		[Toggle] _DrawDist("Affected by Polygonal Draw Distance", Float) = 1.0
 		_VertexInaccuracy("Vertex Inaccuracy Override", Float) = -1.0
+		_OffsetFactor("Offset factor", Float) = 1.0
+		_OffsetUnits("Offset units", Float) = 1.0
 		_Color("Color", Color) = (1,1,1,1)
 		[KeywordEnum(Vertex, Fragment)] _DiffModel("Diffuse Model", Float) = 0.0
 		_MainTex("Texture", 2D) = "white" {}
@@ -36,19 +39,22 @@ Shader "PSXEffects/PS1Shader"
 		Tags { "Queue" = "Geometry" "RenderType" = "Opaque" }
 		LOD 100
 		Lighting On
-		Offset[_Offset], 1
+		Offset [_Offset], 1
 		Cull[_Cul]
 		Blend[_SrcBlend][_DstBlend]
 		BlendOp[_BlendOp]
+		ZTest LEqual
 		ZWrite[_ZWrite]
 
 		Pass
 		{
+			Offset [_OffsetFactor], [_OffsetUnits]
 			Tags { "LightMode" = "ForwardBase" }
 			CGPROGRAM
 
 			float _Transparent;
-
+			float _ColorOnly;
+			
 			#include "UnityCG.cginc"
 			#include "UnityLightingCommon.cginc"
 			#include "UnityStandardUtils.cginc"
@@ -328,7 +334,12 @@ Shader "PSXEffects/PS1Shader"
 					// If material is unlit, just set color to albedo
 					col.rgb = albedo;
 					// Tint material
+					i.color.a = 1;
 					col *= i.color * _Color;
+
+					if (!_ColorOnly) {
+						col *= 2;
+					}
 					col.a = albedo.a * i.color.a * _Color.a;
 				}
 
