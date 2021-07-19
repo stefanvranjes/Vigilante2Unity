@@ -35,6 +35,11 @@ public static class Utilities
         }
     };
 
+    public static sbyte[] DAT_106E8 =
+    {
+        -1, -1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 9
+    };
+
     public static byte[] DAT_10AE0 =
     {
         0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5,
@@ -486,6 +491,25 @@ public static class Utilities
         }
 
         return iVar1;
+    }
+
+    public static long FUN_2AD3C(Vector3Int v3, Vector3Int sv3)
+    {
+        long lVar1;
+        long lVar2;
+        long lVar3;
+        int iVar4;
+        int iVar5;
+
+        lVar1 = (long)v3.x * sv3.x;
+        lVar2 = (long)v3.y * sv3.y;
+        lVar3 = (long)v3.z * sv3.z;
+        iVar4 = (int)lVar1 + (int)lVar2;
+        iVar5 = (int)(lVar1 >> 32) + (int)(lVar2 >> 32)
+                + (iVar4 < (int)lVar2 ? 1 : 0);
+        iVar4 += (int)lVar3;
+        iVar5 += (int)(lVar3 >> 32) + (iVar4 < (int)lVar3 ? 1 : 0);
+        return (iVar5 << 32) | iVar4;
     }
 
     public static Vector2Int FUN_2ACD0(Vector3Int v3a, Vector3Int v3b)

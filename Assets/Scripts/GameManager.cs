@@ -1151,6 +1151,7 @@ public class GameManager : MonoBehaviour
     public byte[] DAT_D19; //gp+D19h
     public byte[] DAT_D1A; //gp+D1Ah
     public byte[] DAT_D1B; //gp+D1Bh
+    public byte[,] DAT_D28; //gp+D28h
     public int DAT_DA0; //gp+DA0h
     public ushort DAT_DA8; //gp+DA8h
     public int DAT_DB0; //gp+DB0h
@@ -2170,6 +2171,16 @@ public class GameManager : MonoBehaviour
         }
 
         return uVar4;
+    }
+
+    public void FUN_15B00(int param1, byte param2, byte param3, byte param4)
+    {
+        if (GameManager.instance.gameMode != _GAME_MODE.Demo)
+        {
+            DAT_D28[param1, 5] = param2;
+            DAT_D28[param1, 6] = param3;
+            DAT_D28[param1, 7] = param4;
+        }
     }
 
     public void FUN_2D278(VigObject param1, int param2)

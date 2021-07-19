@@ -120,7 +120,8 @@ public class Vehicle : VigObject
         if (uVar6 != 0)
             return uVar6;
 
-        return 0;
+        uVar6 = FUN_3B424(this, param1);
+        return uVar6;
     }
 
     private void FixedUpdate()
@@ -2271,7 +2272,17 @@ public class Vehicle : VigObject
     public int FUN_3B424(VigObject param1, HitDetection param2)
     {
         sbyte sVar1;
+        uint uVar2;
+        int iVar7;
+        int pcVar7;
+        uint uVar8;
+        int iVar9;
         VigObject ppcVar11;
+        int iVar13;
+        ulong uVar14;
+        Vector3Int local_70;
+        int local_30;
+        int local_38;
 
         ppcVar11 = param2.self;
 
@@ -2323,7 +2334,93 @@ public class Vehicle : VigObject
                         //...
                     }
 
+                    if ((PDAT_74 == ppcVar11 || PDAT_78 == ppcVar11)
+            && param2.normal1.y < -2048)
+                        return 0;
 
+                    uVar14 = (ulong)Utilities.FUN_2AD3C(new Vector3Int(param1.physics1.X, param1.physics1.Y, param1.physics1.Z), param2.normal1);
+                    uVar8 = (uint)(uVar14 >> 0x2d) | (uint)(uVar14 << 0x33);
+                    iVar13 = 0;
+
+                    if ((int)uVar8 < 0)
+                    {
+                        iVar13 = -(int)uVar8;
+
+                        if (0 < (int)uVar8)
+                            iVar13 += 0x3fff;
+
+                        iVar9 = (iVar13 >> 14) * param1.DAT_A6;
+
+                        if (iVar9 < 0)
+                            iVar9 += 4095;
+
+                        iVar13 = 0;
+
+                        if (ppcVar11.GetType().IsSubclassOf(typeof(VigObject)))
+                            ; //...
+
+                        if (iVar13 == 0)
+                        {
+                            local_70 = Utilities.FUN_24210(param1.vTransform.rotation, param2.normal1);
+                            uVar2 = (uint)-(param2.distance + (int)uVar8);
+                            local_30 = local_70.x * iVar9;
+                            local_38 = local_70.z * iVar9;
+                            local_70.x = (int)((uint)((ulong)(uint)local_70.x * uVar2) >> 12 |
+                                         (uint)(((int)((ulong)(uint)local_70.x * uVar2 >> 32) + local_30 +
+                                         (int)uVar2 * (local_70.x >> 31)) * 0x100000));
+                            local_70.y = (int)((uint)((ulong)(uint)local_70.y * uVar2) >> 12 |
+                                         (uint)(((int)((ulong)(uint)local_70.y * uVar2 >> 32) + local_70.y * iVar9 +
+                                         (int)uVar2 * (local_70.y >> 31)) * 0x100000));
+                            local_70.z = (int)((uint)((ulong)(uint)local_70.z * uVar2) >> 12 |
+                                         (uint)(((int)((ulong)(uint)local_70.z * uVar2 >> 32) + local_38 +
+                                         (int)uVar2 * (local_70.z >> 31)) * 0x100000));
+                            param1.FUN_2B1FC(local_70, param2.position);
+
+                            if ((flags & 0x8000) == 0)
+                            {
+                                iVar7 = (int)(uVar8 + 0x3fff) >> 14;
+                                iVar9 = -ppcVar11.maxHalfHealth;
+
+                                if (-ppcVar11.maxHalfHealth < iVar7)
+                                    iVar9 = iVar7;
+
+                                if (param1.type == 2)
+                                    ; //FUN_3A020
+                                else
+                                    if (param1.GetType().IsSubclassOf(typeof(VigObject)))
+                                    ; //...
+
+                                if (id < 0)
+                                    GameManager.instance.FUN_15B00(~id, 0xff, 0, 0x40);
+
+                                if (457 < param1.physics1.W)
+                                {
+                                    uVar8 = (uint)(ushort)ppcVar11.id >> 4;
+                                    pcVar7 = 11;
+
+                                    if (uVar8 < 11)
+                                        pcVar7 = (int)uVar8;
+
+                                    sVar1 = Utilities.DAT_106E8[pcVar7];
+
+                                    if (sVar1 != -1)
+                                    {
+                                        //sounds
+                                    }
+                                }
+
+                                if (1525 < param1.physics1.W && -32 < iVar9 / param1.physics1.W)
+                                {
+                                    //particles
+                                }
+                            }
+
+                            flags |= 0x1008000;
+                        }
+                    }
+
+                    if (iVar13 < 1)
+                        return iVar13;
                 }
             }
         }
