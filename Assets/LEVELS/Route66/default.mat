@@ -110,6 +110,8 @@ Material:
     - _Mode: 0
     - _NormalMapDepth: 1
     - _OcclusionStrength: 1
+    - _OffsetFactor: 1
+    - _OffsetUnits: 1
     - _Parallax: 0.02
     - _RenderMode: 0
     - _Smoothness: 0.5

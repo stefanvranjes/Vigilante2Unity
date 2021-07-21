@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4606708509786397433}
   - component: {fileID: -5635016771136022544}
-  - component: {fileID: -4479320317654441089}
+  - component: {fileID: -3845611876132242079}
   m_Layer: 0
   m_Name: XOBF01
   m_TagString: Untagged
@@ -345,9 +345,9 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 1db13b6e030e9894b86c58460a102c69, type: 2}
   - {fileID: 2100000, guid: 3f0f0308b8ead5946a6a7e3e0345db96, type: 2}
   - {fileID: 2100000, guid: a7cec9c0d4db00c4f855b265d0815e19, type: 2}
-  ini: {fileID: -4479320317654441089}
+  ini: {fileID: -3845611876132242079}
   animations: 
---- !u!114 &-4479320317654441089
+--- !u!114 &-3845611876132242079
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

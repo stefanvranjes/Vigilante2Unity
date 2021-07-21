@@ -89,6 +89,8 @@ public class LevelManager : MonoBehaviour
         List<VigTuple> ppiVar15;
         VigObject ppiVar18;
 
+        LoadData();
+
         iVar6 = 1;
 
         if (_GAME_MODE.Demo < GameManager.instance.gameMode)
@@ -517,6 +519,7 @@ public class LevelManager : MonoBehaviour
                 if ((mVar1.DAT_00 & 1) != 0)
                 {
                     mVar1.FUN_39A8(dVar2);
+                    mVar1.Initialize();
                     mVar1.DAT_00 &= 254;
                     mVar1.DAT_00 |= 4;
                 }
@@ -529,6 +532,7 @@ public class LevelManager : MonoBehaviour
                 if ((mVar1.DAT_00 & 1) != 0)
                 {
                     mVar1.FUN_39A8(FUN_3828);
+                    mVar1.Initialize();
                     mVar1.DAT_00 &= 254;
                     mVar1.DAT_00 |= 4;
                 }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,15 +18,33 @@ public class VigMesh : MonoBehaviour
     public byte[] DAT_14; //0x14
     public uint DAT_18; //0x18
     public int[] DAT_1C; //0x1C
-    public List<int> materialIDs;
+    public int[] materialIDs;
+    public bool initAtStart;
 
     private VigMesh instance;
-    private MeshRenderer meshRenderer;
-    private MeshFilter meshFilter;
-    private List<Vector3> newVertices;
-    private List<Vector2> newUVs;
-    private List<Color32> newColors;
-    private List<List<int>> newTriangles;
+    private Mesh mesh;
+    private static Vector3[] newVertices = new Vector3[1023];
+    private static Vector2[] newUVs = new Vector2[1023];
+    private static Color32[] newColors = new Color32[1023];
+    private static int[][] newTriangles = new int[16][]
+    {
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023], new int[1023], new int[1023]
+    };
+    private int index;
+    private int[] index2 = new int[16];
+    private float scale;
+    private MemoryStream msVar3;
+    private BufferedBinaryReader brVar3;
+    private MemoryStream msVar4;
+    private BufferedBinaryReader brVar4;
+    private MemoryStream msVar6;
+    private BufferedBinaryReader brVar6;
+    private MemoryStream msVar13;
+    private BufferedBinaryReader brVar13;
+    private Texture[] mainT;
 
     private static uint[] DAT_22FEC = new uint[]
     {
@@ -44,16 +63,91 @@ public class VigMesh : MonoBehaviour
         0x80022c54, 0x80022da8, 0x80022fbc, 0x80022e78
     };
 
+    void Awake()
+    {
+        
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (initAtStart)
+            Initialize();
+    }
+
+    public void Initialize()
+    {
+        msVar13 = new MemoryStream(faceStream);
+        msVar3 = new MemoryStream(vertexStream);
+        msVar4 = new MemoryStream(normalStream);
+
+        if (DAT_14 != null)
+            msVar6 = new MemoryStream(DAT_14);
+        else
+            msVar6 = new MemoryStream(new byte[0]);
+
+        brVar13 = new BufferedBinaryReader(msVar13, (int)msVar13.Length);
+        brVar13.FillBuffer();
+
+        brVar3 = new BufferedBinaryReader(msVar3, (int)msVar3.Length);
+        brVar3.FillBuffer();
+
+        brVar4 = new BufferedBinaryReader(msVar4, (int)msVar4.Length);
+        brVar4.FillBuffer();
+
+        brVar6 = new BufferedBinaryReader(msVar6, (int)msVar6.Length);
+        brVar6.FillBuffer();
+
+        Material[] materials = GetComponent<MeshRenderer>().materials;
+        mainT = new Texture[materials.Length - 1];
+
+        for (int i = 1; i < materials.Length; i++)
+            mainT[i - 1] = materials[i].mainTexture as Texture;
+
+        mesh = GetComponent<MeshFilter>().mesh;
+        mesh.subMeshCount = materials.Length;
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void ClearMeshData()
+    {
+        if (index == 0) return;
+
+        for (int i = 0; i < index; i++)
+        {
+            newVertices[i] = new Vector3(0, 0, 0);
+            newUVs[i] = new Vector2(0, 0);
+        }
+
+        for (int i = 0; i < mesh.subMeshCount; i++)
+            for (int j = 0; j < index2[i]; j++)
+                newTriangles[i][j] = 0;
+
+        index = 0;
+        for (int i = 0; i < index2.Length; i++)
+            index2[i] = 0;
+
+        int count = mesh.subMeshCount;
+        mesh.Clear();
+        mesh.subMeshCount = count;
+    }
+
+    public void CreateMeshData()
+    {
+        for (int j = 0; j < index; j++)
+            newVertices[j] = new Vector3(newVertices[j].x, -newVertices[j].y, newVertices[j].z) * scale;
+
+        mesh.SetVertices(newVertices, 0, index);
+        mesh.SetColors(newColors, 0, index);
+        mesh.SetUVs(0, newUVs, 0, index);
+
+        for (int j = 0; j < mesh.subMeshCount; j++)
+            mesh.SetTriangles(newTriangles[j], 0, index2[j], j);
     }
 
     public void FUN_2D2A8(VigTransform param1)
@@ -116,29 +210,24 @@ public class VigMesh : MonoBehaviour
         byte bVar1;
         int ppuVar2;
         int iVar3;
-        MemoryStream msVar3;
-        BinaryReader brVar3;
         int iVar4;
-        MemoryStream msVar4;
-        BinaryReader brVar4;
         int puVar5;
         int iVar6;
-        MemoryStream msVar6;
-        BinaryReader brVar6;
         int puVar7;
         int iVar8;
         uint uVar9;
         int puVar10;
         int iVar11;
         int iVar12;
-        MemoryStream msVar13;
-        BinaryReader brVar13;
         int iVar14;
         int iVar15;
         int iVar16;
         uint uVar17;
+        float fVar18;
+        float fVar19;
 
-        int tFactor = 1;
+        int tFactor = GameManager.instance.translateFactor2;
+        ClearMeshData();
         
         bVar1 = DAT_00;
         ppuVar2 = 0;
@@ -210,948 +299,998 @@ public class VigMesh : MonoBehaviour
         Coprocessor.translationVector._trx = param1.position.x >> (int)(uVar9 & 31);
         Coprocessor.translationVector._try = param1.position.y >> (int)(uVar9 & 31);
         Coprocessor.translationVector._trz = param1.position.z >> (int)(uVar9 & 31);
-        msVar13 = new MemoryStream(faceStream);
-        msVar3 = new MemoryStream(vertexStream);
-        msVar4 = new MemoryStream(normalStream);
-        msVar6 = new MemoryStream(DAT_14);
-
-        using (brVar13 = new BinaryReader(msVar13, Encoding.Default, true))
+        fVar18 = DAT_01 - 8;
+        fVar19 = Mathf.Pow(2f, fVar18);
+        scale = 1f / fVar19;
+        //Utilities.SetGlobalScale(transform, new Vector3(fVar19, fVar19, fVar19));
+        brVar13.Seek(0, SeekOrigin.Begin);
+        brVar3.Seek(0, SeekOrigin.Begin);
+        brVar4.Seek(0, SeekOrigin.Begin);
+        brVar6.Seek(0, SeekOrigin.Begin);
+        /*Debug.Log(GetComponent<VigObject>().id);
+        if (GetComponent<VigObject>().id == 80)
         {
-            using (brVar3 = new BinaryReader(msVar3, Encoding.Default, true))
+            uVar9 = 0;
+        }*/
+        /*if (GetComponent<VigObject>().maxFullHealth == 30)
+        {
+            uVar9 = 0;
+        }*/
+
+        for (int i = faces; i > 0;)
+        {
+            puVar5 = brVar13.ReadUInt16(4);
+            puVar7 = brVar13.ReadUInt16(6);
+            puVar10 = brVar13.ReadUInt16(8);
+            Coprocessor.vector0.vx0 = brVar3.ReadInt16(puVar5);
+            Coprocessor.vector0.vy0 = brVar3.ReadInt16(puVar5 + 2);
+            Coprocessor.vector0.vz0 = brVar3.ReadInt16(puVar5 + 4);
+            Coprocessor.vector1.vx1 = brVar3.ReadInt16(puVar7);
+            Coprocessor.vector1.vy1 = brVar3.ReadInt16(puVar7 + 2);
+            Coprocessor.vector1.vz1 = brVar3.ReadInt16(puVar7 + 4);
+            Coprocessor.vector2.vx2 = brVar3.ReadInt16(puVar10);
+            Coprocessor.vector2.vy2 = brVar3.ReadInt16(puVar10 + 2);
+            Coprocessor.vector2.vz2 = brVar3.ReadInt16(puVar10 + 4);
+            Coprocessor.ExecuteRTPT(12, false);
+            i--;
+
+            LAB_221B0:
+            switch (DAT_22FEC[(brVar13.ReadByte(3) & 0x3C) / 4 + ppuVar2])
             {
-                using (brVar4 = new BinaryReader(msVar4, Encoding.Default, true))
-                {
-                    using (brVar6 = new BinaryReader(msVar6, Encoding.Default, true))
+                case 0x8002224C:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
                     {
-                        for (int i = faces; i > 0;)
-                        {
-                            puVar5 = brVar13.ReadUInt16(4);
-                            puVar7 = brVar13.ReadUInt16(6);
-                            puVar10 = brVar13.ReadUInt16(8);
-                            Coprocessor.vector0.vx0 = brVar3.ReadInt16(puVar5);
-                            Coprocessor.vector0.vy0 = brVar3.ReadInt16(puVar5 + 2);
-                            Coprocessor.vector0.vz0 = brVar3.ReadInt16(puVar5 + 4);
-                            Coprocessor.vector1.vx1 = brVar3.ReadInt16(puVar7);
-                            Coprocessor.vector1.vy1 = brVar3.ReadInt16(puVar7 + 2);
-                            Coprocessor.vector1.vz1 = brVar3.ReadInt16(puVar7 + 4);
-                            Coprocessor.vector2.vx2 = brVar3.ReadInt16(puVar10);
-                            Coprocessor.vector2.vy2 = brVar3.ReadInt16(puVar10 + 2);
-                            Coprocessor.vector2.vz2 = brVar3.ReadInt16(puVar10 + 4);
-                            Coprocessor.ExecuteRTPT(12, false);
-                            i--;
-
-                            LAB_221B0:
-                            switch (DAT_22FEC[(brVar13.ReadByte(3) & 0x3C) / 4 + ppuVar2])
-                            {
-                                case 0x8002224C:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        Color32 color = new Color32
-                                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 32));
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        iVar15 = 0x4000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022280:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        newColors.Add(new Color32
-                                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 48)));
-                                        int materialID = brVar13.ReadByte(22) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(12) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(13) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newColors.Add(new Color32
-                                            (brVar13.ReadByte(24), brVar13.ReadByte(25), brVar13.ReadByte(26), brVar13.ReadByte(27)));
-                                        newColors.Add(new Color32
-                                            (brVar13.ReadByte(28), brVar13.ReadByte(29), brVar13.ReadByte(30), brVar13.ReadByte(31)));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(40, SeekOrigin.Current);
-                                        iVar15 = 0x9000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(40, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x800222E4:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        newColors.Add(new Color32
-                                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 40)));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        newColors.Add(new Color32
-                                            (brVar13.ReadByte(12), brVar13.ReadByte(13), brVar13.ReadByte(14), brVar13.ReadByte(15)));
-                                        newColors.Add(new Color32
-                                            (brVar13.ReadByte(20), brVar13.ReadByte(21), brVar13.ReadByte(22), brVar13.ReadByte(23)));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(20, SeekOrigin.Current);
-                                        iVar15 = 0x6000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(20, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022330:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        brVar13.BaseStream.Seek(32, SeekOrigin.Current);
-                                        iVar15 = 0x9000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(32, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x800224A0:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
-                                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
-                                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
-                                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
-                                        puVar5 = brVar13.ReadInt16(10);
-                                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
-                                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
-                                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
-                                        Coprocessor.ExecuteNCCS(12, true);
-                                        Color32 color = new Color32
-                                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        iVar15 = 0x4000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x800225AC:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
-                                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
-                                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
-                                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
-                                        puVar5 = brVar13.ReadInt16(10);
-                                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
-                                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
-                                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
-                                        Coprocessor.ExecuteNCCS(12, true);
-                                        int materialID = brVar13.ReadByte(22) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(12) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(13) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        Color32 color = new Color32
-                                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x8002260C:
-                                    //...
-                                    brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                    break;
-
-                                case 0x80022674:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022870:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        Coprocessor.ExecuteAVSZ3();
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
-                                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
-                                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
-                                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
-                                        puVar5 = brVar13.ReadInt16(10);
-                                        puVar7 = brVar13.ReadInt16(12);
-                                        puVar10 = brVar13.ReadInt16(14);
-                                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
-                                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
-                                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
-                                        Coprocessor.vector1.vx1 = brVar4.ReadInt16(puVar7);
-                                        Coprocessor.vector1.vy1 = brVar4.ReadInt16(puVar7 + 2);
-                                        Coprocessor.vector1.vz1 = brVar4.ReadInt16(puVar7 + 4);
-                                        Coprocessor.vector2.vx2 = brVar4.ReadInt16(puVar10);
-                                        Coprocessor.vector2.vy2 = brVar4.ReadInt16(puVar10 + 2);
-                                        Coprocessor.vector2.vz2 = brVar4.ReadInt16(puVar10 + 4);
-                                        Coprocessor.ExecuteNCCT(12, true);
-                                        uVar17 = (uint)Coprocessor.averageZ >> iVar16;
-                                        newColors.Add(new Color32
-                                            (Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0));
-                                        newColors.Add(new Color32
-                                            (Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1));
-                                        newColors.Add(new Color32
-                                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(16, SeekOrigin.Current);
-                                        iVar15 = 0x6000000;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(16, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022A4C:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        Coprocessor.ExecuteAVSZ3();
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
-                                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
-                                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
-                                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
-                                        puVar5 = brVar13.ReadInt16(10);
-                                        puVar7 = brVar13.ReadInt16(12);
-                                        puVar10 = brVar13.ReadInt16(14);
-                                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
-                                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
-                                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
-                                        Coprocessor.vector1.vx1 = brVar4.ReadInt16(puVar7);
-                                        Coprocessor.vector1.vy1 = brVar4.ReadInt16(puVar7 + 2);
-                                        Coprocessor.vector1.vz1 = brVar4.ReadInt16(puVar7 + 4);
-                                        Coprocessor.vector2.vx2 = brVar4.ReadInt16(puVar10);
-                                        Coprocessor.vector2.vy2 = brVar4.ReadInt16(puVar10 + 2);
-                                        Coprocessor.vector2.vz2 = brVar4.ReadInt16(puVar10 + 4);
-                                        Coprocessor.ExecuteNCCT(12, true);
-                                        uVar17 = (uint)Coprocessor.averageZ >> iVar16;
-                                        int materialID = brVar13.ReadByte(26) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(24) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(25) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newColors.Add(new Color32
-                                            (Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0));
-                                        newColors.Add(new Color32
-                                            (Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1));
-                                        newColors.Add(new Color32
-                                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        iVar15 = 0x9000000;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022B04:
-                                    //...
-                                    brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                    break;
-
-                                case 0x80022B7C:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        iVar15 = 0x9000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022C54:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022E2C:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022FBC:
-                                    return;
-
-                                case 0x80022E78:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x800221CC:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        Color32 color = new Color32
-                                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 32));
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        iVar15 = 0x4000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x800223F0:
-                                    //...
-                                    brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                    break;
-
-                                case 0x80022504:
-                                    //...
-                                    brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                    break;
-
-                                case 0x800227AC:
-                                    //...
-                                    goto case 0x80022870;
-
-                                case 0x800229A0:
-                                    //...
-                                    goto case 0x80022A4C;
-
-                                case 0x80022DA8:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        Color32 color = new Color32
-                                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 240));
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int materialID = brVar13.ReadByte(22) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(12) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(13) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x8002246C:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        Color32 color = new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte());
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        iVar15 = 0x4000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(4, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022580:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        Color32 color = new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte());
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int materialID = brVar13.ReadByte(22) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(12) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(13) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(4, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022640:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        Color32 color = new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte());
-                                        //...
-                                        newUVs.Add(new Vector2(0, 0)); //tmp
-                                        newUVs.Add(new Vector2(0, 0)); //tmp
-                                        newUVs.Add(new Vector2(0, 0)); //tmp
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index); //tmp
-                                        newTriangles[0].Add(index - 1); //tmp
-                                        newTriangles[0].Add(index - 2); //tmp
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(4, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022828:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(16, SeekOrigin.Current);
-                                        iVar15 = 0x6000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(16, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022A1C:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        Coprocessor.ExecuteAVSZ3();
-                                        uVar17 = (uint)Coprocessor.averageZ >> iVar16;
-                                        int materialID = brVar13.ReadByte(26) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(24) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(25) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        iVar15 = 0x9000000;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022B44:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(12, SeekOrigin.Current);
-                                        iVar15 = 0x9000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x800223D4:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        Color32 color = new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte());
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        iVar15 = 0x4000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(12, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(4, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x800224E8:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        Color32 color = new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte());
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newColors.Add(color);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int materialID = brVar13.ReadByte(22) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(12) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(13) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        iVar15 = 0x7000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(24, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(4, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x8002271C:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0, 0));
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[0].Add(index);
-                                        newTriangles[0].Add(index - 1);
-                                        newTriangles[0].Add(index - 2);
-                                        brVar13.BaseStream.Seek(16, SeekOrigin.Current);
-                                        iVar15 = 0x6000000;
-                                        goto LAB_22F08;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(16, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-
-                                case 0x80022910:
-                                    Coprocessor.ExecuteNCLIP();
-
-                                    if (Coprocessor.mathsAccumulator.mac0 > 0)
-                                    {
-                                        //...
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        newColors.Add(new Color32
-                                            (brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte(), brVar6.ReadByte()));
-                                        int materialID = brVar13.ReadByte(26) + 1;
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(16) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(17) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(20) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(21) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newUVs.Add(new Vector2
-                                            ((float)brVar13.ReadByte(24) / (meshRenderer.materials[materialID].mainTexture.width - 1),
-                                             1f - (float)brVar13.ReadByte(25) / (meshRenderer.materials[materialID].mainTexture.height - 1)));
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
-                                        newVertices.Add(new Vector3
-                                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
-                                        int index = newVertices.Count - 1;
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 1);
-                                        newTriangles[materialIDs.IndexOf(materialID)].Add(index - 2);
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        iVar15 = 0x9000000;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        brVar13.BaseStream.Seek(28, SeekOrigin.Current);
-                                        brVar6.BaseStream.Seek(12, SeekOrigin.Current);
-                                        break;
-                                    }
-                            }
-
-                            continue;
-
-                            LAB_22F08:
-                            Coprocessor.ExecuteAVSZ3();
-                            uVar17 = (uint)Coprocessor.averageZ >> iVar16;
-
-                            if (i > 0)
-                            {
-                                puVar5 = brVar13.ReadUInt16(4);
-                                puVar7 = brVar13.ReadUInt16(6);
-                                puVar10 = brVar13.ReadUInt16(8);
-                                Coprocessor.vector0.vx0 = brVar3.ReadInt16(puVar5);
-                                Coprocessor.vector0.vy0 = brVar3.ReadInt16(puVar5 + 2);
-                                Coprocessor.vector0.vz0 = brVar3.ReadInt16(puVar5 + 4);
-                                Coprocessor.vector1.vx1 = brVar3.ReadInt16(puVar7);
-                                Coprocessor.vector1.vy1 = brVar3.ReadInt16(puVar7 + 2);
-                                Coprocessor.vector1.vz1 = brVar3.ReadInt16(puVar7 + 4);
-                                Coprocessor.vector2.vx2 = brVar3.ReadInt16(puVar10);
-                                Coprocessor.vector2.vy2 = brVar3.ReadInt16(puVar10 + 2);
-                                Coprocessor.vector2.vz2 = brVar3.ReadInt16(puVar10 + 4);
-                                Coprocessor.ExecuteRTPT(12, false);
-                                i--;
-                                goto LAB_221B0;
-                            }
-                            else
-                                return;
-                        }
+                        Color32 color = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 32));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x4000000;
+                        goto LAB_22F08;
                     }
-                }
+                    else
+                    {
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022280:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        newColors[index] = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 48));
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(22)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(12) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(13) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        newColors[index + 1] = new Color32
+                            (brVar13.ReadByte(24), brVar13.ReadByte(25), brVar13.ReadByte(26), brVar13.ReadByte(27));
+                        newColors[index + 2] = new Color32
+                            (brVar13.ReadByte(28), brVar13.ReadByte(29), brVar13.ReadByte(30), brVar13.ReadByte(31));
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(32, SeekOrigin.Current);
+                        iVar15 = 0x9000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(32, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x800222E4:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        newColors[index] = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 40));
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newColors[index + 1] = new Color32
+                            (brVar13.ReadByte(12), brVar13.ReadByte(13), brVar13.ReadByte(14), brVar13.ReadByte(15));
+                        newColors[index + 2] = new Color32
+                            (brVar13.ReadByte(20), brVar13.ReadByte(21), brVar13.ReadByte(22), brVar13.ReadByte(23));
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(20, SeekOrigin.Current);
+                        iVar15 = 0x6000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(20, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022330:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        brVar13.Seek(32, SeekOrigin.Current);
+                        iVar15 = 0x9000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(32, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x800224A0:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
+                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
+                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
+                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
+                        puVar5 = brVar13.ReadInt16(10);
+                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
+                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
+                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
+                        Coprocessor.ExecuteNCCS(12, true);
+                        Color32 color = new Color32
+                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x4000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x800225AC:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
+                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
+                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
+                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
+                        puVar5 = brVar13.ReadInt16(10);
+                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
+                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
+                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
+                        Coprocessor.ExecuteNCCS(12, true);
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(22)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(12) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(13) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        Color32 color = new Color32
+                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x8002260C:
+                    //...
+                    brVar13.Seek(12, SeekOrigin.Current);
+                    break;
+
+                case 0x80022674:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022870:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        Coprocessor.ExecuteAVSZ3();
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
+                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
+                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
+                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
+                        puVar5 = brVar13.ReadInt16(10);
+                        puVar7 = brVar13.ReadInt16(12);
+                        puVar10 = brVar13.ReadInt16(14);
+                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
+                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
+                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
+                        Coprocessor.vector1.vx1 = brVar4.ReadInt16(puVar7);
+                        Coprocessor.vector1.vy1 = brVar4.ReadInt16(puVar7 + 2);
+                        Coprocessor.vector1.vz1 = brVar4.ReadInt16(puVar7 + 4);
+                        Coprocessor.vector2.vx2 = brVar4.ReadInt16(puVar10);
+                        Coprocessor.vector2.vy2 = brVar4.ReadInt16(puVar10 + 2);
+                        Coprocessor.vector2.vz2 = brVar4.ReadInt16(puVar10 + 4);
+                        Coprocessor.ExecuteNCCT(12, true);
+                        uVar17 = (uint)Coprocessor.averageZ >> iVar16;
+                        newColors[index] = new Color32
+                            (Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0);
+                        newColors[index + 1] = new Color32
+                            (Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1);
+                        newColors[index + 2] = new Color32
+                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(16, SeekOrigin.Current);
+                        iVar15 = 0x6000000;
+                        break;
+                    }
+                    else
+                    {
+                        brVar13.Seek(16, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022A4C:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        Coprocessor.ExecuteAVSZ3();
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
+                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
+                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
+                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 16);
+                        puVar5 = brVar13.ReadInt16(10);
+                        puVar7 = brVar13.ReadInt16(12);
+                        puVar10 = brVar13.ReadInt16(14);
+                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
+                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
+                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
+                        Coprocessor.vector1.vx1 = brVar4.ReadInt16(puVar7);
+                        Coprocessor.vector1.vy1 = brVar4.ReadInt16(puVar7 + 2);
+                        Coprocessor.vector1.vz1 = brVar4.ReadInt16(puVar7 + 4);
+                        Coprocessor.vector2.vx2 = brVar4.ReadInt16(puVar10);
+                        Coprocessor.vector2.vy2 = brVar4.ReadInt16(puVar10 + 2);
+                        Coprocessor.vector2.vz2 = brVar4.ReadInt16(puVar10 + 4);
+                        Coprocessor.ExecuteNCCT(12, true);
+                        uVar17 = (uint)Coprocessor.averageZ >> iVar16;
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(26)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(24) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(25) / (mainT[materialID - 1].height - 1));
+                        newColors[index] = new Color32
+                            (Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0);
+                        newColors[index + 1] = new Color32
+                            (Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1);
+                        newColors[index + 2] = new Color32
+                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        iVar15 = 0x9000000;
+                        break;
+                    }
+                    else
+                    {
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022B04:
+                    //...
+                    brVar13.Seek(12, SeekOrigin.Current);
+                    break;
+
+                case 0x80022B7C:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        iVar15 = 0x9000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022C54:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //tmp
+                        if (brVar13.ReadUInt16(16) == 0x3fff)
+                        {
+                            Color32 color = new Color32
+                                (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 32));
+                            newColors[index] = color;
+                            newColors[index + 1] = color;
+                            newColors[index + 2] = color;
+                            newVertices[index] = new Vector3
+                                (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                            newVertices[index + 1] = new Vector3
+                                (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                            newVertices[index + 2] = new Vector3
+                                (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                            newUVs[index] = new Vector2(0, 0);
+                            newUVs[index + 1] = new Vector2(0, 0);
+                            newUVs[index + 2] = new Vector2(0, 0);
+                            newTriangles[0][index2[0]] = index;
+                            newTriangles[0][index2[0] + 1] = index + 1;
+                            newTriangles[0][index2[0] + 2] = index + 2;
+                            index += 3;
+                            index2[0] += 3;
+                        }
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022E2C:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022FBC:
+                    return;
+
+                case 0x80022E78:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x800221CC:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        Color32 color = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 32));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x4000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x800223F0:
+                    //...
+                    brVar13.Seek(12, SeekOrigin.Current);
+                    break;
+
+                case 0x80022504:
+                    //...
+                    brVar13.Seek(24, SeekOrigin.Current);
+                    break;
+
+                case 0x800227AC:
+                    //...
+                    goto case 0x80022870;
+
+                case 0x800229A0:
+                    //...
+                    goto case 0x80022A4C;
+
+                case 0x80022DA8:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        Color32 color = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 240));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(22)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(12) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(13) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x8002246C:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        Color32 color = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        iVar15 = 0x4000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022580:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        Color32 color = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(22)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(12) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(13) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022640:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        Color32 color = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        //...
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newUVs[index] = new Vector2(0, 0); //tmp
+                        newUVs[index + 1] = new Vector2(0, 0); //tmp
+                        newUVs[index + 2] = new Vector2(0, 0); //tmp
+                        newTriangles[0][index2[0]] = index; //tmp
+                        newTriangles[0][index2[0] + 1] = index + 1; //tmp
+                        newTriangles[0][index2[0] + 2] = index + 2; //tmp
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022828:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        newColors[index] = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index + 1] = new Color32
+                            (brVar6.ReadByte(4), brVar6.ReadByte(5), brVar6.ReadByte(6), brVar6.ReadByte(7));
+                        newColors[index + 2] = new Color32
+                            (brVar6.ReadByte(8), brVar6.ReadByte(9), brVar6.ReadByte(10), brVar6.ReadByte(11));
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(16, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x6000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(16, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022A1C:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        newColors[index] = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index + 1] = new Color32
+                            (brVar6.ReadByte(4), brVar6.ReadByte(5), brVar6.ReadByte(6), brVar6.ReadByte(7));
+                        newColors[index + 2] = new Color32
+                            (brVar6.ReadByte(8), brVar6.ReadByte(9), brVar6.ReadByte(10), brVar6.ReadByte(11));
+                        Coprocessor.ExecuteAVSZ3();
+                        uVar17 = (uint)Coprocessor.averageZ >> iVar16;
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(26)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(24) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(25) / (mainT[materialID - 1].height - 1));
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x9000000;
+                        break;
+                    }
+                    else
+                    {
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022B44:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x9000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x800223D4:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        Color32 color = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        iVar15 = 0x4000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(12, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x800224E8:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        Color32 color = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(22)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(12) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(13) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        iVar15 = 0x7000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(24, SeekOrigin.Current);
+                        brVar6.Seek(4, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x8002271C:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        newColors[index] = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index + 1] = new Color32
+                            (brVar6.ReadByte(4), brVar6.ReadByte(5), brVar6.ReadByte(6), brVar6.ReadByte(7));
+                        newColors[index + 2] = new Color32
+                            (brVar6.ReadByte(8), brVar6.ReadByte(9), brVar6.ReadByte(10), brVar6.ReadByte(11));
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newUVs[index] = new Vector2(0, 0);
+                        newUVs[index + 1] = new Vector2(0, 0);
+                        newUVs[index + 2] = new Vector2(0, 0);
+                        newTriangles[0][index2[0]] = index;
+                        newTriangles[0][index2[0] + 1] = index + 1;
+                        newTriangles[0][index2[0] + 2] = index + 2;
+                        index += 3;
+                        index2[0] += 3;
+                        brVar13.Seek(16, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x6000000;
+                        goto LAB_22F08;
+                    }
+                    else
+                    {
+                        brVar13.Seek(16, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+
+                case 0x80022910:
+                    Coprocessor.ExecuteNCLIP();
+
+                    if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
+                    {
+                        //...
+                        newColors[index] = new Color32
+                            (brVar6.ReadByte(0), brVar6.ReadByte(1), brVar6.ReadByte(2), brVar6.ReadByte(3));
+                        newColors[index + 1] = new Color32
+                            (brVar6.ReadByte(4), brVar6.ReadByte(5), brVar6.ReadByte(6), brVar6.ReadByte(7));
+                        newColors[index + 2] = new Color32
+                            (brVar6.ReadByte(8), brVar6.ReadByte(9), brVar6.ReadByte(10), brVar6.ReadByte(11));
+                        int materialID = Array.IndexOf(materialIDs, brVar13.ReadByte(26)) + 1;
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID - 1].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(24) / (mainT[materialID - 1].width - 1),
+                                1f - (float)brVar13.ReadByte(25) / (mainT[materialID - 1].height - 1));
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        iVar15 = 0x9000000;
+                        break;
+                    }
+                    else
+                    {
+                        brVar13.Seek(28, SeekOrigin.Current);
+                        brVar6.Seek(12, SeekOrigin.Current);
+                        break;
+                    }
+            }
+
+            continue;
+
+            LAB_22F08:
+            Coprocessor.ExecuteAVSZ3();
+            uVar17 = (uint)Coprocessor.averageZ >> iVar16;
+
+            if (i > 0)
+            {
+                puVar5 = brVar13.ReadUInt16(4);
+                puVar7 = brVar13.ReadUInt16(6);
+                puVar10 = brVar13.ReadUInt16(8);
+                Coprocessor.vector0.vx0 = brVar3.ReadInt16(puVar5);
+                Coprocessor.vector0.vy0 = brVar3.ReadInt16(puVar5 + 2);
+                Coprocessor.vector0.vz0 = brVar3.ReadInt16(puVar5 + 4);
+                Coprocessor.vector1.vx1 = brVar3.ReadInt16(puVar7);
+                Coprocessor.vector1.vy1 = brVar3.ReadInt16(puVar7 + 2);
+                Coprocessor.vector1.vz1 = brVar3.ReadInt16(puVar7 + 4);
+                Coprocessor.vector2.vx2 = brVar3.ReadInt16(puVar10);
+                Coprocessor.vector2.vy2 = brVar3.ReadInt16(puVar10 + 2);
+                Coprocessor.vector2.vz2 = brVar3.ReadInt16(puVar10 + 4);
+                Coprocessor.ExecuteRTPT(12, false);
+                i--;
+                goto LAB_221B0;
             }
         }
+
+        CreateMeshData();
     }
 
     //FUN_39A8 (LOAD.DLL)
@@ -1263,16 +1402,15 @@ public class VigMesh : MonoBehaviour
                                 msVar8 = new MemoryStream(normalStream);
                                 msVar8.Seek(brVar6.ReadUInt16(10), SeekOrigin.Begin);
                                 param1(msVar4, msVar6, msVar7, msVar8);
-                                bwVar4.BaseStream.Seek(4, SeekOrigin.Current);
+                                bwVar4.Seek(1, SeekOrigin.Current);
                                 msVar7.Seek(brVar6.ReadUInt16(6), SeekOrigin.Begin);
                                 msVar8.Seek(brVar6.ReadUInt16(12), SeekOrigin.Begin);
                                 param1(msVar4, msVar6, msVar7, msVar8);
-                                bwVar4.BaseStream.Seek(-4, SeekOrigin.Current);
-                                lVar8 = bwVar4.BaseStream.Position + 12;
+                                bwVar4.Seek(1, SeekOrigin.Current);
+                                lVar8 = bwVar4.BaseStream.Position + 4;
                                 uVar3 = brVar6.ReadUInt16(8);
                                 msVar5 = new MemoryStream(vertexStream);
                                 uVar2 = brVar6.ReadUInt16(14);
-                                bwVar4.BaseStream.Seek(8, SeekOrigin.Current);
                                 break;
                             case 10:
                                 lVar7 += brVar6.ReadUInt16(10) * 8;

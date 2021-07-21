@@ -120,8 +120,58 @@ public class Vehicle : VigObject
         if (uVar6 != 0)
             return uVar6;
 
-        uVar6 = FUN_3B424(this, param1);
+        uVar6 = (uint)FUN_3B424(this, param1);
         return uVar6;
+    }
+
+    public override uint Execute(int arg1, int arg2)
+    {
+        uint uVar1;
+        int iVar2;
+        ushort uVar3;
+
+        if (arg1 == 1)
+        {
+            flags = flags & 0xffff | 0x16088;
+            iVar2 = screen.y;
+            screen.y = iVar2 - 0x8000;
+            vTransform.position.y = iVar2 - 0x8000;
+            target = GameManager.instance.playerObjects[0];
+
+            if (body[0] == null)
+                uVar3 = maxHalfHealth;
+            else
+                uVar3 = (ushort)(body[0].maxHalfHealth + body[1].maxHalfHealth);
+
+            maxFullHealth = uVar3;
+            //FUN_3A500
+
+            if ((flags & 0x1840000) != 0)
+            {
+                uVar1 = 1;
+
+                if ((flags & 0x800000) == 0)
+                {
+                    uVar1 = 0x40000;
+
+                    if ((flags & 0x1000000) != 0)
+                        uVar1 = 2;
+                }
+
+                //FUN_3E32C
+            }
+
+            //...
+        }
+
+        uVar1 = 0;
+
+        return uVar1;
+    }
+
+    public override void UpdateW(int arg1, int arg2)
+    {
+        
     }
 
     private void FixedUpdate()

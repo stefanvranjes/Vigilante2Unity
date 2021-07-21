@@ -278,7 +278,7 @@ public class VigConfig : MonoBehaviour
 
         if ((uVar2 & 0x7ff) < 0x7ff)
         {
-            mVar4 = xobf.FUN_1FD18(obj, (uint)(uVar2 & 0x7ff));
+            mVar4 = xobf.FUN_1FD18(obj, (uint)(uVar2 & 0x7ff), true);
             oVar3.vMesh = mVar4;
         }
 

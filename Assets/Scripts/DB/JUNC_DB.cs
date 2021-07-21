@@ -99,7 +99,8 @@ public class JUNC_DB : MonoBehaviour
                 DAT_14 = sVar2;
                 sVar2 = reader.ReadInt16BE();
                 DAT_16 = sVar2;
-                pbVar8 = DAT_0C.FUN_2CB74(gameObject, (ushort)DAT_14);
+                pbVar8 = DAT_0C.FUN_2CB74(gameObject, (ushort)DAT_14, false);
+                pbVar8.initAtStart = true;
                 DAT_18 = pbVar8;
                 pbVar8.DAT_00 = (byte)(pbVar8.DAT_00 & 0xfe | 4);
                 psVar13 = new MemoryStream(DAT_18.vertexStream);

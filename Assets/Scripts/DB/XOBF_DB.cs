@@ -262,6 +262,7 @@ public class XOBF_DB : MonoBehaviour
             if (pcVar4.id < 4)
             {
                 ppcVar7.body[pcVar4.id] = pcVar4;
+                pcVar4.transform.parent = ppcVar7.transform;
                 sVar5 = (sbyte)pcVar4.FUN_4DCD8();
                 pcVar4.ai = (byte)(sVar5 + 1);
                 pcVar4.maxHalfHealth = param2.maxHalfHealth;
@@ -297,6 +298,7 @@ public class XOBF_DB : MonoBehaviour
                     pcVar16.physics2.X = -(ppcVar7.screen.y + ccVar8.v3_1.y + ccVar9.v3_1.y);
                 }
 
+                pcVar16.transform.parent = ppcVar7.transform;
                 pcVar16.id = pcVar16.DAT_1A;
                 pcVar16.screen = ccVar8.v3_1;
                 Utilities.FUN_2CC48(ppcVar7, pcVar16);
@@ -390,9 +392,9 @@ public class XOBF_DB : MonoBehaviour
         return ppcVar7;
     }
 
-    public VigMesh FUN_2CB74(GameObject param1, uint param2)
+    public VigMesh FUN_2CB74(GameObject param1, uint param2, bool init)
     {
-        return FUN_1FD18(param1, (ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU);
+        return FUN_1FD18(param1, (ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU, init);
     }
 
     //FUN_32F40
@@ -505,7 +507,7 @@ public class XOBF_DB : MonoBehaviour
                                     writer.Write(reader.ReadBytes(17));
                                     writer.Write((byte)0x34);
                                     reader.ReadByte();
-                                    writer.Write(reader.ReadBytes(2));
+                                    writer.Write(reader.ReadBytes(3));
                                     writer.Write((byte)0x34);
                                     reader.ReadByte();
                                     break;
@@ -684,9 +686,9 @@ public class XOBF_DB : MonoBehaviour
 
                         if ((bVar1 & 0x80) != 0)
                         {
-                            writer.Write((byte)0);
-                            writer.Write((byte)0);
-                            writer.Write((byte)0);
+                            writer.Write(-4, (byte)0);
+                            writer.Write(-3, (byte)0);
+                            writer.Write(-2, (byte)0);
                         }
 
                         switch((uint)bVar1 >> 2 & 15)
@@ -713,7 +715,7 @@ public class XOBF_DB : MonoBehaviour
         }
     }
 
-    public VigMesh FUN_1FD18(GameObject param1, uint param2)
+    public VigMesh FUN_1FD18(GameObject param1, uint param2, bool init)
     {
         byte bVar1;
         ushort uVar2;
@@ -725,13 +727,13 @@ public class XOBF_DB : MonoBehaviour
         TMD puVar7;
         long lVar8;
         LevelManager levelManager = LevelManager.instance;
+        List<int> materialIDs = new List<int>();
 
         if (levelManager == null)
             levelManager = GameObject.FindObjectOfType<LevelManager>();
 
         puVar7 = tmdList[(int)(param2 & 0xffff)];
         pbVar3 = param1.AddComponent<VigMesh>();
-        pbVar3.materialIDs = new List<int>();
         MeshFilter meshFilter = param1.AddComponent<MeshFilter>();
         meshFilter.mesh = new Mesh();
         MeshRenderer meshRenderer = param1.AddComponent<MeshRenderer>();
@@ -746,8 +748,8 @@ public class XOBF_DB : MonoBehaviour
             {
                 pbVar3.DAT_1C[i] = 0;
 
-                if (!pbVar3.materialIDs.Contains(pbVar3.DAT_1C[i]))
-                    pbVar3.materialIDs.Add(pbVar3.DAT_1C[i]);
+                if (!materialIDs.Contains(pbVar3.DAT_1C[i]))
+                    materialIDs.Add(pbVar3.DAT_1C[i]);
             }
         }
 
@@ -800,8 +802,8 @@ public class XOBF_DB : MonoBehaviour
                                     iVar3++;
                                     iVar5 = reader.ReadUInt16(iVar4 - 2) & 0x3fff;
 
-                                    if (!pbVar3.materialIDs.Contains(iVar5))
-                                        pbVar3.materialIDs.Add(iVar5);
+                                    if (!materialIDs.Contains(iVar5))
+                                        materialIDs.Add(iVar5);
 
                                     iVar5 += 8;
                                 } while (iVar3 < reader.ReadUInt16(10));
@@ -829,8 +831,8 @@ public class XOBF_DB : MonoBehaviour
                             break;
                     }
 
-                    if (!pbVar3.materialIDs.Contains(iVar5))
-                        pbVar3.materialIDs.Add(iVar5);
+                    if (!materialIDs.Contains(iVar5))
+                        materialIDs.Add(iVar5);
                     
                     reader.BaseStream.Seek(lVar8, SeekOrigin.Begin);
                     reader.BaseStream.Seek(GameManager.DAT_854[bVar1 >> 2 & 15], SeekOrigin.Current);
@@ -841,18 +843,22 @@ public class XOBF_DB : MonoBehaviour
         List<Material> materialList = new List<Material>();
         materialList.Add(levelManager.defaultMaterial);
 
-        for (int i = 0; i < pbVar3.materialIDs.Count; i++)
+        for (int i = 0; i < materialIDs.Count; i++)
         {
-            if (pbVar3.materialIDs[i] == 0xffff ||
-                pbVar3.materialIDs[i] == 0x3fff)
+            if (materialIDs[i] == 0xffff ||
+                materialIDs[i] == 0x3fff)
                 materialList.Add(levelManager.DAT_E48);
-            else if (pbVar3.materialIDs[i] == 0x3ffe)
+            else if (materialIDs[i] == 0x3ffe)
                 materialList.Add(levelManager.DAT_E58);
             else
-                materialList.Add(timList[pbVar3.materialIDs[i]]);
+                materialList.Add(timList[materialIDs[i]]);
         }
-
+        
         meshRenderer.sharedMaterials = materialList.ToArray();
+        pbVar3.materialIDs = materialIDs.ToArray();
+
+        if (init)
+            pbVar3.Initialize();
 
         return pbVar3;
     }

@@ -648,6 +648,7 @@ public class VigObject : MonoBehaviour
     public VigObject child; //0x0C
     public VigObject child2; //0x10
     public VigObject parent; //0x14
+    public VigObject parent2;
 
     public sbyte DAT_18; //0x18
     public byte DAT_19; //0x19
@@ -694,6 +695,8 @@ public class VigObject : MonoBehaviour
 
         ApplyRotationMatrix();*/
         //screen = position;
+
+
     }
 
     // Update is called once per frame
@@ -711,6 +714,11 @@ public class VigObject : MonoBehaviour
     public virtual uint Execute(int arg1, int arg2)
     {
         return 0;
+    }
+
+    public virtual void UpdateW(int arg1, int arg2)
+    {
+        return;
     }
 
     // FUN_2CF74
@@ -1272,10 +1280,10 @@ public class VigObject : MonoBehaviour
         {
             if ((flags & 8) != 0)
             {
-                if (vShadow == null)
+                /*if (vShadow == null)
                     FUN_4C98C();
 
-                FUN_4C4F4();
+                FUN_4C4F4();*/ //tmp disabled
             }
 
             FUN_305FC();
@@ -1499,7 +1507,7 @@ public class VigObject : MonoBehaviour
     {
         VigMesh mVar1;
 
-        mVar1 = GameManager.instance.levelManager.DAT_C61C0.FUN_2CB74(gameObject, 92);
+        mVar1 = GameManager.instance.levelManager.DAT_C61C0.FUN_2CB74(gameObject, 92, true);
         FUN_4C7E0(mVar1);
     }
 
@@ -1558,8 +1566,8 @@ public class VigObject : MonoBehaviour
                             vLOD = vMesh;
                         else
                         {
-                            mVar2 = vData.FUN_1FD18(gameObject, ccVar5[iVar4].flag & 0x7ffU);
-                            vLOD = mVar2;
+                            /*mVar2 = vData.FUN_1FD18(gameObject, ccVar5[iVar4].flag & 0x7ffU, true);
+                            vLOD = mVar2;*/ //tmp
                         }
                     }
 

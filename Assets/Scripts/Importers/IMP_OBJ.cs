@@ -39,6 +39,9 @@ public class IMP_OBJ
                 {
                     do
                     {
+                        if (reader.BaseStream.Length - reader.BaseStream.Position < 8)
+                            break;
+
                         string header = new string(reader.ReadChars(4));
                         int chunkSize = reader.ReadInt32BE();
 
@@ -107,7 +110,7 @@ public class IMP_OBJ
         iVar9 = sVar5 + 42;
         sVar3 = reader.ReadInt16BE();
         uVar6 = (ushort)reader.ReadInt32BE();
-        auStack112 = new string(reader.ReadChars((int)(size - begin)));
+        auStack112 = new string(reader.ReadChars((int)(size - (reader.BaseStream.Position - begin))));
         pcVar10 = Utilities.FUN_14E1C(0, auStack112);
 
         if (pcVar10 is null)
@@ -153,6 +156,11 @@ public class IMP_OBJ
             case 0:
                 ppcVar12 = Utilities.FUN_31D30(pcVar10, levelManager.charsList[iVar9], sVar3,
                                                 (pcVar17 & 4) << 1);
+                if (ppcVar12 == null)
+                    return null;
+
+                Utilities.ParentChildren(ppcVar12, ppcVar12);
+
                 ppcVar12.flags = pcVar17;
                 ppcVar12.type = bVar1;
                 ppcVar12.id = sVar2;
@@ -195,6 +203,12 @@ public class IMP_OBJ
             case 2:
             case 3:
                 ppcVar12 = Utilities.FUN_31D30(pcVar10, levelManager.charsList[iVar9], sVar3, (pcVar17 & 4) << 1);
+
+                if (ppcVar12 == null)
+                    return null;
+
+                Utilities.ParentChildren(ppcVar12, ppcVar12);
+
                 ppcVar12.flags = pcVar17;
                 ppcVar12.type = bVar1;
                 ppcVar12.id = sVar2;
@@ -273,6 +287,7 @@ public class IMP_OBJ
 
                                 piVar15.child = ppcVar12;
                                 ppcVar12.parent = piVar15;
+                                ppcVar12.transform.parent = piVar15.transform;
                                 return ppcVar12;
                             }
                         }

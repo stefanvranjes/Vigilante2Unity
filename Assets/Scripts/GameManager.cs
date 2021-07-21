@@ -1113,12 +1113,12 @@ public class GameManager : MonoBehaviour
             V00 = 0x1000,
             V01 = 0,
             V02 = 0,
-            V10 = 0x1000,
-            V11 = 0,
+            V10 = 0,
+            V11 = 0x1000,
             V12 = 0,
-            V20 = 0x1000,
+            V20 = 0,
             V21 = 0,
-            V22 = 0
+            V22 = 0x1000
         },
         position = new Vector3Int(0, 0, 0)
     };
@@ -1184,6 +1184,7 @@ public class GameManager : MonoBehaviour
     public ushort[,] DAT_08; //gp+08h
     public int DAT_20; //gp+20h
     public int DAT_24; //gp+24h
+    public int DAT_28; //gp+28h
     public _SCREEN_MODE screenMode; //gp+2Ch;
     public _GAME_MODE gameMode; //gp+31h
     public bool DAT_36; //gp+36h
@@ -1210,18 +1211,18 @@ public class GameManager : MonoBehaviour
         int iVar1;
 
         iVar1 = param1;
-        param1 = iVar1 + param1;
+        param1 = iVar1 * 3;
         DAT_F68.SetValue16(param1, param2.x);
         DAT_F68.SetValue16(param1 + 1, param2.y);
         DAT_F68.SetValue16(param1 + 2, param2.z);
         DAT_FA8.SetValue16(iVar1, param3.r << 4);
-        DAT_FA8.SetValue16(iVar1 + 1, param3.g << 4);
-        DAT_FA8.SetValue16(iVar1 + 2, param3.b << 4);
+        DAT_FA8.SetValue16(iVar1 + 3, param3.g << 4);
+        DAT_FA8.SetValue16(iVar1 + 6, param3.b << 4);
     }
 
     public void FUN_30B24(List<VigTuple> param1)
     {
-        for (int i = 0; i <= param1.Count; i++)
+        for (int i = 0; i < param1.Count; i++)
             FUN_2D9E0(param1[i].vObject);
     }
 
@@ -1253,7 +1254,7 @@ public class GameManager : MonoBehaviour
             {
                 iVar1 = param1.DAT_04;
 
-                if (param4 < iVar1)
+                //if (param4 < iVar1)
                     FUN_30DE8(param1.DAT_08, param2, param3, param4, param5);
 
                 if (param5 <= iVar1)
@@ -1344,11 +1345,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void FUN_313C8(int param1)
+    {
+        for (int i = 0; i < DAT_1088.Count; i++)
+            if (DAT_1088[i].vObject != null)
+                if (DAT_1088[i].vObject.GetType().IsSubclassOf(typeof(VigObject)))
+                    DAT_1088[i].vObject.UpdateW(0, param1);
+    }
+
     public void FUN_31678()
     {
         FUN_1C134();
         FUN_2DE18();
         FUN_50B38();
+        FUN_30B24(worldObjs);
+        FUN_30B24(interObjs);
+        FUN_3150C();
     }
 
     public void FUN_31728()
@@ -1415,16 +1427,12 @@ public class GameManager : MonoBehaviour
                 roadList[i].ClearRoadData();
         }
 
-        iVar4 = 0;
-
-        return;
-
-        if (0 < levelManager.DAT_1184)
+        /*if (0 < levelManager.DAT_1184)
         {
-            for (int i = 0; i < iVar4; i++)
-                if (levelManager.juncList[iVar4].DAT_18 != null)
-                    FUN_507DC(levelManager.juncList[iVar4]);
-        }
+            for (int i = 0; i < levelManager.DAT_1184; i++)
+                if (levelManager.juncList[i].DAT_18 != null)
+                    FUN_507DC(levelManager.juncList[i]);
+        }*/
     }
 
     // Start is called before the first frame update
@@ -1456,7 +1464,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        levelManager.LoadData();
+        
     }
 
     // Update is called once per frame
@@ -1473,10 +1481,24 @@ public class GameManager : MonoBehaviour
         int uVar10;
         int uVar13;
         int uVar15;
+        uint uVar20;
         VigObject oVar7;
         VigCamera cVar7;
         Vehicle vVar12;
         uint uVar18;
+        uint local_78;
+
+        local_78 = 1;
+
+        for (int i = 0; i < local_78; i++)
+        {
+            uVar20 = 0;
+
+            if (i == local_78 - 1)
+                uVar20 = local_78;
+
+            FUN_313C8((int)uVar20);
+        }
 
         DAT_24 = 1 - DAT_24;
 
@@ -2413,7 +2435,7 @@ public class GameManager : MonoBehaviour
                             iVar2 += 0xffff;
 
                         rbk = (uint)(terrain.vertices[terrain.chunks[((uint)(iVar1 >> 16) >> 6) * 32 + ((uint)(iVar2 >> 16) >> 6)] * 4096
-                                        + (iVar2 >> 16 & 0x3fU) + (iVar1 >> 16 & 0x3fU) * 128] & 0xf800) >> 8;
+                                        + ((iVar2 >> 16 & 0x3fU) * 2 + (iVar1 >> 16 & 0x3fU) * 128) / 2] & 0xf800) >> 8;
                     }
 
                     Utilities.SetBackColor((int)rbk, (int)rbk, (int)rbk);
@@ -2463,13 +2485,13 @@ public class GameManager : MonoBehaviour
                             t2.rotation = param1.FUN_2D884(t2);
                     }
 
-                    if ((param1.flags & 8) != 0)
+                    /*if ((param1.flags & 8) != 0)
                     {
                         if ((param1.flags & 0x200) == 0)
                             param1.FUN_4C4F4();
 
                         param1.vShadow.FUN_4C73C();
-                    }
+                    }*/ //tmp disabled
                 }
             }
         }

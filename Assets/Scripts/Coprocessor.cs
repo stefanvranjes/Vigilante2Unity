@@ -79,6 +79,13 @@ public struct Cop2SxyFIFO
     public short sy0, sy1, sy2, syp;
 }
 
+public struct Cop2SxyzFIFO
+{
+    public short sx0, sx1, sx2;
+    public short sy0, sy1, sy2;
+    public short sz0, sz1, sz2;
+}
+
 public struct Cop2SzFIFO
 {
     public short sz0, sz1, sz2, sz3;
@@ -130,6 +137,7 @@ public class Coprocessor
     public static Cop2FC farColor;
     public static Cop2ClrFIFO colorFIFO;
     public static Cop2SxyFIFO screenXYFIFO;
+    public static Cop2SxyzFIFO screenXYZFIFO;
     public static Cop2SzFIFO screenZFIFO;
     public static Cop2OF screenOffset;
     public static short depthQueingA;
@@ -152,12 +160,45 @@ public class Coprocessor
     static uint s_custom_aspect_ratio_denominator;
     static float s_custom_aspect_ratio_f;
 
+    static short[] V0 = new short[3];
+    static short[] V1 = new short[3];
+    static short[] V2 = new short[3];
+    static short[,] LLM = new short[3, 3];
+    static short[,] LCM = new short[3, 3];
+    static int[,] RT = new int[3, 3];
+    static int[] TR = new int[3];
+    static int[] BK = new int[3];
+    static long[] xyz = new long[3];
+    static byte[] RGBC = new byte[3];
+    static short[,] M = new short[3, 3];
+    static int[] T = new int[3];
+
+    static byte[] unr_table = new byte[257]
+        {
+            0xFF, 0xFD, 0xFB, 0xF9, 0xF7, 0xF5, 0xF3, 0xF1, 0xEF, 0xEE, 0xEC, 0xEA, 0xE8, 0xE6, 0xE4, 0xE3, //
+            0xE1, 0xDF, 0xDD, 0xDC, 0xDA, 0xD8, 0xD6, 0xD5, 0xD3, 0xD1, 0xD0, 0xCE, 0xCD, 0xCB, 0xC9, 0xC8, //  00h..3Fh
+            0xC6, 0xC5, 0xC3, 0xC1, 0xC0, 0xBE, 0xBD, 0xBB, 0xBA, 0xB8, 0xB7, 0xB5, 0xB4, 0xB2, 0xB1, 0xB0, //
+            0xAE, 0xAD, 0xAB, 0xAA, 0xA9, 0xA7, 0xA6, 0xA4, 0xA3, 0xA2, 0xA0, 0x9F, 0x9E, 0x9C, 0x9B, 0x9A, //
+            0x99, 0x97, 0x96, 0x95, 0x94, 0x92, 0x91, 0x90, 0x8F, 0x8D, 0x8C, 0x8B, 0x8A, 0x89, 0x87, 0x86, //
+            0x85, 0x84, 0x83, 0x82, 0x81, 0x7F, 0x7E, 0x7D, 0x7C, 0x7B, 0x7A, 0x79, 0x78, 0x77, 0x75, 0x74, //  40h..7Fh
+            0x73, 0x72, 0x71, 0x70, 0x6F, 0x6E, 0x6D, 0x6C, 0x6B, 0x6A, 0x69, 0x68, 0x67, 0x66, 0x65, 0x64, //
+            0x63, 0x62, 0x61, 0x60, 0x5F, 0x5E, 0x5D, 0x5D, 0x5C, 0x5B, 0x5A, 0x59, 0x58, 0x57, 0x56, 0x55, //
+            0x54, 0x53, 0x53, 0x52, 0x51, 0x50, 0x4F, 0x4E, 0x4D, 0x4D, 0x4C, 0x4B, 0x4A, 0x49, 0x48, 0x48, //
+            0x47, 0x46, 0x45, 0x44, 0x43, 0x43, 0x42, 0x41, 0x40, 0x3F, 0x3F, 0x3E, 0x3D, 0x3C, 0x3C, 0x3B, //  80h..BFh
+            0x3A, 0x39, 0x39, 0x38, 0x37, 0x36, 0x36, 0x35, 0x34, 0x33, 0x33, 0x32, 0x31, 0x31, 0x30, 0x2F, //
+            0x2E, 0x2E, 0x2D, 0x2C, 0x2C, 0x2B, 0x2A, 0x2A, 0x29, 0x28, 0x28, 0x27, 0x26, 0x26, 0x25, 0x24, //
+            0x24, 0x23, 0x22, 0x22, 0x21, 0x20, 0x20, 0x1F, 0x1E, 0x1E, 0x1D, 0x1D, 0x1C, 0x1B, 0x1B, 0x1A, //
+            0x19, 0x19, 0x18, 0x18, 0x17, 0x16, 0x16, 0x15, 0x15, 0x14, 0x14, 0x13, 0x12, 0x12, 0x11, 0x11, //  C0h..FFh
+            0x10, 0x0F, 0x0F, 0x0E, 0x0E, 0x0D, 0x0D, 0x0C, 0x0C, 0x0B, 0x0A, 0x0A, 0x09, 0x09, 0x08, 0x08, //
+            0x07, 0x07, 0x06, 0x06, 0x05, 0x05, 0x04, 0x04, 0x03, 0x03, 0x02, 0x02, 0x01, 0x01, 0x00, 0x00, //
+            0x00
+        };
+
     public static void ExecuteRTPS(byte shift, bool lm)
     {
-        short[] V0 = new short[]
-        {
-            vector0.vx0, vector0.vy0, vector0.vz0
-        };
+        V0[0] = vector0.vx0;
+        V0[1] = vector0.vy0;
+        V0[2] = vector0.vz0;
 
         RTPS(V0, shift, lm, true);
     }
@@ -172,15 +213,15 @@ public class Coprocessor
 
     public static void ExecuteDPCS(byte shift, bool lm)
     {
-        byte[] RGBC = new byte[] { colorCode.r, colorCode.g, colorCode.b };
+        RGBC[0] = colorCode.r;
+        RGBC[1] = colorCode.g;
+        RGBC[2] = colorCode.b;
 
         DPCS(RGBC, shift, lm);
     }
 
     public static void ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX matrix, _MVMVA_MULTIPLY_VECTOR multiply, _MVMVA_TRANSLATION_VECTOR translation, byte shift, bool lm)
     {
-        short[,] M = new short[3, 3];
-        int[] T = new int[3];
         short Vx = 0;
         short Vy = 0;
         short Vz = 0;
@@ -286,16 +327,19 @@ public class Coprocessor
 
     public static void ExecuteCDP(byte shift, bool lm)
     {
-        short[,] LCM = new short[,]
-        {
-            { lightColorMatrix.lr1, lightColorMatrix.lr2, lightColorMatrix.lr3 },
-            { lightColorMatrix.lg1, lightColorMatrix.lg2, lightColorMatrix.lg3 },
-            { lightColorMatrix.lb1, lightColorMatrix.lb2, lightColorMatrix.lb3 }
-        };
-        int[] BK = new int[]
-        {
-            backgroundColor._rbk, backgroundColor._gbk, backgroundColor._bbk
-        };
+        LCM[0, 0] = lightColorMatrix.lr1;
+        LCM[0, 1] = lightColorMatrix.lr2;
+        LCM[0, 2] = lightColorMatrix.lr3;
+        LCM[1, 0] = lightColorMatrix.lg1;
+        LCM[1, 1] = lightColorMatrix.lg2;
+        LCM[1, 2] = lightColorMatrix.lg3;
+        LCM[2, 0] = lightColorMatrix.lb1;
+        LCM[2, 1] = lightColorMatrix.lb2;
+        LCM[2, 2] = lightColorMatrix.lb3;
+
+        BK[0] = backgroundColor._rbk;
+        BK[1] = backgroundColor._gbk;
+        BK[2] = backgroundColor._bbk;
 
         MultMatVec(LCM, BK, accumulator.ir1, accumulator.ir2, accumulator.ir3, shift, lm);
 
@@ -344,17 +388,19 @@ public class Coprocessor
 
     public static void ExecuteCC(byte shift, bool lm)
     {
-        short[,] LCM = new short[,]
-        {
-            { lightColorMatrix.lr1, lightColorMatrix.lr2, lightColorMatrix.lr3 },
-            { lightColorMatrix.lg1, lightColorMatrix.lg2, lightColorMatrix.lg3 },
-            { lightColorMatrix.lb1, lightColorMatrix.lb2, lightColorMatrix.lb3 }
-        };
+        LCM[0, 0] = lightColorMatrix.lr1;
+        LCM[0, 1] = lightColorMatrix.lr2;
+        LCM[0, 2] = lightColorMatrix.lr3;
+        LCM[1, 0] = lightColorMatrix.lg1;
+        LCM[1, 1] = lightColorMatrix.lg2;
+        LCM[1, 2] = lightColorMatrix.lg3;
+        LCM[2, 0] = lightColorMatrix.lb1;
+        LCM[2, 1] = lightColorMatrix.lb2;
+        LCM[2, 2] = lightColorMatrix.lb3;
 
-        int[] BK = new int[]
-        {
-            backgroundColor._rbk, backgroundColor._gbk, backgroundColor._bbk
-        };
+        BK[0] = backgroundColor._rbk;
+        BK[1] = backgroundColor._gbk;
+        BK[2] = backgroundColor._bbk;
 
         MultMatVec(LCM, BK, accumulator.ir1, accumulator.ir2, accumulator.ir3, shift, lm);
 
@@ -367,18 +413,15 @@ public class Coprocessor
 
     public static void ExecuteRTPT(byte shift, bool lm)
     {
-        short[] V0 = new short[]
-        {
-            vector0.vx0, vector0.vy0, vector0.vz0
-        };
-        short[] V1 = new short[]
-        {
-            vector1.vx1, vector1.vy1, vector1.vz1
-        };
-        short[] V2 = new short[]
-        {
-            vector2.vx2, vector2.vy2, vector2.vz2
-        };
+        V0[0] = vector0.vx0;
+        V0[1] = vector0.vy0;
+        V0[2] = vector0.vz0;
+        V1[0] = vector1.vx1;
+        V1[1] = vector1.vy1;
+        V1[2] = vector1.vz1;
+        V2[0] = vector2.vx2;
+        V2[1] = vector2.vy2;
+        V2[2] = vector2.vz2;
 
         RTPS(V0, shift, lm, false);
         RTPS(V1, shift, lm, false);
@@ -401,18 +444,15 @@ public class Coprocessor
 
     public static void ExecuteNCCT(byte shift, bool lm)
     {
-        short[] V0 = new short[]
-        {
-            vector0.vx0, vector0.vy0, vector0.vz0
-        };
-        short[] V1 = new short[]
-        {
-            vector1.vx1, vector1.vy1, vector1.vz1
-        };
-        short[] V2 = new short[]
-        {
-            vector2.vx2, vector2.vy2, vector2.vz2
-        };
+        V0[0] = vector0.vx0;
+        V0[1] = vector0.vy0;
+        V0[2] = vector0.vz0;
+        V1[0] = vector1.vx1;
+        V1[1] = vector1.vy1;
+        V1[2] = vector1.vz1;
+        V2[0] = vector2.vx2;
+        V2[1] = vector2.vy2;
+        V2[2] = vector2.vz2;
 
         NCCS(V0, shift, lm);
         NCCS(V1, shift, lm);
@@ -421,10 +461,9 @@ public class Coprocessor
 
     public static void ExecuteNCCS(byte shift, bool lm)
     {
-        short[] V0 = new short[]
-        {
-            vector0.vx0, vector0.vy0, vector0.vz0
-        };
+        V0[0] = vector0.vx0;
+        V0[1] = vector0.vy0;
+        V0[2] = vector0.vz0;
 
         NCCS(V0, shift, lm);
     }
@@ -442,20 +481,20 @@ public class Coprocessor
 
     private static void RTPS(short[] V, byte shift, bool lm, bool last)
     {
-        int[] TR = new int[]
-        {
-            translationVector._trx, translationVector._try, translationVector._trz
-        };
+        TR[0] = translationVector._trx;
+        TR[1] = translationVector._try;
+        TR[2] = translationVector._trz;
 
-        int[,] RT = new int[,]
-        {
-            { rotationMatrix.rt11, rotationMatrix.rt12, rotationMatrix.rt13 },
-            { rotationMatrix.rt21, rotationMatrix.rt22, rotationMatrix.rt23 },
-            { rotationMatrix.rt31, rotationMatrix.rt32, rotationMatrix.rt33 }
-        };
-
-        long[] xyz = new long[3];
-
+        RT[0, 0] = rotationMatrix.rt11;
+        RT[0, 1] = rotationMatrix.rt12;
+        RT[0, 2] = rotationMatrix.rt13;
+        RT[1, 0] = rotationMatrix.rt21;
+        RT[1, 1] = rotationMatrix.rt22;
+        RT[1, 2] = rotationMatrix.rt23;
+        RT[2, 0] = rotationMatrix.rt31;
+        RT[2, 1] = rotationMatrix.rt32;
+        RT[2, 2] = rotationMatrix.rt33;
+        
         for (int i = 0; i < 3; i++)
             xyz[i] = SignExtendMACResult(SignExtendMACResult(((long)TR[i] << 12) + ((long)RT[i, 0] * V[0]), i + 1) +
                                 ((long)RT[i, 1] * V[1]), i + 1) + ((long)RT[i, 2] * V[2]);
@@ -507,6 +546,7 @@ public class Coprocessor
 
         long Sy = result * accumulator.ir2 + screenOffset.ofy;
         PushSXY((int)(Sx >> 16), (int)(Sy >> 16));
+        PushSXYZ(V[0], V[1], V[2]);
 
         if (last)
         {
@@ -518,22 +558,29 @@ public class Coprocessor
 
     private static void NCCS(short[] V, byte shift, bool lm)
     {
-        short[,] LLM = new short[,]
-        {
-            { lightMatrix.l11, lightMatrix.l12, lightMatrix.l13 },
-            { lightMatrix.l21, lightMatrix.l22, lightMatrix.l23 },
-            { lightMatrix.l31, lightMatrix.l32, lightMatrix.l33 }
-        };
-        short[,] LCM = new short[,]
-        {
-            { lightColorMatrix.lr1, lightColorMatrix.lr2, lightColorMatrix.lr3 },
-            { lightColorMatrix.lg1, lightColorMatrix.lg2, lightColorMatrix.lg3 },
-            { lightColorMatrix.lb1, lightColorMatrix.lb2, lightColorMatrix.lb3 }
-        };
-        int[] BK = new int[]
-        {
-            backgroundColor._rbk, backgroundColor._gbk, backgroundColor._bbk
-        };
+        LLM[0, 0] = lightMatrix.l11;
+        LLM[0, 1] = lightMatrix.l12;
+        LLM[0, 2] = lightMatrix.l13;
+        LLM[1, 0] = lightMatrix.l21;
+        LLM[1, 1] = lightMatrix.l22;
+        LLM[1, 2] = lightMatrix.l23;
+        LLM[2, 0] = lightMatrix.l31;
+        LLM[2, 1] = lightMatrix.l32;
+        LLM[2, 2] = lightMatrix.l33;
+
+        LCM[0, 0] = lightColorMatrix.lr1;
+        LCM[0, 1] = lightColorMatrix.lr2;
+        LCM[0, 2] = lightColorMatrix.lr3;
+        LCM[1, 0] = lightColorMatrix.lg1;
+        LCM[1, 1] = lightColorMatrix.lg2;
+        LCM[1, 2] = lightColorMatrix.lg3;
+        LCM[2, 0] = lightColorMatrix.lb1;
+        LCM[2, 1] = lightColorMatrix.lb2;
+        LCM[2, 2] = lightColorMatrix.lb3;
+
+        BK[0] = backgroundColor._rbk;
+        BK[1] = backgroundColor._gbk;
+        BK[2] = backgroundColor._bbk;
 
         MultMatVec(LLM, V[0], V[1], V[2], shift, lm);
 
@@ -572,27 +619,6 @@ public class Coprocessor
         int shift = (rhs == 0) ? 16 : Utilities.LeadingZeros((ushort)rhs);
         lhs <<= shift;
         rhs <<= shift;
-
-        byte[] unr_table = new byte[257]
-        {
-            0xFF, 0xFD, 0xFB, 0xF9, 0xF7, 0xF5, 0xF3, 0xF1, 0xEF, 0xEE, 0xEC, 0xEA, 0xE8, 0xE6, 0xE4, 0xE3, //
-            0xE1, 0xDF, 0xDD, 0xDC, 0xDA, 0xD8, 0xD6, 0xD5, 0xD3, 0xD1, 0xD0, 0xCE, 0xCD, 0xCB, 0xC9, 0xC8, //  00h..3Fh
-            0xC6, 0xC5, 0xC3, 0xC1, 0xC0, 0xBE, 0xBD, 0xBB, 0xBA, 0xB8, 0xB7, 0xB5, 0xB4, 0xB2, 0xB1, 0xB0, //
-            0xAE, 0xAD, 0xAB, 0xAA, 0xA9, 0xA7, 0xA6, 0xA4, 0xA3, 0xA2, 0xA0, 0x9F, 0x9E, 0x9C, 0x9B, 0x9A, //
-            0x99, 0x97, 0x96, 0x95, 0x94, 0x92, 0x91, 0x90, 0x8F, 0x8D, 0x8C, 0x8B, 0x8A, 0x89, 0x87, 0x86, //
-            0x85, 0x84, 0x83, 0x82, 0x81, 0x7F, 0x7E, 0x7D, 0x7C, 0x7B, 0x7A, 0x79, 0x78, 0x77, 0x75, 0x74, //  40h..7Fh
-            0x73, 0x72, 0x71, 0x70, 0x6F, 0x6E, 0x6D, 0x6C, 0x6B, 0x6A, 0x69, 0x68, 0x67, 0x66, 0x65, 0x64, //
-            0x63, 0x62, 0x61, 0x60, 0x5F, 0x5E, 0x5D, 0x5D, 0x5C, 0x5B, 0x5A, 0x59, 0x58, 0x57, 0x56, 0x55, //
-            0x54, 0x53, 0x53, 0x52, 0x51, 0x50, 0x4F, 0x4E, 0x4D, 0x4D, 0x4C, 0x4B, 0x4A, 0x49, 0x48, 0x48, //
-            0x47, 0x46, 0x45, 0x44, 0x43, 0x43, 0x42, 0x41, 0x40, 0x3F, 0x3F, 0x3E, 0x3D, 0x3C, 0x3C, 0x3B, //  80h..BFh
-            0x3A, 0x39, 0x39, 0x38, 0x37, 0x36, 0x36, 0x35, 0x34, 0x33, 0x33, 0x32, 0x31, 0x31, 0x30, 0x2F, //
-            0x2E, 0x2E, 0x2D, 0x2C, 0x2C, 0x2B, 0x2A, 0x2A, 0x29, 0x28, 0x28, 0x27, 0x26, 0x26, 0x25, 0x24, //
-            0x24, 0x23, 0x22, 0x22, 0x21, 0x20, 0x20, 0x1F, 0x1E, 0x1E, 0x1D, 0x1D, 0x1C, 0x1B, 0x1B, 0x1A, //
-            0x19, 0x19, 0x18, 0x18, 0x17, 0x16, 0x16, 0x15, 0x15, 0x14, 0x14, 0x13, 0x12, 0x12, 0x11, 0x11, //  C0h..FFh
-            0x10, 0x0F, 0x0F, 0x0E, 0x0E, 0x0D, 0x0D, 0x0C, 0x0C, 0x0B, 0x0A, 0x0A, 0x09, 0x09, 0x08, 0x08, //
-            0x07, 0x07, 0x06, 0x06, 0x05, 0x05, 0x04, 0x04, 0x03, 0x03, 0x02, 0x02, 0x01, 0x01, 0x00, 0x00, //
-            0x00
-        };
 
         uint divisor = rhs | 0x8000;
         int x = (int)(0x101 + (uint)(unr_table[((divisor & 0x7FFF) + 0x40) >> 7]));
@@ -737,6 +763,19 @@ public class Coprocessor
         screenXYFIFO.sy1 = screenXYFIFO.sy2;
         screenXYFIFO.sx2 = (short)x;
         screenXYFIFO.sy2 = (short)y;
+    }
+
+    private static void PushSXYZ(int x, int y, int z)
+    {
+        screenXYZFIFO.sx0 = screenXYZFIFO.sx1;
+        screenXYZFIFO.sy0 = screenXYZFIFO.sy1;
+        screenXYZFIFO.sz0 = screenXYZFIFO.sz1;
+        screenXYZFIFO.sx1 = screenXYZFIFO.sx2;
+        screenXYZFIFO.sy1 = screenXYZFIFO.sy2;
+        screenXYZFIFO.sz1 = screenXYZFIFO.sz2;
+        screenXYZFIFO.sx2 = (short)x;
+        screenXYZFIFO.sy2 = (short)y;
+        screenXYZFIFO.sz2 = (short)z;
     }
 
     private static void PushSZ(int value)

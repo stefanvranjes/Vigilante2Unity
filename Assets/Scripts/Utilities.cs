@@ -75,12 +75,23 @@ public static class Utilities
 
     public static VigObject FUN_31D30(Type param1, XOBF_DB param2, short param3, uint param4)
     {
-        GameObject obj = new GameObject();
-
         if (param1.Equals(typeof(Destructible)))
-            return obj.AddComponent(typeof(Destructible)) as Destructible;
+        {
+            if (param2 == null || param3 == -1)
+            {
+                GameObject obj = new GameObject();
+                Destructible comp = obj.AddComponent(typeof(Destructible)) as Destructible;
+                comp.vData = param2;
+                return comp;
+            }
+            else
+                return param2.ini.FUN_2C17C((ushort)param3, typeof(Destructible), param4);
+        }
         else if (param1.Equals(typeof(Powerup)))
+        {
+            GameObject obj = new GameObject();
             return obj.AddComponent(typeof(Powerup)) as Powerup;
+        }
         else
             return null;
     }
@@ -655,6 +666,25 @@ public static class Utilities
         {
             obj1.child2 = obj2;
             obj2.parent = obj1;
+        }
+    }
+
+    public static void ParentChildren(VigObject obj, VigObject parent)
+    {
+        VigObject child2 = obj.child2;
+
+        if (child2 != null)
+        {
+            child2.transform.parent = parent.transform;
+            ParentChildren(child2, parent);
+        }
+
+        VigObject child = obj.child;
+
+        if (child != null)
+        {
+            child.transform.parent = parent.transform;
+            ParentChildren(child, parent);
         }
     }
 
@@ -1696,8 +1726,8 @@ public static class Utilities
         Coprocessor.rotationMatrix.rt32 = m0.rotation.V21;
         Coprocessor.rotationMatrix.rt33 = m0.rotation.V22;
         Coprocessor.vector0.vx0 = m1.rotation.V00;
-        Coprocessor.vector0.vy0 = m1.rotation.V02;
-        Coprocessor.vector0.vz0 = m1.rotation.V21;
+        Coprocessor.vector0.vy0 = m1.rotation.V10;
+        Coprocessor.vector0.vz0 = m1.rotation.V20;
         Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
         uVar5 = (ushort)Coprocessor.accumulator.ir1;
         iVar6 = Coprocessor.accumulator.ir2;
@@ -2133,7 +2163,7 @@ public static class Utilities
         iVar4 = Coprocessor.accumulator.ir1;
         iVar5 = Coprocessor.accumulator.ir2;
         iVar7 = Coprocessor.accumulator.ir3;
-        m33.SetValue32(0, (iVar8 - iVar17) * 0x10000 | (int)(iVar13 + iVar5 & 0xffffU));
+        m33.SetValue32(0, (iVar8 - iVar11) * 0x10000 | (int)(iVar13 + iVar5 & 0xffffU));
         m33.SetValue32(1, iVar4 << 16 | (int)(iVar16 * iVar19 >> 12 & 0xffffU));
         m33.SetValue32(3, (iVar6 + iVar17) * 0x10000 | (int)(iVar7 - iVar18 & 0xffffU));
         return m33;
@@ -2259,6 +2289,16 @@ public static class Utilities
         else if (val.CompareTo(max) > 0) return max;
         else return val;
     }
+
+    public static void SetGlobalScale(this Transform transform, Vector3 globalScale)
+    {
+        transform.localScale = Vector3.one;
+        transform.localScale = new Vector3
+            (globalScale.x / transform.lossyScale.x, 
+            globalScale.y / transform.lossyScale.y, 
+            globalScale.z / transform.lossyScale.z);
+    }
+
 
     public static float MoveDecimal(int value, int space)
     {
@@ -2438,6 +2478,91 @@ public class FixedSizedQueue<T>
         T result;
         result = q.ElementAt(index);
         return result;
+    }
+}
+
+public class BufferedBinaryReader : IDisposable
+{
+    private readonly Stream stream;
+    private readonly byte[] buffer;
+    private readonly int bufferSize;
+    private int bufferOffset;
+    private int numBufferedBytes;
+
+    public BufferedBinaryReader(Stream stream, int bufferSize)
+    {
+        this.stream = stream;
+        this.bufferSize = bufferSize;
+        buffer = new byte[bufferSize];
+        bufferOffset = bufferSize;
+    }
+
+    public int NumBytesAvailable { get { return Math.Max(0, numBufferedBytes - bufferOffset); } }
+
+    public bool FillBuffer()
+    {
+        var numBytesUnread = bufferSize - bufferOffset;
+        var numBytesToRead = bufferSize - numBytesUnread;
+        bufferOffset = 0;
+        numBufferedBytes = numBytesUnread;
+        if (numBytesUnread > 0)
+        {
+            Buffer.BlockCopy(buffer, numBytesToRead, buffer, 0, numBytesUnread);
+        }
+        while (numBytesToRead > 0)
+        {
+            var numBytesRead = stream.Read(buffer, numBytesUnread, numBytesToRead);
+            if (numBytesRead == 0)
+            {
+                return false;
+            }
+            numBufferedBytes += numBytesRead;
+            numBytesToRead -= numBytesRead;
+            numBytesUnread += numBytesRead;
+        }
+        return true;
+    }
+
+    public byte ReadByte(int offset)
+    {
+        byte val = (byte)(int)buffer[bufferOffset + offset];
+        //bufferOffset += 2;
+        return val;
+    }
+
+    public short ReadInt16(int offset)
+    {
+        short val = (short)((int)buffer[bufferOffset + offset] | (int)buffer[bufferOffset + offset + 1] << 8);
+        //bufferOffset += 2;
+        return val;
+    }
+
+    public ushort ReadUInt16(int offset)
+    {
+        ushort val = (ushort)((int)buffer[bufferOffset + offset] | (int)buffer[bufferOffset + offset + 1] << 8);
+        //bufferOffset += 2;
+        return val;
+    }
+
+    public void Dispose()
+    {
+        stream.Close();
+    }
+
+    public void Seek(int offset, SeekOrigin origin)
+    {
+        switch (origin)
+        {
+            case SeekOrigin.Begin:
+                bufferOffset = offset;
+                break;
+            case SeekOrigin.Current:
+                bufferOffset += offset;
+                break;
+            case SeekOrigin.End:
+                bufferOffset = bufferSize - offset;
+                break;
+        }
     }
 }
 

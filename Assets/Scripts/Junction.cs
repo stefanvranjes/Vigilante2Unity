@@ -16,10 +16,21 @@ public class Junction : MonoBehaviour
 
     private Mesh mesh;
     private Texture mainT;
-    private List<Vector3> newVertices;
-    private List<Vector2> newUVs;
-    private List<Color32> newColors;
-    private List<List<int>> newTriangles;
+    private static Vector3[] newVertices = new Vector3[5121];
+    private static Vector2[] newUVs = new Vector2[5121];
+    private static Color32[] newColors = new Color32[5121];
+    private static int[][] newTriangles = new int[16][]
+    {
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023], new int[1023], new int[1023]
+    };
+    private int index;
+    private int[] index2 = new int[16];
+    private static Color32[] local_f0 = new Color32[32];
+    private static Vector3[] verts = new Vector3[64];
+    private static Color32[] colors = new Color32[64];
 
     // Start is called before the first frame update
     void Awake()
@@ -28,13 +39,14 @@ public class Junction : MonoBehaviour
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         mesh.subMeshCount = 16;
-        newVertices = new List<Vector3>();
-        newUVs = new List<Vector2>();
-        newColors = new List<Color32>();
-        newTriangles = new List<List<int>>();
+        /*newVertices = new Vector3[1023];
+        newUVs = new Vector2[1023];
+        newColors = new Color32[1023];
+        newTriangles = new int[16][];
+        index2 = new int[16];
 
         for (int i = 0; i < 16; i++)
-            newTriangles.Add(new List<int>());
+            newTriangles[i] = new int[1023];*/
     }
 
     // Update is called once per frame
@@ -51,12 +63,19 @@ public class Junction : MonoBehaviour
 
     public void ClearRoadData()
     {
-        newVertices.Clear();
-        newColors.Clear();
-        newUVs.Clear();
+        for (int i = 0; i < index; i++)
+        {
+            newVertices[i] = new Vector3(0, 0, 0);
+            newUVs[i] = new Vector2(0, 0);
+        }
 
         for (int i = 0; i < 16; i++)
-            newTriangles[i].Clear();
+            for (int j = 0; j < index2[i]; j++)
+                newTriangles[i][j] = 0;
+
+        index = 0;
+        for (int i = 0; i < index2.Length; i++)
+            index2[i] = 0;
 
         mesh.Clear();
     }
@@ -65,15 +84,15 @@ public class Junction : MonoBehaviour
     {
         mesh.subMeshCount = 16;
 
-        for (int j = 0; j < newVertices.Count; j++)
+        for (int j = 0; j < index; j++)
             newVertices[j] = new Vector3(newVertices[j].x, -newVertices[j].y, newVertices[j].z);
 
-        mesh.SetVertices(newVertices);
-        mesh.SetColors(newColors);
-        mesh.SetUVs(0, newUVs);
+        mesh.SetVertices(newVertices, 0, index);
+        mesh.SetColors(newColors, 0, index);
+        mesh.SetUVs(0, newUVs, 0, index);
 
         for (int j = 0; j < 16; j++)
-            mesh.SetTriangles(newTriangles[j], j);
+            mesh.SetTriangles(newTriangles[j], 0, index2[j], j);
     }
 
     public void FUN_4F804()
@@ -105,22 +124,13 @@ public class Junction : MonoBehaviour
         int puVar18;
         int puVar19;
         uint uVar20;
-        Color32[] local_f0 = new Color32[32];
         int local_38;
         short local_30;
         ushort local_28;
-        FixedSizedQueue<Vector3> roadVertices = new FixedSizedQueue<Vector3>();
-        Vector3 v1;
-        Vector3 v2;
         Vector3 v3;
-        Vector3[] verts = new Vector3[64];
-        Color32[] colors = new Color32[64];
         int tFactor = GameManager.instance.translateFactor2;
         VigTerrain terrain = LevelManager.instance.terrain;
-        int index;
-        int index2;
-
-        roadVertices.Limit = 3;
+        int index3;
 
         puVar18 = 0;
         dbVar16 = xrtp;
@@ -148,12 +158,12 @@ public class Junction : MonoBehaviour
         Coprocessor.vector0.vx0 = (short)DAT_20[0].x;
         Coprocessor.vector0.vy0 = (short)DAT_20[0].y;
         Coprocessor.vector0.vz0 = (short)DAT_20[0].z;
-        roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
+        //roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
         Coprocessor.ExecuteRTPS(12, false);
         Coprocessor.vector0.vx0 = (short)DAT_28[0].x;
         Coprocessor.vector0.vy0 = (short)DAT_28[0].y;
         Coprocessor.vector0.vz0 = (short)DAT_28[0].z;
-        roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
+        //roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
         Coprocessor.ExecuteRTPS(12, false);
 
         if (dbVar16.DAT_14 < dbVar16.DAT_18 + DAT_1C)
@@ -161,7 +171,7 @@ public class Junction : MonoBehaviour
 
         if ((dbVar16.DAT_2C & 2) == 0)
         {
-            if (0 < DAT_1C)
+            /*if (0 < DAT_1C)
             {
                 puVar15 = dbVar16.DAT_18 * 10;
 
@@ -462,7 +472,7 @@ public class Junction : MonoBehaviour
 
                     puVar18++;
                 }
-            }
+            }*/
         }
         else
         {
@@ -479,7 +489,7 @@ public class Junction : MonoBehaviour
                     Coprocessor.vector0.vx0 = (short)DAT_20[puVar14].x;
                     Coprocessor.vector0.vy0 = (short)DAT_20[puVar14].y;
                     Coprocessor.vector0.vz0 = (short)DAT_20[puVar14].z;
-                    roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
+                    //roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
                     Coprocessor.ExecuteRTPS(12, false);
                     Coprocessor.ExecuteNCLIP();
                     iVar3 = Coprocessor.mathsAccumulator.mac0;
@@ -497,14 +507,17 @@ public class Junction : MonoBehaviour
                             {
                                 puVar8 = dbVar16.DAT_20 * 52;
                                 uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                                v3 = new Vector3(Coprocessor.screenXYZFIFO.sx0, Coprocessor.screenXYZFIFO.sy0, Coprocessor.screenXYZFIFO.sz0) / tFactor;
                                 //V3_DAT_10[puVar8 + 2] = roadVertices.Dequeue();
-                                verts[2] = roadVertices.PeekAt(0);
+                                verts[2] = v3;
                                 uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
+                                v3 = new Vector3(Coprocessor.screenXYZFIFO.sx1, Coprocessor.screenXYZFIFO.sy1, Coprocessor.screenXYZFIFO.sz1) / tFactor;
                                 //dbVar16.V3_DAT_10[puVar8 + 18] = roadVertices.Dequeue();
-                                verts[18] = roadVertices.PeekAt(1);
+                                verts[18] = v3;
                                 uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                                v3 = new Vector3(Coprocessor.screenXYZFIFO.sx2, Coprocessor.screenXYZFIFO.sy2, Coprocessor.screenXYZFIFO.sz2) / tFactor;
                                 //dbVar16.V3_DAT_10[puVar8 + 34] = roadVertices.Dequeue();
-                                verts[34] = roadVertices.PeekAt(2);
+                                verts[34] = v3;
                                 uVar20 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
                                 uVar11 = (uint)((int)uVar20 << 16 >> 16);
                                 uVar20 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
@@ -534,16 +547,16 @@ public class Junction : MonoBehaviour
                                 Coprocessor.vector0.vx0 = (short)DAT_28[puVar14].x;
                                 Coprocessor.vector0.vy0 = (short)DAT_28[puVar14].y;
                                 Coprocessor.vector0.vz0 = (short)DAT_28[puVar14].z;
-                                roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
+                                //roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
                                 Coprocessor.vector1.vx1 = (short)((DAT_20[puVar18].x + DAT_28[puVar14 - 1].x) / 2);
                                 Coprocessor.vector1.vy1 = (short)((DAT_20[puVar14 - 1].y + DAT_28[puVar14 - 1].y) / 2);
                                 Coprocessor.vector1.vz1 = (short)((DAT_20[puVar14 - 1].z + DAT_28[puVar14 - 1].z) / 2);
-                                roadVertices.Enqueue(new Vector3(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
+                                //roadVertices.Enqueue(new Vector3(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
                                 iVar10 = (DAT_20[puVar14 - 1].y + DAT_20[puVar14].y) / 2;
                                 Coprocessor.vector2.vx2 = (short)((DAT_20[puVar18].x + DAT_20[puVar14].x) / 2);
                                 Coprocessor.vector2.vy2 = (short)iVar10;
                                 Coprocessor.vector2.vz2 = (short)((DAT_20[puVar14 - 1].z + DAT_20[puVar14].z) / 2);
-                                roadVertices.Enqueue(new Vector3(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
+                                //roadVertices.Enqueue(new Vector3(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
                                 Coprocessor.ExecuteRTPT(12, false);
                                 //dbVar16.C32_DAT_10[puVar8 + 1] = local_f0[DAT_26[puVar14 - 1] >> 2];
                                 //dbVar16.C32_DAT_10[puVar8 + 17] = local_f0[DAT_2E[puVar14 - 1] >> 2];
@@ -570,18 +583,21 @@ public class Junction : MonoBehaviour
                                     if (true) //(-1 < (int)uVar7)
                                     {
                                         uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                                        v3 = new Vector3(Coprocessor.screenXYZFIFO.sx0, Coprocessor.screenXYZFIFO.sy0, Coprocessor.screenXYZFIFO.sz0) / tFactor;
                                         //dbVar16.V3_DAT_10[puVar8 + 50] = roadVertices.Dequeue();
-                                        verts[50] = roadVertices.PeekAt(0);
+                                        verts[50] = v3;
                                         uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
+                                        v3 = new Vector3(Coprocessor.screenXYZFIFO.sx1, Coprocessor.screenXYZFIFO.sy1, Coprocessor.screenXYZFIFO.sz1) / tFactor;
                                         //dbVar16.V3_DAT_10[puVar8 + 15] = roadVertices.Peek();
                                         //dbVar16.V3_DAT_10[puVar8 + 5] = roadVertices.Dequeue();
-                                        verts[15] = roadVertices.PeekAt(1);
-                                        verts[5] = roadVertices.PeekAt(1);
+                                        verts[15] = v3;
+                                        verts[5] = v3;
                                         uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sy2;
+                                        v3 = new Vector3(Coprocessor.screenXYZFIFO.sx2, Coprocessor.screenXYZFIFO.sy2, Coprocessor.screenXYZFIFO.sz2) / tFactor;
                                         //dbVar16.V3_DAT_10[puVar8 + 28] = roadVertices.Peek();
                                         //dbVar16.V3_DAT_10[puVar8 + 8] = roadVertices.Dequeue();
-                                        verts[28] = roadVertices.PeekAt(2);
-                                        verts[8] = roadVertices.PeekAt(2);
+                                        verts[28] = v3;
+                                        verts[8] = v3;
                                         iVar10 = 0;
 
                                         if (0 < iVar13)
@@ -609,16 +625,16 @@ public class Junction : MonoBehaviour
                                         Coprocessor.vector0.vx0 = (short)((DAT_28[puVar14 - 1].x + DAT_28[puVar14].x) / 2);
                                         Coprocessor.vector0.vy0 = (short)((DAT_28[puVar14 - 1].y + DAT_28[puVar14].y) / 2);
                                         Coprocessor.vector0.vz0 = (short)((DAT_28[puVar14 - 1].z + DAT_28[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
+                                        //roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
                                         iVar10 = (DAT_20[puVar14].y + DAT_28[puVar14].y) / 2;
                                         Coprocessor.vector1.vx1 = (short)((DAT_20[puVar14].x + DAT_28[puVar14].x) / 2);
                                         Coprocessor.vector1.vy1 = (short)iVar10;
                                         Coprocessor.vector1.vz1 = (short)((DAT_20[puVar14].z + DAT_28[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
+                                        //roadVertices.Enqueue(new Vector3(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
                                         Coprocessor.vector2.vx2 = (short)((DAT_28[puVar14 - 1].x + DAT_20[puVar14].x) / 2);
                                         Coprocessor.vector2.vy2 = (short)((DAT_28[puVar14 - 1].y + DAT_20[puVar14].y) / 2);
                                         Coprocessor.vector2.vz2 = (short)((DAT_28[puVar14 - 1].z + DAT_20[puVar14].z) / 2);
-                                        roadVertices.Enqueue(new Vector3(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
+                                        //roadVertices.Enqueue(new Vector3(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
                                         Coprocessor.ExecuteRTPT(12, false);
                                         clrVar7 = local_f0[DAT_26[puVar14 - 1] +
                                                            DAT_2E[puVar14 - 1] >> 3];
@@ -655,139 +671,150 @@ public class Junction : MonoBehaviour
                                         colors[20] = clrVar7;
                                         colors[10] = clrVar7;
                                         uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                                        v3 = new Vector3(Coprocessor.screenXYZFIFO.sx0, Coprocessor.screenXYZFIFO.sy0, Coprocessor.screenXYZFIFO.sz0) / tFactor;
                                         //dbVar16.V3_DAT_10[puVar14 + 44] = roadVertices.Peek();
                                         //dbVar16.V3_DAT_10[puVar14 + 24] = roadVertices.Dequeue();
-                                        verts[44] = roadVertices.PeekAt(0);
-                                        verts[24] = roadVertices.PeekAt(0);
+                                        verts[44] = v3;
+                                        verts[24] = v3;
                                         uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
+                                        v3 = new Vector3(Coprocessor.screenXYZFIFO.sx1, Coprocessor.screenXYZFIFO.sy1, Coprocessor.screenXYZFIFO.sz1) / tFactor;
                                         //dbVar16.V3_DAT_10[puVar14 + 47] = roadVertices.Peek();
                                         //dbVar16.V3_DAT_10[puVar14 + 37] = roadVertices.Dequeue();
-                                        verts[47] = roadVertices.PeekAt(1);
-                                        verts[37] = roadVertices.PeekAt(1);
+                                        verts[47] = v3;
+                                        verts[37] = v3;
                                         uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                                        v3 = new Vector3(Coprocessor.screenXYZFIFO.sx2, Coprocessor.screenXYZFIFO.sy2, Coprocessor.screenXYZFIFO.sz2) / tFactor;
                                         //dbVar16.V3_DAT_10[puVar14 + 41] = roadVertices.Peek();
                                         //dbVar16.V3_DAT_10[puVar14 + 31] = roadVertices.Peek();
                                         //dbVar16.V3_DAT_10[puVar14 + 21] = roadVertices.Peek();
                                         //dbVar16.V3_DAT_10[puVar14 + 11] = roadVertices.Dequeue();
-                                        verts[41] = roadVertices.PeekAt(2);
-                                        verts[31] = roadVertices.PeekAt(2);
-                                        verts[21] = roadVertices.PeekAt(2);
-                                        verts[11] = roadVertices.PeekAt(2);
+                                        verts[41] = v3;
+                                        verts[31] = v3;
+                                        verts[21] = v3;
+                                        verts[11] = v3;
                                     float distance = Vector3.Distance(transform.position + verts[11], GameManager.instance.cameraObjects[0].transform.position);
-                                    index2 = (int)Mathf.Clamp(distance / 18, 0, 15);
+                                    index3 = (int)Mathf.Clamp(distance / 18, 0, 15);
 
-                                        newVertices.Add(verts[2]);
-                                        newVertices.Add(verts[5]);
-                                        newVertices.Add(verts[8]);
-                                        newColors.Add(colors[1]);
-                                        newColors.Add(colors[4]);
-                                        newColors.Add(colors[7]);
-                                        newUVs.Add(new Vector2(0, 0));
-                                        newUVs.Add(new Vector2(0.5f, 0));
-                                        newUVs.Add(new Vector2(0, 0.5f));
-                                        index = newVertices.Count - 1;
-                                        newTriangles[index2].Add(index);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index - 2);
+                                        newVertices[index] = verts[2];
+                                        newVertices[index + 1] = verts[5];
+                                        newVertices[index + 2] = verts[8];
+                                        newColors[index] = colors[1];
+                                        newColors[index + 1] = colors[4];
+                                        newColors[index + 2] = colors[7];
+                                        newUVs[index] = new Vector2(0, 0);
+                                        newUVs[index + 1] = new Vector2(0.5f, 0);
+                                        newUVs[index + 2] = new Vector2(0, 0.5f);
+                                        newTriangles[index3][index2[index3]] = index + 2;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index;
+                                        index += 3;
+                                        index2[index3] += 3;
 
-                                        newVertices.Add(verts[5]);
-                                        newVertices.Add(verts[8]);
-                                        newVertices.Add(verts[11]);
-                                        newColors.Add(colors[4]);
-                                        newColors.Add(colors[7]);
-                                        newColors.Add(colors[10]);
-                                        newUVs.Add(new Vector2(0.5f, 0));
-                                        newUVs.Add(new Vector2(0, 0.5f));
-                                        newUVs.Add(new Vector2(0.5f, 0.5f));
-                                        index = newVertices.Count - 1;
-                                        newTriangles[index2].Add(index - 2);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index);
+                                        newVertices[index] = verts[5];
+                                        newVertices[index + 1] = verts[8];
+                                        newVertices[index + 2] = verts[11];
+                                        newColors[index] = colors[4];
+                                        newColors[index + 1] = colors[7];
+                                        newColors[index + 2] = colors[10];
+                                        newUVs[index] = new Vector2(0.5f, 0);
+                                        newUVs[index + 1] = new Vector2(0, 0.5f);
+                                        newUVs[index + 2] = new Vector2(0.5f, 0.5f);
+                                        newTriangles[index3][index2[index3]] = index;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index + 2;
+                                        index += 3;
+                                        index2[index3] += 3;
                                         
-                                        newVertices.Add(verts[15]);
-                                        newVertices.Add(verts[18]);
-                                        newVertices.Add(verts[21]);
-                                        newColors.Add(colors[14]);
-                                        newColors.Add(colors[17]);
-                                        newColors.Add(colors[20]);
-                                        newUVs.Add(new Vector2(0.5f, 0));
-                                        newUVs.Add(new Vector2(1, 0));
-                                        newUVs.Add(new Vector2(0.5f, 0.5f));
-                                        index = newVertices.Count - 1;
-                                        newTriangles[index2].Add(index);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index - 2);
-
-                                        newVertices.Add(verts[18]);
-                                        newVertices.Add(verts[21]);
-                                        newVertices.Add(verts[24]);
-                                        newColors.Add(colors[17]);
-                                        newColors.Add(colors[20]);
-                                        newColors.Add(colors[23]);
-                                        newUVs.Add(new Vector2(1, 0));
-                                        newUVs.Add(new Vector2(0.5f, 0.5f));
-                                        newUVs.Add(new Vector2(1, 0.5f));
-                                        index = newVertices.Count - 1;
-                                        newTriangles[index2].Add(index - 2);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index);
-
-                                        newVertices.Add(verts[28]);
-                                        newVertices.Add(verts[31]);
-                                        newVertices.Add(verts[34]);
-                                        newColors.Add(colors[27]);
-                                        newColors.Add(colors[30]);
-                                        newColors.Add(colors[33]);
-                                        newUVs.Add(new Vector2(0, 0.5f));
-                                        newUVs.Add(new Vector2(0.5f, 0.5f));
-                                        newUVs.Add(new Vector2(0, 1));
-                                        index = newVertices.Count - 1;
-                                        newTriangles[index2].Add(index);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index - 2);
-
-                                        newVertices.Add(verts[31]);
-                                        newVertices.Add(verts[34]);
-                                        newVertices.Add(verts[37]);
-                                        newColors.Add(colors[30]);
-                                        newColors.Add(colors[33]);
-                                        newColors.Add(colors[36]);
-                                        newUVs.Add(new Vector2(0.5f, 0.5f));
-                                        newUVs.Add(new Vector2(0, 1));
-                                        newUVs.Add(new Vector2(0.5f, 1));
+                                        newVertices[index] = verts[15];
+                                        newVertices[index + 1] = verts[18];
+                                        newVertices[index + 2] = verts[21];
+                                        newColors[index] = colors[14];
+                                        newColors[index + 1] = colors[17];
+                                        newColors[index + 2] = colors[20];
+                                        newUVs[index] = new Vector2(0.5f, 0);
+                                        newUVs[index + 1] = new Vector2(1, 0);
+                                        newUVs[index + 2] = new Vector2(0.5f, 0.5f);
+                                        newTriangles[index3][index2[index3]] = index + 2;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index;
                                         index += 3;
-                                        newTriangles[index2].Add(index - 2);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index);
+                                        index2[index3] += 3;
 
-                                        newVertices.Add(verts[41]);
-                                        newVertices.Add(verts[44]);
-                                        newVertices.Add(verts[47]);
-                                        newColors.Add(colors[40]);
-                                        newColors.Add(colors[43]);
-                                        newColors.Add(colors[46]);
-                                        newUVs.Add(new Vector2(0.5f, 0.5f));
-                                        newUVs.Add(new Vector2(1, 0.5f));
-                                        newUVs.Add(new Vector2(0.5f, 1));
+                                        newVertices[index] = verts[18];
+                                        newVertices[index + 1] = verts[21];
+                                        newVertices[index + 2] = verts[24];
+                                        newColors[index] = colors[17];
+                                        newColors[index + 1] = colors[20];
+                                        newColors[index + 2] = colors[23];
+                                        newUVs[index] = new Vector2(1, 0);
+                                        newUVs[index + 1] = new Vector2(0.5f, 0.5f);
+                                        newUVs[index + 2] = new Vector2(1, 0.5f);
+                                        newTriangles[index3][index2[index3]] = index;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index + 2;
                                         index += 3;
-                                        newTriangles[index2].Add(index);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index - 2);
+                                        index2[index3] += 3;
 
-                                        newVertices.Add(verts[44]);
-                                        newVertices.Add(verts[47]);
-                                        newVertices.Add(verts[50]);
-                                        newColors.Add(colors[43]);
-                                        newColors.Add(colors[46]);
-                                        newColors.Add(colors[49]);
-                                        newUVs.Add(new Vector2(1, 0.5f));
-                                        newUVs.Add(new Vector2(0.5f, 1));
-                                        newUVs.Add(new Vector2(1, 1));
+                                        newVertices[index] = verts[28];
+                                        newVertices[index + 1] = verts[31];
+                                        newVertices[index + 2] = verts[34];
+                                        newColors[index] = colors[27];
+                                        newColors[index + 1] = colors[30];
+                                        newColors[index + 2] = colors[33];
+                                        newUVs[index] = new Vector2(0, 0.5f);
+                                        newUVs[index + 1] = new Vector2(0.5f, 0.5f);
+                                        newUVs[index + 2] = new Vector2(0, 1);
+                                        newTriangles[index3][index2[index3]] = index + 2;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index;
                                         index += 3;
-                                        newTriangles[index2].Add(index - 2);
-                                        newTriangles[index2].Add(index - 1);
-                                        newTriangles[index2].Add(index);
-                                        
+                                        index2[index3] += 3;
+
+                                        newVertices[index] = verts[31];
+                                        newVertices[index + 1] = verts[34];
+                                        newVertices[index + 2] = verts[37];
+                                        newColors[index] = colors[30];
+                                        newColors[index + 1] = colors[33];
+                                        newColors[index + 2] = colors[36];
+                                        newUVs[index] = new Vector2(0.5f, 0.5f);
+                                        newUVs[index + 1] = new Vector2(0, 1);
+                                        newUVs[index + 2] = new Vector2(0.5f, 1);
+                                        newTriangles[index3][index2[index3]] = index;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index + 2;
+                                        index += 3;
+                                        index2[index3] += 3;
+
+                                        newVertices[index] = verts[41];
+                                        newVertices[index + 1] = verts[44];
+                                        newVertices[index + 2] = verts[47];
+                                        newColors[index] = colors[40];
+                                        newColors[index + 1] = colors[43];
+                                        newColors[index + 2] = colors[46];
+                                        newUVs[index] = new Vector2(0.5f, 0.5f);
+                                        newUVs[index + 1] = new Vector2(1, 0.5f);
+                                        newUVs[index + 2] = new Vector2(0.5f, 1);
+                                        newTriangles[index3][index2[index3]] = index + 2;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index;
+                                        index += 3;
+                                        index2[index3] += 3;
+
+                                        newVertices[index] = verts[44];
+                                        newVertices[index + 1] = verts[47];
+                                        newVertices[index + 2] = verts[50];
+                                        newColors[index] = colors[43];
+                                        newColors[index + 1] = colors[46];
+                                        newColors[index + 2] = colors[49];
+                                        newUVs[index] = new Vector2(1, 0.5f);
+                                        newUVs[index + 1] = new Vector2(0.5f, 1);
+                                        newUVs[index + 2] = new Vector2(1, 1);
+                                        newTriangles[index3][index2[index3]] = index;
+                                        newTriangles[index3][index2[index3] + 1] = index + 1;
+                                        newTriangles[index3][index2[index3] + 2] = index + 2;
+                                        index += 3;
+                                        index2[index3] += 3;
+
                                         uVar7 = (uint)dbVar16.DAT_1C;
                                         uVar5 = (uint)dbVar16.DAT_20 + 1;
                                         uVar1 = 0;
@@ -802,15 +829,15 @@ public class Junction : MonoBehaviour
                                 Coprocessor.vector0.vx0 = (short)DAT_28[puVar14 - 1].x;
                                 Coprocessor.vector0.vy0 = (short)DAT_28[puVar14 - 1].y;
                                 Coprocessor.vector0.vz0 = (short)DAT_28[puVar14 - 1].z;
-                                roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
+                                //roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
                                 Coprocessor.vector1.vx1 = (short)DAT_20[puVar14].x;
                                 Coprocessor.vector1.vy1 = (short)DAT_20[puVar14].y;
                                 Coprocessor.vector1.vz1 = (short)DAT_20[puVar14].z;
-                                roadVertices.Enqueue(new Vector3(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
+                                //roadVertices.Enqueue(new Vector3(Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor);
                                 Coprocessor.vector2.vx2 = (short)DAT_28[puVar14].x;
                                 Coprocessor.vector2.vy2 = (short)DAT_28[puVar14].y;
                                 Coprocessor.vector2.vz2 = (short)DAT_28[puVar14].z;
-                                roadVertices.Enqueue(new Vector3(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
+                                //roadVertices.Enqueue(new Vector3(Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor);
                                 Coprocessor.ExecuteRTPT(12, false);
                             }
                         }
@@ -818,18 +845,21 @@ public class Junction : MonoBehaviour
                         {
                         
                             uVar7 = (uint)Coprocessor.screenXYFIFO.sy0 << 16 | (ushort)Coprocessor.screenXYFIFO.sx0;
+                            v3 = new Vector3(Coprocessor.screenXYZFIFO.sx0, Coprocessor.screenXYZFIFO.sy0, Coprocessor.screenXYZFIFO.sz0) / tFactor;
                             //dbVar16.V3_DAT_0C[puVar15 + 15] = roadVertices.Dequeue();
-                            verts[15] = roadVertices.PeekAt(0);
+                            verts[15] = v3;
                             uVar7 = (uint)Coprocessor.screenXYFIFO.sy1 << 16 | (ushort)Coprocessor.screenXYFIFO.sx1;
+                            v3 = new Vector3(Coprocessor.screenXYZFIFO.sx1, Coprocessor.screenXYZFIFO.sy1, Coprocessor.screenXYZFIFO.sz1) / tFactor;
                             //dbVar16.V3_DAT_0C[puVar15 + 18] = roadVertices.Dequeue();
-                            verts[18] = roadVertices.PeekAt(1);
+                            verts[18] = v3;
                             uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                            v3 = new Vector3(Coprocessor.screenXYZFIFO.sx2, Coprocessor.screenXYZFIFO.sy2, Coprocessor.screenXYZFIFO.sz2) / tFactor;
                             //dbVar16.V3_DAT_0C[puVar15 + 21] = roadVertices.Dequeue();
-                            verts[21] = roadVertices.PeekAt(2);
+                            verts[21] = v3;
                             Coprocessor.vector0.vx0 = (short)DAT_28[puVar14].x;
                             Coprocessor.vector0.vy0 = (short)DAT_28[puVar14].y;
                             Coprocessor.vector0.vz0 = (short)DAT_28[puVar14].z;
-                            roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
+                            //roadVertices.Enqueue(new Vector3(Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor);
                             Coprocessor.ExecuteRTPS(12, false);
                             //dbVar16.C32_DAT_0C[puVar15 + 14] = local_f0[DAT_26[puVar14 - 1] >> 2];
                             //dbVar16.C32_DAT_0C[puVar15 + 17] = local_f0[DAT_2E[puVar14 - 1] >> 2];
@@ -840,38 +870,41 @@ public class Junction : MonoBehaviour
                             colors[20] = local_f0[DAT_26[puVar14] >> 2];
                             colors[23] = local_f0[DAT_2E[puVar14] >> 2];
                             uVar7 = (uint)Coprocessor.screenXYFIFO.sy2 << 16 | (ushort)Coprocessor.screenXYFIFO.sx2;
+                            v3 = new Vector3(Coprocessor.screenXYZFIFO.sx2, Coprocessor.screenXYZFIFO.sy2, Coprocessor.screenXYZFIFO.sz2) / tFactor;
                             //dbVar16.V3_DAT_0C[puVar15 + 24] = roadVertices.Dequeue();
-                            verts[24] = roadVertices.PeekAt(2);
+                            verts[24] = v3;
                         float distance = Vector3.Distance(transform.position + verts[15], GameManager.instance.cameraObjects[0].transform.position);
-                        index2 = (int)Mathf.Clamp(distance / 18, 0, 15);
+                        index3 = (int)Mathf.Clamp(distance / 18, 0, 15);
 
-                            newVertices.Add(verts[15]);
-                            newVertices.Add(verts[18]);
-                            newVertices.Add(verts[21]);
-                            newColors.Add(colors[14]);
-                            newColors.Add(colors[17]);
-                            newColors.Add(colors[20]);
-                            newUVs.Add(new Vector2(0, 0));
-                            newUVs.Add(new Vector2(1, 0));
-                            newUVs.Add(new Vector2(0, 1));
-                            index = newVertices.Count - 1;
-                            newTriangles[index2].Add(index);
-                            newTriangles[index2].Add(index - 1);
-                            newTriangles[index2].Add(index - 2);
-
-                            newVertices.Add(verts[18]);
-                            newVertices.Add(verts[21]);
-                            newVertices.Add(verts[24]);
-                            newColors.Add(colors[17]);
-                            newColors.Add(colors[20]);
-                            newColors.Add(colors[23]);
-                            newUVs.Add(new Vector2(1, 0));
-                            newUVs.Add(new Vector2(0, 1));
-                            newUVs.Add(new Vector2(1, 1));
+                            newVertices[index] = verts[15];
+                            newVertices[index + 1] = verts[18];
+                            newVertices[index + 2] = verts[21];
+                            newColors[index] = colors[14];
+                            newColors[index + 1] = colors[17];
+                            newColors[index + 2] = colors[20];
+                            newUVs[index] = new Vector2(0, 0);
+                            newUVs[index + 1] = new Vector2(1, 0);
+                            newUVs[index + 2] = new Vector2(0, 1);
+                            newTriangles[index3][index2[index3]] = index + 2;
+                            newTriangles[index3][index2[index3] + 1] = index + 1;
+                            newTriangles[index3][index2[index3] + 2] = index;
                             index += 3;
-                            newTriangles[index2].Add(index - 2);
-                            newTriangles[index2].Add(index - 1);
-                            newTriangles[index2].Add(index);
+                            index2[index3] += 3;
+
+                            newVertices[index] = verts[18];
+                            newVertices[index + 1] = verts[21];
+                            newVertices[index + 2] = verts[24];
+                            newColors[index] = colors[17];
+                            newColors[index + 1] = colors[20];
+                            newColors[index + 2] = colors[23];
+                            newUVs[index] = new Vector2(1, 0);
+                            newUVs[index + 1] = new Vector2(0, 1);
+                            newUVs[index + 2] = new Vector2(1, 1);
+                            newTriangles[index3][index2[index3]] = index;
+                            newTriangles[index3][index2[index3] + 1] = index + 1;
+                            newTriangles[index3][index2[index3] + 2] = index + 2;
+                            index += 3;
+                            index2[index3] += 3;
 
                             Coprocessor.ExecuteAVSZ4();
                             iVar3 = Coprocessor.accumulator.ir0;
