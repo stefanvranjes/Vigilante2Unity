@@ -17,7 +17,9 @@ public class IMP_OBJ
             LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
             levelManager.objData.Add(new OBJ(reader.ReadBytes((int)reader.BaseStream.Length)));
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager);
+#endif
         }
 
         return true;
@@ -41,6 +43,8 @@ public class IMP_OBJ
                     {
                         if (reader.BaseStream.Length - reader.BaseStream.Position < 8)
                             break;
+
+                        reader.BaseStream.Seek(reader.BaseStream.Position % 2, SeekOrigin.Current);
 
                         string header = new string(reader.ReadChars(4));
                         int chunkSize = reader.ReadInt32BE();
@@ -136,10 +140,10 @@ public class IMP_OBJ
         }
 
         LAB_2E74:
-        if ((pcVar17 & 4) != 0 && levelManager.charsList[iVar9].animations.Length > 0)
+        if ((pcVar17 & 4) != 0 && levelManager.xobfList[iVar9].animations.Length > 0)
         {
             iVar11 = (int)GameManager.FUN_2AC5C();
-            MemoryStream stream = new MemoryStream(levelManager.charsList[iVar9].animations);
+            MemoryStream stream = new MemoryStream(levelManager.xobfList[iVar9].animations);
 
             using (BinaryReader reader2 = new BinaryReader(stream, Encoding.Default, true))
                 GameManager.instance.timer = (ushort)-(iVar11 * reader2.ReadInt32() >> 15);
@@ -154,17 +158,18 @@ public class IMP_OBJ
         switch (uVar7)
         {
             case 0:
-                ppcVar12 = Utilities.FUN_31D30(pcVar10, levelManager.charsList[iVar9], sVar3,
+                ppcVar12 = Utilities.FUN_31D30(pcVar10, levelManager.xobfList[iVar9], sVar3,
                                                 (pcVar17 & 4) << 1);
                 if (ppcVar12 == null)
                     return null;
 
+                ppcVar12.gameObject.name = auStack112;
                 Utilities.ParentChildren(ppcVar12, ppcVar12);
 
                 ppcVar12.flags = pcVar17;
                 ppcVar12.type = bVar1;
                 ppcVar12.id = sVar2;
-                ppcVar12.ai = (byte)local_30;
+                ppcVar12.tags = (sbyte)local_30;
                 ppcVar12.screen = local_88;
                 ppcVar12.vr = local_78;
                 ppcVar12.maxFullHealth = uVar6;
@@ -186,13 +191,13 @@ public class IMP_OBJ
                         ppcVar12.FUN_4C98C();
 
                     if ((ppcVar12.flags & 4) != 0)
-                        GameManager.FUN_30080(GameManager.instance.DAT_10A8, ppcVar12);
+                        GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, ppcVar12);
 
                     if ((ppcVar12.flags & 0x80) != 0)
-                        GameManager.FUN_30080(GameManager.instance.DAT_1078, ppcVar12);
+                        GameManager.instance.FUN_30080(GameManager.instance.DAT_1088, ppcVar12);
 
                     ppcVar12.FUN_2EC7C();
-                    GameManager.FUN_30080(GameManager.instance.interObjs, ppcVar12);
+                    GameManager.instance.FUN_30080(GameManager.instance.interObjs, ppcVar12);
                     return ppcVar12;
                 }
 
@@ -202,24 +207,25 @@ public class IMP_OBJ
                 goto case 2;
             case 2:
             case 3:
-                ppcVar12 = Utilities.FUN_31D30(pcVar10, levelManager.charsList[iVar9], sVar3, (pcVar17 & 4) << 1);
+                ppcVar12 = Utilities.FUN_31D30(pcVar10, levelManager.xobfList[iVar9], sVar3, (pcVar17 & 4) << 1);
 
                 if (ppcVar12 == null)
                     return null;
 
+                ppcVar12.gameObject.name = auStack112;
                 Utilities.ParentChildren(ppcVar12, ppcVar12);
 
                 ppcVar12.flags = pcVar17;
                 ppcVar12.type = bVar1;
                 ppcVar12.id = sVar2;
-                ppcVar12.ai = (byte)local_30;
+                ppcVar12.tags = (sbyte)local_30;
                 ppcVar12.screen = local_88;
                 ppcVar12.vr = local_78;
                 oVar18 = ppcVar12.child2;
                 ppcVar12.maxFullHealth = uVar6;
                 ppcVar12.maxHalfHealth = uVar6;
 
-                while(oVar18 != null)
+                while (oVar18 != null)
                 {
                     oVar18.maxFullHealth = uVar6;
                     oVar18.maxHalfHealth = uVar6;
@@ -236,14 +242,14 @@ public class IMP_OBJ
 
                 return null;
             case 5:
-                obj = new GameObject();
+                obj = new GameObject(auStack112);
                 ppcVar12 = obj.AddComponent(pcVar10) as VigObject;
                 ppcVar12.DAT_1A = sVar3;
                 ppcVar12.flags = pcVar17;
                 ppcVar12.type = bVar1;
                 ppcVar12.id = sVar2;
-                ppcVar12.ai = (byte)local_30;
-                ppcVar12.vData = levelManager.charsList[iVar9];
+                ppcVar12.tags = (sbyte)local_30;
+                ppcVar12.vData = levelManager.xobfList[iVar9];
                 ppcVar12.screen = local_88;
                 ppcVar12.vr = local_78;
                 ppcVar12.maxFullHealth = uVar6;
@@ -299,18 +305,19 @@ public class IMP_OBJ
 
                 break;
             case 6:
-                obj = new GameObject();
+                return null;
+                obj = new GameObject(auStack112);
                 ppcVar12 = obj.AddComponent<VigObject>();
                 ppcVar12.flags = pcVar17;
                 ppcVar12.type = bVar1;
                 ppcVar12.id = sVar2;
-                ppcVar12.ai = (byte)local_30;
+                ppcVar12.tags = (sbyte)local_30;
                 ppcVar12.screen = local_88;
                 ppcVar12.vr = local_78;
                 bVar1 = (byte)GameManager.FUN_2AC5C();
                 ppcVar12.DAT_19 = bVar1;
                 ppcVar12.ApplyTransformation();
-                GameManager.FUN_30080(LevelManager.instance.levelObjs, ppcVar12);
+                GameManager.instance.FUN_30080(LevelManager.instance.levelObjs, ppcVar12);
                 goto case 1;
             case 1:
                 return ppcVar12;
@@ -325,7 +332,7 @@ public class IMP_OBJ
         VigTuple tVar1;
         uint uVar2;
 
-        tVar1 = GameManager.FUN_30134(GameManager.instance.interObjs, param1);
+        tVar1 = GameManager.instance.FUN_30134(GameManager.instance.interObjs, param1);
         uVar2 = reader.ReadUInt32BE();
         tVar1.flag = uVar2 | 0x80000000;
     }

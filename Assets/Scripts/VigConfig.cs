@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -283,7 +284,12 @@ public class VigConfig : MonoBehaviour
         }
 
         if (-1 < container.colliderID)
-            oVar3.vCollider = xobf.cbbList[container.colliderID];
+        {
+            VigCollider vCollider = xobf.cbbList[container.colliderID];
+            oVar3.vCollider = new VigCollider(vCollider.buffer);
+            oVar3.vCollider.reader = new BufferedBinaryReader(new MemoryStream(vCollider.buffer), vCollider.buffer.Length);
+            oVar3.vCollider.reader.FillBuffer();
+        }
 
         return oVar3;
     }

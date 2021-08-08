@@ -86,8 +86,10 @@ public class IMP_COLS
                 levelManager.DAT_DA4
             };
 
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager.gameObject);
             EditorUtility.SetDirty(terrain.gameObject);
+#endif
         }
     }
 }

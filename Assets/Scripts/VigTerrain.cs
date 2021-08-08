@@ -56,7 +56,7 @@ public class VigTerrain : MonoBehaviour
     public ushort defaultVertex;
     public byte defaultTile;
     public ushort[] chunks;
-    public int unk1, unk2, unk3, unk4;
+    public int DAT_DE4, DAT_DE8, DAT_DEC, DAT_DF0;
     public int tileXZ;
     public int tileY;
     public int zoneCount;
@@ -67,7 +67,7 @@ public class VigTerrain : MonoBehaviour
     public short[,] DAT_B9318 = new short[2, 20];
     public Color32[] DAT_B9370 = new Color32[32];
     public Color32[] DAT_BA4F0 = new Color32[32];
-    public VigTransform[] DAT_BDFF0;
+    public VigTransform[] DAT_BDFF0 = new VigTransform[2];
     public VigCamera vCamera;
 
     private Vector3[] terrainWorld = new Vector3[40];
@@ -105,7 +105,7 @@ public class VigTerrain : MonoBehaviour
         GetComponent<MeshFilter>().mesh = terrainMesh;
         Material mat = GetComponent<MeshRenderer>().materials[1];
         mainT = GetComponent<MeshRenderer>().materials[1].mainTexture as Texture;
-        GameObject.Find("SkyBox").GetComponent<MeshFilter>().mesh = skyboxMesh;
+        DAT_BDFF0 = new VigTransform[2];
     }
 
     // Start is called before the first frame update
@@ -119,7 +119,7 @@ public class VigTerrain : MonoBehaviour
         index2 = new int[16];
 
         for (int i = 1; i < newTriangles.Length; i++)
-            newTriangles[i] = new int[2049];
+            newTriangles[i] = new int[4095];
 
         return;
 
@@ -224,7 +224,7 @@ public class VigTerrain : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    public void UpdatePosition()
     {
         transform.position = vCamera.gameObject.transform.position;
 
@@ -273,7 +273,7 @@ public class VigTerrain : MonoBehaviour
         terrainMesh.SetTriangles(newTriangles[0], 0, index3, 0);
 
         for (int i = 1; i < 17; i++)
-            terrainMesh.SetTriangles(newTriangles[i], 0, index2[i - 1], i);
+            terrainMesh.SetTriangles(newTriangles[i], 0, index2[i - 1], i, false);
     }
 
     private bool InsideCircle(Tile center, Tile tile, float radius)

@@ -30,12 +30,8 @@ public class VigCamera : VigObject
         base.Update();
     }
 
-    private void FixedUpdate()
-    {
-        FUN_4AFB8(0);
-    }
-
-    private void FUN_4AFB8(int param2)
+    //FUN_4AFB8
+    public override uint UpdateW(int arg1, int arg2)
     {
         long lVar1;
         bool bVar2;
@@ -50,21 +46,22 @@ public class VigCamera : VigObject
         ulong uVar11;
         Vector3Int local_28;
         Vector3Int local_20;
-        Vehicle targetVehicle = (Vehicle)target;
 
-        if (param2 != 0)
+        if (arg1 != 0)
         {
-            if (param2 != 2)
-                return;
-            
+            if (arg1 != 2)
+                return 0;
+
+            Vehicle targetVehicle = (Vehicle)target;
+
             flags &= 0xebffffff;
 
             if (targetVehicle.vCamera == this)
-                return;
+                return 0;
 
             //FUN_30CB0
             targetVehicle.vCamera = this;
-            return;
+            return 0;
         }
 
         uVar5 = flags;
@@ -119,9 +116,9 @@ public class VigCamera : VigObject
             local_28 = new Vector3Int();
             local_28.x = GameManager.DAT_65C90[(uVar5 & 0xfff) * 2];
             sVar3 = GameManager.DAT_65C90[((ushort)DAT_90 & 0xfff) * 2];
-            puVar4 = GameManager.DAT_65C90[((ushort)DAT_92 & 0xfff) * 2];
+            puVar4 = GameManager.DAT_65C90[((ushort)DAT_92 & 0xfff) * 2 + 1];
             local_28.y = -sVar3;
-            local_28.z = GameManager.DAT_65C90[puVar4 + 1];
+            local_28.z = puVar4;
         }
 
         local_20 = new Vector3Int();
@@ -165,11 +162,11 @@ public class VigCamera : VigObject
             iVar6 = iVar6 - (iVar6 >> 31) >> 31;
             uVar11 = 0;
 
-            if (iVar6 < iVar10 || 
+            if (iVar6 < iVar10 ||
                 (iVar10 == iVar6 && uVar7 < uVar5))
             {
                 uVar11 = (ulong)Utilities.Divdi3((int)((uVar5 - uVar7) * 0x1000),
-                                                (int)(((uint)(iVar10 - iVar6) - (uint)(uVar5 < uVar7 ? 1 : 0)) * 4096 | uVar5 - uVar7 >> 20), 
+                                                (int)(((uint)(iVar10 - iVar6) - (uint)(uVar5 < uVar7 ? 1 : 0)) * 4096 | uVar5 - uVar7 >> 20),
                                                 (int)uVar5, iVar10);
                 if (0 < (int)(uVar11 >> 32) || ((int)(uVar11 >> 32) == 0 && !((int)uVar11 <= 256)))
                     bVar2 = true;
@@ -280,6 +277,7 @@ public class VigCamera : VigObject
         FUN_4BAFC(target.vTransform.position);
         vr.x += DAT_94;
         ApplyTransformation();
+        return 0;
     }
 
     private void FUN_4B820()

@@ -28,10 +28,12 @@ public class XRTP_DB : MonoBehaviour
 
     private void Reset()
     {
+#if UNITY_EDITOR
         prefabName = name;
         prefabPath = Application.dataPath.Remove(Application.dataPath.Length - 6, 6)
             + Path.GetDirectoryName(AssetDatabase.GetAssetPath(gameObject));
         prefabPath = prefabPath.Replace("\\", "/");
+#endif
     }
 
     //76B8 (LOAD.DLL)
@@ -120,19 +122,23 @@ public class XRTP_DB : MonoBehaviour
                         string matPath = relativePath + "/" + prefabName + "_FAR" + i.ToString().PadLeft(2, '0') + ".mat";
                         reader2.ReadInt32();
                         IMP_TIM.LoadTIM(reader2, bmpApsolute);
+#if UNITY_EDITOR
                         AssetDatabase.Refresh();
                         Material newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
                         newMaterial.mainTexture = AssetDatabase.LoadAssetAtPath(bmpRelative, typeof(Texture2D)) as Texture2D;
                         Utilities.SaveObjectToFile(newMaterial, matPath);
                         timFarList.Add(newMaterial);
+#endif
                     }
 
                     iVar6 += 0x100;
                 }
             }
 
+#if UNITY_EDITOR
             EditorUtility.SetDirty(gameObject);
             EditorUtility.SetDirty(levelManager.gameObject);
+#endif
         }
     }
 }

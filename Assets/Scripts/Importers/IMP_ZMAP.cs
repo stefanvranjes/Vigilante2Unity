@@ -16,10 +16,10 @@ public class IMP_ZMAP
             int iVar1 = 0; //r10
             int iVar2 = 0x400000; //r9
 
-            terr.unk3 = 0x8000000;
-            terr.unk1 = 0x8000000;
-            terr.unk2 = 0;
-            terr.unk4 = 0;
+            terr.DAT_DEC = 0x8000000;
+            terr.DAT_DE4 = 0x8000000;
+            terr.DAT_DE8 = 0;
+            terr.DAT_DF0 = 0;
 
             do
             {
@@ -41,28 +41,28 @@ public class IMP_ZMAP
                     {
                         uVar2 = (uint)iVar3 << 22;
 
-                        if (terr.unk1 < uVar2)
-                            uVar2 = (uint)terr.unk1;
+                        if (terr.DAT_DE4 < uVar2)
+                            uVar2 = (uint)terr.DAT_DE4;
 
-                        terr.unk1 = (int)uVar2;
+                        terr.DAT_DE4 = (int)uVar2;
                         int iVar = (int)uVar3;
 
-                        if (uVar3 < terr.unk2)
-                            iVar = terr.unk2;
+                        if (uVar3 < terr.DAT_DE8)
+                            iVar = terr.DAT_DE8;
 
-                        terr.unk2 = iVar;
+                        terr.DAT_DE8 = iVar;
                         uVar2 = (uint)iVar1 << 22;
 
-                        if (terr.unk3 < uVar2)
-                            uVar2 = (uint)terr.unk3;
+                        if (terr.DAT_DEC < uVar2)
+                            uVar2 = (uint)terr.DAT_DEC;
 
-                        terr.unk3 = (int)uVar2;
+                        terr.DAT_DEC = (int)uVar2;
                         iVar = iVar2;
 
-                        if (terr.unk4 < iVar2)
-                            iVar = terr.unk4;
+                        if (iVar2 < terr.DAT_DF0)
+                            iVar = terr.DAT_DF0;
 
-                        terr.unk4 = iVar;
+                        terr.DAT_DF0 = iVar;
                     }
 
                     uint uVar = 0x400000; //r3

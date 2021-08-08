@@ -76,6 +76,15 @@ public class LevelEditor
         IMP_TEXT.LoadAsset(file);
     }
 
+    [MenuItem("CONTEXT/LevelManager/Import AIMP")]
+    public static void ImportAIMP(MenuCommand menuCommand)
+    {
+        string file = EditorUtility.OpenFilePanel("Open aimp file to load asset", previousOpen, "");
+        previousOpen = Path.GetDirectoryName(file);
+
+        IMP_AIMP.LoadAsset(file);
+    }
+
     [MenuItem("CONTEXT/LevelManager/Import BSP")]
     public static void ImportBSP(MenuCommand menuCommand)
     {
@@ -145,9 +154,19 @@ public class LevelEditor
     {
         string file = EditorUtility.OpenFilePanel("Open junc file to load asset", previousOpen, "");
         previousOpen = Path.GetDirectoryName(file);
-
+        string name = Path.GetFileNameWithoutExtension(file);
+        int index = (byte)name[name.Length - 1] - 0x30;
         JUNC_DB junc = menuCommand.context as JUNC_DB;
-        junc.LoadDB(file);
+
+        while (true)
+        {
+            if (!junc.LoadDB(file)) break;
+
+            index++;
+            file = previousOpen + "\\JUNC" + index.ToString().PadLeft(4, '0');
+            GameObject obj = new GameObject("JUNC" + index.ToString().PadLeft(2, '0'));
+            junc = obj.AddComponent<JUNC_DB>();
+        }
     }
 
     [MenuItem("CONTEXT/RSEG_DB/Import RSEG")]
@@ -155,9 +174,19 @@ public class LevelEditor
     {
         string file = EditorUtility.OpenFilePanel("Open rseg file to load asset", previousOpen, "");
         previousOpen = Path.GetDirectoryName(file);
-
+        string name = Path.GetFileNameWithoutExtension(file);
+        int index = (byte)name[name.Length - 1] - 0x30;
         RSEG_DB rseg = menuCommand.context as RSEG_DB;
-        rseg.LoadDB(file);
+
+        while (true)
+        {
+            if (!rseg.LoadDB(file)) break;
+
+            index++;
+            file = previousOpen + "\\RSEG" + index.ToString().PadLeft(4, '0');
+            GameObject obj = new GameObject("RSEG" + index.ToString().PadLeft(2, '0'));
+            rseg = obj.AddComponent<RSEG_DB>();
+        }
     }
 
     [MenuItem("CONTEXT/XRTP_DB/Import XRTP")]

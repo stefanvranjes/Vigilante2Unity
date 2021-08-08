@@ -3,7 +3,9 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 public delegate void DELEGATE_79A0(MemoryStream param1, MemoryStream param2, MemoryStream param3, MemoryStream param4);
 
@@ -20,7 +22,7 @@ public class JUNC_DB : MonoBehaviour
     public RSEG_DB[] DAT_1C; //0x1C
 
     //FUN_79A0 (LOAD.DLL)
-    public void LoadDB(string assetPath)
+    public bool LoadDB(string assetPath)
     {
         byte bVar1;
         short sVar2;
@@ -44,6 +46,9 @@ public class JUNC_DB : MonoBehaviour
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
+            if (reader == null)
+                return false;
+
             long length = reader.BaseStream.Length;
             VigTerrain terrain = GameObject.FindObjectOfType<VigTerrain>();
             iVar3 = reader.ReadInt32BE();
@@ -160,9 +165,12 @@ public class JUNC_DB : MonoBehaviour
         }
 
         levelManager.juncList.Add(this);
+#if UNITY_EDITOR
         EditorUtility.SetDirty(gameObject);
         EditorUtility.SetDirty(levelManager.gameObject);
         PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
+#endif
+        return true;
     }
 
     //FUN_78CC (LOAD.DLL)

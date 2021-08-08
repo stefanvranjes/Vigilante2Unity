@@ -12,7 +12,9 @@ public class IMP_TEXT
             LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
             levelManager.desc = new string(reader.ReadChars((int)reader.BaseStream.Length - 1));
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager.gameObject);
+#endif
         }
     }
 }

@@ -49,10 +49,13 @@ public class IMP_XBMP
                     string bmpRelative = relativePath + "/XBMP_FAR" + iVar4.ToString().PadLeft(2, '0') + ".bmp";
                     string matPath = relativePath + "/XBMP_FAR" + iVar4.ToString().PadLeft(2, '0') + ".mat";
                     IMP_TIM.LoadTIM(reader2, bmpApsolute);
+                    Material newMaterial = null;
+#if UNITY_EDITOR
                     AssetDatabase.Refresh();
-                    Material newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
+                    newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
                     newMaterial.mainTexture = AssetDatabase.LoadAssetAtPath(bmpRelative, typeof(Texture2D)) as Texture2D;
                     Utilities.SaveObjectToFile(newMaterial, matPath);
+#endif
                     levelManager.DAT_DF8[iVar4] = newMaterial;
                 }
 
@@ -60,7 +63,9 @@ public class IMP_XBMP
                 iVar3 += 0x100;
             } while (iVar4 < 16);
 
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager.gameObject);
+#endif
         }
     }
 }

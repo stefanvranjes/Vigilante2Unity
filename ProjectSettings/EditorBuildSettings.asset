@@ -4,5 +4,32 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/DEBUG.unity
+    guid: de2dba6cb4316ad4aa93bf257ccf4d9d
+  - enabled: 1
+    path: Assets/LEVELS/ROUTE66/ROUTE66.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/LEVELS/OLYMPIC/OLYMPIC.unity
+    guid: c1fe3b7e88caacb419bc916b6d4010bb
+  - enabled: 1
+    path: Assets/LEVELS/LAUNCH/LAUNCH.unity
+    guid: 6d6ee39af69b08440a42d9bbc2f5a885
+  - enabled: 1
+    path: Assets/LEVELS/BAYOU/BAYOU.unity
+    guid: 486d98efe3cc317468692d19da015485
+  - enabled: 1
+    path: Assets/LEVELS/NUCLEAR/NUCLEAR.unity
+    guid: c05415a4699a0784d88b76e46abf9257
+  - enabled: 1
+    path: Assets/LEVELS/STEELMIL/STEELMIL.unity
+    guid: ff3a2a87499d6c14dac1cffc4e196a97
+  - enabled: 1
+    path: Assets/LEVELS/OILFIELD/OILFIELD.unity
+    guid: 0834e9933446d4444b9571fe090814a5
+  - enabled: 1
+    path: Assets/LEVELS/HARBOR/HARBOR.unity
+    guid: 6b99b4cac82465d488792cf7c4860ac3
   m_configObjects: {}

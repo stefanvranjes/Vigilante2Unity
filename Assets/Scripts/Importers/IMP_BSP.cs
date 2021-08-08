@@ -13,7 +13,9 @@ public class IMP_BSP
             LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
             levelManager.bspData = reader.ReadBytes((int)reader.BaseStream.Length);
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager);
+#endif
         }
     }
 

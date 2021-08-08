@@ -19,7 +19,7 @@ public class RSEG_DB : MonoBehaviour
     public int DAT_30; //0x30
     public int DAT_34; //0x34
 
-    public void LoadDB(string assetPath)
+    public bool LoadDB(string assetPath)
     {
         ushort uVar1;
         int iVar3;
@@ -32,6 +32,9 @@ public class RSEG_DB : MonoBehaviour
 
         using (BinaryReader reader = new BinaryReader(File.Open(assetPath, FileMode.Open)))
         {
+            if (reader == null)
+                return false;
+
             if (reader.BaseStream.Length == 22)
             {
                 uVar1 = reader.ReadByte();
@@ -89,9 +92,12 @@ public class RSEG_DB : MonoBehaviour
             dbVar6.DAT_1C[iVar5] = this;
             FUN_50EFC();
 
+#if UNITY_EDITOR
             EditorUtility.SetDirty(gameObject);
             EditorUtility.SetDirty(levelManager.gameObject);
             PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
+#endif
+            return true;
         }
     }
 

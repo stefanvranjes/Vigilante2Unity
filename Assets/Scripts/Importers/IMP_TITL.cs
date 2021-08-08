@@ -12,7 +12,9 @@ public class IMP_TITL
             LevelManager levelManager = GameObject.FindObjectOfType<LevelManager>();
 
             levelManager.title = new string(reader.ReadChars((int)reader.BaseStream.Length - 1));
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager.gameObject);
+#endif
         }
     }
 }

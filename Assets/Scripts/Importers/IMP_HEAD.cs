@@ -42,7 +42,9 @@ public class IMP_HEAD
 
             levelManager.DAT_DBA = (short)uVar1;
             FUN_508AC(uVar3, uVar4);
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager.gameObject);
+#endif
         }
     }
 

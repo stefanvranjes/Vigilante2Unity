@@ -35,7 +35,8 @@ public class Junction : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        mainT = xrtp.timFarList[0].mainTexture;
+        if (xrtp.timFarList.Count > 0)
+            mainT = xrtp.timFarList[0].mainTexture;
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         mesh.subMeshCount = 16;
@@ -92,7 +93,7 @@ public class Junction : MonoBehaviour
         mesh.SetUVs(0, newUVs, 0, index);
 
         for (int j = 0; j < 16; j++)
-            mesh.SetTriangles(newTriangles[j], 0, index2[j], j);
+            mesh.SetTriangles(newTriangles[j], 0, index2[j], j, false);
     }
 
     public void FUN_4F804()

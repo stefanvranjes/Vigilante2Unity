@@ -24,10 +24,13 @@ public class IMP_XBGM
             string bmpRelative = relativePath + "/XBGM" + 0.ToString().PadLeft(2, '0') + ".bmp";
             string matPath = relativePath + "/XBGM" + 0.ToString().PadLeft(2, '0') + ".mat";
             IMP_TIM.LoadTIM(reader, bmpApsolute);
+            Material newMaterial = null;
+#if UNITY_EDITOR
             AssetDatabase.Refresh();
-            Material newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
+            newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
             newMaterial.mainTexture = AssetDatabase.LoadAssetAtPath(bmpRelative, typeof(Texture2D)) as Texture2D;
             Utilities.SaveObjectToFile(newMaterial, matPath);
+#endif
             levelManager.DAT_DD0 = newMaterial;
             levelManager.DAT_6398A = (short)(iVar1 << 4);
             levelManager.DAT_63972 = (short)((iVar1 - levelManager.DAT_DD0.mainTexture.height) * 16);
@@ -39,8 +42,10 @@ public class IMP_XBGM
             if (levelManager.DAT_E48 == null)
                 levelManager.DAT_E48 = levelManager.DAT_DD0;
 
+#if UNITY_EDITOR
             levelManager.DAT_E58 = AssetDatabase.LoadAssetAtPath("Assets/SHELL/glow.mat", typeof(Material)) as Material;
             EditorUtility.SetDirty(levelManager.gameObject);
+#endif
         }
     }
 }

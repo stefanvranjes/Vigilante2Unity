@@ -53,7 +53,9 @@ public class IMP_SUNA
 
             levelManager.DAT_10F8 = new Vector3Int
                 (iVar5 >> 12, iVar1 >> 12, iVar2 >> 12);
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager.gameObject);
+#endif
         }
     }
 }

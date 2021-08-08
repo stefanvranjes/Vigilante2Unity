@@ -39,7 +39,7 @@ public enum _CONTROLLER_STEERING
     CameraDolly
 }
 
-public struct Controller
+public class Controller
 {
     public _CONTROLLER_TYPE type; //0x00
     public short delay; //0x02
@@ -90,6 +90,7 @@ public class InputManager : MonoBehaviour
 
         for (int i = 0; i < controllers.Length; i++)
         {
+            controllers[i] = new Controller();
             controllers[i].sequence = new byte[4];
             controllers[i].stick = new byte[4];
             controllers[i].DAT_14 = new byte[4];

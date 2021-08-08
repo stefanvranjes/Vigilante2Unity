@@ -5,39 +5,55 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 
 public static class Utilities
 {
+    public static ushort DAT_10390 = 0;
+
     //0x80010084
-    public static KeyValuePair<string, Type>[][] CommonTypes =
+    public static KeyValuePair<string, Type>[][] commonTypes =
     {
         //0x80010000
         new KeyValuePair<string, Type>[]
         {
             new KeyValuePair<string, Type>("SunLensFlare", typeof(SunLensFlare)),
-            new KeyValuePair<string, Type>("PU_WeaponUpgrade", typeof(Powerup)),
-            new KeyValuePair<string, Type>("PU_RadarJammer", typeof(Powerup)),
-            new KeyValuePair<string, Type>("PU_Shield", typeof(Powerup)),
-            new KeyValuePair<string, Type>("PU_Health", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_RocktL", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_MisslL", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_Cannon", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_Mortar", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_MineDr", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_FlThrower", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_Special", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_Surprise", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_Hover", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_Float", typeof(Powerup)),
-            new KeyValuePair<string, Type>("I_Ski", typeof(Powerup))
+            new KeyValuePair<string, Type>("PU_WeaponUpgrade", typeof(Pickup)),
+            new KeyValuePair<string, Type>("PU_RadarJammer", typeof(Pickup)),
+            new KeyValuePair<string, Type>("PU_Shield", typeof(Pickup)),
+            new KeyValuePair<string, Type>("PU_Health", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_RocktL", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_MisslL", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_Cannon", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_Mortar", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_MineDr", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_FlThrower", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_Special", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_Surprise", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_Hover", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_Float", typeof(Pickup)),
+            new KeyValuePair<string, Type>("I_Ski", typeof(Pickup))
         }
     };
 
     public static sbyte[] DAT_106E8 =
     {
         -1, -1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 9
+    };
+
+    //0x800107A0
+    public static KeyValuePair<int, Type>[] weaponTypes =
+    {
+        new KeyValuePair<int, Type>(-1, typeof(MGun)),
+        new KeyValuePair<int, Type>(172, typeof(RocketL)),
+        new KeyValuePair<int, Type>(184, typeof(MissileL)),
+        new KeyValuePair<int, Type>(176, typeof(Cannon)),
+        new KeyValuePair<int, Type>(179, typeof(Mortar)),
+        new KeyValuePair<int, Type>(208, typeof(MineDr)),
+        new KeyValuePair<int, Type>(206, typeof(FlameThrower))
     };
 
     public static byte[] DAT_10AE0 =
@@ -59,6 +75,14 @@ public static class Utilities
         8, 8, 8, 8
     };
 
+    public static uint FUN_14A54()
+    {
+        uint uVar1;
+
+        uVar1 = (uint)DateTime.Now.Millisecond;
+        return uVar1 | (uint)DAT_10390 << 16;
+    }
+
     public static Type FUN_14DAC(KeyValuePair<string, Type>[] pairs, string cmp)
     {
         for (int i = 0; i < pairs.Length; i++)
@@ -70,27 +94,26 @@ public static class Utilities
 
     public static Type FUN_14E1C(int i, string cmp)
     {
-        return FUN_14DAC(CommonTypes[i], cmp);
+        return FUN_14DAC(commonTypes[i], cmp);
     }
 
     public static VigObject FUN_31D30(Type param1, XOBF_DB param2, short param3, uint param4)
     {
-        if (param1.Equals(typeof(Destructible)))
+        if (param1.Equals(typeof(Destructible)) || param1.Equals(typeof(Pickup))
+            || param1.Equals(typeof(RocketL)) || param1.Equals(typeof(MissileL)) 
+            || param1.Equals(typeof(Cannon)) || param1.Equals(typeof(Mortar)) 
+            || param1.Equals(typeof(MineDr)) || param1.Equals(typeof(FlameThrower))
+            || param1.Equals(typeof(MGun)))
         {
             if (param2 == null || param3 == -1)
             {
                 GameObject obj = new GameObject();
-                Destructible comp = obj.AddComponent(typeof(Destructible)) as Destructible;
+                VigObject comp = obj.AddComponent(param1) as VigObject;
                 comp.vData = param2;
                 return comp;
             }
             else
-                return param2.ini.FUN_2C17C((ushort)param3, typeof(Destructible), param4);
-        }
-        else if (param1.Equals(typeof(Powerup)))
-        {
-            GameObject obj = new GameObject();
-            return obj.AddComponent(typeof(Powerup)) as Powerup;
+                return param2.ini.FUN_2C17C((ushort)param3, param1, param4);
         }
         else
             return null;
@@ -140,16 +163,16 @@ public static class Utilities
         local_38 = ApplyMatrixSV(t2.rotation, radius.matrixSV);
         uVar4 = (ushort)local_38.x;
         uVar13 = (uint)((int)uVar4 << 16 >> 16);
-        uVar8 = (uint)(t1.position.x + (bbox.min.x + bbox.max.x) / 2 - t2.position.x);
+        uVar8 = (uint)((t1.position.x + (bbox.min.x + bbox.max.x) / 2) - t2.position.x);
         uVar5 = (ushort)local_38.y;
         lVar1 = (long)((ulong)uVar13 * uVar8);
         uVar14 = (uint)((int)uVar5 << 16 >> 16);
-        uVar9 = (uint)(t1.position.y + (bbox.min.y + bbox.max.y) / 2 - t2.position.y);
+        uVar9 = (uint)((t1.position.y + (bbox.min.y + bbox.max.y) / 2) - t2.position.y);
         uVar6 = (ushort)local_38.z;
         lVar2 = (long)((ulong)uVar14 * uVar9);
         uVar16 = (uint)lVar2;
         uVar15 = (uint)((int)uVar6 << 16 >> 16);
-        uVar10 = (uint)(t1.position.z + (bbox.min.z + bbox.max.z) / 2 - t2.position.z);
+        uVar10 = (uint)((t1.position.z + (bbox.min.z + bbox.max.z) / 2) - t2.position.z);
         lVar3 = (long)((ulong)uVar15 * uVar10);
         uVar17 = (uint)lVar3;
         uVar11 = (uint)lVar1 + uVar16;
@@ -344,9 +367,9 @@ public static class Utilities
         iVar19 = param3.max.x - param3.min.x;
         iVar11 = param3.max.y - param3.min.y;
         iVar13 = param3.max.z - param3.min.z;
-        Coprocessor.accumulator.ir1 = (short)iVar5;
-        Coprocessor.accumulator.ir2 = (short)iVar12;
-        Coprocessor.accumulator.ir3 = (short)iVar15;
+        Coprocessor.accumulator.ir1 = (short)(iVar5 >> 16);
+        Coprocessor.accumulator.ir2 = (short)(iVar12 >> 16);
+        Coprocessor.accumulator.ir3 = (short)(iVar15 >> 16);
         Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 0, false);
         Coprocessor.vector0.vx0 = (short)(iVar5 >> 1 & 0x7fff);
         Coprocessor.vector0.vy0 = (short)(iVar12 >> 1 & 0x7fff);
@@ -361,19 +384,19 @@ public static class Utilities
         iVar14 = iVar14 + iVar5 * 8 + iVar1 + iVar3 * 8;
         iVar16 = iVar16 + iVar12 * 8 + iVar2 + iVar4 * 8;
         iVar8 = iVar18 + iVar15 * 8 + iVar20 + iVar8 * 8;
-        uVar6 = (uint)(ushort)Coprocessor.rotationMatrix.rt12 | (ushort)Coprocessor.rotationMatrix.rt11;
+        uVar6 = (uint)(ushort)Coprocessor.rotationMatrix.rt12 << 16 | (ushort)Coprocessor.rotationMatrix.rt11;
         uVar10 = (uVar6 & 0x80008000) >> 15;
-        uVar7 = (uint)(ushort)Coprocessor.rotationMatrix.rt21 | (ushort)Coprocessor.rotationMatrix.rt13;
+        uVar7 = (uint)(ushort)Coprocessor.rotationMatrix.rt21 << 16 | (ushort)Coprocessor.rotationMatrix.rt13;
         uint cop2r32 = uVar10 + (uVar6 ^ (uVar6 & 0x80008000) * 2 - uVar10);
         Coprocessor.rotationMatrix.rt11 = (short)cop2r32;
         Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
         uVar10 = (uVar7 & 0x80008000) >> 15;
-        uVar6 = (uint)(ushort)Coprocessor.rotationMatrix.rt23 | (ushort)Coprocessor.rotationMatrix.rt22;
+        uVar6 = (uint)(ushort)Coprocessor.rotationMatrix.rt23 << 16 | (ushort)Coprocessor.rotationMatrix.rt22;
         uint cop2r33 = uVar10 + (uVar7 ^ (uVar7 & 0x80008000) * 2 - uVar10);
         Coprocessor.rotationMatrix.rt13 = (short)cop2r33;
         Coprocessor.rotationMatrix.rt21 = (short)(cop2r33 >> 16);
         uVar10 = (uVar6 & 0x80008000) >> 15;
-        uVar7 = (uint)(ushort)Coprocessor.rotationMatrix.rt32 | (ushort)Coprocessor.rotationMatrix.rt31;
+        uVar7 = (uint)(ushort)Coprocessor.rotationMatrix.rt32 << 16 | (ushort)Coprocessor.rotationMatrix.rt31;
         uint cop2r34 = uVar10 + (uVar6 ^ (uVar6 & 0x80008000) * 2 - uVar10);
         Coprocessor.rotationMatrix.rt22 = (short)cop2r34;
         Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
@@ -410,6 +433,11 @@ public static class Utilities
         }
 
         return false;
+    }
+
+    public static int FUN_29A9C(List<VigTuple> tuple)
+    {
+        return tuple.Count;
     }
 
     public static int FUN_29C5C(Vector3Int v1, Vector3Int v2)
@@ -504,6 +532,17 @@ public static class Utilities
         return iVar1;
     }
 
+    public static int FUN_2A168(out Vector3Int vout, Vector3Int v1, Vector3Int v2)
+    {
+        Vector3Int local_8;
+
+        local_8 = new Vector3Int
+            (v1.x - v2.x,
+             v1.y - v2.y,
+             v1.z - v2.z);
+        return FUN_29FC8(local_8, out vout);
+    }
+
     public static long FUN_2AD3C(Vector3Int v3, Vector3Int sv3)
     {
         long lVar1;
@@ -517,10 +556,10 @@ public static class Utilities
         lVar3 = (long)v3.z * sv3.z;
         iVar4 = (int)lVar1 + (int)lVar2;
         iVar5 = (int)(lVar1 >> 32) + (int)(lVar2 >> 32)
-                + (iVar4 < (int)lVar2 ? 1 : 0);
+                + ((uint)iVar4 < (uint)lVar2 ? 1 : 0);
         iVar4 += (int)lVar3;
-        iVar5 += (int)(lVar3 >> 32) + (iVar4 < (int)lVar3 ? 1 : 0);
-        return (iVar5 << 32) | iVar4;
+        iVar5 += (int)(lVar3 >> 32) + ((uint)iVar4 < (uint)lVar3 ? 1 : 0);
+        return (long)iVar5 << 32 | (uint)iVar4;
     }
 
     public static Vector2Int FUN_2ACD0(Vector3Int v3a, Vector3Int v3b)
@@ -642,6 +681,54 @@ public static class Utilities
         return -Ratan2(m33.V10, m33.V11) << 16 >> 16;
     }
 
+    public static Matrix3x3 FUN_2A5EC(Vector3Int sv)
+    {
+        Vector3Int local_18;
+        Vector3Int local_8;
+
+        local_8 = new Vector3Int(-sv.x, -sv.y, -sv.z);
+        
+        if (sv.x == 0 && sv.y == 0)
+            local_18 = new Vector3Int(0x1000, 0, 0);
+        else
+        {
+            local_18 = new Vector3Int(-sv.y, sv.x, 0);
+            local_18 = Utilities.VectorNormal(local_18);
+        }
+
+        Coprocessor.rotationMatrix.rt11 = (short)local_18.x;
+        Coprocessor.rotationMatrix.rt12 = (short)(local_18.x >> 16);
+        Coprocessor.rotationMatrix.rt22 = (short)local_18.y;
+        Coprocessor.rotationMatrix.rt23 = (short)(local_18.y >> 16);
+        Coprocessor.rotationMatrix.rt33 = (short)local_18.z;
+        Coprocessor.accumulator.ir1 = (short)local_8.x;
+        Coprocessor.accumulator.ir2 = (short)local_8.y;
+        Coprocessor.accumulator.ir3 = (short)local_8.z;
+        Coprocessor.ExecuteOP(12, false);
+        return new Matrix3x3()
+        {
+            V00 = (short)local_18.x,
+            V10 = (short)local_18.y,
+            V20 = (short)local_18.z,
+            V01 = (short)local_8.x,
+            V11 = (short)local_8.y,
+            V21 = (short)local_8.z,
+            V02 = (short)Coprocessor.mathsAccumulator.mac1,
+            V12 = (short)Coprocessor.mathsAccumulator.mac2,
+            V22 = (short)Coprocessor.mathsAccumulator.mac3
+        };
+    }
+
+    public static VigTransform FUN_2C77C(ConfigContainer conf)
+    {
+        VigTransform transf = new VigTransform();
+        transf.rotation = RotMatrixYXZ_gte(conf.v3_2);
+        transf.position.x = conf.v3_1.x;
+        transf.position.y = conf.v3_1.y;
+        transf.position.z = conf.v3_1.z;
+        return transf;
+    }
+
     public static void FUN_2CA94(VigObject obj1, ConfigContainer cont, VigObject obj2)
     {
         obj2.vr = cont.v3_2;
@@ -686,6 +773,49 @@ public static class Utilities
             child.transform.parent = parent.transform;
             ParentChildren(child, parent);
         }
+    }
+
+    public static void ResetMesh(VigObject obj)
+    {
+        Mesh mesh;
+
+        if (obj.vMesh != null)
+            mesh = obj.vMesh.GetMesh();
+        else if (obj.vLOD != null)
+            mesh = obj.vLOD.GetMesh();
+        else
+            mesh = null;
+
+        if (mesh != null)
+            if (mesh.subMeshCount > 0)
+                mesh.Clear();
+
+        VigObject child2 = obj.child2;
+
+        if (child2 != null)
+        {
+            ResetMesh(child2);
+        }
+
+        VigObject child = obj.child;
+
+        if (child != null)
+        {
+            ResetMesh(child);
+        }
+    }
+
+    public static void FUN_2CC9C(VigObject obj1, VigObject obj2)
+    {
+        VigObject oVar1;
+
+        oVar1 = obj1.child2;
+        obj1.child2 = obj2;
+        obj2.parent = obj1;
+        obj2.child = oVar1;
+
+        if (oVar1 != null)
+            oVar1.parent = obj2;
     }
 
     public static VigObject FUN_2CD78(VigObject obj)
@@ -1113,6 +1243,49 @@ public static class Utilities
                 }
             }
         }
+    }
+
+    public static VigObject FUN_52188(VigObject src, Type type)
+    {
+        VigObject newObj = src.gameObject.AddComponent(type) as VigObject;
+        newObj.flags = src.flags;
+        newObj.type = src.type;
+        newObj.tags = src.tags;
+        newObj.id = src.id;
+        newObj.child = src.child;
+        newObj.child2 = src.child2;
+        newObj.parent = src.parent;
+        newObj.DAT_18 = src.DAT_18;
+        newObj.DAT_19 = src.DAT_19;
+        newObj.DAT_1A = src.DAT_1A;
+        newObj.maxHalfHealth = src.maxHalfHealth;
+        newObj.maxFullHealth = src.maxFullHealth;
+        newObj.vTransform = src.vTransform;
+        newObj.vMesh = src.vMesh;
+        newObj.vr = src.vr;
+        newObj.DAT_4A = src.DAT_4A;
+        newObj.screen = src.screen;
+        newObj.DAT_58 = src.DAT_58;
+        newObj.vData = src.vData;
+        newObj.vCollider = src.vCollider;
+        newObj.DAT_64 = src.DAT_64;
+        newObj.vLOD = src.vLOD;
+        newObj.DAT_6C = src.DAT_6C;
+        newObj.vShadow = src.vShadow;
+        newObj.PDAT_74 = src.PDAT_74;
+        newObj.CCDAT_74 = src.CCDAT_74;
+        newObj.IDAT_74 = src.IDAT_74;
+        newObj.PDAT_78 = src.PDAT_78;
+        newObj.IDAT_78 = src.IDAT_78;
+        newObj.PDAT_7C = src.PDAT_7C;
+        newObj.IDAT_7C = src.IDAT_7C;
+        newObj.physics1 = src.physics1;
+        newObj.physics2 = src.physics2;
+        newObj.DAT_A0 = src.DAT_A0;
+        newObj.DAT_A6 = src.DAT_A6;
+        src.transform.parent = null;
+        UnityEngine.Object.Destroy(src);
+        return newObj;
     }
 
     public static int LeadingZeros(int x)
@@ -2440,9 +2613,11 @@ public static class Utilities
 
     public static void SaveObjectToFile(UnityEngine.Object obj, string filename)
     {
+#if UNITY_EDITOR
         AssetDatabase.CreateAsset(obj, filename);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+#endif
     }
 }
 
@@ -2483,6 +2658,8 @@ public class FixedSizedQueue<T>
 
 public class BufferedBinaryReader : IDisposable
 {
+    public long Position { get { return bufferOffset; } }
+
     private readonly Stream stream;
     private readonly byte[] buffer;
     private readonly int bufferSize;
@@ -2532,15 +2709,22 @@ public class BufferedBinaryReader : IDisposable
 
     public short ReadInt16(int offset)
     {
-        short val = (short)((int)buffer[bufferOffset + offset] | (int)buffer[bufferOffset + offset + 1] << 8);
+        var val = (short)((int)buffer[bufferOffset + offset] | (int)buffer[bufferOffset + offset + 1] << 8);
         //bufferOffset += 2;
         return val;
     }
 
     public ushort ReadUInt16(int offset)
     {
-        ushort val = (ushort)((int)buffer[bufferOffset + offset] | (int)buffer[bufferOffset + offset + 1] << 8);
+        var val = (ushort)((int)buffer[bufferOffset + offset] | (int)buffer[bufferOffset + offset + 1] << 8);
         //bufferOffset += 2;
+        return val;
+    }
+
+    public int ReadInt32(int offset)
+    {
+        var val = (int)((int)buffer[bufferOffset + offset] | (int)buffer[bufferOffset + offset + 1] << 8 |
+                        (int)buffer[bufferOffset + offset + 2] << 16 | (int)buffer[bufferOffset + offset + 3] << 24);
         return val;
     }
 
@@ -2549,18 +2733,18 @@ public class BufferedBinaryReader : IDisposable
         stream.Close();
     }
 
-    public void Seek(int offset, SeekOrigin origin)
+    public void Seek(long offset, SeekOrigin origin)
     {
         switch (origin)
         {
             case SeekOrigin.Begin:
-                bufferOffset = offset;
+                bufferOffset = (int)offset;
                 break;
             case SeekOrigin.Current:
-                bufferOffset += offset;
+                bufferOffset += (int)offset;
                 break;
             case SeekOrigin.End:
-                bufferOffset = bufferSize - offset;
+                bufferOffset = bufferSize - (int)offset;
                 break;
         }
     }
@@ -2576,4 +2760,17 @@ public class VigTuple
         vObject = o;
         flag = f;
     }
+}
+
+public class Navigation
+{
+    public Navigation next; //0x00
+    public Navigation DAT_04; //0x04
+    public int aimpIndex; //0x08
+    public ushort DAT_0C; //0x0C
+    public ushort DAT_0E; //0x0E
+    public byte DAT_10; //0x10
+    public byte DAT_11; //0x11
+    public int DAT_14; //0x14
+    public int DAT_18; //0x18
 }

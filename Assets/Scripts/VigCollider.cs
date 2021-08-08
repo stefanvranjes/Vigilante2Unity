@@ -17,8 +17,8 @@ public struct Radius
 public class HitDetection
 {
     public VigObject self; //0x00
-    public BinaryReader collider1; //0x04
-    public BinaryReader collider2; //0x08
+    public BufferedBinaryReader collider1; //0x04
+    public BufferedBinaryReader collider2; //0x08
     public VigObject object1; //0x0C
     public VigObject object2; //0x10
     public Vector3Int position; //0x14
@@ -31,6 +31,7 @@ public class HitDetection
 public class VigCollider
 {
     public byte[] buffer;
+    public BufferedBinaryReader reader;
 
     public VigCollider(byte[] b)
     {

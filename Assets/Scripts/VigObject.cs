@@ -642,7 +642,7 @@ public class VigObject : MonoBehaviour
 {
     public uint flags; //0x04
     public byte type; //0x08
-    public byte ai; //0x09
+    public sbyte tags; //0x09
     public short id; //0x0A
 
     public VigObject child; //0x0C
@@ -673,11 +673,16 @@ public class VigObject : MonoBehaviour
     public int DAT_6C; //0x6C
     public VigShadow vShadow; //0x70
     public VigObject PDAT_74; //0x74
+    public ConfigContainer CCDAT_74; //0x74
+    public VigTuple TDAT_74; //0x74
     public int IDAT_74; //0x74
     public VigObject PDAT_78; //0x78
+    public VigTuple TDAT_78; //0x78
     public int IDAT_78; //0x78
     public VigObject PDAT_7C; //0x7C
     public int IDAT_7C; //0x7C
+    public VigObject DAT_80; //0x80
+    public VigObject DAT_84; //0x84
 
     public Matrix2x4 physics1;
     public Matrix2x4 physics2;
@@ -716,9 +721,24 @@ public class VigObject : MonoBehaviour
         return 0;
     }
 
-    public virtual void UpdateW(int arg1, int arg2)
+    public virtual uint Execute(int arg1, VigObject arg2)
     {
-        return;
+        return 0;
+    }
+
+    public virtual uint UpdateW(int arg1, int arg2)
+    {
+        return 0;
+    }
+
+    public virtual uint UpdateW(int arg1, VigObject arg2)
+    {
+        return 0;
+    }
+
+    public virtual uint UpdateW(VigObject arg1, int arg2, int arg3)
+    {
+        return 0;
     }
 
     // FUN_2CF74
@@ -954,8 +974,104 @@ public class VigObject : MonoBehaviour
         physics2.Z += iVar1 >> 6;
     }
 
-    public int FUN_2CFBC(Vector3Int pos, out Vector3Int normalVector3, out TileData normalTile)
+    public void FUN_2B370(Vector3Int v1, Vector3Int v2)
     {
+        int iVar2;
+        Vector3Int local_res0;
+
+        int cop2r32 = v2.x - vTransform.position.x >> 3;
+        int cop2r34 = v2.y - vTransform.position.y >> 3;
+        int cop2r36 = v2.z - vTransform.position.z >> 3;
+        Coprocessor.rotationMatrix.rt11 = (short)cop2r32;
+        Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
+        Coprocessor.rotationMatrix.rt22 = (short)cop2r34;
+        Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
+        Coprocessor.rotationMatrix.rt33 = (short)cop2r36;
+        Coprocessor.accumulator.ir1 = (short)(v1.x >> 3);
+        Coprocessor.accumulator.ir2 = (short)(v1.y >> 3);
+        Coprocessor.accumulator.ir3 = (short)(v1.z >> 3);
+        Coprocessor.ExecuteOP(12, false);
+        physics1.X += v1.x;
+        physics1.Y += v1.y;
+        physics1.Z += v1.z;
+        local_res0 = new Vector3Int(
+            Coprocessor.mathsAccumulator.mac1,
+            Coprocessor.mathsAccumulator.mac2,
+            Coprocessor.mathsAccumulator.mac3);
+        local_res0 = Utilities.FUN_24238(vTransform.rotation, local_res0);
+        iVar2 = local_res0.x * DAT_A0.x;
+
+        if (iVar2 < 0)
+            iVar2 += 127;
+
+        physics2.X += iVar2 >> 7;
+        iVar2 = local_res0.y * DAT_A0.y;
+
+        if (iVar2 < 0)
+            iVar2 += 127;
+
+        physics2.Y += iVar2 >> 7;
+        iVar2 = local_res0.z * DAT_A0.z;
+
+        if (iVar2 < 0)
+            iVar2 += 127;
+
+        physics2.Z += iVar2 >> 7;
+    }
+
+    public VigObject FUN_2C344(XOBF_DB param1, ushort param2, uint param3)
+    {
+        VigMesh mVar1;
+        VigObject oVar3;
+        ConfigContainer puVar5;
+
+        puVar5 = param1.ini.configContainers[param2];
+
+        if ((puVar5.flag & 0x7ff) == 0x7ff)
+            vMesh = null;
+        else
+        {
+            mVar1 = param1.FUN_1FD18(gameObject, puVar5.flag, true);
+            vMesh = mVar1;
+        }
+
+        if (puVar5.colliderID < 0)
+            vCollider = null;
+        else
+        {
+            VigCollider collider = param1.cbbList[puVar5.colliderID];
+            vCollider = new VigCollider(collider.buffer);
+            vCollider.reader = new BufferedBinaryReader(new MemoryStream(collider.buffer), collider.buffer.Length);
+            vCollider.reader.FillBuffer();
+        }
+
+        vData = param1;
+        DAT_1A = (short)param2;
+        //animation
+        DAT_4A = GameManager.instance.timer;
+
+        if ((param3 & 2) == 0 && puVar5.next != 0xffff)
+        {
+            oVar3 = param1.ini.FUN_2C17C(puVar5.next, typeof(VigObject), param3 | 0x21);
+            child2 = oVar3;
+
+            if (oVar3 != null)
+            {
+                oVar3.ApplyTransformation();
+                child2.parent = this;
+            }
+        }
+        else
+            child2 = null;
+
+        return this;
+    }
+
+    public int FUN_2CFBC(Vector3Int pos, ref Vector3Int normalVector3, out TileData normalTile)
+    {
+        int iVar1;
+        int iVar3;
+
         GameManager gameManager = GameManager.instance;
         TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
         int vertexHeight = 0x2f0000; //r16
@@ -967,12 +1083,83 @@ public class VigObject : MonoBehaviour
 
         if (PDAT_74 != null)
         {
-            // ...
+            iVar3 = PDAT_74.FUN_2F710(vertexHeight, pos, ref normalVector3);
+
+            if (iVar3 != 0)
+            {
+                if (PDAT_78 != null)
+                {
+                    iVar1 = PDAT_78.FUN_2F710(iVar3, pos, ref normalVector3);
+
+                    if (iVar1 != 0)
+                        iVar3 = iVar1;
+                }
+
+                normalTile = null;
+                return iVar3;
+            }
+
+            if (PDAT_78 != null)
+            {
+                iVar3 = PDAT_78.FUN_2F710(vertexHeight, pos, ref normalVector3);
+
+                if (iVar3 != 0)
+                {
+                    normalTile = null;
+                    return iVar3;
+                }
+            }
         }
 
         normalVector3 = gameManager.terrain.FUN_1B998((uint)pos.x, (uint)pos.z);
         normalVector3 = Utilities.VectorNormal(normalVector3);
         normalTile = tile;
+
+        return vertexHeight;
+    }
+
+    public int FUN_2CFBC(Vector3Int pos, ref Vector3Int normalVector3)
+    {
+        int iVar1;
+        int iVar3;
+
+        GameManager gameManager = GameManager.instance;
+        TileData tile = gameManager.terrain.GetTileByPosition((uint)pos.x, (uint)pos.z); //r21
+        int vertexHeight = 0x2f0000; //r16
+
+        if ((tile.flags & 4) == 0)
+            vertexHeight = gameManager.terrain.FUN_1B750((uint)pos.x, (uint)pos.z);
+        else
+            vertexHeight = 0x2ff800;
+
+        if (PDAT_74 != null)
+        {
+            iVar3 = PDAT_74.FUN_2F710(vertexHeight, pos, ref normalVector3);
+
+            if (iVar3 != 0)
+            {
+                if (PDAT_78 != null)
+                {
+                    iVar1 = PDAT_78.FUN_2F710(iVar3, pos, ref normalVector3);
+
+                    if (iVar1 != 0)
+                        iVar3 = iVar1;
+                }
+
+                return iVar3;
+            }
+
+            if (PDAT_78 != null)
+            {
+                iVar3 = PDAT_78.FUN_2F710(vertexHeight, pos, ref normalVector3);
+
+                if (iVar3 != 0)
+                    return iVar3;
+            }
+        }
+
+        normalVector3 = gameManager.terrain.FUN_1B998((uint)pos.x, (uint)pos.z);
+        normalVector3 = Utilities.VectorNormal(normalVector3);
 
         return vertexHeight;
     }
@@ -1017,6 +1204,32 @@ public class VigObject : MonoBehaviour
         return vertexHeight;
     }
 
+    public VigObject FUN_2CCBC()
+    {
+        VigObject oVar1;
+        VigObject oVar2;
+
+        oVar2 = parent;
+
+        if (oVar2 != null)
+        {
+            oVar1 = child;
+
+            if (oVar2 == this)
+                oVar2.child2 = oVar1;
+            else
+                oVar2.child = oVar1;
+
+            if (oVar1 != null)
+                oVar1.parent = oVar2;
+
+            child = null;
+            parent = null;
+        }
+
+        return this;
+    }
+
     public VigObject FUN_2CA1C()
     {
         VigObject oVar1;
@@ -1051,7 +1264,7 @@ public class VigObject : MonoBehaviour
         while (oVar1 != null)
         {
             oVar1.FUN_2C958();
-            oVar1 = child;
+            oVar1 = oVar1.child;
         }
     }
 
@@ -1293,10 +1506,48 @@ public class VigObject : MonoBehaviour
         return bVar2;
     }
 
+    public VigObject FUN_306FC()
+    {
+        if (GetType().IsSubclassOf(typeof(VigObject)))
+            Execute(4, 0);
+
+        if ((flags & 0x80) != 0)
+            GameManager.instance.FUN_300B8(GameManager.instance.DAT_1088, this);
+
+        if ((flags & 4) != 0)
+            GameManager.instance.FUN_300B8(GameManager.instance.DAT_10A8, this);
+
+        if ((flags & 1) != 0)
+            GameManager.instance.FUN_300B8(GameManager.instance.DAT_1110, this);
+
+        return this;
+    }
+
     public void FUN_30B78()
     {
         flags |= 0x80;
-        GameManager.FUN_30080(GameManager.instance.DAT_1088, this);
+        GameManager.instance.FUN_30080(GameManager.instance.DAT_1088, this);
+    }
+
+    public bool FUN_30BA8()
+    {
+        bool bVar1;
+
+        if ((flags & 0x80) == 0)
+            bVar1 = false;
+        else
+        {
+            flags &= 0xffffff7f;
+            bVar1 = GameManager.instance.FUN_300B8(GameManager.instance.DAT_1088, this);
+        }
+
+        return bVar1;
+    }
+
+    public void FUN_30BF0()
+    {
+        flags |= 4;
+        GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, this);
     }
 
     public VigObject FUN_31DDC(_VEHICLE_INIT param1)
@@ -1311,7 +1562,7 @@ public class VigObject : MonoBehaviour
         uVar3 = maxFullHealth;
         puVar4.flags |= flags;
         puVar4.id = id;
-        puVar4.ai = ai;
+        puVar4.tags = tags;
         puVar4.screen = screen;
         puVar4.vr = vr;
         puVar4.DAT_19 = DAT_19;
@@ -1332,6 +1583,67 @@ public class VigObject : MonoBehaviour
         puVar4.FUN_2D1DC();
         puVar4.FUN_2C958();
         return puVar4;
+    }
+
+    public VigObject FUN_31DDC()
+    {
+        ushort uVar2;
+        ushort uVar3;
+        VigObject puVar4;
+        VigObject oVar7;
+
+        puVar4 = Utilities.FUN_31D30(GetType(), vData, DAT_1A, (flags & 4) << 1);
+        uVar2 = maxHalfHealth;
+        uVar3 = maxFullHealth;
+        puVar4.flags |= flags;
+        puVar4.id = id;
+        puVar4.tags = tags;
+        puVar4.screen = screen;
+        puVar4.vr = vr;
+        puVar4.DAT_19 = DAT_19;
+
+        if (uVar2 != 0 || uVar3 != 0)
+        {
+            oVar7 = puVar4.child2;
+            puVar4.maxHalfHealth = uVar2;
+            puVar4.maxFullHealth = uVar3;
+
+            while (oVar7 != null)
+            {
+                oVar7.maxHalfHealth = uVar2;
+                oVar7 = oVar7.child;
+            }
+        }
+
+        puVar4.FUN_2D1DC();
+        puVar4.FUN_2C958();
+        return puVar4;
+    }
+
+    public void FUN_3A368()
+    {
+        VigObject oVar1;
+        Vehicle vVar2;
+        int iVar3;
+
+        oVar1 = Utilities.FUN_2CD78(this);
+
+        if (oVar1 != null)
+        {
+            iVar3 = 0;
+            vVar2 = (Vehicle)oVar1;
+
+            do
+            {
+                if (vVar2.weapons[iVar3] == this)
+                {
+                    vVar2.FUN_3A280((uint)iVar3);
+                    return;
+                }
+
+                iVar3++;
+            } while (iVar3 < 3);
+        }
     }
 
     public void FUN_3BFC0()
@@ -1386,6 +1698,195 @@ public class VigObject : MonoBehaviour
         }
     }
 
+    private int FUN_4205C()
+    {
+        ushort uVar1;
+        short sVar2;
+        int iVar3;
+        Vehicle vVar4;
+        int iVar5;
+        VigObject ppcVar7;
+        int iVar8;
+
+        iVar3 = 0;
+
+        if ((GameManager.instance.DAT_28 - DAT_19 & 3) == 0)
+        {
+            vVar4 = (Vehicle)Utilities.FUN_2CD78(this);
+            iVar8 = 0;
+
+            do
+            {
+                ppcVar7 = vVar4.weapons[iVar8];
+
+                if (ppcVar7 != null && ppcVar7.tags == -tags)
+                {
+                    if (!ppcVar7.GetType().IsSubclassOf(typeof(VigObject)))
+                        iVar5 = 0;
+                    else
+                        iVar5 = (int)ppcVar7.UpdateW(16, this);
+
+                    if (iVar5 == 0)
+                    {
+                        uVar1 = vVar4.weapons[iVar8].maxHalfHealth;
+
+                        if (uVar1 < 99)
+                            vVar4.weapons[iVar8].maxHalfHealth++;
+                    }
+                }
+
+                iVar8++;
+            } while (iVar8 < 3);
+
+            sVar2 = (short)(maxHalfHealth - 1);
+            maxHalfHealth = (ushort)sVar2;
+
+            if (sVar2 == 0)
+            {
+                //sound
+                iVar3 = -1;
+            }
+            else
+                iVar3 = 0;
+        }
+
+        return iVar3;
+    }
+
+    private int FUN_4219C(ConfigContainer param1)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+
+        iVar6 = param1.v3_1.x - screen.x;
+        iVar1 = param1.v3_1.y - screen.y;
+        iVar2 = param1.v3_1.z - screen.z;
+
+        if (-1 < tags)
+        {
+            iVar3 = iVar6;
+
+            if (iVar6 < 0)
+                iVar3 = -iVar6;
+
+            iVar5 = iVar1;
+
+            if (iVar1 < 0)
+                iVar5 = -iVar1;
+
+            if (iVar5 < iVar3)
+                iVar5 = iVar3;
+
+            iVar3 = iVar2;
+
+            if (iVar2 < 0)
+                iVar3 = -iVar2;
+
+            if (iVar3 < iVar5)
+                iVar3 = iVar5;
+
+            if (iVar3 < 0x801)
+                return 1;
+        }
+
+        iVar3 = iVar6;
+
+        if (iVar6 < 0)
+            iVar3 = iVar6 + 31;
+
+        iVar5 = iVar2;
+
+        if (iVar2 < 0)
+            iVar5 = iVar2 + 7;
+
+        screen.x += (iVar3 >> 5) + (iVar5 >> 3);
+
+        if (iVar1 < 0)
+            iVar1 += 15;
+
+        screen.y += iVar1 >> 4;
+
+        if (iVar2 < 0)
+            iVar2 += 31;
+
+        if (iVar6 < 0)
+            iVar6 += 7;
+
+        screen.z += (iVar2 >> 5) - (iVar6 >> 3);
+        vTransform.position = screen;
+        iVar4 = 0;
+
+        if (tags < 0)
+            iVar4 = FUN_4205C();
+
+        return iVar4;
+    }
+
+    public int FUN_42330(int param1)
+    {
+        int iVar1;
+        ConfigContainer ccVar1;
+
+        iVar1 = 1;
+
+        if ((flags & 0x1000000) != 0)
+        {
+            iVar1 = FUN_4219C(CCDAT_74);
+
+            if (param1 < 0 || 0 < iVar1)
+            {
+                //sound
+                ccVar1 = CCDAT_74;
+                flags &= 0xfeffffff;
+                screen = ccVar1.v3_1;
+                vTransform.position = screen;
+                FUN_30BA8();
+                iVar1 = 0;
+            }
+        }
+
+        return iVar1;
+    }
+
+    public ConfigContainer FUN_4AE5C(int param1)
+    {
+        uint uVar1;
+
+        if (param1 == 7)
+            uVar1 = 0x801f;
+        else
+            uVar1 = (uint)param1 - 0x7ff0U & 0xffff;
+
+        return FUN_2C5F4((ushort)uVar1);
+    }
+
+    public VigObject FUN_4AE94(int param1)
+    {
+        VigObject ppcVar3;
+
+        if (param1 == 7)
+        {
+            //special
+            return null;
+        }
+        else
+            ppcVar3 = Utilities.FUN_31D30(Utilities.weaponTypes[param1].Value, LevelManager.instance.xobfList[19],
+                                         (short)Utilities.weaponTypes[param1].Key, 8);
+
+        ppcVar3.id = 0;
+        ppcVar3.tags = (sbyte)param1;
+        ppcVar3.flags |= 0x20;
+        
+        if (ppcVar3.GetType().IsSubclassOf(typeof(VigObject)))
+            ppcVar3.UpdateW(1, this);
+
+        return ppcVar3;
+    }
+
     public void FUN_4BAFC(Vector3Int position)
     {
         position.x = position.x - screen.x;
@@ -1421,6 +1922,7 @@ public class VigObject : MonoBehaviour
         Matrix3x3 local_48;
         Matrix3x3 auStack40;
         VigTerrain terrain = GameManager.instance.terrain;
+        local_60 = new Vector3Int(); //not in original code
 
         tVar1 = terrain.GetTileByPosition((uint)vTransform.position.x, (uint)vTransform.position.z);
 
@@ -1434,7 +1936,7 @@ public class VigObject : MonoBehaviour
 
         if (PDAT_74 != null)
         {
-            iVar3 = PDAT_74.FUN_2F710(iVar2, vTransform.position, out local_60);
+            iVar3 = PDAT_74.FUN_2F710(iVar2, vTransform.position, ref local_60);
 
             if (iVar3 != 0)
                 goto LAB_4C5B8;
@@ -1442,7 +1944,7 @@ public class VigObject : MonoBehaviour
             if (PDAT_78 == null)
                 goto LAB_4C5C0;
 
-            iVar3 = PDAT_78.FUN_2F710(iVar2, vTransform.position, out local_60);
+            iVar3 = PDAT_78.FUN_2F710(iVar2, vTransform.position, ref local_60);
 
             if (iVar3 == 0)
                 goto LAB_4C5C0;
@@ -1507,7 +2009,7 @@ public class VigObject : MonoBehaviour
     {
         VigMesh mVar1;
 
-        mVar1 = GameManager.instance.levelManager.DAT_C61C0.FUN_2CB74(gameObject, 92, true);
+        mVar1 = GameManager.instance.levelManager.xobfList[19].FUN_2CB74(gameObject, 92, true);
         FUN_4C7E0(mVar1);
     }
 
@@ -1534,6 +2036,85 @@ public class VigObject : MonoBehaviour
         }
 
         return iVar1;
+    }
+
+    public Throwaway FUN_4ECA0()
+    {
+        ushort uVar1;
+        VigObject oVar2;
+        VigTransform t0;
+        Throwaway tVar3;
+        int iVar4;
+        int iVar5;
+
+        oVar2 = Utilities.FUN_2CD78(this);
+        t0 = GameManager.instance.FUN_2CDF4(oVar2);
+        FUN_306FC();
+        FUN_2CCBC();
+        type = 8;
+        PDAT_78 = null;
+        IDAT_78 = 0;
+        PDAT_74 = null;
+        CCDAT_74 = null;
+        IDAT_74 = 0;
+        flags = flags & 0xffffbfff | 0x80;
+        tVar3 = Utilities.FUN_52188(this, typeof(Throwaway)) as Throwaway;
+        tVar3.state = _THROWAWAY_TYPE.Unspawnable;
+
+        if (tVar3.child2 != null)
+            tVar3.child2.parent = tVar3;
+
+        iVar4 = tVar3.vTransform.position.x;
+
+        if (iVar4 < 0)
+            iVar4 += 7;
+
+        iVar5 = tVar3.vTransform.position.y;
+        tVar3.physics1.Z = iVar4 >> 3;
+
+        if (iVar5 < 0)
+            iVar5 += 7;
+
+        iVar4 = tVar3.vTransform.position.z;
+        tVar3.physics1.W = iVar5 >> 3;
+
+        if (iVar4 < 0)
+            iVar4 += 7;
+
+        tVar3.physics2.X = iVar4 >> 3;
+        tVar3.vTransform = Utilities.CompMatrixLV(t0, tVar3.vTransform);
+        uVar1 = (ushort)GameManager.FUN_2AC5C();
+        tVar3.physics1.M0 = (short)(uVar1 & 0xff);
+        uVar1 = (ushort)GameManager.FUN_2AC5C();
+        tVar3.physics1.M1 = (short)(uVar1 & 0xff);
+        uVar1 = (ushort)GameManager.FUN_2AC5C();
+        tVar3.physics1.M2 = (short)(uVar1 & 0xff);
+        tVar3.screen = tVar3.vTransform.position;
+        tVar3.DAT_87 = 2;
+        Vector3Int v3 = Utilities.FUN_24094(t0.rotation, new Vector3Int(tVar3.physics1.Z, tVar3.physics1.W, tVar3.physics2.X));
+        tVar3.physics1.Z = v3.x;
+        tVar3.physics1.W = v3.y;
+        tVar3.physics2.X = v3.z;
+        tVar3.FUN_3066C();
+        return tVar3;
+    }
+
+    public void FUN_4EDFC()
+    {
+        VigTuple tVar1;
+
+        FUN_2D1DC();
+        tVar1 = GameManager.instance.FUN_30080(GameManager.instance.interObjs, this);
+        TDAT_74 = tVar1;
+        tVar1 = GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, this);
+        TDAT_78 = tVar1;
+    }
+
+    public void FUN_4EE8C(List<VigTuple> param1)
+    {
+        Tuple<List<VigTuple>, VigTuple> tuple;
+        tuple = new Tuple<List<VigTuple>, VigTuple>(param1, TDAT_74);
+        GameManager.instance.FUN_3094C(tuple);
     }
 
     private bool FUN_2C7D0()
@@ -1566,8 +2147,8 @@ public class VigObject : MonoBehaviour
                             vLOD = vMesh;
                         else
                         {
-                            /*mVar2 = vData.FUN_1FD18(gameObject, ccVar5[iVar4].flag & 0x7ffU, true);
-                            vLOD = mVar2;*/ //tmp
+                            mVar2 = vData.FUN_1FD18(gameObject, ccVar5[iVar4].flag & 0x7ffU, true);
+                            vLOD = mVar2;
                         }
                     }
 
@@ -1618,7 +2199,7 @@ public class VigObject : MonoBehaviour
         return container;
     }
 
-    private int FUN_2F16C(VigTransform param1, int param2, Vector3Int param3, out Vector3Int param4)
+    private int FUN_2F16C(VigTransform param1, int param2, Vector3Int param3, ref Vector3Int param4)
     {
         short sVar1;
         long lVar2;
@@ -1640,7 +2221,6 @@ public class VigObject : MonoBehaviour
         Vector3Int local_40;
         uint local_30;
         int local_2c;
-        param4 = new Vector3Int(); //not in the original code
 
         if (vCollider != null)
         {
@@ -1964,14 +2544,13 @@ public class VigObject : MonoBehaviour
         return 0;
     }
 
-    private int FUN_2F5AC(VigTransform param1, int param2, Vector3Int param3, out Vector3Int param4)
+    private int FUN_2F5AC(VigTransform param1, int param2, Vector3Int param3, ref Vector3Int param4)
     {
         int iVar1;
         VigObject oVar2;
         VigTransform MStack64;
 
         oVar2 = child2;
-        param4 = new Vector3Int(); //not in the original code
 
         do
         {
@@ -1983,7 +2562,7 @@ public class VigObject : MonoBehaviour
                 if ((oVar2.flags & 0x800) != 0)
                 {
                     MStack64 = Utilities.CompMatrixLV(param1, oVar2.vTransform);
-                    iVar1 = oVar2.FUN_2F5AC(MStack64, param2, param3, out param4);
+                    iVar1 = oVar2.FUN_2F5AC(MStack64, param2, param3, ref param4);
 
                     if (iVar1 != 0)
                         return iVar1;
@@ -1998,7 +2577,7 @@ public class VigObject : MonoBehaviour
                            MStack64.rotation.V11 * vTransform.rotation.V11 +
                            MStack64.rotation.V21 * vTransform.rotation.V21)
                 {
-                    iVar1 = oVar2.FUN_2F16C(MStack64, param2, param3, out param4);
+                    iVar1 = oVar2.FUN_2F16C(MStack64, param2, param3, ref param4);
 
                     if (iVar1 != 0)
                         return iVar1;
@@ -2006,7 +2585,7 @@ public class VigObject : MonoBehaviour
 
                 if ((oVar2.flags & 0x800) != 0)
                 {
-                    iVar1 = oVar2.FUN_2F5AC(MStack64, param2, param3, out param4);
+                    iVar1 = oVar2.FUN_2F5AC(MStack64, param2, param3, ref param4);
 
                     if (iVar1 != 0)
                         return iVar1;
@@ -2017,32 +2596,32 @@ public class VigObject : MonoBehaviour
         } while (true);
     }
 
-    private int FUN_2F710(int param1, Vector3Int param2, out Vector3Int param3)
+    private int FUN_2F710(int param1, Vector3Int param2, ref Vector3Int param3)
     {
         int iVar1;
 
         if ((flags & 0x800) != 0)
         {
-            iVar1 = FUN_2F5AC(vTransform, param1, param2, out param3);
+            iVar1 = FUN_2F5AC(vTransform, param1, param2, ref param3);
 
             if (iVar1 != 0)
                 return iVar1;
         }
 
-        return FUN_2F16C(vTransform, param1, param2, out param3);
+        return FUN_2F16C(vTransform, param1, param2, ref param3);
     }
 
-    private void FUN_305FC()
+    public void FUN_305FC()
     {
         FUN_2D1DC();
 
         if ((flags & 4) != 0)
-            GameManager.FUN_30080(GameManager.instance.DAT_10A8, this);
+            GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, this);
 
         if ((flags & 0x80) != 0)
-            GameManager.FUN_30080(GameManager.instance.DAT_1088, this);
+            GameManager.instance.FUN_30080(GameManager.instance.DAT_1088, this);
 
-        GameManager.FUN_30080(GameManager.instance.worldObjs, this);
+        GameManager.instance.FUN_30080(GameManager.instance.worldObjs, this);
     }
 
     private VigShadow FUN_4C44C(VigMesh param1, int param2, int param3)

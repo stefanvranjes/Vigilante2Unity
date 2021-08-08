@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: default
   m_Shader: {fileID: 4800000, guid: 94cb0d6305cd4a743b1d2ec684e277de, type: 3}
-  m_ShaderKeywords: _DIFFMODEL_VERTEX _DRAWDIST_ON _SPECMODEL_GOURAUD
+  m_ShaderKeywords: BFC _DIFFMODEL_VERTEX _DRAWDIST_ON _SPECMODEL_GOURAUD
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -83,8 +83,8 @@ Material:
     m_Floats:
     - _BlendOp: 0
     - _BumpScale: 1
-    - _ColorOnly: 1
-    - _Cul: 0
+    - _ColorOnly: 0
+    - _Cul: 2
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DiffModel: 0

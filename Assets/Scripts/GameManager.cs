@@ -4,6 +4,8 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2); //needs parameters
 
@@ -46,6 +48,13 @@ public enum _SCREEN_MODE
     Horizontal,
     Vertical,
     Unknown
+}
+
+public enum _DITHERING
+{
+    None,
+    Standard, 
+    PSX
 }
 
 public class BSP
@@ -921,8 +930,9 @@ public class GameManager : MonoBehaviour
                                        0x01875954, 0x014559d8, 0x00072880, 0x00470940, 0x01875954, 0x00470940, 0x01875954,
                                        0x00470940, 0x01875954 };
 
-    public static uint DAT_63A64 = 0;
+    public static uint DAT_63A64 = 0x31415926;
     public static uint DAT_63A68 = 0;
+    public static uint[] DAT_63A6C = { 0x02000000, 0x04000000, 0x08000000, 0x10000000 };
 
     public static _VEHICLE_INIT[] DAT_63DE0 = new _VEHICLE_INIT[]
     {
@@ -946,7 +956,9 @@ public class GameManager : MonoBehaviour
         new _VEHICLE_INIT(LoadWapiti)
     };
 
-    public static ushort[] DAT_63F68 = { };
+    public static ushort[] DAT_63F68 = { 2048, 0, 2048, 819, 655 };
+
+    public static short[] DAT_63FA4 = { 9, 3, 4, 2, 0, 7, 8, 12, 10, 11, 14, 13, 15, 6, 20, 21, 22, 23 };
 
     //0x80063A80
     public static VehicleData[] vehicleConfigs =
@@ -967,6 +979,7 @@ public class GameManager : MonoBehaviour
             DAT_12=57,
             DAT_13=148,
             DAT_15=50,
+            maxHalfHealth=903,
             lightness=4206,
             DAT_24=new Vector3Int(64, 64, 64),
             DAT_2A=0x2999,
@@ -1008,6 +1021,7 @@ public class GameManager : MonoBehaviour
             DAT_12=80,
             DAT_13=34,
             DAT_15=49,
+            maxHalfHealth=1290,
             lightness=1945,
             DAT_24=new Vector3Int(64, 64, 64),
             DAT_2A=0x4000,
@@ -1027,7 +1041,21 @@ public class GameManager : MonoBehaviour
         },
         new VehicleData
         {
-
+            DAT_00=new short[7]{ 0, 0, 24, 32, 72, 72, 3327 }, //game stores 7th element for a wheel?
+            DAT_0C=255,
+            vehicleID=_VEHICLE.Trekker,
+            DAT_0E=0,
+            DAT_0F=0,
+            DAT_10=38,
+            DAT_11=60,
+            DAT_12=115,
+            DAT_13=58,
+            DAT_15=28,
+            maxHalfHealth=793,
+            lightness=5764,
+            DAT_24=new Vector3Int(64, 64, 64),
+            DAT_2A=0x2666,
+            DAT_2C=new byte[4]{ 161, 32, 67, 154 }
         },
         new VehicleData
         {
@@ -1123,6 +1151,12 @@ public class GameManager : MonoBehaviour
         position = new Vector3Int(0, 0, 0)
     };
     public static byte[] DAT_A14 = { 0, 1, 2, 3 };
+    public static Vector3Int DAT_A18 = new Vector3Int(0, 0, 0x30000);
+    public static Vector3Int DAT_A24 = new Vector3Int(0, 0x6800, 0);
+    public static Vector3Int DAT_A30 = new Vector3Int(0, 0, -0x8000);
+    public static Vector3Int DAT_A3C = new Vector3Int(0, 0, -0x20000);
+    public static Vector3Int DAT_A4C = new Vector3Int(0, 0x20000, 0);
+    public static Vector3Int DAT_A68 = new Vector3Int(0, 0x8000, 0);
 
     public VigTerrain terrain;
     public LevelManager levelManager;
@@ -1138,8 +1172,7 @@ public class GameManager : MonoBehaviour
 
     public Queue<ScreenPoly> DAT_610; //gp+610h
     public bool DAT_83B; //gp+83Bh
-    public Vector3Int DAT_A18; //gp+A18h
-    public Vector3Int DAT_A24; //gp+A24h
+    public byte DAT_C6E; //gp+C6Eh
     public Color32[] DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
     public byte[] DAT_CF4; //gp+CF4h
@@ -1147,6 +1180,7 @@ public class GameManager : MonoBehaviour
     public byte DAT_CF8; //gp+CF8h
     public byte[] DAT_CFC; //gp+CFCh
     public byte DAT_D08; //gp+D08h
+    public int DAT_D0C; //gp+D0Ch
     public byte[] DAT_D18; //gp+D18h
     public byte[] DAT_D19; //gp+D19h
     public byte[] DAT_D1A; //gp+D1Ah
@@ -1172,12 +1206,25 @@ public class GameManager : MonoBehaviour
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_EE0; //gp+EE0h
+    public byte DAT_1000; //gp+1000h
+    public byte DAT_1002; //gp+1002h
+    public int DAT_101C; //gp+101Ch
+    public int DAT_1028; //gp+1028h
+    public sbyte[] DAT_1030; //gp+1030h
+    public int DAT_1038; //gp+1038h
     public KeyValuePair<string, Type>[][] DAT_1050; //gp+1050h
+    public List<VigTuple> DAT_1068; //gp+1068h
     public List<VigTuple> DAT_1078; //gp+1078h
     public List<VigTuple> DAT_1088; //gp+1088h
     public List<VigTuple> DAT_1098; //gp+1098h
     public List<VigTuple> DAT_10A8; //gp+10A8h
+    public List<VigTuple> DAT_10C8; //gp+10C8h
+    public int DAT_10F0; //gp+10F0h
+    public List<VigTuple> DAT_1110; //gp+1110h
+    public sbyte DAT_111C; //gp+111Ch
     public sbyte[] DAT_1128; //gp+1128h
+    public int DAT_1130; //gp+1130h
+    public Navigation DAT_1138; //gp+1138h
     public int DAT_C74; //gp+C74h
     public int DAT_CC4; //gp+CC4h
     public ushort timer; //gp+EA0h
@@ -1187,16 +1234,146 @@ public class GameManager : MonoBehaviour
     public int DAT_28; //gp+28h
     public _SCREEN_MODE screenMode; //gp+2Ch;
     public _GAME_MODE gameMode; //gp+31h
+    public bool gameEnded; //gp+33h
     public bool DAT_36; //gp+36h
     public int gravityFactor; //gp+3Ch
     public int DAT_40; //gp+40h
+    public int map;
+    public _DITHERING ditheringMethod;
+    public bool drawPlayer;
+    public bool drawObjects;
+    public bool drawTerrain;
+    public bool drawRoads;
+    public bool inDebug;
     public float max;
+    public Dropdown driverDropdown;
+    public Dropdown stageDropdown;
+    public Dropdown ditheringDropdown;
+    public Toggle drawPlayerToggle;
+    public Toggle drawObjectsToggle;
+    public Toggle drawTerrainToggle;
+    public Toggle drawRoadsToggle;
+
+    #region DEBUG_MENU
+    public void SetDriver()
+    {
+        int index = driverDropdown.value;
+
+        switch (index)
+        {
+            case 0:
+                vehicles[0] = 1;
+                break;
+            case 1:
+                vehicles[0] = 8;
+                break;
+            case 2:
+                vehicles[0] = 12;
+                break;
+        }
+    }
+
+    public void SetStage()
+    {
+        map = stageDropdown.value + 1;
+    }
+
+    public void SetDithering()
+    {
+        int index = ditheringDropdown.value;
+
+        switch (index)
+        {
+            case 0:
+                ditheringMethod = _DITHERING.None;
+                break;
+            case 1:
+                ditheringMethod = _DITHERING.Standard;
+                break;
+            case 2:
+                ditheringMethod = _DITHERING.PSX;
+                break;
+        }
+    }
+
+    public void SetDrawPlayer()
+    {
+        drawPlayer = drawPlayerToggle.isOn;
+    }
+
+    public void SetDrawObjects()
+    {
+        drawObjects = drawObjectsToggle.isOn;
+    }
+
+    public void SetDrawTerrain()
+    {
+        drawTerrain = drawTerrainToggle.isOn;
+    }
+
+    public void SetDrawRoads()
+    {
+        drawRoads = drawRoadsToggle.isOn;
+    }
+
+    public void LoadLevel()
+    {
+        SetDriver();
+        SetStage();
+        SetDithering();
+        SetDrawPlayer();
+        SetDrawObjects();
+        SetDrawTerrain();
+        SetDrawRoads();
+
+        DontDestroyOnLoad(this.gameObject);
+        SceneManager.LoadScene(map, LoadSceneMode.Single);
+    }
+
+    public void LoadDebug()
+    {
+        inDebug = true;
+        Destroy(this.gameObject);
+        SceneManager.LoadScene(0, LoadSceneMode.Single);
+}
+    #endregion
 
     public void FUN_1C134()
     {
         terrain.ClearTerrainData();
         FUN_1C158();
         terrain.CreateTerrainMesh();
+    }
+
+    public void FUN_1FEB8(VigMesh param1)
+    {
+        if (param1 != null)
+        {
+            if (param1.DAT_14 != null)
+                param1.DAT_14 = null;
+
+            Destroy(param1);
+        }
+    }
+
+    public void FUN_2C4B4(VigObject param1)
+    {
+        VigObject oVar1;
+
+        if (param1 != null)
+        {
+            do
+            {
+                if (param1.vLOD != null && param1.vLOD != param1.vMesh)
+                    FUN_1FEB8(param1.vLOD);
+
+                FUN_1FEB8(param1.vMesh);
+                FUN_2C4B4(param1.child2);
+                oVar1 = param1.child;
+                Destroy(param1.gameObject);
+                param1 = oVar1;
+            } while (oVar1 != null);
+        }
     }
 
     public void FUN_2DE18()
@@ -1220,10 +1397,223 @@ public class GameManager : MonoBehaviour
         DAT_FA8.SetValue16(iVar1 + 6, param3.b << 4);
     }
 
+    public VigTuple FUN_30080(List<VigTuple> param1, VigObject param2)
+    {
+        VigTuple newTuple = new VigTuple(param2, 0);
+        param1.Add(newTuple);
+        return newTuple;
+    }
+
+    public bool FUN_300B8(List<VigTuple> param1, VigObject param2)
+    {
+        List<VigTuple> ppiVar1;
+        VigTuple ppiVar2;
+        VigObject piVar4;
+
+        ppiVar1 = param1;
+        int i = 0;
+
+        while (true)
+        {
+            ppiVar2 = ppiVar1[i++];
+
+            if (ppiVar2.vObject == param2) break;
+
+            if (i == ppiVar1.Count) return false;
+        }
+
+        ppiVar1.Remove(ppiVar2);
+        //DAT_1098.Add(ppiVar2);
+        ppiVar2.vObject = null;
+        return true;
+    }
+
+    public VigTuple FUN_30134(List<VigTuple> param1, VigObject param2)
+    {
+        VigTuple ppiVar1;
+        int ppiVar2;
+
+        if (param1 == null)
+            param1 = new List<VigTuple>();
+
+        ppiVar2 = 0;
+
+        while (true)
+        {
+            if (ppiVar2 == param1.Count)
+                return null;
+
+            ppiVar1 = param1[ppiVar2];
+
+            if (ppiVar1.vObject == param2)
+                break;
+
+            ppiVar2++;
+        }
+
+        return ppiVar1;
+    }
+
+    public VigTuple FUN_301DC(List<VigTuple> param1, int param2)
+    {
+        return FUN_30180(param1, param2, null);
+    }
+
+    public VigObject FUN_302D4(List<VigTuple> param1, uint param2, int param3)
+    {
+        List<VigTuple> ppiVar1;
+        VigTuple ppiVar2;
+        VigObject oVar3;
+        
+        ppiVar1 = param1;
+
+        for (int i = 0; i < ppiVar1.Count; i++)
+        {
+            ppiVar2 = ppiVar1[i];
+            oVar3 = ppiVar2.vObject;
+
+            if (oVar3.id == param3 && oVar3.type == param2)
+                return oVar3;
+        }
+
+        return null;
+    }
+
+    public int FUN_30428(List<VigTuple> param1, uint param2)
+    {
+        List<VigTuple> ppiVar1;
+        VigTuple ppiVar2;
+        uint uVar3;
+        int iVar4;
+
+        iVar4 = 0;
+        ppiVar1 = param1;
+
+        for (int i = 0; i < ppiVar1.Count; i++)
+        {
+            ppiVar2 = ppiVar1[i];
+            uVar3 = ppiVar2.vObject.flags;
+
+            if (31 < ppiVar2.vObject.id && (uVar3 & param2) != 0 &&
+                (uVar3 & 0x8002) == 0)
+                iVar4++;
+        }
+
+        return iVar4;
+    }
+
+    public VigObject FUN_30498(List<VigTuple> param1, uint param2, int param3)
+    {
+        List<VigTuple> ppiVar1;
+        VigTuple ppiVar2;
+        VigObject oVar3;
+
+        oVar3 = null;
+        ppiVar1 = param1;
+        
+        for (int i = 0; i < ppiVar1.Count; i++)
+        {
+            ppiVar2 = ppiVar1[i];
+            oVar3 = ppiVar2.vObject;
+
+            if (31 < oVar3.id && (oVar3.flags & param2) != 0 &&
+                (oVar3.flags & 0x8002) == 0 && --param3 == -1)
+                break;
+        }
+
+        return oVar3;
+    }
+
+    public void FUN_307CC(VigObject param1)
+    {
+        VigObject ppcVar1;
+        List<VigTuple> piVar3;
+        VigTuple piVar4;
+        VigObject oVar5;
+
+        if (param1 != null)
+        {
+            do
+            {
+                param1.FUN_306FC();
+
+                if (param1.vLOD != null && param1.vLOD != param1.vMesh)
+                    FUN_1FEB8(param1.vLOD);
+
+                FUN_1FEB8(param1.vMesh);
+                FUN_307CC(param1.child2);
+                oVar5 = param1.child;
+                Destroy(param1);
+
+                if (DAT_1068.Count > 0)
+                {
+                    piVar3 = DAT_1068;
+
+                    for (int i = 0; i < piVar3.Count; i++)
+                    {
+                        piVar4 = piVar3[i];
+                        ppcVar1 = piVar4.vObject;
+
+                        if (ppcVar1.GetType().IsSubclassOf(typeof(VigObject)))
+                            ppcVar1.Execute(10, param1);
+                    }
+                }
+
+                param1 = oVar5;
+            } while (oVar5 != null);
+        }
+    }
+
+    public void FUN_3094C(Tuple<List<VigTuple>, VigTuple> param1)
+    {
+        if (param1.Item2 != null)
+        {
+            param1.Item1.Remove(param1.Item2);
+            Destroy(param1.Item2.vObject.gameObject);
+        }
+    }
+
+    public void FUN_309A0(VigObject param1)
+    {
+        Tuple<List<VigTuple>, VigTuple> tVar1;
+
+        tVar1 = FUN_31868(param1);
+        FUN_3094C(tVar1);
+    }
+
     public void FUN_30B24(List<VigTuple> param1)
     {
         for (int i = 0; i < param1.Count; i++)
             FUN_2D9E0(param1[i].vObject);
+    }
+
+    public void FUN_30CB0(VigObject param1, int param2)
+    {
+        VigTuple ppiVar2;
+        int iVar3;
+        VigTuple ppiVar4;
+        List<VigTuple> ppiVar5;
+
+        if ((param1.flags & 1U) != 0)
+            FUN_300B8(DAT_1110, param1);
+
+        //ppiVar4 = DAT_1098[0];
+        ppiVar4 = new VigTuple(null, 0);
+        //DAT_1098.RemoveAt(0);
+        ppiVar4.vObject = param1;
+        iVar3 = DAT_28;
+        param1.flags |= 1;
+        ppiVar4.flag = (uint)(param2 + iVar3);
+        ppiVar5 = DAT_1110;
+
+        for (int i = 0; i < ppiVar5.Count; i++)
+        {
+            ppiVar2 = ppiVar5[i];
+
+            if (!((int)ppiVar2.flag < param2 + iVar3)) break;
+        }
+
+        DAT_1110.Add(ppiVar4);
     }
 
     public void FUN_30DE8(BSP param1, int param2, int param3, int param4, int param5)
@@ -1270,6 +1660,26 @@ public class GameManager : MonoBehaviour
         }
 
         FUN_30DE8(param1.DAT_0C, param2, param3, param4, param5);
+    }
+
+    public Tuple<List<VigTuple>, VigTuple> FUN_310F4(BSP param1, VigObject param2)
+    {
+        Tuple<List<VigTuple>, VigTuple> tVar1;
+
+        while (true)
+        {
+            if (param1.DAT_00 == 0)
+                return new Tuple<List<VigTuple>, VigTuple>
+                    (param1.LDAT_04, FUN_30134(param1.LDAT_04, param2));
+
+            tVar1 = FUN_310F4(param1.DAT_08, param2);
+
+            if (tVar1.Item2 != null) break;
+
+            param1 = param1.DAT_0C;
+        }
+
+        return tVar1;
     }
 
     public void FUN_3150C()
@@ -1353,19 +1763,99 @@ public class GameManager : MonoBehaviour
                     DAT_1088[i].vObject.UpdateW(0, param1);
     }
 
+    public void FUN_31440(uint param1)
+    {
+        VigTuple ppiVar2;
+        VigObject ppcVar5;
+        
+        for (int i = 0; i < DAT_1110.Count; i++)
+        {
+            ppiVar2 = DAT_1110[i];
+
+            if (param1 < ppiVar2.flag)
+                continue;
+
+            ppcVar5 = ppiVar2.vObject;
+
+            if (ppcVar5 == null)
+                return;
+
+            ppcVar5.flags &= 0xfffffffe;
+            DAT_1110.RemoveAt(i--);
+
+            if (ppcVar5.GetType().IsSubclassOf(typeof(VigObject)))
+                ppcVar5.UpdateW(2, 0);
+        }
+    }
+
     public void FUN_31678()
     {
-        FUN_1C134();
+        if (drawTerrain)
+            FUN_1C134();
+
         FUN_2DE18();
-        FUN_50B38();
-        FUN_30B24(worldObjs);
-        FUN_30B24(interObjs);
-        FUN_3150C();
+
+        if (drawRoads)
+            FUN_50B38();
+
+        if (drawPlayer)
+        {
+            FUN_30B24(worldObjs);
+            FUN_30B24(interObjs);
+        }
+
+        if (drawObjects)
+            FUN_3150C();
     }
 
     public void FUN_31728()
     {
         FUN_3174C();
+    }
+
+    public Tuple<List<VigTuple>, VigTuple> FUN_31868(VigObject param1)
+    {
+        Tuple<List<VigTuple>, VigTuple> tVar1;
+
+        tVar1 = new Tuple<List<VigTuple>, VigTuple>(worldObjs, FUN_30134(worldObjs, param1));
+
+        if (tVar1.Item2 == null)
+            return FUN_310F4(bspTree, param1);
+
+        return tVar1;
+    }
+
+    public VigObject FUN_31F1C(Vector3Int param1)
+    {
+        VigTuple ppiVar2;
+        List<VigTuple> ppiVar3;
+        uint uVar4;
+        VigObject oVar5;
+        uint uVar6;
+        VigObject oVar7;
+
+        uVar6 = 0xffffffff;
+        oVar7 = null;
+        ppiVar3 = DAT_1078;
+
+        for (int i = 0; i < ppiVar3.Count; i++)
+        {
+            ppiVar2 = ppiVar3[i];
+            oVar5 = ppiVar2.vObject;
+
+            if (oVar5.id - 1 < 31)
+            {
+                uVar4 = (uint)Utilities.FUN_29F6C(param1, oVar5.screen);
+
+                if (uVar4 < uVar6)
+                {
+                    uVar6 = uVar4;
+                    oVar7 = oVar5;
+                }
+            }
+        }
+
+        return oVar7;
     }
 
     public Vehicle FUN_3208C(int param1)
@@ -1380,6 +1870,1200 @@ public class GameManager : MonoBehaviour
             iVar2 = ~param1;
 
         return FUN_36C2C(oVar1, vehicles[iVar2], param1);
+    }
+
+    public void FUN_327CC(VigObject param1)
+    {
+        short sVar1;
+        VigTuple ppcVar3;
+        List<VigTuple> ppcVar4;
+        VigTuple tVar5;
+        VigObject oVar6;
+        uint uVar7;
+
+        sVar1 = param1.id;
+
+        if (param1.parent == null && 
+            param1.type == 0)
+        {
+            ppcVar4 = worldObjs;
+
+            for (int i = 0; i < ppcVar4.Count; i++)
+            {
+                ppcVar3 = ppcVar4[i];
+
+                if (ppcVar3.vObject.id == sVar1 &&
+                    ppcVar3.vObject.type == 3)
+                    FUN_3094C(new Tuple<List<VigTuple>, VigTuple>(ppcVar4, ppcVar3));
+            }
+
+            tVar5 = FUN_301DC(DAT_1078, sVar1);
+
+            if (tVar5 == null)
+            {
+                if (120 < param1.maxHalfHealth)
+                {
+                    uVar7 = FUN_2AC5C();
+
+                    if ((uVar7 & 3) == 0)
+                    {
+                        //...
+                    }
+                }
+            }
+            else
+            {
+                uVar7 = tVar5.vObject.flags;
+
+                if ((uVar7 & 2) == 0)
+                {
+                    if ((uVar7 & 0x200) != 0)
+                        return;
+                }
+                else
+                {
+                    oVar6 = GameManager.instance.FUN_4AC1C(0xfffc0000, tVar5.vObject);
+                    oVar6.flags &= 0xfefffffd;
+                    uVar7 = tVar5.vObject.flags;
+
+                    if ((uVar7 & 0x200) == 0)
+                    {
+                        tVar5.vObject.flags = uVar7 & 0xfffffffd | 0x200;
+                        return;
+                    }
+                }
+
+                FUN_3094C(new Tuple<List<VigTuple>, VigTuple>(DAT_1078, tVar5));
+            }
+        }
+    }
+
+    public VigObject FUN_34120(List<VigTuple> param1, uint param2, Vector3Int param3)
+    {
+        List<VigTuple> ppiVar1;
+        VigTuple ppiVar2;
+        uint uVar3;
+        VigObject oVar4;
+        uint uVar5;
+        VigObject oVar6;
+
+        uVar5 = 0xffffffff;
+        oVar6 = null;
+        ppiVar1 = param1;
+
+        for (int i = 0; i < ppiVar1.Count; i++)
+        {
+            ppiVar2 = ppiVar1[i];
+            oVar4 = ppiVar2.vObject;
+
+            if (31 < oVar4.id && (oVar4.flags & 0x4000) != 0 && 
+                (oVar4.flags & param2) != 0)
+            {
+                uVar3 = (uint)Utilities.FUN_29F6C(param3, oVar4.screen);
+
+                if (uVar3 < uVar5)
+                {
+                    uVar5 = uVar3;
+                    oVar6 = oVar4;
+                }
+            }
+        }
+
+        return oVar6;
+    }
+
+    private void FUN_347A8(uint param1)
+    {
+        uint uVar1;
+        uint uVar2;
+        int iVar3;
+        int iVar4;
+        VigObject oVar5;
+
+        uVar1 = levelManager.DAT_C18[1];
+        uVar2 = (uint)DAT_1038;
+
+        if (uVar2 < uVar1)
+        {
+            do
+            {
+                iVar4 = (int)FUN_2AC5C();
+                iVar3 = FUN_30428(DAT_1078, param1);
+                iVar3 = iVar4 * iVar3;
+                oVar5 = FUN_30498(DAT_1078, param1, iVar3 >> 15);
+                oVar5 = FUN_4AC6C(param1, oVar5);
+
+                if (oVar5 == null) break;
+
+                uVar1 = levelManager.DAT_C18[1];
+                uVar2 = (uint)++DAT_1038;
+            } while (uVar2 < uVar1);
+        }
+    }
+
+    private void FUN_349A0()
+    {
+        VigObject oVar1;
+        int iVar2;
+        int iVar3;
+        int iVar5;
+
+        iVar5 = 0;
+
+        do
+        {
+            if (-1 < (sbyte)vehicles[2 + iVar5] && DAT_1030[iVar5] != 0)
+            {
+                oVar1 = FUN_302D4(worldObjs, 2, iVar5 + 1);
+
+                if (oVar1 == null)
+                {
+                    oVar1 = FUN_3208C(iVar5 + 1);
+
+                    if (oVar1 != null)
+                    {
+                        iVar3 = 0;
+                        oVar1.tags = 1;
+                        oVar1.flags &= 0x1ffffff;
+
+                        do
+                        {
+                            do
+                            {
+                                iVar2 = (int)FUN_2AC5C();
+                            } while ((oVar1.flags & DAT_63A6C[(uint)(iVar2 << 2) >> 15]) != 0);
+
+                            oVar1.flags |= DAT_63A6C[(uint)(iVar2 << 2) >> 15];
+                            iVar3++;
+                        } while (iVar3 < 3);
+
+                        oVar1.FUN_3066C();
+                        iVar3 = oVar1.vTransform.rotation.V02 * 4577;
+
+                        if (iVar3 < 0)
+                            iVar3 += 31;
+
+                        oVar1.physics1.X = iVar3 >> 5;
+                        oVar1.physics1.Y = 0;
+                        iVar3 = oVar1.vTransform.rotation.V22 * 4577;
+
+                        if (iVar3 < 0)
+                            iVar3 += 31;
+
+                        oVar1.physics1.Z = iVar3 >> 5;
+                        DAT_1030[iVar5]--;
+                    }
+                }
+            }
+
+            iVar5++;
+        } while (iVar5 < 4);
+    }
+
+    public void FUN_34B34()
+    {
+        bool bVar1;
+        uint uVar3;
+        VigTuple ppiVar5;
+        int iVar6;
+        TileData tVar6;
+        VigObject oVar6;
+        uint uVar8;
+        int iVar9;
+        VigObject oVar9;
+        List<VigTuple> ppiVar10;
+        uint uVar12;
+        VigObject piVar12;
+        Vehicle pivVar12;
+        int iVar13;
+        int iVar14;
+        int iVar15;
+        uint uVar16;
+        int iVar17;
+        VigTuple ppiVar18;
+        VigTuple[] local_f8 = new VigTuple[32];
+        VigObject local_78;
+        uint local_74;
+        uint local_30;
+        int local_2c;
+        uint local_28;
+        VigObject local_24;
+        int local_20;
+
+        iVar15 = 0;
+        iVar13 = 0;
+        iVar14 = 0;
+
+        if ((DAT_40 & 0x1000) == 0)
+        {
+            iVar17 = 1;
+
+            if (DAT_C6E != 0)
+                iVar17 = 2;
+        }
+        else
+            iVar17 = 3;
+
+        local_30 = 0;
+        local_2c = 0;
+        local_28 = 0xffffffff;
+        local_24 = null;
+        local_20 = 0;
+        DAT_1130++;
+        uVar16 = 0xfe000000;
+
+        if (gameMode == _GAME_MODE.Arcade || gameMode == _GAME_MODE.Survival
+            || gameMode == _GAME_MODE.Coop || gameMode == _GAME_MODE.Demo)
+            FUN_349A0();
+
+        if (gameMode == _GAME_MODE.Survival)
+            iVar17 += DAT_CC4 / 25;
+
+        ppiVar10 = worldObjs;
+
+        for (int i = 0; i < ppiVar10.Count; i++)
+        {
+            ppiVar5 = ppiVar10[i];
+            piVar12 = ppiVar5.vObject;
+
+            if (piVar12.type == 2)
+            {
+                pivVar12 = (Vehicle)piVar12;
+
+                if (piVar12.id < 0 && gameMode != _GAME_MODE.Demo)
+                {
+                    if (piVar12.maxHalfHealth != 0)
+                    {
+                        local_2c++;
+                        local_30 |= 1U << (DAT_1128[~piVar12.id] & 31);
+
+                        if (pivVar12.weapons[2] == null)
+                            local_20 = 1;
+
+                        for (iVar6 = 0; iVar6 < 3; iVar6++)
+                        {
+                            oVar9 = pivVar12.weapons[iVar6];
+
+                            if (oVar9 != null)
+                                if (oVar9.maxFullHealth << 1 <= oVar9.maxHalfHealth)
+                                    uVar16 &= ~(0x1000000U << (oVar9.tags & 31));
+                        }
+                    }
+                }
+                else
+                {
+                    if (pivVar12.maxHalfHealth != 0)
+                    {
+                        uVar8 = piVar12.flags;
+
+                        if ((uVar8 & 0x4000000) == 0)
+                        {
+                            if (piVar12.vTransform.rotation.V11 < 0)
+                            {
+                                if (pivVar12.wheelsType == _WHEELS.Sea && (uVar8 & 0x10000000) == 0)
+                                    ; //FUN_391AC
+                                else
+                                    pivVar12.physics2.Z += 0x10000;
+                            }
+                            else
+                            {
+                                tVar6 = terrain.GetTileByPosition((uint)piVar12.vTransform.position.x, (uint)piVar12.vTransform.position.z);
+
+                                if (((uVar8 & 0x20000000) == 0 ||
+                                    (terrain.DAT_DE4 <= pivVar12.vTransform.position.x && piVar12.vTransform.position.x <= terrain.DAT_DE8 &&
+                                    terrain.DAT_DEC <= pivVar12.vTransform.position.z && pivVar12.vTransform.position.z <= terrain.DAT_DF0 &&
+                                    tVar6.DAT_10[3] != 7)) ||
+                                    (pivVar12.tags == 1 && (DAT_1130 & 3) != 0))
+                                {
+                                    if (pivVar12.tags != 1 && pivVar12.tags != 4)
+                                    {
+                                        if (pivVar12.DAT_B3 * 3 >> 2 < pivVar12.acceleration && pivVar12.physics1.W < 457)
+                                        {
+                                            pivVar12.direction = -1;
+                                            pivVar12.turning = 0;
+                                            pivVar12.tags = 0;
+                                            pivVar12.acceleration = (short)((uint)pivVar12.DAT_B3 >> 2);
+                                        }
+                                        else
+                                        {
+                                            if (pivVar12.id < 0)
+                                            {
+                                                if (pivVar12.target == null)
+                                                {
+                                                    pivVar12.tags = 3;
+                                                    pivVar12.DAT_F4 = 0;
+                                                }
+                                                else
+                                                    pivVar12.tags = 2;
+                                            }
+                                            else
+                                            {
+                                                uVar3 = (uint)Utilities.FUN_29F6C(playerObjects[0].vTransform.position, pivVar12.vTransform.position);
+
+                                                if (gameMode == _GAME_MODE.Demo && uVar3 < local_28)
+                                                {
+                                                    local_28 = uVar3;
+                                                    local_24 = piVar12;
+                                                }
+
+                                                //two-player
+
+                                                pivVar12.target = playerObjects[0]; //tmp
+
+                                                if (pivVar12.tags == 0)
+                                                {
+                                                    pivVar12.tags = 3;
+                                                    pivVar12.DAT_F4 = 0;
+                                                    local_f8[iVar13] = new VigTuple(piVar12, uVar3);
+                                                }
+                                                else
+                                                {
+                                                    if (pivVar12.tags == 2)
+                                                    {
+                                                        if (0x1f4000 < uVar3)
+                                                        {
+                                                            pivVar12.tags = 3;
+                                                            pivVar12.DAT_F4 = 0;
+                                                            local_f8[iVar13] = new VigTuple(piVar12, uVar3);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (pivVar12.weapons[1] == null)
+                                                                pivVar12.tags = 3;
+                                                            else
+                                                            {
+                                                                if (pivVar12.body[0] == null)
+                                                                {
+                                                                    if (pivVar12.maxFullHealth < pivVar12.maxHalfHealth * 3)
+                                                                    {
+                                                                        iVar6 = Utilities.FUN_29F6C(pivVar12.target.vTransform.position, pivVar12.vTransform.position);
+
+                                                                        if (2287 < pivVar12.target.physics1.W || 0x31fff < iVar6)
+                                                                        {
+                                                                            iVar14++;
+                                                                            goto LAB_35128;
+                                                                        }
+
+                                                                        pivVar12.tags = 3;
+                                                                    }
+                                                                }
+                                                                else if (pivVar12.maxFullHealth <
+                                                                    (pivVar12.body[0].maxHalfHealth + pivVar12.body[1].maxHalfHealth) * 3)
+                                                                {
+                                                                    iVar6 = Utilities.FUN_29F6C(pivVar12.target.vTransform.position, pivVar12.vTransform.position);
+
+                                                                    if (2287 < pivVar12.target.physics1.W || 0x31fff < iVar6)
+                                                                    {
+                                                                        iVar14++;
+                                                                        goto LAB_35128;
+                                                                    }
+                                                                }
+
+                                                                pivVar12.tags = 3;
+                                                            }
+
+                                                            pivVar12.DAT_F4 = 0;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (pivVar12.weapons[1] != null)
+                                                        {
+                                                            if (pivVar12.body[0] == null)
+                                                                uVar8 = pivVar12.maxHalfHealth;
+                                                            else
+                                                                uVar8 = (uint)(pivVar12.body[0].maxHalfHealth +
+                                                                               pivVar12.body[1].maxHalfHealth);
+
+                                                            if (pivVar12.maxFullHealth < (int)uVar8 * 3)
+                                                                local_f8[iVar13] = new VigTuple(piVar12, uVar3);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        LAB_35128:
+                                        if (pivVar12.weapons[0] == null)
+                                            local_20 = 1;
+                                    }
+                                }
+                                else
+                                {
+                                    oVar6 = FUN_31F1C(pivVar12.vTransform.position);
+                                    pivVar12.vTransform = oVar6.vTransform;
+                                    pivVar12.tags = 1;
+                                    iVar6 = piVar12.vTransform.rotation.V02 * 4577;
+                                    pivVar12.vTransform.position.y -= 0x8000;
+                                    pivVar12.flags |= 0x20;
+
+                                    if (iVar6 < 0)
+                                        iVar6 += 31;
+
+                                    pivVar12.physics1.X = iVar6 >> 5;
+                                    pivVar12.physics1.Y = 0;
+                                    iVar6 = pivVar12.vTransform.rotation.V22 * 4577;
+
+                                    if (iVar6 < 0)
+                                        iVar6 += 31;
+
+                                    pivVar12.physics1.Z = iVar6 >> 5;
+                                    pivVar12.physics2.X = 0;
+                                    pivVar12.physics2.Y = 0;
+                                    pivVar12.physics2.Z = 0;
+                                }
+                            }
+                        }
+                    }
+
+                    if (piVar12.id != 0)
+                        iVar15++;
+                }
+            }
+        }
+
+        if (local_20 != 0)
+        {
+            if (uVar16 == 0)
+                uVar16 = 0xfe000000;
+            
+            FUN_347A8(uVar16);
+        }
+
+        FUN_34840();
+        FUN_34914();
+
+        if (gameMode == _GAME_MODE.Alone)
+            return;
+
+        if (gameMode == _GAME_MODE.Versus)
+            return;
+
+        if (DAT_C74 != 0)
+            return;
+
+        if (_GAME_MODE.Unk1 < gameMode)
+        {
+            if (gameMode == _GAME_MODE.Unk2)
+            {
+                if (1 < local_2c)
+                    return;
+            }
+            else
+            {
+                if (local_30 == 3)
+                    return;
+            }
+
+            DAT_C74 = 1;
+            return;
+        }
+
+        if (gameMode == _GAME_MODE.Survival)
+        {
+            //survival
+        }
+
+        if (iVar14 < iVar17)
+        {
+            do
+            {
+                bVar1 = false;
+                iVar6 = 0;
+
+                if (0 < iVar13 - 1)
+                {
+                    iVar9 = 0;
+
+                    do
+                    {
+                        ppiVar18 = local_f8[iVar9];
+                        ppiVar5 = local_f8[++iVar6];
+
+                        if (local_f8[iVar6].flag < local_f8[iVar9].flag)
+                        {
+                            local_78 = ppiVar18.vObject;
+                            local_74 = local_f8[iVar9].flag;
+                            uVar12 = local_f8[iVar6].flag;
+                            ppiVar18.vObject = ppiVar5.vObject;
+                            local_f8[iVar9].flag = uVar12;
+                            uVar12 = local_74;
+                            ppiVar5.vObject = local_78;
+                            local_f8[iVar6].flag = uVar12;
+                            bVar1 = true;
+                            break;
+                        }
+
+                        iVar9 = iVar6;
+                    } while (iVar6 < iVar13 - 1);
+                }
+            } while (bVar1);
+
+            iVar6 = 0;
+
+            if (iVar14 < iVar17)
+            {
+                do
+                {
+                    if (iVar13 <= iVar6) break;
+
+                    iVar14++;
+                    piVar12 = local_f8[iVar6].vObject;
+                    piVar12.tags = 2;
+                    iVar6++;
+                } while (iVar14 < iVar17);
+            }
+        }
+
+        if (iVar15 == 0)
+        {
+            if (gameMode == _GAME_MODE.Quest || gameMode == _GAME_MODE.Quest2)
+            {
+                //quest
+            }
+
+            gameEnded = true;
+            DAT_C74 = 1;
+            playerObjects[0].vCamera.flags |= 0x2000000;
+        }
+
+        if (gameMode == _GAME_MODE.Demo)
+        {
+            //demo
+        }
+    }
+
+    private Navigation FUN_35A6C(Navigation param1, Navigation param2)
+    {
+        Navigation ppiVar1;
+        Navigation ppiVar2;
+        Navigation ppiVar3;
+
+        ppiVar2 = param1;
+        ppiVar3 = null;
+
+        if (param1 != null)
+        {
+            do
+            {
+                ppiVar1 = ppiVar2;
+                ppiVar2 = ppiVar1;
+
+                if (param2.DAT_14 <= ppiVar1.DAT_14) break;
+
+                ppiVar2 = ppiVar1.next;
+                ppiVar3 = ppiVar1;
+            } while (ppiVar2 != null);
+        }
+
+        param2.next = ppiVar2;
+
+        if (ppiVar3 == null)
+            return param2;
+
+        ppiVar3.next = param2;
+        return param1;
+    }
+
+    private void FUN_35AC0(Navigation param1)
+    {
+        int iVar1;
+
+        if (param1 != null)
+        {
+            do
+            {
+                iVar1 = param1.aimpIndex + param1.DAT_10;
+                levelManager.aimpData[iVar1 + 1] &= 0x9fff;
+                param1 = param1.next;
+            } while (param1 != null);
+        }
+    }
+
+    private Navigation FUN_35B00(int param1, int param2)
+    {
+        ushort uVar1;
+        Navigation piVar2;
+        uint uVar3;
+        int iVar4;
+        int iVar5;
+        uint uVar6;
+        uint uVar7;
+
+        piVar2 = DAT_1138;
+
+        if (DAT_1138 != null)
+            DAT_1138 = DAT_1138.next;
+
+        uVar7 = 11;
+
+        if (piVar2 != null)
+        {
+            uVar6 = (uint)param1 << 21;
+            iVar5 = param2 << 21;
+            iVar4 = 0;
+
+            while (true)
+            {
+                uVar7--;
+                uVar3 = uVar6 >> 31;
+
+                if (iVar5 < 0)
+                    uVar3 |= 2;
+
+                uVar1 = levelManager.aimpData[iVar4 + (int)uVar3 + 1];
+                uVar6 <<= 1;
+
+                if (uVar1 == 0 || (uVar1 & 0x8000) != 0) break;
+
+                iVar5 <<= 1;
+                iVar4 += uVar1 * 5;
+            }
+
+            uVar1 = (ushort)(-1 << (int)(uVar7 & 31));
+            piVar2.aimpIndex = iVar4;
+            piVar2.DAT_10 = (byte)uVar3;
+            piVar2.DAT_11 = (byte)uVar7;
+            piVar2.DAT_0C = (ushort)(param1 & uVar1);
+            piVar2.DAT_0E = (ushort)(param2 & uVar1);
+        }
+
+        return piVar2;
+    }
+
+    private Navigation FUN_35BAC(Navigation param1, uint param2, uint param3)
+    {
+        ushort uVar2;
+        Navigation piVar3;
+        uint uVar4;
+        int iVar5;
+        uint uVar6;
+        int puVar7;
+        uint uVar8;
+
+        piVar3 = DAT_1138;
+
+        if (DAT_1138 != null)
+        {
+            puVar7 = param1.aimpIndex;
+            uVar8 = param1.DAT_11;
+            iVar5 = (int)(param1.DAT_0C ^ param2 | param1.DAT_0E ^ param3) >>
+                    (int)(uVar8 & 31);
+
+            while (true)
+            {
+                iVar5 >>= 1;
+                uVar8++;
+
+                if (iVar5 == 0) break;
+
+                if (levelManager.aimpData[puVar7] == 0)
+                {
+                    DAT_1138 = DAT_1138.next;
+                    return null;
+                }
+
+                puVar7 += levelManager.aimpData[puVar7] * -5;
+            }
+
+            uVar6 = param2 << (int)(32 - uVar8 & 31);
+            iVar5 = (int)param3 << (int)(32 - uVar8 & 31);
+
+            while (true)
+            {
+                uVar8--;
+                uVar4 = uVar6 >> 31;
+
+                if (iVar5 < 0)
+                    uVar4 |= 2;
+
+                uVar2 = levelManager.aimpData[puVar7 + uVar4 + 1];
+                uVar6 <<= 1;
+
+                if (uVar2 == 0 || (uVar2 & 0x8000) != 0) break;
+
+                iVar5 <<= 1;
+                puVar7 += uVar2 * 5;
+            }
+
+            uVar2 = (ushort)(-1 << (int)(uVar8 & 31));
+            DAT_1138 = DAT_1138.next;
+            piVar3.aimpIndex = puVar7;
+            piVar3.DAT_10 = (byte)uVar4;
+            piVar3.DAT_11 = (byte)uVar8;
+            piVar3.DAT_0C = (ushort)(param2 & uVar2);
+            piVar3.DAT_0E = (ushort)(param3 & uVar2);
+        }
+
+        return piVar3;
+    }
+
+    private Navigation FUN_35CBC(Navigation param1)
+    {
+        ushort uVar1;
+        Navigation puVar2;
+        int iVar3;
+        Navigation puVar4;
+        int iVar5;
+        ushort uVar6;
+
+        puVar4 = null;
+        uVar1 = levelManager.aimpData[param1.aimpIndex + param1.DAT_10 + 1];
+        uVar6 = 0xf00;
+
+        if (uVar1 != 0)
+            uVar6 = uVar1;
+
+        iVar5 = param1.DAT_0E + (1 << (param1.DAT_11 & 31));
+
+        if ((uVar6 & 0x100) != 0)
+        {
+            puVar2 = FUN_35BAC(param1, (uint)param1.DAT_0C - 1, param1.DAT_0E);
+
+            while(puVar2 != null)
+            {
+                if (levelManager.aimpData[puVar2.aimpIndex + puVar2.DAT_10 + 1] != 0)
+                {
+                    puVar2.next = puVar4;
+                    puVar4 = puVar2;
+                }
+
+                if (iVar5 <= puVar2.DAT_0E + (1 << (puVar2.DAT_11 & 31))) break;
+
+                puVar2 = FUN_35BAC(puVar2, (uint)param1.DAT_0C - 1, (uint)puVar2.DAT_0E + (uint)(1 << (puVar2.DAT_11 & 31)));
+            }
+        }
+
+        if ((uVar6 & 0x200) != 0)
+        {
+            puVar2 = FUN_35BAC(param1, param1.DAT_0C + (uint)(1 << (param1.DAT_11 & 31)), param1.DAT_0E);
+
+            while (puVar2 != null)
+            {
+                if (levelManager.aimpData[puVar2.aimpIndex + puVar2.DAT_10 + 1] != 0)
+                {
+                    puVar2.next = puVar4;
+                    puVar4 = puVar2;
+                }
+
+                if (iVar5 <= puVar2.DAT_0E + (1 << (puVar2.DAT_11 & 31))) break;
+
+                puVar2 = FUN_35BAC(puVar2, puVar2.DAT_0C, puVar2.DAT_0E + (uint)(1 << (puVar2.DAT_11 & 31)));
+            }
+        }
+
+        iVar5 = param1.DAT_0C + (1 << (param1.DAT_11 & 31));
+
+        if ((uVar6 & 0x800) != 0)
+        {
+            puVar2 = FUN_35BAC(param1, param1.DAT_0C, (uint)param1.DAT_0E - 1);
+
+            while (puVar2 != null)
+            {
+                if (levelManager.aimpData[puVar2.aimpIndex + puVar2.DAT_10 + 1] != 0)
+                {
+                    puVar2.next = puVar4;
+                    puVar4 = puVar2;
+                }
+
+                iVar3 = puVar2.DAT_0C + (1 << (puVar2.DAT_11 & 31));
+
+                if (iVar5 <= iVar3) break;
+
+                puVar2 = FUN_35BAC(puVar2, (uint)iVar3, (uint)param1.DAT_0E - 1);
+            }
+        }
+
+        if ((uVar6 & 0x400) != 0)
+        {
+            puVar2 = FUN_35BAC(param1, param1.DAT_0C, param1.DAT_0E + (uint)(1 << (param1.DAT_11 & 31)));
+
+            while (puVar2 != null)
+            {
+                if (levelManager.aimpData[puVar2.aimpIndex + puVar2.DAT_10 + 1] != 0)
+                {
+                    puVar2.next = puVar4;
+                    puVar4 = puVar2;
+                }
+
+                iVar3 = puVar2.DAT_0C + (1 << (puVar2.DAT_11 & 31));
+
+                if (iVar5 <= iVar3) break;
+
+                puVar2 = FUN_35BAC(puVar2, (uint)iVar3, puVar2.DAT_0E);
+            }
+        }
+
+        if ((uVar6 & 0x1000) != 0)
+        {
+            iVar5 = param1.aimpIndex + 5 + param1.DAT_10;
+            puVar2 = FUN_35BAC(param1, param1.DAT_0C + (uint)(sbyte)levelManager.aimpData[iVar5 + 1],
+                               param1.DAT_0E + (uint)(sbyte)(levelManager.aimpData[iVar5 + 1] >> 8));
+
+            if (puVar2 != null)
+            {
+                if (levelManager.aimpData[puVar2.aimpIndex + puVar2.DAT_10 + 1] != 0)
+                {
+                    puVar2.next = puVar4;
+                    puVar4 = puVar2;
+                }
+            }
+        }
+
+        return puVar4;
+    }
+
+    public int FUN_35FF0(Navigation param1, short param2, short param3)
+    {
+        int iVar1;
+        long lVar2;
+        int iVar3;
+
+        iVar3 = (1 << (param1.DAT_11 & 31)) / 2;
+        iVar1 = (param1.DAT_0C + iVar3) - param2;
+        iVar3 = (param1.DAT_0E + iVar3) - param3;
+        lVar2 = Utilities.SquareRoot(iVar1 * iVar1 + iVar3 * iVar3);
+        return (int)lVar2 << 7;
+    }
+
+    public short[] FUN_36060(Vector3Int param1, Vector3Int param2, uint param3, uint param4)
+    {
+        return FUN_36084(param1, param2, param3, param4);
+    }
+
+    private short[] FUN_36084(Vector3Int param1, Vector3Int param2, uint param3, uint param4)
+    {
+        ushort uVar1;
+        bool bVar2;
+        Navigation puVar3;
+        int iVar4;
+        short[] aVar4;
+        Navigation puVar4;
+        Navigation puVar5;
+        Navigation puVar6;
+        Navigation puVar7;
+        int iVar8;
+        Navigation puVar9;
+        int puVar10;
+        int iVar11;
+        int psVar12;
+        Navigation puVar13;
+        Navigation puVar14;
+        Navigation puVar16;
+        int iVar15;
+
+        iVar4 = (int)Utilities.FUN_14A54();
+        iVar15 = 0x3fe;
+        DAT_1138 = levelManager.ainav;
+        puVar6 = levelManager.ainav;
+
+        do
+        {
+            puVar16 = new Navigation();
+            puVar6.next = puVar16;
+            iVar15--;
+            puVar6 = puVar16;
+        } while (-1 < iVar15);
+
+        puVar16.next = null;
+
+        puVar5 = FUN_35B00(param2.x >> 16, param2.z >> 16);
+        puVar6 = puVar5;
+
+        if (levelManager.aimpData[puVar5.aimpIndex + puVar5.DAT_10 + 1] == 0)
+        {
+            puVar6 = FUN_35CBC(puVar5);
+
+            if (puVar6 == null)
+                return null;
+
+            puVar5.next = DAT_1138;
+            DAT_1138 = puVar5;
+        }
+
+        puVar7 = FUN_35B00(param1.x >> 16, param1.z >> 16);
+        puVar5 = puVar7;
+
+        if (levelManager.aimpData[puVar7.aimpIndex + puVar7.DAT_10 + 1] == 0)
+        {
+            puVar5 = FUN_35CBC(puVar7);
+
+            if (puVar5 == null)
+                return null;
+
+            puVar7.next = DAT_1138;
+            DAT_1138 = puVar7;
+        }
+
+        puVar5.DAT_18 = 0;
+        iVar8 = FUN_35FF0(puVar16, (short)puVar6.DAT_0C, (short)puVar6.DAT_0E);
+        puVar5.DAT_14 = iVar8;
+        puVar5.next = null;
+        puVar5.DAT_04 = null;
+        puVar16 = null;
+
+        while (puVar5 != null)
+        {
+            if ((param4 & 2) == 0)
+            {
+                iVar15 = (int)Utilities.FUN_14A54();
+                bVar2 = param3 < (uint)(iVar15 - iVar4);
+            }
+            else
+            {
+                param3--;
+                bVar2 = param3 == 0;
+            }
+
+            if (bVar2 && (param4 & 1) != 0) break;
+
+            puVar7 = puVar5.next;
+
+            if (bVar2 || (puVar5.aimpIndex == puVar6.aimpIndex && puVar5.DAT_10 == puVar6.DAT_10))
+            {
+                iVar4 = puVar5.aimpIndex + puVar5.DAT_10;
+                levelManager.aimpData[iVar4 + 1] &= 0x9fff;
+                puVar4 = puVar5.DAT_04;
+                iVar15 = 0;
+
+                while(puVar4 != null)
+                {
+                    puVar4 = puVar4.DAT_04;
+                    iVar15++;
+                }
+
+                iVar15 = iVar15 - (iVar15 != 0 ? 1 : 0);
+                aVar4 = new short[(iVar15 + 2) * 2];
+                puVar10 = iVar15 * 2;
+                aVar4[puVar10 + 3] = 0;
+                aVar4[puVar10 + 2] = 0;
+                aVar4[puVar10] = (short)(param2.x >> 16);
+                iVar15--;
+                aVar4[puVar10 + 1] = (short)(param2.z >> 16);
+
+                if (iVar15 != -1)
+                {
+                    psVar12 = iVar15 * 2;
+
+                    do
+                    {
+                        puVar5 = puVar5.DAT_04;
+                        aVar4[psVar12] = (short)(puVar5.DAT_0C + ((1 << (puVar5.DAT_11 & 31)) / 2));
+                        iVar15--;
+                        aVar4[psVar12 + 1] = (short)(puVar5.DAT_0E + ((1 << (puVar5.DAT_11 & 31)) / 2));
+                        psVar12 -= 2;
+                    } while (iVar15 != -1);
+                }
+
+                FUN_35AC0(puVar7);
+                FUN_35AC0(puVar16);
+                return aVar4;
+            }
+
+            puVar9 = FUN_35CBC(puVar5);
+            puVar3 = puVar9;
+
+            while (puVar3 != null)
+            {
+                puVar9 = puVar3.next;
+                puVar3.DAT_18 = puVar5.DAT_18 + ((byte)levelManager.aimpData[puVar3.aimpIndex + puVar3.DAT_10 + 1] << (puVar3.DAT_11 & 31));
+                iVar15 = puVar3.aimpIndex + puVar3.DAT_10;
+                uVar1 = levelManager.aimpData[iVar15 + 1];
+                puVar14 = null;
+
+                if ((uVar1 & 0x4000) != 0)
+                {
+                    puVar13 = puVar7;
+
+                    if ((uVar1 & 0x2000) != 0)
+                        puVar13 = puVar16;
+
+                    if (puVar3.aimpIndex != puVar13.aimpIndex ||
+                        puVar3.DAT_10 != puVar13.DAT_10)
+                    {
+                        do
+                        {
+                            do
+                            {
+                                puVar14 = puVar13;
+                                puVar13 = puVar14.next;
+                            } while (puVar3.aimpIndex != puVar13.aimpIndex);
+                        } while (puVar3.DAT_10 != puVar13.DAT_10);
+                    }
+
+                    puVar3.next = DAT_1138;
+                    iVar11 = puVar13.DAT_18;
+                    iVar15 = puVar3.DAT_18;
+                    DAT_1138 = puVar3;
+
+                    if (0 < iVar11 - iVar15)
+                    {
+                        if (puVar14 == null)
+                        {
+                            if ((uVar1 & 0x2000) == 0)
+                                puVar7 = puVar13.next;
+                            else
+                                puVar16 = puVar13.next;
+                        }
+                        else
+                            puVar14.next = puVar13.next;
+
+                        levelManager.aimpData[puVar13.aimpIndex + puVar13.DAT_10 + 1] = (ushort)(uVar1 & 0xdfff);
+                        iVar8 = puVar3.DAT_18;
+                        puVar13.DAT_04 = puVar5;
+                        puVar13.DAT_18 = iVar8;
+                        puVar13.DAT_14 -= iVar11 - iVar15;
+                        puVar7 = FUN_35A6C(puVar7, puVar13);
+                    }
+                }
+                else
+                {
+                    levelManager.aimpData[iVar15 + 1] = (ushort)(uVar1 | 0x4000);
+                    iVar15 = FUN_35FF0(puVar3, (short)puVar6.DAT_0C, (short)puVar6.DAT_0E);
+                    puVar3.DAT_04 = puVar5;
+                    puVar3.DAT_14 = puVar3.DAT_18 + iVar15;
+                    puVar7 = FUN_35A6C(puVar7, puVar3);
+                }
+
+                puVar3 = puVar9;
+            }
+
+            puVar5.next = puVar16;
+            iVar15 = puVar5.aimpIndex + puVar5.DAT_10;
+            levelManager.aimpData[iVar15 + 1] |= 0x6000;
+            puVar16 = puVar5;
+            puVar5 = puVar7;
+        }
+
+        FUN_35AC0(puVar5);
+        FUN_35AC0(puVar16);
+        return null;
+    }
+
+    public uint FUN_4A970(uint param1, uint param2)
+    {
+        int iVar1;
+        int iVar2;
+        
+        iVar2 = ~DAT_C6E + 3;
+
+        while (true)
+        {
+            if (iVar2 == -1)
+                return param2;
+
+            do
+            {
+                do
+                {
+                    iVar1 = (int)FUN_2AC5C();
+                    param2 = (uint)(iVar1 * 0x12) >> 0xf;
+                } while (DAT_63FA4[param2] < 0);
+            } while ((param1 & 0x40000 << (int)(param2 & 0x1f)) == 0);
+
+            if (param2 == 13) break;
+
+            iVar2--;
+
+            if (-1 < (int)param1)
+                return param2;
+        }
+
+        return 13;
+    }
+
+    public VigObject FUN_4AB18(uint param1, VigObject param2)
+    {
+        bool bVar1;
+        short sVar2;
+        VigObject oVar3;
+        int iVar4;
+
+        if (param2 == null)
+            oVar3 = null;
+        else
+        {
+            oVar3 = null;
+
+            if ((param1 & param2.flags) != 0)
+            {
+                iVar4 = (int)FUN_4A970(param1 & param2.flags, 0);
+
+                if (iVar4 == 3)
+                    DAT_101C++;
+
+                bVar1 = false;
+
+                if (7 < iVar4 && (int)param2.flags < 0)
+                    bVar1 = (param2.flags & 0x7e000000) != 0;
+
+                param2.tags = (sbyte)(bVar1 ? 1 : 0);
+
+                if (bVar1)
+                    sVar2 = 5;
+                else
+                    sVar2 = DAT_63FA4[iVar4];
+
+                param2.DAT_1A = sVar2;
+                oVar3 = param2.FUN_31DDC();
+                oVar3.flags |= 0x1000000;
+                oVar3.DAT_1A = DAT_63FA4[iVar4];
+            }
+        }
+
+        return oVar3;
+    }
+
+    public VigObject FUN_4AC1C(uint param1, VigObject param2)
+    {
+        VigObject oVar1;
+
+        oVar1 = FUN_4AB18(param1, param2);
+
+        if (oVar1 != null)
+        {
+            param2.flags |= 0x8000;
+            oVar1.FUN_3066C();
+        }
+
+        return oVar1;
+    }
+
+    public VigObject FUN_4AC6C(uint param1, VigObject param2)
+    {
+        VigObject oVar1;
+        int iVar1;
+        VigObject oVar2;
+        int iVar2;
+
+        iVar1 = 0;
+        oVar2 = param2;
+
+        if (param2 != null)
+        {
+            do
+            {
+                oVar2 = oVar2.child;
+                iVar1++;
+            } while (oVar2 != null);
+        }
+
+        iVar2 = (int)FUN_2AC5C();
+        iVar2 = iVar2 * iVar1 >> 15;
+        oVar1 = param2;
+
+        for (iVar2--; iVar2 != -1; iVar2--)
+            oVar1 = oVar1.child;
+
+        oVar2 = FUN_4AB18(param1, oVar1);
+
+        if (oVar2 != null)
+        {
+            param2.flags |= 0x8000;
+            oVar2.FUN_3066C();
+        }
+
+        return oVar2;
     }
 
     public VigCamera FUN_4B914(Vehicle param1, ushort param2, Camera cam)
@@ -1435,6 +3119,17 @@ public class GameManager : MonoBehaviour
         }*/
     }
 
+    public short[] FUN_51ED4(Vector3Int param1, Vector3Int param2, uint param3, uint param4)
+    {
+        if (DAT_D0C != 0)
+        {
+            param3 >>= 11;
+            param4 |= 2;
+        }
+
+        return FUN_36060(param1, param2, param3, param4);
+    }
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -1443,13 +3138,21 @@ public class GameManager : MonoBehaviour
             instance = this;
         }
 
-        levelManager = GameObject.FindObjectOfType<LevelManager>();
-        vehicles = new byte[] { 1, 0, 0, 0, 0, 0 };
+        gameMode = _GAME_MODE.Arcade;
+        gravityFactor = 11520;
+        vehicles = new byte[6];
+        vehicles[2] = 8;
         playerObjects = new Vehicle[2];
         cameraObjects = new VigCamera[2];
+        DAT_1030 = new sbyte[4];
+        DAT_1030[0] = 1;
+        DAT_1068 = new List<VigTuple>();
         DAT_1078 = new List<VigTuple>();
         DAT_1088 = new List<VigTuple>();
+        DAT_1098 = new List<VigTuple>();
         DAT_10A8 = new List<VigTuple>();
+        DAT_10C8 = new List<VigTuple>();
+        DAT_1110 = new List<VigTuple>();
         worldObjs = new List<VigTuple>();
         interObjs = new List<VigTuple>();
 
@@ -1457,6 +3160,7 @@ public class GameManager : MonoBehaviour
         DAT_D19 = new byte[2];
         DAT_D1A = new byte[2];
         DAT_D1B = new byte[2];
+        DAT_D28 = new byte[2, 8];
         DAT_CF0 = new ushort[2];
         DAT_CFC = new byte[4];
         DAT_1128 = new sbyte[6];
@@ -1488,16 +3192,27 @@ public class GameManager : MonoBehaviour
         uint uVar18;
         uint local_78;
 
+        if (inDebug) return;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            LoadDebug();
+
         local_78 = 1;
 
         for (int i = 0; i < local_78; i++)
         {
+            DAT_28++;
             uVar20 = 0;
 
             if (i == local_78 - 1)
                 uVar20 = local_78;
 
             FUN_313C8((int)uVar20);
+            FUN_31440((uint)DAT_28);
+            terrain.UpdatePosition();
+
+            if (drawObjects)
+                 FUN_31728();
         }
 
         DAT_24 = 1 - DAT_24;
@@ -2218,8 +3933,8 @@ public class GameManager : MonoBehaviour
         VigTransform t;
         uint uVar1;
         int iVar2;
-        BinaryReader brVar3;
-        BinaryReader brVar4;
+        BufferedBinaryReader brVar3;
+        BufferedBinaryReader brVar4;
         int iVar5;
         int iVar6;
         int iVar7;
@@ -2232,8 +3947,8 @@ public class GameManager : MonoBehaviour
 
         t = FUN_2CDF4(hit.object2);
         brVar3 = hit.collider1;
-        c1_pos = hit.collider1.BaseStream.Position;
-        c2_pos = hit.collider2.BaseStream.Position;
+        c1_pos = hit.collider1.Position;
+        c2_pos = hit.collider2.Position;
 
         if (brVar3.ReadUInt16(0) == 1)
         {
@@ -2252,7 +3967,7 @@ public class GameManager : MonoBehaviour
 
                 do
                 {
-                    brVar4.BaseStream.Seek(4, SeekOrigin.Current);
+                    brVar4.Seek(4, SeekOrigin.Current);
                     local_28 = new Radius();
                     local_28.matrixSV = new Vector3Int();
 
@@ -2342,7 +4057,7 @@ public class GameManager : MonoBehaviour
                             Radius radius = new Radius()
                             {
                                 matrixSV = new Vector3Int(brVar4.ReadInt16(iVar6), brVar4.ReadInt16(iVar6 + 2), brVar4.ReadInt16(iVar6 + 4)),
-                                contactOffset = brVar4.ReadInt16(iVar6 + 8)
+                                contactOffset = brVar4.ReadInt32(iVar6 + 8)
                             };
                             iVar2 = Utilities.FUN_2E5B0(puVar8, obj.vTransform, radius, t);
 
@@ -2382,8 +4097,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        hit.collider1.BaseStream.Seek(c1_pos, SeekOrigin.Begin);
-        hit.collider2.BaseStream.Seek(c2_pos, SeekOrigin.Begin);
+        hit.collider1.Seek(c1_pos, SeekOrigin.Begin);
+        hit.collider2.Seek(c2_pos, SeekOrigin.Begin);
         return hit;
     }
 
@@ -2396,6 +4111,8 @@ public class GameManager : MonoBehaviour
         uint rbk;
         VigTransform t2;
         Vector3Int local_20;
+
+        Utilities.ResetMesh(param1);
 
         if ((param1.flags & 2) == 0)
         {
@@ -2527,6 +4244,16 @@ public class GameManager : MonoBehaviour
         return m1;
     }
 
+    public VigTransform FUN_2CEAC(VigObject param1, ConfigContainer param2)
+    {
+        VigTransform t0;
+        VigTransform t1;
+
+        t0 = FUN_2CDF4(param1);
+        t1 = Utilities.FUN_2C77C(param2);
+        return Utilities.CompMatrixLV(t0, t1);
+    }
+
     private void FUN_2E0E8(VigTransform param1, int param2)
     {
         DAT_F28 = param1;
@@ -2582,173 +4309,80 @@ public class GameManager : MonoBehaviour
         int iVar2;
         bool bVar3;
         int iVar3;
-        BinaryReader brVar4;
+        BufferedBinaryReader brVar4;
         int iVar5;
-        BinaryReader brVar6;
+        BufferedBinaryReader brVar6;
 
         if (param1.vCollider != null)
         {
             if (param2.vCollider == null)
                 return null;
 
-            using (brVar6 = new BinaryReader(new MemoryStream(param1.vCollider.buffer), Encoding.Default, true))
+            /*brVar6 = new BufferedBinaryReader(new MemoryStream(param1.vCollider.buffer), param1.vCollider.buffer.Length);
+            brVar6.FillBuffer();
+            brVar4= new BufferedBinaryReader(new MemoryStream(param2.vCollider.buffer), param2.vCollider.buffer.Length);
+            brVar4.FillBuffer();*/
+            brVar6 = param1.vCollider.reader;
+            brVar4 = param2.vCollider.reader;
+            brVar6.Seek(0, SeekOrigin.Begin);
+            brVar4.Seek(0, SeekOrigin.Begin);
+            sVar1 = brVar6.ReadInt16(0);
+
+            while (sVar1 != 0)
             {
-                using (brVar4 = new BinaryReader(new MemoryStream(param2.vCollider.buffer), Encoding.Default, true))
+                sVar1 = brVar6.ReadInt16(0);
+                brVar4.Seek(0, SeekOrigin.Begin);
+
+                if (sVar1 == 1)
                 {
-                    sVar1 = brVar6.ReadInt16(0);
-
-                    while (sVar1 != 0)
+                    if ((brVar6.ReadUInt16(2) & 0x8000U) == 0)
                     {
-                        sVar1 = brVar6.ReadInt16(0);
-                        brVar4.BaseStream.Seek(0, SeekOrigin.Begin);
+                        sVar1 = brVar4.ReadInt16(0);
 
-                        if (sVar1 == 1)
+                        joined_r0x8002ea44:
+                        if (sVar1 != 0)
                         {
-                            if ((brVar6.ReadUInt16(2) & 0x8000U) == 0)
+                            sVar1 = brVar4.ReadInt16(0);
+
+                            if (sVar1 != 1)
                             {
-                                sVar1 = brVar4.ReadInt16(0);
-
-                                joined_r0x8002ea44:
-                                if (sVar1 != 0)
+                                if (sVar1 == 2)
                                 {
-                                    sVar1 = brVar4.ReadInt16(0);
+                                    iVar3 = 0;
 
-                                    if (sVar1 != 1)
+                                    if (brVar4.ReadUInt16(2) == 0)
                                     {
-                                        if (sVar1 == 2)
+                                        return new HitDetection()
                                         {
-                                            iVar3 = 0;
-
-                                            if (brVar4.ReadUInt16(2) == 0)
-                                            {
-                                                return new HitDetection()
-                                                {
-                                                    collider1 = brVar6,
-                                                    collider2 = brVar4,
-                                                    object1 = param1,
-                                                    object2 = param2
-                                                };
-                                            }
-
-                                            iVar5 = 4;
-
-                                            while (true)
-                                            {
-                                                BoundingBox bbox = new BoundingBox()
-                                                {
-                                                    min = new Vector3Int(brVar6.ReadInt32(4), brVar6.ReadInt32(8), brVar6.ReadInt32(12)),
-                                                    max = new Vector3Int(brVar6.ReadInt32(16), brVar6.ReadInt32(20), brVar6.ReadInt32(24))
-                                                };
-                                                Radius radius = new Radius()
-                                                {
-                                                    matrixSV = new Vector3Int(brVar4.ReadInt16(iVar5), brVar4.ReadInt16(iVar5 + 2), brVar4.ReadInt16(iVar5 + 4)),
-                                                    contactOffset = brVar4.ReadInt32(iVar5 + 8)
-                                                };
-                                                iVar2 = (int)Utilities.FUN_2E2E8(bbox, param3, radius, param4);
-                                                iVar3++;
-
-                                                if (iVar2 == 0) break;
-
-                                                iVar5 += 12;
-
-                                                if (brVar4.ReadUInt16(2) <= iVar3)
-                                                {
-                                                    return new HitDetection()
-                                                    {
-                                                        collider1 = brVar6,
-                                                        collider2 = brVar4,
-                                                        object1 = param1,
-                                                        object2 = param2
-                                                    };
-                                                }
-                                            }
-
-                                            brVar4.BaseStream.Seek(brVar4.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
-                                            sVar1 = brVar4.ReadInt16(0);
-                                        }
-
-                                        goto joined_r0x8002ea44;
+                                            collider1 = brVar6,
+                                            collider2 = brVar4,
+                                            object1 = param1,
+                                            object2 = param2
+                                        };
                                     }
 
-                                    if ((brVar4.ReadUInt16(2) & 0x8000U) == 0)
+                                    iVar5 = 4;
+
+                                    while (true)
                                     {
-                                        BoundingBox bbox1 = new BoundingBox()
+                                        BoundingBox bbox = new BoundingBox()
                                         {
                                             min = new Vector3Int(brVar6.ReadInt32(4), brVar6.ReadInt32(8), brVar6.ReadInt32(12)),
                                             max = new Vector3Int(brVar6.ReadInt32(16), brVar6.ReadInt32(20), brVar6.ReadInt32(24))
                                         };
-                                        BoundingBox bbox2 = new BoundingBox()
+                                        Radius radius = new Radius()
                                         {
-                                            min = new Vector3Int(brVar4.ReadInt32(4), brVar4.ReadInt32(8), brVar4.ReadInt32(12)),
-                                            max = new Vector3Int(brVar4.ReadInt32(16), brVar4.ReadInt32(20), brVar4.ReadInt32(24))
+                                            matrixSV = new Vector3Int(brVar4.ReadInt16(iVar5), brVar4.ReadInt16(iVar5 + 2), brVar4.ReadInt16(iVar5 + 4)),
+                                            contactOffset = brVar4.ReadInt32(iVar5 + 8)
                                         };
-                                        bVar3 = Utilities.FUN_281FC(bbox1, param3, bbox2, param4);
+                                        iVar2 = (int)Utilities.FUN_2E2E8(bbox, param3, radius, param4);
+                                        iVar3++;
 
-                                        if (bVar3)
-                                        {
-                                            bVar3 = Utilities.FUN_281FC(bbox2, param4, bbox1, param3);
+                                        if (iVar2 == 0) break;
 
-                                            if (bVar3)
-                                            {
-                                                return new HitDetection()
-                                                {
-                                                    collider1 = brVar6,
-                                                    collider2 = brVar4,
-                                                    object1 = param1,
-                                                    object2 = param2
-                                                };
-                                            }
-                                        }
-                                    }
+                                        iVar5 += 12;
 
-                                    brVar4.BaseStream.Seek(28, SeekOrigin.Current);
-                                    sVar1 = brVar4.ReadInt16(0);
-                                    goto joined_r0x8002ea44;
-                                }
-                            }
-
-                            brVar6.BaseStream.Seek(28, SeekOrigin.Current);
-                            sVar1 = brVar6.ReadInt16(0);
-                        }
-                        else
-                        {
-                            if (sVar1 == 2)
-                            {
-                                LAB_2EBE0:
-                                bool doBreak = false;
-
-                                do
-                                {
-                                    sVar1 = brVar4.ReadInt16(0);
-
-                                    while (true)
-                                    {
-                                        if (sVar1 == 0)
-                                        {
-                                            brVar6.BaseStream.Seek(brVar6.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
-                                            sVar1 = brVar6.ReadInt16(0);
-                                            doBreak = true;
-                                            break;
-                                        }
-
-                                        sVar1 = brVar4.ReadInt16(0);
-
-                                        if (sVar1 == 1) break;
-
-                                        if (sVar1 == 2)
-                                        {
-                                            brVar4.BaseStream.Seek(brVar4.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
-                                            goto LAB_2EBE0;
-                                        }
-                                    }
-
-                                    if (doBreak) break;
-
-                                    if ((brVar4.ReadUInt16(2) & 0x8000U) == 0)
-                                    {
-                                        iVar3 = 0;
-
-                                        if (brVar6.ReadUInt16(2) == 0)
+                                        if (brVar4.ReadUInt16(2) <= iVar3)
                                         {
                                             return new HitDetection()
                                             {
@@ -2758,45 +4392,140 @@ public class GameManager : MonoBehaviour
                                                 object2 = param2
                                             };
                                         }
-
-                                        iVar5 = 4;
-
-                                        while (true)
-                                        {
-                                            BoundingBox bbox = new BoundingBox()
-                                            {
-                                                min = new Vector3Int(brVar4.ReadInt32(4), brVar4.ReadInt32(8), brVar4.ReadInt32(12)),
-                                                max = new Vector3Int(brVar4.ReadInt32(16), brVar4.ReadInt32(20), brVar4.ReadInt32(24))
-                                            };
-                                            Radius radius = new Radius()
-                                            {
-                                                matrixSV = new Vector3Int(brVar6.ReadInt16(iVar5), brVar6.ReadInt16(iVar5 + 2), brVar6.ReadInt16(iVar5 + 4)),
-                                                contactOffset = brVar6.ReadInt32(iVar5 + 8)
-                                            };
-                                            iVar2 = (int)Utilities.FUN_2E2E8(bbox, param4, radius, param3);
-                                            iVar3++;
-
-                                            if (iVar2 == 0) break;
-
-                                            iVar5 += 12;
-
-                                            if (brVar6.ReadUInt16(2) <= iVar3)
-                                            {
-                                                return new HitDetection()
-                                                {
-                                                    collider1 = brVar6,
-                                                    collider2 = brVar4,
-                                                    object1 = param1,
-                                                    object2 = param2
-                                                };
-                                            }
-                                        }
                                     }
 
-                                    brVar4.BaseStream.Seek(28, SeekOrigin.Current);
-                                } while (true);
+                                    brVar4.Seek(brVar4.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
+                                    sVar1 = brVar4.ReadInt16(0);
+                                }
+
+                                goto joined_r0x8002ea44;
                             }
+
+                            if ((brVar4.ReadUInt16(2) & 0x8000U) == 0)
+                            {
+                                BoundingBox bbox1 = new BoundingBox()
+                                {
+                                    min = new Vector3Int(brVar6.ReadInt32(4), brVar6.ReadInt32(8), brVar6.ReadInt32(12)),
+                                    max = new Vector3Int(brVar6.ReadInt32(16), brVar6.ReadInt32(20), brVar6.ReadInt32(24))
+                                };
+                                BoundingBox bbox2 = new BoundingBox()
+                                {
+                                    min = new Vector3Int(brVar4.ReadInt32(4), brVar4.ReadInt32(8), brVar4.ReadInt32(12)),
+                                    max = new Vector3Int(brVar4.ReadInt32(16), brVar4.ReadInt32(20), brVar4.ReadInt32(24))
+                                };
+                                bVar3 = Utilities.FUN_281FC(bbox1, param3, bbox2, param4);
+
+                                if (bVar3)
+                                {
+                                    bVar3 = Utilities.FUN_281FC(bbox2, param4, bbox1, param3);
+
+                                    if (bVar3)
+                                    {
+                                        return new HitDetection()
+                                        {
+                                            collider1 = brVar6,
+                                            collider2 = brVar4,
+                                            object1 = param1,
+                                            object2 = param2
+                                        };
+                                    }
+                                }
+                            }
+
+                            brVar4.Seek(28, SeekOrigin.Current);
+                            sVar1 = brVar4.ReadInt16(0);
+                            goto joined_r0x8002ea44;
                         }
+                    }
+
+                    brVar6.Seek(28, SeekOrigin.Current);
+                    sVar1 = brVar6.ReadInt16(0);
+                }
+                else
+                {
+                    if (sVar1 == 2)
+                    {
+                        LAB_2EBE0:
+                        bool doBreak = false;
+
+                        do
+                        {
+                            sVar1 = brVar4.ReadInt16(0);
+
+                            while (true)
+                            {
+                                if (sVar1 == 0)
+                                {
+                                    brVar6.Seek(brVar6.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
+                                    sVar1 = brVar6.ReadInt16(0);
+                                    doBreak = true;
+                                    break;
+                                }
+
+                                sVar1 = brVar4.ReadInt16(0);
+
+                                if (sVar1 == 1) break;
+
+                                if (sVar1 == 2)
+                                {
+                                    brVar4.Seek(brVar4.ReadUInt16(2) * 12 + 4, SeekOrigin.Current);
+                                    goto LAB_2EBE0;
+                                }
+                            }
+
+                            if (doBreak) break;
+
+                            if ((brVar4.ReadUInt16(2) & 0x8000U) == 0)
+                            {
+                                iVar3 = 0;
+
+                                if (brVar6.ReadUInt16(2) == 0)
+                                {
+                                    return new HitDetection()
+                                    {
+                                        collider1 = brVar6,
+                                        collider2 = brVar4,
+                                        object1 = param1,
+                                        object2 = param2
+                                    };
+                                }
+
+                                iVar5 = 4;
+
+                                while (true)
+                                {
+                                    BoundingBox bbox = new BoundingBox()
+                                    {
+                                        min = new Vector3Int(brVar4.ReadInt32(4), brVar4.ReadInt32(8), brVar4.ReadInt32(12)),
+                                        max = new Vector3Int(brVar4.ReadInt32(16), brVar4.ReadInt32(20), brVar4.ReadInt32(24))
+                                    };
+                                    Radius radius = new Radius()
+                                    {
+                                        matrixSV = new Vector3Int(brVar6.ReadInt16(iVar5), brVar6.ReadInt16(iVar5 + 2), brVar6.ReadInt16(iVar5 + 4)),
+                                        contactOffset = brVar6.ReadInt32(iVar5 + 8)
+                                    };
+                                    iVar2 = (int)Utilities.FUN_2E2E8(bbox, param4, radius, param3);
+                                    iVar3++;
+
+                                    if (iVar2 == 0) break;
+
+                                    iVar5 += 12;
+
+                                    if (brVar6.ReadUInt16(2) <= iVar3)
+                                    {
+                                        return new HitDetection()
+                                        {
+                                            collider1 = brVar6,
+                                            collider2 = brVar4,
+                                            object1 = param1,
+                                            object2 = param2
+                                        };
+                                    }
+                                }
+                            }
+
+                            brVar4.Seek(28, SeekOrigin.Current);
+                        } while (true);
                     }
                 }
             }
@@ -2900,7 +4629,7 @@ public class GameManager : MonoBehaviour
         bool bVar1;
         int iVar2;
         Vector3Int v3Var2;
-        BinaryReader brVar2;
+        BufferedBinaryReader brVar2;
         int iVar3;
         HitDetection hit;
         uint uVar5;
@@ -2996,6 +4725,7 @@ public class GameManager : MonoBehaviour
             brVar2 = hit.collider2;
             oVar6 = hit.object2;
             uVar5 >>= 31;
+            hit.self = param1;
             hit.collider2 = hit.collider1;
             hit.collider1 = brVar2;
             hit.object2 = hit.object1;
@@ -3021,7 +4751,7 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
-    private VigObject FUN_30250(List<VigTuple> param1, int param2)
+    public VigObject FUN_30250(List<VigTuple> param1, int param2)
     {
         VigTuple tVar1;
         VigObject oVar2;
@@ -3057,9 +4787,14 @@ public class GameManager : MonoBehaviour
 
         do
         {
+            if (ppiVar9 >= local_98.Length || ppiVar9 < 0)
+            {
+                Debug.Log("!");
+                return false;
+            }
             piVar7 = local_98[ppiVar9];
             iVar6 = piVar7.DAT_00;
-            iVar10 = iVar4 + 1;
+            iVar10 = iVar4 - 1;
 
             if (iVar6 == 1)
             {
@@ -3183,6 +4918,62 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void FUN_34840()
+    {
+        uint uVar1;
+        int iVar2;
+        VigObject oVar2;
+        int iVar3;
+        VigObject oVar4;
+        uint uVar5;
+
+        if (DAT_10F0 < levelManager.DAT_C18[2])
+        {
+            do
+            {
+                uVar5 = 0x380000;
+
+                if (gameMode != _GAME_MODE.Versus || DAT_101C < levelManager.DAT_C18[3])
+                {
+                    uVar1 = FUN_2AC5C();
+                    uVar5 = 0x780000;
+
+                    if ((uVar1 & 3) == 0)
+                        uVar5 = 0x380000;
+                }
+
+                iVar2 = (int)FUN_2AC5C();
+                iVar3 = FUN_30428(DAT_1078, uVar5);
+                oVar4 = FUN_30498(DAT_1078, uVar5, iVar2 * iVar3 >> 15);
+                oVar2 = FUN_4AC6C(uVar5, oVar4);
+            } while (oVar2 != null && ++DAT_10F0 < levelManager.DAT_C18[2]);
+        }
+    }
+
+    private void FUN_34914()
+    {
+        int iVar1;
+        VigObject oVar1;
+        int iVar2;
+        VigObject oVar3;
+
+        if (DAT_1028 < levelManager.DAT_C18[4])
+        {
+            do
+            {
+                iVar1 = (int)FUN_2AC5C();
+                iVar2 = FUN_30428(DAT_1078, 0x1840000);
+                oVar3 = FUN_30498(DAT_1078, 0x1840000, iVar1 * iVar2 >> 15);
+                oVar1 = FUN_4AC6C(0x1840000, oVar3);
+
+                if (oVar1 == null)
+                    return;
+
+                DAT_1028++;
+            } while (DAT_1028 < levelManager.DAT_C18[4]);
+        }
+    }
+
     private _VEHICLE_INIT FUN_36B64(ushort param1)
     {
         _VEHICLE_INIT puVar1;
@@ -3214,8 +5005,8 @@ public class GameManager : MonoBehaviour
         {
             iVar3 = (39 - param3) * 4;
 
-            if (levelManager.charsList[39 - param3] != null)
-                if (levelManager.charsList[39 - param3].ini != null)
+            if (levelManager.xobfList[39 - param3] != null)
+                if (levelManager.xobfList[39 - param3].ini != null)
                     goto LAB_36CC8;
 
             //FUN_36558 (salvage points)
@@ -3224,7 +5015,7 @@ public class GameManager : MonoBehaviour
 
         iVar3 = param2;
         LAB_36CC8:
-        dbVar1 = levelManager.charsList[iVar3];
+        dbVar1 = levelManager.xobfList[iVar3];
         param1.DAT_1A = 0;
         param1.vData = dbVar1;
         vVar2 = (Vehicle)param1.FUN_31DDC(dVar1);
@@ -3294,37 +5085,6 @@ public class GameManager : MonoBehaviour
         uVar3 = uVar3 ^ uVar1;
         DAT_63A64 = uVar3;
         return uVar3 & 0x7FFF;
-    }
-
-    public static void FUN_30080(List<VigTuple> param1, VigObject param2)
-    {
-        param1.Add(new VigTuple(param2, 0));
-    }
-
-    public static VigTuple FUN_30134(List<VigTuple> param1, VigObject param2)
-    {
-        VigTuple ppiVar1;
-        int ppiVar2;
-
-        if (param1 == null)
-            param1 = new List<VigTuple>();
-
-        ppiVar2 = 0;
-
-        while (true)
-        {
-            if (ppiVar2 == param1.Count)
-                return null;
-
-            ppiVar1 = param1[ppiVar2];
-
-            if (ppiVar1.vObject == param2)
-                break;
-
-            ppiVar2++;
-        }
-
-        return ppiVar1;
     }
 
     public static Vehicle LoadWonderwagon(XOBF_DB param1, int param2)
