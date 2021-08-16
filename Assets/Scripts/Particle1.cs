@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Smoke1 : VigObject
+public class Particle1 : VigObject
 {
     protected override void Start()
     {

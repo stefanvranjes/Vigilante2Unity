@@ -527,6 +527,12 @@ public class VigTerrain : MonoBehaviour
         skyboxMesh.SetTriangles(newTriangles, 0);*/
     }
 
+    public TileData FUN_1CE1C(uint param1, uint param2)
+    {
+        return tileData[tiles[chunks[(param1 >> 6) * 0x20 + (param2 >> 6)] * 4096 +
+                        (int)(param2 & 63) + (int)(param1 & 63) * 64]];
+    }
+
     public void FUN_1BE68(int param1, int param2, int param3)
     {
         if (param1 < param2)
@@ -1903,6 +1909,184 @@ public class VigTerrain : MonoBehaviour
             newTriangles[0][index3 + 2] = index;
             index += 3;
             index3 += 3;
+        }
+    }
+
+    public void FUN_45B00(int param1, int param2, int param3, int param4)
+    {
+        ushort uVar1;
+        int iVar2;
+        Crater ppcVar3;
+        int iVar4;
+        int iVar5;
+        TileData tVar5;
+        int iVar6;
+        int puVar7;
+        uint uVar8;
+        uint uVar9;
+        uint uVar10;
+        ushort[] ppcVar11;
+        uint uVar12;
+        int iVar13;
+
+        iVar2 = param1 - param3 + 0xffff;
+
+        if (iVar2 < 0)
+            iVar2 = param1 - param3 + 0x1fffe;
+
+        iVar6 = param1 + param3;
+        uVar9 = (uint)(iVar2 >> 16);
+
+        if (iVar6 < 0)
+            iVar6 += 0xffff;
+
+        iVar2 = param2 - param3 + 0xffff;
+
+        if (iVar2 < 0)
+            iVar2 = param2 - param3 + 0x1fffe;
+
+        uVar8 = (uint)(iVar2 >> 16);
+        iVar2 = param2 + param3;
+
+        if (iVar2 < 0)
+            iVar2 += 0xffff;
+
+        uVar12 = (uint)(iVar2 >> 16);
+        GameObject obj = new GameObject();
+        ppcVar3 = obj.AddComponent<Crater>();
+        ppcVar3.indices = new ushort[(((iVar6 >> 16) - (int)uVar9) + 1) * ((int)(uVar12 - uVar8) + 1)];
+        ppcVar3.screen.x = param1;
+        ppcVar3.screen.z = param2;
+        iVar13 = (param3 >> 8) * (param3 >> 8);
+        ppcVar11 = ppcVar3.indices;
+        ppcVar3.DAT_58 = param3;
+
+        if (param4 < 0)
+            param4 += 2047;
+
+        while(uVar9 < (uint)(iVar6 >> 16))
+        {
+            if (uVar8 <= uVar12)
+            {
+                iVar4 = (int)uVar9 * 0x10000 - param1 >> 8;
+                uVar10 = uVar8;
+
+                do
+                {
+                    tVar5 = FUN_1CE1C(uVar9, uVar10);
+
+                    if (tVar5.DAT_10[3] == 0)
+                    {
+                        iVar5 = (int)uVar10 * 0x10000 - param2 >> 8;
+                        iVar5 = iVar4 * iVar4 + iVar5 * iVar5;
+
+                        if (iVar5 <= iVar13)
+                        {
+                            puVar7 = (chunks[(uVar9 >> 6) * 0x20 + (uVar10 >> 6)] * 4096 +
+                                    (int)(uVar9 & 63) * 128 + (int)(uVar10 & 63) * 2) / 2;
+                            uVar1 = (ushort)(((iVar13 - iVar5) * (param4 >> 11)) / iVar13);
+                            vertices[puVar7] += uVar1;
+                            vertices[puVar7] &= 0x7ff;
+                            ppcVar11[uVar10] = uVar1;
+                        }
+                        else
+                            ppcVar11[uVar10] = 0;
+                    }
+                    else
+                        ppcVar11[uVar10] = 0;
+
+                    uVar10++;
+                } while (uVar10 <= uVar12);
+            }
+
+            uVar9++;
+        }
+
+        FUN_50E40(param1, param2, param3);
+        GameManager.instance.FUN_30CB0(ppcVar3, 60);
+    }
+
+    public void FUN_50E40(int param1, int param2, int param3)
+    {
+        Junction ppiVar2;
+        List<Junction> ppiVar3;
+        int iVar4;
+        int iVar5;
+
+        ppiVar3 = LevelManager.instance.roadList;
+
+        for (int i = 0; i < ppiVar3.Count; i++)
+        {
+            ppiVar2 = ppiVar3[i];
+            iVar4 = ppiVar2.pos.z - param2;
+
+            if (iVar4 < 0)
+                iVar4 = -iVar4;
+
+            iVar5 = ppiVar2.pos.x - param1;
+
+            if (iVar5 < 0)
+                iVar5 = -iVar5;
+
+            if (iVar4 < iVar5)
+                iVar4 = iVar5;
+
+            if (iVar4 < ppiVar2.DAT_18 + param3)
+                FUN_50C5C(ppiVar2);
+        }
+    }
+
+    public void FUN_50C5C(Junction param1)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        int iVar6;
+        int iVar7;
+
+        iVar7 = 0;
+
+        if (-1 < param1.DAT_1C)
+        {
+            iVar6 = 8;
+
+            do
+            {
+                iVar2 = param1.pos.x + param1.DAT_20[iVar7].x * 0x100;
+                iVar3 = param1.pos.z + param1.DAT_20[iVar7].z * 0x100;
+                iVar1 = FUN_1B750((uint)iVar2, (uint)iVar3);
+                param1.DAT_20[iVar7] = new Vector3Int(
+                    param1.DAT_20[iVar7].x,
+                    iVar1 - param1.pos.y >> 8,
+                    param1.DAT_20[iVar7].z);
+
+                if (iVar2 < 0)
+                    iVar2 += 0xffff;
+
+                if (iVar3 < 0)
+                    iVar3 += 0xffff;
+
+                param1.DAT_26[iVar7] =
+                    (short)(vertices[(chunks[((uint)(iVar2 >> 16) >> 6) * 0x20 + ((uint)(iVar3 >> 16) >> 6)] * 4096 +
+                    (iVar3 >> 16 & 63) * 2 + (iVar2 >> 16 & 63) * 128) / 2] >> 11 << 2);
+                iVar3 = param1.pos.x + param1.DAT_28[iVar7].x * 0x100;
+                iVar2 = param1.pos.z + param1.DAT_28[iVar7].z * 0x100;
+                iVar1 = FUN_1B750((uint)iVar3, (uint)iVar2);
+                param1.DAT_28[iVar7] = new Vector3Int(
+                    param1.DAT_28[iVar7].x,
+                    iVar1 - param1.pos.y >> 8,
+                    param1.DAT_28[iVar7].z);
+
+                if (iVar3 < 0)
+                    iVar3 += 0xffff;
+
+                if (iVar2 < 0)
+                    iVar2 += 0xffff;
+
+                param1.DAT_2E[iVar7] =
+                    (short)(vertices[(chunks[((uint)(iVar3 >> 16) >> 6) * 0x20 + ((uint)(iVar2 >> 16) >> 6)] * 4096 +
+                    (iVar2 >> 16 & 63) * 2 + (iVar3 >> 16 & 63) * 128) / 2] >> 11 << 2);
+            } while (iVar7 <= param1.DAT_1C);
         }
     }
 }

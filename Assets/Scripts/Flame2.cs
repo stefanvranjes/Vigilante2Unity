@@ -53,4 +53,13 @@ public class Flame2 : VigObject
         FUN_4EE8C(GameManager.instance.interObjs);
         return 0xffffffff;
     }
+
+    public override uint UpdateW(int arg1, VigObject arg2)
+    {
+        if (arg1 != 5)
+            return 0;
+
+        FUN_4EE8C(GameManager.instance.interObjs);
+        return 0xffffffff;
+    }
 }

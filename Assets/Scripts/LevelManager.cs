@@ -453,13 +453,33 @@ public class LevelManager : MonoBehaviour
         return oVar3;
     }
 
-    public Smoke1 FUN_4DE54(Vector3Int param1, ushort param2)
+    public Pickup FUN_4AD24(short param1)
     {
-        Smoke1 ppcVar1;
+        Pickup ppcVar1;
+
+        ppcVar1 = Utilities.FUN_31D30(typeof(Pickup), DAT_1178, param1, 0) as Pickup;
+        ppcVar1.FUN_2C7D0();
+        return ppcVar1;
+    }
+
+    public void FUN_4DF20(Vector3Int param1, ushort param2, short param3)
+    {
+        Particle1 oVar1;
+        Vector3Int local_8;
+
+        oVar1 = FUN_4DE54(param1, param2);
+        local_8 = new Vector3Int(param3, param3, param3);
+        oVar1.vTransform.rotation = Utilities.FUN_245AC(oVar1.vTransform.rotation, local_8);
+        oVar1.vTransform.padding = param3;
+    }
+
+    public Particle1 FUN_4DE54(Vector3Int param1, ushort param2)
+    {
+        Particle1 ppcVar1;
         VigObject pcVar2;
         VigTuple pcVar3;
 
-        ppcVar1 = xobfList[19].ini.FUN_2C17C(param2, typeof(Smoke1), 8) as Smoke1;
+        ppcVar1 = xobfList[19].ini.FUN_2C17C(param2, typeof(Particle1), 8) as Particle1;
         ppcVar1.type = 7;
         ppcVar1.flags = 0x34;
         ppcVar1.screen = param1;
@@ -477,6 +497,29 @@ public class LevelManager : MonoBehaviour
         ppcVar1.TDAT_74 = pcVar3;
         pcVar3 = GameManager.instance.FUN_30080(GameManager.instance.DAT_10A8, ppcVar1);
         ppcVar1.TDAT_78 = pcVar3;
+        return ppcVar1;
+    }
+
+    public Particle2 FUN_4E128(Vector3Int param1, ushort param2, int param3)
+    {
+        Particle2 ppcVar1;
+        uint pcVar2;
+        BufferedBinaryReader brVar3;
+
+        ppcVar1 = xobfList[19].ini.FUN_2C17C(param2, typeof(Particle2), 8) as Particle2;
+        ppcVar1.type = 8;
+
+        if (param3 == 0)
+            pcVar2 = ppcVar1.flags | 0x324;
+        else
+            pcVar2 = ppcVar1.flags | 0x304;
+
+        ppcVar1.flags = pcVar2;
+        ppcVar1.screen = param1;
+        ppcVar1.maxHalfHealth = (ushort)(param3 / 12);
+        ppcVar1.FUN_3066C();
+        brVar3 = ppcVar1.vCollider.reader;
+        ppcVar1.DAT_58 = brVar3.ReadInt32(16);
         return ppcVar1;
     }
 

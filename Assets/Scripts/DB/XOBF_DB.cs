@@ -167,8 +167,8 @@ public class XOBF_DB : MonoBehaviour
 
                 pcVar16.physics1.Z = pcVar16.physics2.X;
 
-                if (pcVar16.DAT_64 != 0)
-                    ; //animations
+                if (pcVar16.vAnim != null)
+                    pcVar16.FUN_2FBC8(GameManager.instance.timer);
 
                 if ((uVar11 & 16 << (i & 31)) == 0)
                     uVar10 = (uint)i << 28 | 32;
@@ -241,16 +241,24 @@ public class XOBF_DB : MonoBehaviour
                     {
                         headerString = new string(reader.ReadChars(4));
                         int size = reader.ReadInt32BE();
+                        size += size % 2;
 
                         if (headerString == identifier)
                         {
                             if (identifier == "BIN ")
                                 LoadBIN(reader);
-
+                            else if (identifier == "ANM ")
+                            {
+                                animations = reader.ReadBytes(size);
+#if UNITY_EDITOR
+                                EditorUtility.SetDirty(gameObject);
+                                PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
+#endif
+                            }
                             break;
                         }
                         else
-                            reader.BaseStream.Seek(size + ((-(size % 4) + 4) % 4), SeekOrigin.Current);
+                            reader.BaseStream.Seek(size, SeekOrigin.Current);
                     } while (reader.BaseStream.Position != reader.BaseStream.Length);
                 }
             }
@@ -549,6 +557,16 @@ public class XOBF_DB : MonoBehaviour
         }
     }
 
+    public Material FUN_1F288(uint param1)
+    {
+        Material pcVar2;
+
+        pcVar2 = timList[(int)param1 & 0xffff];
+        //...
+
+        return pcVar2;
+    }
+
     public VigMesh FUN_1FD18(GameObject param1, uint param2, bool init)
     {
         byte bVar1;
@@ -585,10 +603,11 @@ public class XOBF_DB : MonoBehaviour
 
         pbVar6 = pbVar3;
         iVar5 = 0;
+        pbVar3.DAT_1C = new int[16]; //not in the original code
 
         if (puVar7.DAT_19 != 0)
         {
-            pbVar3.DAT_1C = new int[puVar7.DAT_19];
+            //pbVar3.DAT_1C = new int[puVar7.DAT_19];
 
             for (int i = 0; i < puVar7.DAT_19; i++)
             {

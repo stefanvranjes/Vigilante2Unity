@@ -67,4 +67,13 @@ public class Flame1 : VigObject
         GameManager.instance.FUN_309A0(this);
         return 0xffffffff;
     }
+
+    public override uint UpdateW(int arg1, VigObject arg2)
+    {
+        if (arg1 != 5)
+            return 0;
+
+        GameManager.instance.FUN_309A0(this);
+        return 0xffffffff;
+    }
 }

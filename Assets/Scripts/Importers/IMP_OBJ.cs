@@ -145,8 +145,8 @@ public class IMP_OBJ
             iVar11 = (int)GameManager.FUN_2AC5C();
             MemoryStream stream = new MemoryStream(levelManager.xobfList[iVar9].animations);
 
-            using (BinaryReader reader2 = new BinaryReader(stream, Encoding.Default, true))
-                GameManager.instance.timer = (ushort)-(iVar11 * reader2.ReadInt32() >> 15);
+            BinaryReader reader2 = new BinaryReader(stream, Encoding.Default, true);
+            GameManager.instance.timer = (ushort)-(iVar11 * reader2.ReadInt32() >> 15);
         }
 
         if (6 < uVar7)
@@ -183,7 +183,7 @@ public class IMP_OBJ
                 if (!pcVar10.IsSubclassOf(typeof(VigObject)))
                     iVar9 = 0;
                 else
-                    iVar9 = (int)ppcVar12.Execute(1, 0);
+                    iVar9 = (int)ppcVar12.UpdateW(1, 0);
 
                 if (-1 < iVar9)
                 {
@@ -261,7 +261,7 @@ public class IMP_OBJ
                 if (!pcVar10.IsSubclassOf(typeof(VigObject)))
                     iVar9 = 0;
                 else
-                    iVar9 = (int)ppcVar12.Execute(1, 1);
+                    iVar9 = (int)ppcVar12.UpdateW(1, 1);
 
                 if (-1 < iVar9)
                 {

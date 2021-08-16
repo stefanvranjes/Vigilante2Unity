@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,25 +28,22 @@ public class VigMesh : MonoBehaviour
     private static Vector3[] newVertices = new Vector3[1023];
     private static Vector2[] newUVs = new Vector2[1023];
     private static Color32[] newColors = new Color32[1023];
-    private static int[][] newTriangles = new int[16][]
+    private static int[][] newTriangles = new int[18][]
     {
         new int[1023], new int[1023], new int[1023], new int[1023],
         new int[1023], new int[1023], new int[1023], new int[1023],
         new int[1023], new int[1023], new int[1023], new int[1023],
-        new int[1023], new int[1023], new int[1023], new int[1023]
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023]
     };
     private int index;
-    private int[] index2 = new int[16];
+    private int[] index2 = new int[18];
     private float scale;
-    private MemoryStream msVar3;
     private BufferedBinaryReader brVar3;
-    private MemoryStream msVar4;
     private BufferedBinaryReader brVar4;
-    private MemoryStream msVar6;
     private BufferedBinaryReader brVar6;
-    private MemoryStream msVar13;
     private BufferedBinaryReader brVar13;
-    private int subMeshCount;
+    private MeshRenderer renderer;
 
     private static uint[] DAT_22FEC = new uint[]
     {
@@ -78,34 +76,44 @@ public class VigMesh : MonoBehaviour
 
     public Mesh GetMesh() { return mesh; }
 
+    public void SetMaterialID(int id, Material mat)
+    {
+        if (!materialIDs.ContainsKey(id))
+        {
+            List<Material> materials = renderer.sharedMaterials.ToList();
+            materials.Add(mat);
+            mainT.Add(materials.Count - 1, mat.mainTexture);
+            materialIDs.Add(id, materials.Count - 1);
+            renderer.sharedMaterials = materials.ToArray();
+        }
+    }
+
+    public void SetVertices(byte[] newBuffer, int start)
+    {
+        brVar3.ChangeBuffer(newBuffer);
+        brVar3.Seek(start, SeekOrigin.Begin);
+    }
+
     public void Initialize()
     {
-        msVar13 = new MemoryStream(faceStream);
-        msVar3 = new MemoryStream(vertexStream);
-        msVar4 = new MemoryStream(normalStream);
+        byte[] array;
 
         if (DAT_14 != null)
-            msVar6 = new MemoryStream(DAT_14);
+            array = DAT_14;
         else
-            msVar6 = new MemoryStream(new byte[0]);
+            array = new byte[0];
 
-        brVar13 = new BufferedBinaryReader(msVar13, (int)msVar13.Length);
-        brVar13.FillBuffer();
+        brVar13 = new BufferedBinaryReader(faceStream);
 
-        brVar3 = new BufferedBinaryReader(msVar3, (int)msVar3.Length);
-        brVar3.FillBuffer();
+        brVar3 = new BufferedBinaryReader(vertexStream);
 
-        brVar4 = new BufferedBinaryReader(msVar4, (int)msVar4.Length);
-        brVar4.FillBuffer();
+        brVar4 = new BufferedBinaryReader(normalStream);
 
-        brVar6 = new BufferedBinaryReader(msVar6, (int)msVar6.Length);
-        brVar6.FillBuffer();
+        brVar6 = new BufferedBinaryReader(array);
 
-        Material[] materials = GetComponent<MeshRenderer>().materials;
-
+        renderer = GetComponent<MeshRenderer>();
+        Material[] materials = renderer.materials;
         mesh = GetComponent<MeshFilter>().mesh;
-        subMeshCount = materials.Length;
-        mesh.subMeshCount = subMeshCount;
     }
 
     // Update is called once per frame
@@ -131,6 +139,8 @@ public class VigMesh : MonoBehaviour
         index = 0;
         for (int i = 0; i < index2.Length; i++)
             index2[i] = 0;
+
+        mesh.Clear();
     }
 
     public void CreateMeshData()
@@ -138,7 +148,7 @@ public class VigMesh : MonoBehaviour
         for (int j = 0; j < index; j++)
             newVertices[j] = new Vector3(newVertices[j].x, -newVertices[j].y, newVertices[j].z) * scale;
         
-        mesh.subMeshCount = subMeshCount;
+        mesh.subMeshCount = 18;
 
         mesh.SetVertices(newVertices, 0, index);
         mesh.SetColors(newColors, 0, index);
@@ -223,7 +233,7 @@ public class VigMesh : MonoBehaviour
         uint uVar17;
         float fVar18;
         float fVar19;
-
+        
         int tFactor = GameManager.instance.translateFactor2;
         ClearMeshData();
         
@@ -310,10 +320,10 @@ public class VigMesh : MonoBehaviour
         {
             uVar9 = 0;
         }*/
-        if (GetComponent<VigObject>().DAT_1A == 23)
+        /*if (GetComponent<VigObject>().DAT_1A == 23)
         {
             uVar9 = 0;
-        }
+        }*/
 
         for (int i = faces; i > 0;)
         {

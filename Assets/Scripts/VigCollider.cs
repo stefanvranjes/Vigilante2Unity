@@ -25,6 +25,19 @@ public class HitDetection
     public Vector3Int normal1; //0x20
     public Vector3Int normal2; //0x28
     public int distance; //0x30
+
+    public HitDetection(byte[] b)
+    {
+        self = null;
+        collider1 = new BufferedBinaryReader(b);
+        collider2 = new BufferedBinaryReader(b);
+        object1 = null;
+        object2 = null;
+        position = new Vector3Int();
+        normal1 = new Vector3Int();
+        normal2 = new Vector3Int();
+        distance = 0;
+    }
 }
 
 [System.Serializable]

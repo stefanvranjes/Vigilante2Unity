@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Profiling;
 
 public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2); //needs parameters
 
@@ -963,9 +964,23 @@ public class GameManager : MonoBehaviour
     //0x80063A80
     public static VehicleData[] vehicleConfigs =
     {
-        new VehicleData
+        new VehicleData //tmp
         {
-
+            DAT_00 = new short[6] { 16, 12, 48, 152, 64, 128 },
+            DAT_0C=12,
+            vehicleID=_VEHICLE.Wonderwagon,
+            DAT_0E=16,
+            DAT_0F=-6,
+            DAT_10=22,
+            DAT_11=38,
+            DAT_12=67,
+            DAT_13=112,
+            DAT_15=28,
+            maxHalfHealth=683,
+            lightness=5103,
+            DAT_24=new Vector3Int(64, 64, 64),
+            DAT_2A=0x1800,
+            DAT_2C=new byte[4] { 174, 88, 43, 155 }
         },
         new VehicleData
         {
@@ -1001,9 +1016,23 @@ public class GameManager : MonoBehaviour
         {
 
         },
-        new VehicleData
+        new VehicleData //tmp
         {
-
+            DAT_00 = new short[6] { 0, 0, 28, 28, 16, 28 },
+            DAT_0C=15,
+            vehicleID=_VEHICLE.Palomino,
+            DAT_0E=6,
+            DAT_0F=-2,
+            DAT_10=41,
+            DAT_11=67,
+            DAT_12=124,
+            DAT_13=58,
+            DAT_15=54,
+            maxHalfHealth=1014,
+            lightness=3537,
+            DAT_24=new Vector3Int(64, 64, 64),
+            DAT_2A=0x3000,
+            DAT_2C=new byte[4] { 181, 158, 116, 36 }
         },
         new VehicleData
         {
@@ -1057,9 +1086,23 @@ public class GameManager : MonoBehaviour
             DAT_2A=0x2666,
             DAT_2C=new byte[4]{ 161, 32, 67, 154 }
         },
-        new VehicleData
+        new VehicleData //tmp
         {
-
+            DAT_00=new short[7]{ 24, 28, 32, 32, 16, 16, 0xD03 }, //game stores 7th element for a wheel?
+            DAT_0C=3,
+            vehicleID=_VEHICLE.Loader,
+            DAT_0E=0,
+            DAT_0F=0,
+            DAT_10=22,
+            DAT_11=38,
+            DAT_12=67,
+            DAT_13=48,
+            DAT_15=53,
+            maxHalfHealth=1345,
+            lightness=2936,
+            DAT_24=new Vector3Int(64, 64, 64),
+            DAT_2A=0x4400,
+            DAT_2C=new byte[4]{ 90, 25, 188, 39 }
         },
         new VehicleData
         {
@@ -1080,6 +1123,7 @@ public class GameManager : MonoBehaviour
     };
 
     public static Color32[] DAT_1f800000 = new Color32[32];
+    public static HitDetection hit;
     public static int DAT_1f800080;
     public static Vector3Int DAT_1f800084;
     public static short DAT_1f800094;
@@ -1203,6 +1247,7 @@ public class GameManager : MonoBehaviour
     public Matrix3x3 DAT_FD8; //gp+FD8h
     public short DAT_E1C; //gp+E1Ch
     public VigTransform DAT_EA8; //gp+EA8h
+    public Vector3Int DAT_EC8; //gp+EC8h
     public int DAT_ED8; //gp+ED8h
     public int DAT_EDC; //gp+EDCh
     public VigTransform DAT_EE0; //gp+EE0h
@@ -1397,6 +1442,48 @@ public class GameManager : MonoBehaviour
         DAT_FA8.SetValue16(iVar1 + 6, param3.b << 4);
     }
 
+    public int FUN_2FE58(VigObject param1, ushort param2)
+    {
+        int iVar1;
+        VigObject oVar2;
+
+        do
+        {
+            oVar2 = param1.child;
+
+            if ((param1.flags & 4) == 0)
+            {
+                iVar1 = param1.FUN_2FBC8(param2);
+
+                if (-1 < iVar1)
+                {
+                    if (param1.child2 == null) goto LAB_2FEC8;
+
+                    iVar1 = FUN_2FE58(param1.child2, param2);
+                }
+
+                if (iVar1 < -1)
+                    return iVar1;
+            }
+
+            LAB_2FEC8:
+            param1 = oVar2;
+
+            if (oVar2 == null)
+                return 0;
+        } while (true);
+    }
+
+    public void FUN_2FEE8(VigObject param1, ushort param2)
+    {
+        int iVar1;
+
+        iVar1 = param1.FUN_2FBC8(param2);
+
+        if (-1 < iVar1 && param1.child2 != null)
+            FUN_2FE58(param1.child2, param2);
+    }
+
     public VigTuple FUN_30080(List<VigTuple> param1, VigObject param2)
     {
         VigTuple newTuple = new VigTuple(param2, 0);
@@ -1543,7 +1630,7 @@ public class GameManager : MonoBehaviour
                 FUN_1FEB8(param1.vMesh);
                 FUN_307CC(param1.child2);
                 oVar5 = param1.child;
-                Destroy(param1);
+                Destroy(param1.gameObject);
 
                 if (DAT_1068.Count > 0)
                 {
@@ -1555,7 +1642,7 @@ public class GameManager : MonoBehaviour
                         ppcVar1 = piVar4.vObject;
 
                         if (ppcVar1.GetType().IsSubclassOf(typeof(VigObject)))
-                            ppcVar1.Execute(10, param1);
+                            ppcVar1.UpdateW(10, param1);
                     }
                 }
 
@@ -1564,12 +1651,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void FUN_308C4(VigObject param1)
+    {
+        if (param1.vShadow != null)
+            FUN_4C4BC(param1.vShadow);
+
+        FUN_307CC(param1);
+    }
+
     public void FUN_3094C(Tuple<List<VigTuple>, VigTuple> param1)
     {
         if (param1.Item2 != null)
         {
             param1.Item1.Remove(param1.Item2);
-            Destroy(param1.Item2.vObject.gameObject);
+            FUN_308C4(param1.Item2.vObject);
         }
     }
 
@@ -1755,6 +1850,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void FUN_31360(ushort param1)
+    {
+        VigTuple ppiVar2;
+        List<VigTuple> ppiVar3;
+
+        ppiVar3 = DAT_10A8;
+
+        for (int i = 0; i < ppiVar3.Count; i++)
+        {
+            ppiVar2 = ppiVar3[i];
+
+            if (ppiVar2.vObject != null)
+                FUN_2FEE8(ppiVar2.vObject, param1);
+        }
+    }
+
     public void FUN_313C8(int param1)
     {
         for (int i = 0; i < DAT_1088.Count; i++)
@@ -1790,13 +1901,22 @@ public class GameManager : MonoBehaviour
 
     public void FUN_31678()
     {
+        Profiler.BeginSample("Terrain");
+
         if (drawTerrain)
             FUN_1C134();
 
+        Profiler.EndSample();
+
         FUN_2DE18();
+
+        Profiler.BeginSample("Roads");
 
         if (drawRoads)
             FUN_50B38();
+
+        Profiler.EndSample();
+        Profiler.BeginSample("Player");
 
         if (drawPlayer)
         {
@@ -1804,8 +1924,13 @@ public class GameManager : MonoBehaviour
             FUN_30B24(interObjs);
         }
 
+        Profiler.EndSample();
+        Profiler.BeginSample("Objects");
+
         if (drawObjects)
             FUN_3150C();
+
+        Profiler.EndSample();
     }
 
     public void FUN_31728()
@@ -3080,6 +3205,15 @@ public class GameManager : MonoBehaviour
         return ppcVar1;
     }
 
+    public void FUN_4C4BC(VigShadow param1)
+    {
+        if (param1 != null)
+        {
+            FUN_1FEB8(param1.vMesh);
+            Destroy(param1);
+        }
+    }
+
     public void FUN_50B38()
     {
         bool bVar1;
@@ -3141,7 +3275,7 @@ public class GameManager : MonoBehaviour
         gameMode = _GAME_MODE.Arcade;
         gravityFactor = 11520;
         vehicles = new byte[6];
-        vehicles[2] = 8;
+        vehicles[2] = 0;
         playerObjects = new Vehicle[2];
         cameraObjects = new VigCamera[2];
         DAT_1030 = new sbyte[4];
@@ -3155,6 +3289,7 @@ public class GameManager : MonoBehaviour
         DAT_1110 = new List<VigTuple>();
         worldObjs = new List<VigTuple>();
         interObjs = new List<VigTuple>();
+        hit = new HitDetection(new byte[0]);
 
         DAT_D18 = new byte[2];
         DAT_D19 = new byte[2];
@@ -3202,6 +3337,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < local_78; i++)
         {
             DAT_28++;
+            timer = (ushort)DAT_28;
             uVar20 = 0;
 
             if (i == local_78 - 1)
@@ -3211,9 +3347,17 @@ public class GameManager : MonoBehaviour
             FUN_31440((uint)DAT_28);
             terrain.UpdatePosition();
 
+            Profiler.BeginSample("Collisions");
+
             if (drawObjects)
                  FUN_31728();
+
+            Profiler.EndSample();
         }
+
+        Profiler.BeginSample("Animation");
+        FUN_31360((ushort)(DAT_28 & 0xffff));
+        Profiler.EndSample();
 
         DAT_24 = 1 - DAT_24;
 
@@ -4244,6 +4388,25 @@ public class GameManager : MonoBehaviour
         return m1;
     }
 
+    public Vector3Int FUN_2CE50(VigObject obj)
+    {
+        Vector3Int puVar1;
+
+        puVar1 = obj.vTransform.position;
+
+        while (true)
+        {
+            obj = Utilities.FUN_2CD78(obj);
+
+            if (obj == null) break;
+
+            DAT_EC8 = Utilities.FUN_24148(obj.vTransform, puVar1);
+            puVar1 = DAT_EC8;
+        }
+
+        return puVar1;
+    }
+
     public VigTransform FUN_2CEAC(VigObject param1, ConfigContainer param2)
     {
         VigTransform t0;
@@ -4252,6 +4415,14 @@ public class GameManager : MonoBehaviour
         t0 = FUN_2CDF4(param1);
         t1 = Utilities.FUN_2C77C(param2);
         return Utilities.CompMatrixLV(t0, t1);
+    }
+
+    public void FUN_2CF00(out Vector3Int param1, VigObject param2, ConfigContainer param3)
+    {
+        VigTransform tVar1;
+
+        tVar1 = FUN_2CDF4(param2);
+        param1 = Utilities.FUN_24148(tVar1, param3.v3_1);
     }
 
     private void FUN_2E0E8(VigTransform param1, int param2)
@@ -4313,6 +4484,10 @@ public class GameManager : MonoBehaviour
         int iVar5;
         BufferedBinaryReader brVar6;
 
+        /*if (param1.gameObject.name == "Dummy" || 
+            param2.gameObject.name == "Dummy")
+            Debug.Log("!");*/
+
         if (param1.vCollider != null)
         {
             if (param2.vCollider == null)
@@ -4324,8 +4499,6 @@ public class GameManager : MonoBehaviour
             brVar4.FillBuffer();*/
             brVar6 = param1.vCollider.reader;
             brVar4 = param2.vCollider.reader;
-            brVar6.Seek(0, SeekOrigin.Begin);
-            brVar4.Seek(0, SeekOrigin.Begin);
             sVar1 = brVar6.ReadInt16(0);
 
             while (sVar1 != 0)
@@ -4352,13 +4525,11 @@ public class GameManager : MonoBehaviour
 
                                     if (brVar4.ReadUInt16(2) == 0)
                                     {
-                                        return new HitDetection()
-                                        {
-                                            collider1 = brVar6,
-                                            collider2 = brVar4,
-                                            object1 = param1,
-                                            object2 = param2
-                                        };
+                                        hit.collider1.ChangeBuffer(brVar6);
+                                        hit.collider2.ChangeBuffer(brVar4);
+                                        hit.object1 = param1;
+                                        hit.object2 = param2;
+                                        return hit;
                                     }
 
                                     iVar5 = 4;
@@ -4384,13 +4555,11 @@ public class GameManager : MonoBehaviour
 
                                         if (brVar4.ReadUInt16(2) <= iVar3)
                                         {
-                                            return new HitDetection()
-                                            {
-                                                collider1 = brVar6,
-                                                collider2 = brVar4,
-                                                object1 = param1,
-                                                object2 = param2
-                                            };
+                                            hit.collider1.ChangeBuffer(brVar6);
+                                            hit.collider2.ChangeBuffer(brVar4);
+                                            hit.object1 = param1;
+                                            hit.object2 = param2;
+                                            return hit;
                                         }
                                     }
 
@@ -4421,13 +4590,11 @@ public class GameManager : MonoBehaviour
 
                                     if (bVar3)
                                     {
-                                        return new HitDetection()
-                                        {
-                                            collider1 = brVar6,
-                                            collider2 = brVar4,
-                                            object1 = param1,
-                                            object2 = param2
-                                        };
+                                        hit.collider1.ChangeBuffer(brVar6);
+                                        hit.collider2.ChangeBuffer(brVar4);
+                                        hit.object1 = param1;
+                                        hit.object2 = param2;
+                                        return hit;
                                     }
                                 }
                             }
@@ -4481,13 +4648,11 @@ public class GameManager : MonoBehaviour
 
                                 if (brVar6.ReadUInt16(2) == 0)
                                 {
-                                    return new HitDetection()
-                                    {
-                                        collider1 = brVar6,
-                                        collider2 = brVar4,
-                                        object1 = param1,
-                                        object2 = param2
-                                    };
+                                    hit.collider1.ChangeBuffer(brVar6);
+                                    hit.collider2.ChangeBuffer(brVar4);
+                                    hit.object1 = param1;
+                                    hit.object2 = param2;
+                                    return hit;
                                 }
 
                                 iVar5 = 4;
@@ -4513,13 +4678,11 @@ public class GameManager : MonoBehaviour
 
                                     if (brVar6.ReadUInt16(2) <= iVar3)
                                     {
-                                        return new HitDetection()
-                                        {
-                                            collider1 = brVar6,
-                                            collider2 = brVar4,
-                                            object1 = param1,
-                                            object2 = param2
-                                        };
+                                        hit.collider1.ChangeBuffer(brVar6);
+                                        hit.collider2.ChangeBuffer(brVar4);
+                                        hit.object1 = param1;
+                                        hit.object2 = param2;
+                                        return hit;
                                     }
                                 }
                             }
@@ -4529,6 +4692,9 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
+
+            brVar6.Seek(0, SeekOrigin.Begin);
+            brVar4.Seek(0, SeekOrigin.Begin);
         }
 
         return null;
@@ -4703,13 +4869,9 @@ public class GameManager : MonoBehaviour
         }
 
         LAB_2F05C:
-        hit = FUN_2ECF8(param1, param2, param1.vTransform);
-
-        if ((param1.flags & 0x800) == 0 || hit == null)
+        if ((param1.flags & 0x800) == 0 || (hit = FUN_2ECF8(param1, param2, param1.vTransform)) == null)
         {
-            hit = FUN_2EDEC(param1, param2, param2.vTransform);
-
-            if ((param2.flags & 0x800) == 0 || hit == null)
+            if ((param2.flags & 0x800) == 0 || (hit = FUN_2EDEC(param1, param2, param2.vTransform)) == null)
             {
                 hit = FUN_2E998(param1, param2, param1.vTransform, param2.vTransform);
 
@@ -4718,7 +4880,7 @@ public class GameManager : MonoBehaviour
         }
 
         hit.self = param2;
-        uVar5 = param1.FUN_2DD78(hit);
+        uVar5 = param1.OnCollision(hit);
 
         if (uVar5 + 1 < 2)
         {
@@ -4730,7 +4892,7 @@ public class GameManager : MonoBehaviour
             hit.collider1 = brVar2;
             hit.object2 = hit.object1;
             hit.object1 = oVar6;
-            iVar2 = (int)param2.FUN_2DD78(hit);
+            iVar2 = (int)param2.OnCollision(hit);
 
             if (iVar2 < 0)
                 uVar5 |= 2;
@@ -4788,10 +4950,8 @@ public class GameManager : MonoBehaviour
         do
         {
             if (ppiVar9 >= local_98.Length || ppiVar9 < 0)
-            {
-                Debug.Log("!");
                 return false;
-            }
+
             piVar7 = local_98[ppiVar9];
             iVar6 = piVar7.DAT_00;
             iVar10 = iVar4 - 1;

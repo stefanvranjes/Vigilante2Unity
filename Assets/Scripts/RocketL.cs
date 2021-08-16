@@ -17,7 +17,21 @@ public class RocketL : VigObject
     //FUN_4351C
     public override uint UpdateW(int arg1, int arg2)
     {
+        VigTuple ppiVar2;
+        List<VigTuple> ppiVar3;
+        short sVar4;
+        VigObject oVar5;
+        int iVar6;
+        VigObject oVar8;
         uint uVar9;
+        VigObject oVar10;
+        int iVar11;
+        Rocket rVar11;
+        int iVar12;
+        VigObject oVar12;
+        VigObject oVar13;
+        int iVar14;
+        VigObject[] local_38;
 
         switch (arg1)
         {
@@ -27,6 +41,125 @@ public class RocketL : VigObject
                 break;
             default:
                 uVar9 = 0;
+                break;
+            case 2:
+                oVar5 = Utilities.FUN_2CD78(this);
+                oVar8 = FUN_4336C((Vehicle)oVar5, 174);
+                oVar8.flags |= 0x40000000;
+                sVar4 = (short)(maxHalfHealth - 1);
+                maxHalfHealth = (ushort)sVar4;
+
+                if (sVar4 != 0)
+                {
+                    sVar4 = (short)(maxFullHealth - 1);
+                    maxFullHealth = (ushort)sVar4;
+
+                    if (sVar4 != 0)
+                        GameManager.instance.FUN_30CB0(this, 8);
+
+                    return 120;
+                }
+
+                goto LAB_43608;
+            case 10:
+                arg2 &= 0xfff;
+
+                if (arg2 != 0x422)
+                {
+                    if (arg2 == 0x423)
+                    {
+                        oVar8 = Utilities.FUN_2CD78(this);
+                        local_38 = new VigObject[3];
+
+                        if (maxHalfHealth < 2)
+                            return 0xffffffff;
+
+                        iVar14 = 0;
+
+                        do
+                        {
+                            iVar11 = 0xc350000;
+                            oVar12 = null;
+                            ppiVar3 = GameManager.instance.worldObjs;
+
+                            for (int i = 0; i < ppiVar3.Count; i++)
+                            {
+                                ppiVar2 = ppiVar3[i];
+                                oVar10 = ppiVar2.vObject;
+                                iVar6 = iVar11;
+                                oVar13 = oVar12;
+
+                                if (oVar10.type != 8)
+                                {
+                                    iVar11 = iVar6;
+                                    oVar12 = oVar13;
+                                }
+                                else if (oVar10.DAT_84 == oVar8 && oVar10 != local_38[0] && oVar10 != local_38[1])
+                                {
+                                    iVar6 = Utilities.FUN_29F6C(oVar10.vTransform.position, oVar8.vTransform.position);
+                                    oVar13 = oVar10;
+
+                                    if (iVar6 < iVar11)
+                                    {
+                                        iVar11 = iVar6;
+                                        oVar12 = oVar13;
+                                    }
+                                }
+                            }
+
+                            local_38[iVar14] = oVar12;
+                            rVar11 = FUN_4336C((Vehicle)oVar8, GameManager.DAT_63FA4[18 + iVar14 * 2]);
+                            rVar11.DAT_1A = 211;
+                            rVar11.DAT_84 = oVar12;
+                            rVar11.maxHalfHealth = (ushort)((uint)rVar11.maxHalfHealth >> 1);
+                            iVar12 = (int)GameManager.FUN_2AC5C();
+                            rVar11.physics1.Z += -0x400 + ((iVar12 << 11) >> 15);
+                            iVar12 = (int)GameManager.FUN_2AC5C();
+                            iVar14++;
+                            rVar11.physics1.W += -0x400 + ((iVar12 << 11) >> 15);
+                            iVar12 = (int)GameManager.FUN_2AC5C();
+                            rVar11.physics2.X += -0x400 + ((iVar12 << 11) >> 15);
+                            GameManager.instance.FUN_30CB0(rVar11, 7);
+                        } while (iVar14 < 3);
+
+                        sVar4 = (short)(maxHalfHealth - 2);
+                        maxHalfHealth = (ushort)sVar4;
+                        uVar9 = 30;
+
+                        if (sVar4 == 0)
+                        {
+                            FUN_3A368();
+                            uVar9 = 30;
+                        }
+
+                        break;
+                    }
+
+                    if (arg2 != 0x424)
+                        return 0;
+
+                    if (maxHalfHealth < 2)
+                        return 0xffffffff;
+
+                    maxFullHealth = 5;
+                    goto case 2;
+                }
+
+                if (maxHalfHealth < 2)
+                    return 0xffffffff;
+
+                oVar5 = Utilities.FUN_2CD78(this);
+                oVar8 = FUN_4336C((Vehicle)oVar5, 187);
+                oVar8.flags |= 0x41000000;
+                sVar4 = (short)(maxHalfHealth - 2);
+                maxHalfHealth = (ushort)sVar4;
+
+                if (sVar4 != 0)
+                    return 120;
+
+                LAB_43608:
+                FUN_3A368();
+                uVar9 = 120;
                 break;
         }
 
@@ -84,11 +217,11 @@ public class RocketL : VigObject
         return uVar9;
     }
 
-    private VigObject FUN_4336C(Vehicle param1, int param2)
+    private Rocket FUN_4336C(Vehicle param1, int param2)
     {
         Rocket ppcVar1;
         int iVar2;
-        Smoke1 oVar2;
+        Particle1 oVar2;
         ushort uVar4;
 
         ppcVar1 = LevelManager.instance.FUN_42408(param1, this, (ushort)param2, typeof(Rocket), null) as Rocket;

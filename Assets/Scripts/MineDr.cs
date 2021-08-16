@@ -18,7 +18,12 @@ public class MineDr : VigObject
     //FUN_47B5C
     public override uint UpdateW(int arg1, int arg2)
     {
+        short sVar2;
+        int iVar3;
+        Vehicle vVar3;
         uint uVar7;
+        ushort uVar8;
+        VigObject oVar10;
 
         switch (arg1)
         {
@@ -28,6 +33,78 @@ public class MineDr : VigObject
                 break;
             default:
                 uVar7 = 0;
+                break;
+            case 10:
+                arg2 &= 0xfff;
+
+                if (arg2 == 0x132)
+                {
+                    if (maxHalfHealth < 2)
+                        return 0xffffffff;
+
+                    vVar3 = Utilities.FUN_2CD78(this) as Vehicle;
+                    oVar10 = FUN_479DC(vVar3, 195, typeof(Bearhug));
+                    iVar3 = Utilities.FUN_29E84(new Vector3Int(
+                        oVar10.vCollider.reader.ReadInt32(16), 
+                        oVar10.vCollider.reader.ReadInt32(20), 
+                        oVar10.vCollider.reader.ReadInt32(24)));
+                    oVar10.DAT_58 = iVar3;
+                    oVar10.type = 3;
+                    oVar10.flags |= 0x40000000;
+                    sVar2 = (short)(maxHalfHealth - 2);
+                }
+                else
+                {
+                    if (arg2 != 0x134)
+                    {
+                        if (arg2 != 0x133)
+                            return 0;
+
+                        if (maxHalfHealth < 2)
+                            return 0xffffffff;
+
+                        vVar3 = Utilities.FUN_2CD78(this) as Vehicle;
+                        oVar10 = FUN_479DC(vVar3, 214, typeof(Hovermine));
+                        iVar3 = Utilities.FUN_29E84(new Vector3Int(
+                            oVar10.vCollider.reader.ReadInt32(16),
+                            oVar10.vCollider.reader.ReadInt32(20),
+                            oVar10.vCollider.reader.ReadInt32(24)));
+                        oVar10.DAT_58 = iVar3;
+                        oVar10.flags |= 0x40000000;
+                        sVar2 = (short)(maxHalfHealth - 2);
+                    }
+                    else
+                    {
+                        if (maxHalfHealth < 2)
+                            return 0xffffffff;
+
+                        vVar3 = Utilities.FUN_2CD78(this) as Vehicle;
+                        oVar10 = FUN_479DC(vVar3, 191, typeof(CactusPatch));
+                        iVar3 = Utilities.FUN_29E84(new Vector3Int(
+                            oVar10.vCollider.reader.ReadInt32(16),
+                            oVar10.vCollider.reader.ReadInt32(20),
+                            oVar10.vCollider.reader.ReadInt32(24)));
+                        oVar10.DAT_58 = iVar3;
+                        oVar10.type = 3;
+                        uVar8 = 6;
+
+                        if (maxHalfHealth < 6)
+                            uVar8 = maxHalfHealth;
+
+                        maxHalfHealth = uVar8;
+                        sVar2 = (short)(maxHalfHealth - uVar8);
+                    }
+                }
+
+                maxHalfHealth = (ushort)sVar2;
+                uVar7 = 120;
+
+                if (sVar2 == 0)
+                {
+                    FUN_3A368();
+                    uVar7 = 120;
+                }
+
                 break;
         }
 
@@ -56,7 +133,7 @@ public class MineDr : VigObject
                 uVar7 = 0;
                 break;
             case 12:
-                FUN_479DC(arg2, 182, typeof(Mine));
+                FUN_479DC((Vehicle)arg2, 182, typeof(Mine));
                 maxHalfHealth--;
                 uVar7 = 60;
 
@@ -127,7 +204,7 @@ public class MineDr : VigObject
         return uVar7;
     }
 
-    private VigObject FUN_479DC(VigObject param1, short param2, Type param3)
+    private VigObject FUN_479DC(Vehicle param1, short param2, Type param3)
     {
         VigObject puVar1;
         int iVar2;
@@ -138,13 +215,13 @@ public class MineDr : VigObject
         puVar1 = LevelManager.instance.FUN_42408(param1, this, (ushort)param2, param3, null);
         uVar4 = 0x20000080;
 
-        if (DAT_64 != 0)
+        if (vAnim != null)
             uVar4 = 0x20000084;
 
         puVar1.flags = uVar4;
         uVar3 = 150;
 
-        if (((Vehicle)param1).doubleDamage != 0)
+        if (param1.doubleDamage != 0)
             uVar3 = 300;
 
         puVar1.maxHalfHealth = uVar3;

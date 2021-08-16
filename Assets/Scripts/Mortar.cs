@@ -18,6 +18,10 @@ public class Mortar : VigObject
     //FUN_466C0
     public override uint UpdateW(int arg1, int arg2)
     {
+        ushort uVar1;
+        uint uVar3;
+        Vehicle vVar2;
+        Shell sVar4;
         uint uVar5;
 
         switch (arg1)
@@ -28,6 +32,74 @@ public class Mortar : VigObject
                 break;
             default:
                 uVar5 = 0;
+                break;
+            case 10:
+                arg2 &= 0xfff;
+
+                if (arg2 == 0x222)
+                {
+                    if (maxHalfHealth < 2)
+                        return 0xffffffff;
+
+                    vVar2 = Utilities.FUN_2CD78(this) as Vehicle;
+                    sVar4 = FUN_46480(vVar2, 203, 15, 37);
+                    sVar4.tags = 1;
+                    uVar5 = sVar4.flags | 0x40000000;
+                    sVar4.flags = uVar5;
+                    uVar1 = (ushort)(maxHalfHealth - 2);
+                    goto LAB_468B4;
+                }
+
+                if (arg2 != 0x224)
+                {
+                    if (arg2 != 0x223)
+                        return 0;
+
+                    if (maxHalfHealth < 2)
+                        return 0xffffffff;
+
+                    vVar2 = Utilities.FUN_2CD78(this) as Vehicle;
+                    sVar4 = FUN_46480(vVar2, 217, 24, 75);
+                    sVar4.tags = 3;
+                    uVar5 = sVar4.flags | 0x40000020;
+                    sVar4.flags = uVar5;
+                    uVar1 = (ushort)(maxHalfHealth - 2);
+                    goto LAB_468B4;
+                }
+
+                if (maxHalfHealth < 2)
+                    return 0xffffffff;
+
+                vVar2 = Utilities.FUN_2CD78(this) as Vehicle;
+                uVar5 = 5;
+
+                if (maxHalfHealth < 5)
+                    uVar5 = maxHalfHealth;
+
+                sVar4 = FUN_46480(vVar2, 204, 19, (ushort)(uVar5 * 75));
+                sVar4.tags = 2;
+                sVar4.flags |= 0x40000020;
+                uVar5 = (uint)maxHalfHealth - 5;
+                uVar3 = 0;
+
+                if (0 < (int)uVar5)
+                    uVar3 = uVar5;
+
+                maxHalfHealth = (ushort)uVar3;
+                uVar3 &= 0xffff;
+                goto LAB_468BC;
+                LAB_468B4:
+                maxHalfHealth = uVar1;
+                uVar3 = uVar1;
+                LAB_468BC:
+                uVar5 = 120;
+
+                if (uVar3 == 0)
+                {
+                    FUN_3A368();
+                    uVar5 = 120;
+                }
+
                 break;
         }
 
@@ -81,7 +153,7 @@ public class Mortar : VigObject
         return uVar5;
     }
 
-    private VigObject FUN_46480(Vehicle param1, ushort param2, short param3, ushort param4)
+    private Shell FUN_46480(Vehicle param1, ushort param2, short param3, ushort param4)
     {
         Ballistic ppcVar2;
         Shell ppcVar3;

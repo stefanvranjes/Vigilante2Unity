@@ -532,6 +532,34 @@ public static class Utilities
         return iVar1;
     }
 
+    public static int FUN_2A098(Vector3Int vin, out Vector3Int vout)
+    {
+        int iVar1;
+        int iVar2;
+        uint uVar3;
+
+        iVar1 = FUN_29E84(vin);
+
+        if (iVar1 == 0)
+            vout = new Vector3Int(0, 0, 0);
+        else
+        {
+            iVar2 = LeadingZeros(iVar1);
+            uVar3 = 12;
+
+            if (iVar2 - 1 < 12)
+                uVar3 = (uint)iVar2 - 1;
+
+            iVar2 = iVar1 >> (int)(12 - uVar3 & 31);
+            vout = new Vector3Int(
+                (vin.x << (int)(uVar3 & 31)) / iVar2,
+                (vin.y << (int)(uVar3 & 31)) / iVar2,
+                (vin.z << (int)(uVar3 & 31)) / iVar2);
+        }
+
+        return iVar1;
+    }
+
     public static int FUN_2A168(out Vector3Int vout, Vector3Int v1, Vector3Int v2)
     {
         Vector3Int local_8;
@@ -719,6 +747,81 @@ public static class Utilities
         };
     }
 
+    public static Matrix3x3 FUN_2A724(Vector3Int sv)
+    {
+        short sVar1;
+
+        Vector3Int local_18;
+        short local_8;
+        short local_4;
+
+        local_8 = (short)sv.x;
+        local_4 = (short)sv.y;
+        sVar1 = (short)sv.z;
+        local_18 = new Vector3Int();
+        local_18.x = sv.z;
+
+        if (local_18.x == 0)
+        {
+            if (sv.x == 0)
+            {
+                local_18.x = 0x1000;
+                local_18.y = 0;
+                local_18.z = 0;
+                goto LAB_2A7AC;
+            }
+
+            local_18.x = sv.z;
+        }
+
+        local_18.y = 0;
+        local_18.z = -sv.x;
+        local_18 = VectorNormal(local_18);
+        LAB_2A7AC:
+        Coprocessor.rotationMatrix.rt11 = local_8;
+        Coprocessor.rotationMatrix.rt12 = (short)(local_8 >> 16);
+        Coprocessor.rotationMatrix.rt22 = local_4;
+        Coprocessor.rotationMatrix.rt23 = (short)(local_4 >> 16);
+        Coprocessor.rotationMatrix.rt33 = sVar1;
+        Coprocessor.accumulator.ir3 = (short)local_18.z;
+        Coprocessor.accumulator.ir1 = (short)local_18.x;
+        Coprocessor.accumulator.ir2 = (short)local_18.y;
+        Coprocessor.ExecuteOP(12, false);
+
+        return new Matrix3x3()
+        {
+            V00 = (short)local_18.x,
+            V10 = (short)local_18.y,
+            V20 = (short)local_18.z,
+            V02 = local_8,
+            V12 = local_4,
+            V22 = sVar1,
+            V01 = (short)Coprocessor.mathsAccumulator.mac1,
+            V11 = (short)Coprocessor.mathsAccumulator.mac2,
+            V21 = (short)Coprocessor.mathsAccumulator.mac3
+        };
+    }
+
+    public static Matrix3x3 FUN_2ADB0(Matrix3x3 m33, Vector3Int v3)
+    {
+        Matrix3x3 local_18;
+
+        local_18 = new Matrix3x3()
+        {
+            V22 = 0x1000,
+            V11 = 0x1000,
+            V00 = 0x1000,
+            V21 = (short)v3.x,
+            V12 = (short)-v3.x,
+            V02 = (short)v3.y,
+            V20 = (short)-v3.y,
+            V10 = (short)v3.z,
+            V01 = (short)-v3.z
+        };
+
+        return FUN_247C4(local_18, m33);
+    }
+
     public static VigTransform FUN_2C77C(ConfigContainer conf)
     {
         VigTransform transf = new VigTransform();
@@ -777,18 +880,17 @@ public static class Utilities
 
     public static void ResetMesh(VigObject obj)
     {
-        Mesh mesh;
+        VigMesh mesh;
+        VigMesh mLOD;
 
-        if (obj.vMesh != null)
-            mesh = obj.vMesh.GetMesh();
-        else if (obj.vLOD != null)
-            mesh = obj.vLOD.GetMesh();
-        else
-            mesh = null;
+        mesh = obj.vMesh;
+        mLOD = obj.vLOD;
 
         if (mesh != null)
-            if (mesh.subMeshCount > 0)
-                mesh.Clear();
+            mesh.ClearMeshData();
+
+        if (mLOD != null)
+            mLOD.ClearMeshData();
 
         VigObject child2 = obj.child2;
 
@@ -836,6 +938,21 @@ public static class Utilities
         return oVar1;
     }
 
+    public static VigObject FUN_2CDB0(VigObject obj)
+    {
+        VigObject oVar1;
+
+        oVar1 = obj.parent;
+
+        while (oVar1 != null)
+        {
+            obj = FUN_2CD78(obj);
+            oVar1 = obj.parent;
+        }
+
+        return obj;
+    }
+
     public static Vector3Int FUN_23F58(Vector3Int v3)
     {
         Coprocessor.vector0.vx0 = (short)v3.x;
@@ -846,6 +963,36 @@ public static class Utilities
             Coprocessor.mathsAccumulator.mac1, 
             Coprocessor.mathsAccumulator.mac2, 
             Coprocessor.mathsAccumulator.mac3);
+    }
+
+    public static Vector3Int FUN_23F7C(Vector3Int v3)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+        int iVar6;
+
+        Coprocessor.accumulator.ir1 = (short)(v3.x >> 15);
+        Coprocessor.accumulator.ir2 = (short)(v3.y >> 15);
+        Coprocessor.accumulator.ir3 = (short)(v3.z >> 15);
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 0, false);
+        Coprocessor.vector0.vx0 = (short)(v3.x & 0x7fff);
+        Coprocessor.vector0.vy0 = (short)(v3.y & 0x7fff);
+        Coprocessor.vector0.vz0 = (short)(v3.z & 0x7fff);
+        iVar4 = Coprocessor.mathsAccumulator.mac1;
+        iVar5 = Coprocessor.mathsAccumulator.mac2;
+        iVar6 = Coprocessor.mathsAccumulator.mac3;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        iVar1 = Coprocessor.mathsAccumulator.mac1;
+        iVar2 = Coprocessor.mathsAccumulator.mac2;
+        iVar3 = Coprocessor.mathsAccumulator.mac3;
+
+        return new Vector3Int
+            (iVar1 + iVar4 * 8,
+             iVar2 + iVar5 * 8,
+             iVar3 + iVar6 * 8);
     }
 
     public static void FUN_246BC(VigTransform transform)
@@ -879,7 +1026,7 @@ public static class Utilities
         return FUN_247F4(m2);
     }
 
-    private static Matrix3x3 FUN_247F4(Matrix3x3 m33)
+    public static Matrix3x3 FUN_247F4(Matrix3x3 m33)
     {
         Coprocessor.vector0.vx0 = m33.V00;
         Coprocessor.vector0.vy0 = m33.V10;
@@ -983,6 +1130,30 @@ public static class Utilities
         iVar3 = Coprocessor.mathsAccumulator.mac3 + iVar6;
 
         return new Vector3Int(iVar1, iVar2, iVar3);
+    }
+
+    public static Matrix3x3 FUN_245AC(Matrix3x3 m33, Vector3Int sv)
+    {
+        int iVar3;
+        int iVar4;
+        int iVar5;
+
+        iVar3 = sv.x;
+        iVar4 = sv.y;
+        iVar5 = sv.z;
+
+        return new Matrix3x3()
+        {
+            V00 = (short)(m33.V00 * iVar3 >> 12),
+            V01 = (short)(m33.V01 * iVar4 >> 12),
+            V02 = (short)(m33.V02 * iVar5 >> 12),
+            V10 = (short)(m33.V10 * iVar3 >> 12),
+            V11 = (short)(m33.V11 * iVar4 >> 12),
+            V12 = (short)(m33.V12 * iVar5 >> 12),
+            V20 = (short)(m33.V20 * iVar3 >> 12),
+            V21 = (short)(m33.V21 * iVar4 >> 12),
+            V22 = (short)(m33.V22 * iVar5 >> 12)
+        };
     }
 
     public static Matrix3x3 FUN_2449C(Matrix3x3 m33, Vector3Int v3)
@@ -1268,7 +1439,7 @@ public static class Utilities
         newObj.DAT_58 = src.DAT_58;
         newObj.vData = src.vData;
         newObj.vCollider = src.vCollider;
-        newObj.DAT_64 = src.DAT_64;
+        newObj.vAnim = src.vAnim;
         newObj.vLOD = src.vLOD;
         newObj.DAT_6C = src.DAT_6C;
         newObj.vShadow = src.vShadow;
@@ -1870,6 +2041,64 @@ public static class Utilities
             SetDQA(iVar3);
             SetDQB((b << 12) / iVar2 << 12);
         }
+    }
+
+    //FUN_59D4C
+    public static Matrix3x3 MulMatrix(Matrix3x3 m0, Matrix3x3 m1)
+    {
+        short sVar1;
+        short sVar2;
+        short sVar3;
+        short sVar4;
+        short sVar5;
+        short sVar6;
+        short sVar7;
+        short sVar8;
+        short sVar9;
+
+        Coprocessor.rotationMatrix.rt11 = m0.V00;
+        Coprocessor.rotationMatrix.rt12 = m0.V01;
+        Coprocessor.rotationMatrix.rt13 = m0.V02;
+        Coprocessor.rotationMatrix.rt21 = m0.V10;
+        Coprocessor.rotationMatrix.rt22 = m0.V11;
+        Coprocessor.rotationMatrix.rt23 = m0.V12;
+        Coprocessor.rotationMatrix.rt31 = m0.V20;
+        Coprocessor.rotationMatrix.rt32 = m0.V21;
+        Coprocessor.rotationMatrix.rt33 = m0.V22;
+        Coprocessor.vector0.vx0 = m1.V00;
+        Coprocessor.vector0.vy0 = m1.V10;
+        Coprocessor.vector0.vz0 = m1.V20;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        sVar2 = Coprocessor.accumulator.ir1;
+        sVar3 = Coprocessor.accumulator.ir2;
+        sVar4 = Coprocessor.accumulator.ir3;
+        Coprocessor.vector0.vx0 = m1.V01;
+        Coprocessor.vector0.vy0 = m1.V11;
+        Coprocessor.vector0.vz0 = m1.V21;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        sVar5 = Coprocessor.accumulator.ir1;
+        sVar6 = Coprocessor.accumulator.ir2;
+        sVar7 = Coprocessor.accumulator.ir3;
+        Coprocessor.vector0.vx0 = m1.V02;
+        Coprocessor.vector0.vy0 = m1.V12;
+        Coprocessor.vector0.vz0 = m1.V22;
+        Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
+        sVar1 = Coprocessor.accumulator.ir1;
+        sVar8 = Coprocessor.accumulator.ir2;
+        sVar9 = Coprocessor.accumulator.ir3;
+
+        return new Matrix3x3()
+        {
+            V00 = sVar2,
+            V01 = sVar5,
+            V20 = sVar4,
+            V21 = sVar7,
+            V02 = sVar3,
+            V10 = sVar1,
+            V11 = sVar6,
+            V12 = sVar8,
+            V22 = sVar9
+        };
     }
 
     public static VigTransform CompMatrixLV(VigTransform m0, VigTransform m1)
@@ -2661,8 +2890,8 @@ public class BufferedBinaryReader : IDisposable
     public long Position { get { return bufferOffset; } }
 
     private readonly Stream stream;
-    private readonly byte[] buffer;
-    private readonly int bufferSize;
+    private byte[] buffer;
+    private int bufferSize;
     private int bufferOffset;
     private int numBufferedBytes;
 
@@ -2672,6 +2901,12 @@ public class BufferedBinaryReader : IDisposable
         this.bufferSize = bufferSize;
         buffer = new byte[bufferSize];
         bufferOffset = bufferSize;
+    }
+
+    public BufferedBinaryReader(byte[] buffer)
+    {
+        bufferSize = buffer.Length;
+        this.buffer = buffer;
     }
 
     public int NumBytesAvailable { get { return Math.Max(0, numBufferedBytes - bufferOffset); } }
@@ -2698,6 +2933,25 @@ public class BufferedBinaryReader : IDisposable
             numBytesUnread += numBytesRead;
         }
         return true;
+    }
+
+    public void ChangeBuffer(byte[] buffer)
+    {
+        bufferSize = buffer.Length;
+        this.buffer = buffer;
+        bufferOffset = 0;
+    }
+
+    public void ChangeBuffer(BufferedBinaryReader reader)
+    {
+        bufferSize = reader.bufferSize;
+        buffer = reader.buffer;
+        bufferOffset = reader.bufferOffset;
+    }
+
+    public byte[] GetBuffer()
+    {
+        return buffer;
     }
 
     public byte ReadByte(int offset)
@@ -2730,7 +2984,8 @@ public class BufferedBinaryReader : IDisposable
 
     public void Dispose()
     {
-        stream.Close();
+        if (stream != null)
+            stream.Close();
     }
 
     public void Seek(long offset, SeekOrigin origin)

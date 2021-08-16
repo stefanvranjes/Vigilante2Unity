@@ -173,7 +173,7 @@ public class Vehicle : VigObject
     public ushort DAT_F6; //0xF6
     public VigObject[] body; //0xF8
     public VigObject closeViewer; //0x100
-    public VigObject[] wheels; //0x104
+    public Wheel[] wheels; //0x104
     public VigObject mgun; //0x11C
     public VigObject[] weapons; //0x120
     public ushort transformation; //0x12C
@@ -202,7 +202,7 @@ public class Vehicle : VigObject
         base.Update();
     }
 
-    public override uint FUN_2DD78(HitDetection param1)
+    public override uint OnCollision(HitDetection param1)
     {
         int iVar4;
         uint uVar6;
@@ -213,7 +213,7 @@ public class Vehicle : VigObject
 
         if (ppcVar8 != this && !ppcVar8.GetType().IsSubclassOf(typeof(VigObject)))
         {
-            iVar4 = (int)ppcVar8.FUN_2DD78(param1);
+            iVar4 = (int)ppcVar8.OnCollision(param1);
             uVar6 = (uint)(iVar4 != 0 ? 1 : 0);
         }
 
@@ -224,11 +224,13 @@ public class Vehicle : VigObject
         return uVar6;
     }
 
-    public override uint Execute(int arg1, int arg2)
+    public override uint UpdateW(int arg1, int arg2)
     {
         uint uVar1;
         int iVar2;
+        short sVar2;
         ushort uVar3;
+        uint uVar7;
 
         if (arg1 == 1)
         {
@@ -262,17 +264,9 @@ public class Vehicle : VigObject
             }
 
             //...
+            uVar1 = 0;
+            return uVar1;
         }
-
-        uVar1 = 0;
-
-        return uVar1;
-    }
-
-    public override uint UpdateW(int arg1, int arg2)
-    {
-        short sVar2;
-        uint uVar7;
 
         if (arg1 == 2) goto LAB_3C380;
 
@@ -2720,6 +2714,8 @@ public class Vehicle : VigObject
                 }
 
                 uVar3++;
+
+                if (iVar2 > 2) break;
             } while (weapons[iVar2] != null);
         }
 
@@ -2945,6 +2941,22 @@ public class Vehicle : VigObject
         return false;
     }
 
+    public void FUN_3968C(Wheel param1)
+    {
+        Vector3Int v3;
+
+        if (wheelsType == _WHEELS.Ground)
+        {
+            param1.state = _WHEEL_TYPE.Flatten;
+            param1.flags |= 0x40000000;
+            param1.physics2.X -= 0xc00;
+            flags |= 0x20000;
+            GameManager.instance.FUN_30CB0(param1, 300);
+            v3 = GameManager.instance.FUN_2CE50(param1);
+            LevelManager.instance.FUN_4DE54(v3, 13);
+        }
+    }
+
     public void FUN_38408()
     {
         sbyte sVar1;
@@ -3155,7 +3167,7 @@ public class Vehicle : VigObject
 
 
 
-    private int FUN_3A020(int pInt1, int pInt2, bool isPlayer)
+    public int FUN_3A020(int param1, Vector3Int param2, bool param3)
     {
         int iVar1;
 

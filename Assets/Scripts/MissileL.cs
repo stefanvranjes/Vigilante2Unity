@@ -17,7 +17,18 @@ public class MissileL : VigObject
     //FUN_44790
     public override uint UpdateW(int arg1, int arg2)
     {
+        short sVar1;
+        Vehicle vVar2;
+        ConfigContainer ccVar2;
+        Afterburner ppcVar3;
+        Vehicle pcVar4;
+        Missile mVar5;
+        Vehicle vVar6;
+        Missile mVar6;
         uint uVar7;
+        ushort uVar8;
+        ushort uVar9;
+        Matrix3x3 MStack32;
 
         switch (arg1)
         {
@@ -27,6 +38,83 @@ public class MissileL : VigObject
                 break;
             default:
                 uVar7 = 0;
+                break;
+            case 2:
+                vVar6 = Utilities.FUN_2CD78(this) as Vehicle;
+                mVar5 = FUN_445B0(vVar6, 188);
+                //sound
+                mVar5.flags |= 0x40000000;
+                uVar8 = 60;
+
+                if (vVar6.doubleDamage != 0)
+                    uVar8 = 120;
+
+                maxHalfHealth = uVar8;
+                sVar1 = (short)(maxFullHealth - 1);
+                maxFullHealth = (ushort)sVar1;
+
+                if (sVar1 != 0)
+                    GameManager.instance.FUN_30CB0(this, 8);
+
+                MStack32 = GameManager.FUN_2A39C().rotation;
+                MStack32 = Utilities.RotMatrixY(maxFullHealth * 0x100 - 0x180, MStack32);
+                mVar5.vTransform.rotation = Utilities.MulMatrix(mVar5.vTransform.rotation, MStack32);
+                uVar7 = 120;
+                break;
+            case 10:
+                arg2 &= 0xfff;
+
+                if (arg2 == 0x444)
+                {
+                    if (1 < maxHalfHealth)
+                    {
+                        ppcVar3 = vData.ini.FUN_2C17C(186, typeof(Afterburner), 8) as Afterburner;
+                        pcVar4 = Utilities.FUN_2CD78(this) as Vehicle;
+                        ppcVar3.PDAT_78 = pcVar4;
+                        ppcVar3.id = 120;
+                        ccVar2 = FUN_2C5F4(0x8001);
+                        Utilities.FUN_2CA94(this, ccVar2, ppcVar3);
+                        ppcVar3.FUN_30B78();
+                        ppcVar3.FUN_30BF0();
+                        maxHalfHealth -= 2;
+                        //FUN_39B50
+                        return 240;
+                    }
+                }
+                else
+                {
+                    if (arg2 == 0x442)
+                    {
+                        if (1 < maxHalfHealth)
+                        {
+                            maxHalfHealth--;
+                            vVar2 = Utilities.FUN_2CD78(this) as Vehicle;
+                            mVar6 = FUN_445B0(vVar2, 199);
+                            mVar6.DAT_84 = vVar2;
+                            mVar6.flags |= 0x41000000;
+                            //sound
+                            return 120;
+                        }
+                    }
+                    else
+                    {
+                        if (arg2 != 0x443)
+                            return 0;
+
+                        if (1 < maxHalfHealth)
+                        {
+                            uVar9 = 4;
+
+                            if (maxHalfHealth < 4)
+                                uVar9 = maxHalfHealth;
+
+                            maxFullHealth = uVar9;
+                            goto case 2;
+                        }
+                    }
+                }
+
+                uVar7 = 0xffffffff;
                 break;
         }
 
@@ -69,7 +157,7 @@ public class MissileL : VigObject
         return uVar7;
     }
 
-    private VigObject FUN_445B0(Vehicle param1, short param2)
+    private Missile FUN_445B0(Vehicle param1, short param2)
     {
         Missile ppcVar2;
         int iVar3;

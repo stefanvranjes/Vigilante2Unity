@@ -52,7 +52,7 @@ public class Route66 : VigObject
     {
         switch (arg2)
         {
-            case 12:
+            case 18:
                 GameManager.instance.FUN_327CC(arg1);
                 break;
         }

@@ -30,21 +30,6 @@ public class Mine : VigObject
         }
         else
         {
-            if (2 < arg1)
-            {
-                if (arg1 != 3)
-                {
-                    if (arg1 != 8)
-                        return 0;
-
-                    GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
-                    //sound
-                    LevelManager.instance.FUN_4DE54(screen, 39);
-                    LevelManager.instance.FUN_309C8(this, 0);
-                    return 0xffffffff;
-                }
-            }
-
             if (arg1 != 0)
                 return 0;
 
@@ -95,7 +80,31 @@ public class Mine : VigObject
         return 0;
     }
 
-    private int FUN_46D70()
+    public override uint UpdateW(int arg1, VigObject arg2)
+    {
+        if (arg1 != 2)
+        {
+            if (2 < arg1)
+            {
+                if (arg1 != 3)
+                {
+                    if (arg1 != 8)
+                        return 0;
+
+                    GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
+                    //sound
+                    LevelManager.instance.FUN_4DE54(screen, 39);
+                    LevelManager.instance.FUN_309C8(this, 0);
+                    return 0xffffffff;
+                }
+            }
+        }
+
+        GameManager.instance.FUN_30CB0(this, 120);
+        return 0;
+    }
+
+    public int FUN_46D70()
     {
         int iVar1;
         int iVar2;

@@ -83,7 +83,7 @@ Material:
     m_Floats:
     - _BlendOp: 0
     - _BumpScale: 1
-    - _ColorOnly: 0
+    - _ColorOnly: 1
     - _Cul: 2
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1

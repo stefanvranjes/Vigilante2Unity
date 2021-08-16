@@ -17,8 +17,17 @@ public class Cannon : VigObject
     //FUN_453E0
     public override uint UpdateW(int arg1, int arg2)
     {
+        short sVar1;
+        short sVar2;
+        short sVar3;
+        VigObject oVar7;
+        int iVar8;
+        Cannonball ppcVar9;
         int iVar10;
+        Cannonball cVar10;
         uint uVar11;
+        VigObject oVar12;
+        VigObject oVar13;
 
         switch (arg1)
         {
@@ -31,6 +40,110 @@ public class Cannon : VigObject
                 goto default;
             default:
                 uVar11 = 0;
+                break;
+            case 10:
+                arg2 &= 0xfff;
+
+                if (arg2 == 0x242)
+                {
+                    uVar11 = 0xffffffff;
+
+                    if (1 < maxHalfHealth)
+                    {
+                        maxHalfHealth--;
+                        oVar12 = Utilities.FUN_2CD78(this);
+                        cVar10 = FUN_45218(oVar12, 202, 40);
+                        uVar11 = 120;
+                        cVar10.tags = 1;
+                        cVar10.flags |= 0x40000000;
+                    }
+                }
+                else
+                {
+                    if (arg2 == 0x244)
+                    {
+                        uVar11 = 0xffffffff;
+
+                        if (1 < maxHalfHealth)
+                        {
+                            oVar7 = Utilities.FUN_2CD78(this);
+                            oVar13 = child2;
+                            sVar1 = (short)oVar13.vr.x;
+                            sVar2 = (short)oVar13.vr.y;
+                            cVar10 = FUN_45218(oVar7, 175, 75);
+                            cVar10.flags |= 0x40000000;
+                            sVar3 = (short)maxHalfHealth;
+                            iVar10 = 1;
+
+                            while(sVar3 != 0 && iVar10 < 6)
+                            {
+                                iVar8 = (int)GameManager.FUN_2AC5C();
+                                oVar13.vr.x = sVar1 + (short)(iVar8 * 192 >> 15) - 96;
+                                iVar8 = (int)GameManager.FUN_2AC5C();
+                                oVar13.vr.y = sVar2 + (short)(iVar8 * 192 >> 15) - 96;
+                                oVar13.ApplyTransformation();
+                                ppcVar9 = LevelManager.instance.FUN_42408(oVar7, oVar13, 175, typeof(Cannonball), null) as Cannonball;
+                                ppcVar9.flags = 0x60000094;
+                                ppcVar9.maxHalfHealth = 75;
+                                ppcVar9.FUN_305FC();
+                                ppcVar9.physics2.M2 = 60;
+                                iVar8 = oVar7.physics1.X;
+
+                                if (iVar8 < 0)
+                                    iVar8 += 127;
+
+                                ppcVar9.physics1.Z = (iVar8 >> 7) + ppcVar9.vTransform.rotation.V02 * 6;
+                                iVar8 = oVar7.physics1.Y;
+
+                                if (iVar8 < 0)
+                                    iVar8 += 127;
+
+                                ppcVar9.physics1.W = (iVar8 >> 7) + ppcVar9.vTransform.rotation.V12 * 6;
+                                iVar8 = oVar7.physics1.Z;
+
+                                if (iVar8 < 0)
+                                    iVar8 += 127;
+
+                                ppcVar9.physics2.X = (iVar8 >> 7) + ppcVar9.vTransform.rotation.V22 * 6;
+                                sVar3 = (short)(maxHalfHealth - 1);
+                                maxHalfHealth = (ushort)sVar3;
+                                iVar10++;
+                            }
+
+                            oVar13.vr.x = sVar1;
+                            oVar13.vr.y = sVar2;
+                            oVar13.ApplyTransformation();
+                            uVar11 = 120;
+
+                            if (maxHalfHealth == 0)
+                            {
+                                FUN_3A368();
+                                uVar11 = 120;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        uVar11 = 0;
+
+                        if (arg2 == 0x243)
+                        {
+                            if (maxHalfHealth < 2)
+                                uVar11 = 0xffffffff;
+                            else
+                            {
+                                maxHalfHealth--;
+                                oVar12 = Utilities.FUN_2CD78(this);
+                                cVar10 = FUN_45218(oVar12, 216, 75);
+                                cVar10.tags = 2;
+                                cVar10.flags |= 0x40000000;
+                                GameManager.instance.FUN_30CB0(cVar10, 300);
+                                uVar11 = 120;
+                            }
+                        }
+                    }
+                }
+
                 break;
         }
 
@@ -55,6 +168,11 @@ public class Cannon : VigObject
         switch (arg1)
         {
             case 0:
+                iVar10 = FUN_42330(arg2);
+
+                if (iVar10 < 1)
+                    return 0;
+
                 if (((Vehicle)arg2).target != null)
                 {
                     oVar13 = child2;
@@ -79,7 +197,7 @@ public class Cannon : VigObject
                     iVar7 = (int)lVar5 * -0x100000 >> 20;
                     iVar10 = 0x100;
 
-                    if (iVar10 < 0x100)
+                    if (iVar7 < 0x100)
                         iVar10 = iVar7;
 
                     iVar7 = -0x80;
@@ -132,7 +250,7 @@ public class Cannon : VigObject
         return uVar11;
     }
 
-    private VigObject FUN_45218(VigObject param1, short param2, ushort param3)
+    private Cannonball FUN_45218(VigObject param1, short param2, ushort param3)
     {
         int iVar5;
         VigObject oVar6;

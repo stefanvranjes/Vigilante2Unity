@@ -15,65 +15,7 @@ public class Pickup : VigObject
         base.Update();
     }
 
-    //FUN_49D54
-    public override uint Execute(int arg1, int arg2)
-    {
-        ushort uVar2;
-        short sVar3;
-        int iVar5;
-        int iVar6;
-        ushort uVar7;
-        int iVar8;
-
-        switch (arg1)
-        {
-            case 1:
-                LevelManager.instance.DAT_1178 = vData;
-
-                if (arg2 == 0)
-                {
-                    type = 3;
-                    flags = flags & 0xfffffff7 | 0x380;
-
-                    if (DAT_6C == 0)
-                        DAT_6C = 0x1f4000;
-
-                    sVar3 = DAT_1A;
-
-                    if (sVar3 == 5)
-                    {
-                        iVar8 = (int)GameManager.instance.FUN_4A970(flags, (ushort)sVar3);
-                        DAT_1A = GameManager.DAT_63FA4[iVar8];
-                        sVar3 = DAT_1A;
-                    }
-
-                    if (sVar3 != 8)
-                        return 0;
-
-                    iVar5 = screen.x;
-                    iVar6 = screen.z;
-                    uVar7 = maxHalfHealth;
-                }
-                else
-                {
-                    if ((flags & 0x1000000) == 0)
-                        return 0;
-
-                    uVar2 = (ushort)LevelManager.instance.FUN_35778(screen.x, screen.z);
-                    iVar5 = screen.x;
-                    iVar6 = screen.z;
-                    uVar7 = 0;
-                    maxHalfHealth = uVar7;
-                }
-
-                LevelManager.instance.FUN_359FC(iVar5, iVar6, uVar7);
-                break;
-        }
-
-        return 0;
-    }
-
-    public override uint FUN_2DD78(HitDetection param1)
+    public override uint OnCollision(HitDetection param1)
     {
         bool bVar1;
         VigObject oVar2;
@@ -236,6 +178,13 @@ public class Pickup : VigObject
     //FUN_49D54
     public override uint UpdateW(int arg1, int arg2)
     {
+        ushort uVar2;
+        short sVar3;
+        int iVar5;
+        int iVar6;
+        ushort uVar7;
+        int iVar8;
+
         switch (arg1)
         {
             case 0:
@@ -248,6 +197,57 @@ public class Pickup : VigObject
                 }
 
                 break;
+            case 1:
+                LevelManager.instance.DAT_1178 = vData;
+
+                if (arg2 == 0)
+                {
+                    type = 3;
+                    flags = flags & 0xfffffff7 | 0x380;
+
+                    if (DAT_6C == 0)
+                        DAT_6C = 0x1f4000;
+
+                    sVar3 = DAT_1A;
+
+                    if (sVar3 == 5)
+                    {
+                        iVar8 = (int)GameManager.instance.FUN_4A970(flags, (ushort)sVar3);
+                        DAT_1A = GameManager.DAT_63FA4[iVar8];
+                        sVar3 = DAT_1A;
+                    }
+
+                    if (sVar3 != 8)
+                        return 0;
+
+                    iVar5 = screen.x;
+                    iVar6 = screen.z;
+                    uVar7 = maxHalfHealth;
+                }
+                else
+                {
+                    if ((flags & 0x1000000) == 0)
+                        return 0;
+
+                    uVar2 = (ushort)LevelManager.instance.FUN_35778(screen.x, screen.z);
+                    iVar5 = screen.x;
+                    iVar6 = screen.z;
+                    uVar7 = 0;
+                    maxHalfHealth = uVar7;
+                }
+
+                LevelManager.instance.FUN_359FC(iVar5, iVar6, uVar7);
+                break;
+            case 2:
+                if (type != 3)
+                {
+                    flags &= 0xffff7fff;
+                    return 0xffffffff;
+                }
+
+                LevelManager.instance.FUN_4DF20(screen, 13, 2048);
+                GameManager.instance.FUN_309A0(this);
+                return 0xffffffff;
         }
 
         return 0;
