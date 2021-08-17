@@ -49,6 +49,7 @@ public class LevelManager : MonoBehaviour
     public Material DAT_E58; //gp+E58h
     public Vector3Int DAT_10F8; //gp+10F8h
     public XOBF_DB DAT_1178; //gp+1178h
+    public int DAT_117C; //gp+117Ch
     public int DAT_1180; //gp+1180h
     public int DAT_1184; //gp+1184h
     public int DAT_118C; //gp+118Ch
@@ -411,6 +412,55 @@ public class LevelManager : MonoBehaviour
                   param3, 0, 0, 0, 0x800, aimpData);
     }
 
+    public Fire1 FUN_399FC(Vehicle param1, XOBF_DB param2, short param3)
+    {
+        Fire1 ppcVar1;
+
+        if ((param1.DAT_F6 & 8) == 0)
+        {
+            ppcVar1 = null;
+
+            if (param1.shield == 0)
+            {
+                GameObject obj = new GameObject();
+                ppcVar1 = obj.AddComponent<Fire1>();
+                ppcVar1.DAT_58 = 0x10000;
+                ppcVar1.physics1.M1 = 4;
+                ppcVar1.DAT_98 = param2;
+                ppcVar1.physics2.M3 = param3;
+                ppcVar1.maxHalfHealth = 2;
+                ppcVar1.flags |= 0x20;
+                ppcVar1.vTransform = GameManager.FUN_2A39C();
+                ppcVar1.physics1.Y = 0x200;
+                ppcVar1.physics1.Z = -0x600;
+                ppcVar1.physics1.W = 0;
+                Utilities.FUN_2CC9C(param1, ppcVar1);
+                ppcVar1.transform.parent = param1.transform;
+                ppcVar1.FUN_30B78();
+                GameManager.instance.FUN_30CB0(ppcVar1, 600);
+                param1.DAT_F6 |= 8;
+            }
+        }
+        else
+            ppcVar1 = null;
+
+        return ppcVar1;
+    }
+
+    public bool FUN_39AF8(Vehicle param1)
+    {
+        Fire1 fVar1;
+
+        fVar1 = FUN_399FC(param1, xobfList[19], 22);
+
+        if (fVar1 != null)
+        {
+            //sound
+        }
+
+        return fVar1 != null;
+    }
+
     public VigObject FUN_42408(VigObject param1, VigObject param2, ushort param3, Type param4, VigObject param5)
     {
         ushort uVar1;
@@ -451,6 +501,28 @@ public class LevelManager : MonoBehaviour
             Utilities.FUN_2CA94(param2, ccVar2, param5);
 
         return oVar3;
+    }
+
+    public VigObject FUN_42560(VigObject param1, VigObject param2, VigObject param3, VigObject param4)
+    {
+        short sVar1;
+
+        param3.DAT_80 = param1;
+        param3.flags = 0x20000000;
+        sVar1 = param1.id;
+        param3.type = 8;
+        param3.id = sVar1;
+        param3.vTransform = GameManager.instance.FUN_2CDF4(param2);
+        param3.screen = param3.vTransform.position;
+
+        if (param4 != null)
+        {
+            param4.vTransform = GameManager.FUN_2A39C();
+            Utilities.FUN_2CC48(param2, param4);
+            param4.transform.parent = param2.transform;
+        }
+
+        return param3;
     }
 
     public Pickup FUN_4AD24(short param1)

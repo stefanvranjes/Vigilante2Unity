@@ -6,12 +6,12 @@ public class Crater : VigObject
 {
     protected override void Start()
     {
-        base.Start();
+        
     }
 
     protected override void Update()
     {
-        base.Update();
+        
     }
 
     public ushort[] indices;

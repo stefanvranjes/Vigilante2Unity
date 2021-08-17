@@ -5,7 +5,7 @@ using UnityEngine;
 public enum _WHEEL_TYPE
 {
     Unflatten, 
-    Flatten
+    Flatten //FUN_395E0
 }
 
 public class Wheel : VigObject

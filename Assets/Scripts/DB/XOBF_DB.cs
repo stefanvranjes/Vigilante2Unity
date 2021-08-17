@@ -32,6 +32,7 @@ public class XOBF_DB : MonoBehaviour
 
     private string prefabPath;
     private string prefabName;
+    private BufferedBinaryReader r;
 
     private void Reset()
     {
@@ -224,6 +225,30 @@ public class XOBF_DB : MonoBehaviour
     public VigMesh FUN_2CB74(GameObject param1, uint param2, bool init)
     {
         return FUN_1FD18(param1, (ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU, init);
+    }
+
+    public BufferedBinaryReader FUN_2CBB0(int param1)
+    {
+        int iVar1;
+        BufferedBinaryReader brVar2;
+        int iVar3;
+
+        if (r == null)
+            r = new BufferedBinaryReader(animations);
+
+        brVar2 = r;
+        iVar3 = 0;
+
+        if (brVar2.Length != 0)
+        {
+            iVar1 = brVar2.ReadInt32((param1 & 0xffff) * 4 + 4);
+
+            if (iVar1 != 0)
+                iVar3 += iVar1;
+        }
+
+        brVar2.Seek(iVar3, SeekOrigin.Begin);
+        return brVar2;
     }
 
     //FUN_32F40

@@ -14,6 +14,34 @@ public class Hovermine : Mine
         base.Update();
     }
 
+    public override uint OnCollision(HitDetection hit)
+    {
+        VigObject oVar9;
+        Vehicle vVar9;
+        Vector3Int local_30;
+
+        local_30 = new Vector3Int(0, -0x20000, 0);
+        oVar9 = hit.self;
+
+        if (oVar9.type == 0)
+            return 1;
+
+        if (oVar9.type == 2)
+        {
+            vVar9 = (Vehicle)oVar9;
+            vVar9.FUN_2B370(local_30, screen);
+
+            if (vVar9.id < 0)
+                GameManager.instance.FUN_15B00(~vVar9.id, 255, 4, 64);
+        }
+
+        GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
+        //sound
+        LevelManager.instance.FUN_4DE54(screen, 39);
+        LevelManager.instance.FUN_309C8(this, 0);
+        return 0xffffffff;
+    }
+
     //FUN_4692C
     public override uint UpdateW(int arg1, VigObject arg2)
     {

@@ -1200,6 +1200,7 @@ public class GameManager : MonoBehaviour
     public static Vector3Int DAT_A30 = new Vector3Int(0, 0, -0x8000);
     public static Vector3Int DAT_A3C = new Vector3Int(0, 0, -0x20000);
     public static Vector3Int DAT_A4C = new Vector3Int(0, 0x20000, 0);
+    public static Vector3Int DAT_A5C = new Vector3Int(0, -0x20000, 0);
     public static Vector3Int DAT_A68 = new Vector3Int(0, 0x8000, 0);
 
     public VigTerrain terrain;
@@ -1657,6 +1658,19 @@ public class GameManager : MonoBehaviour
             FUN_4C4BC(param1.vShadow);
 
         FUN_307CC(param1);
+    }
+
+    public void FUN_30904(VigObject param1)
+    {
+        VigObject oVar1;
+
+        if (param1.type == 255)
+        {
+            oVar1 = param1.FUN_306FC();
+            Destroy(oVar1.gameObject);
+        }
+        else
+            FUN_308C4(param1);
     }
 
     public void FUN_3094C(Tuple<List<VigTuple>, VigTuple> param1)
@@ -4056,12 +4070,18 @@ public class GameManager : MonoBehaviour
 
     public void FUN_15B00(int param1, byte param2, byte param3, byte param4)
     {
-        if (GameManager.instance.gameMode != _GAME_MODE.Demo)
+        if (gameMode != _GAME_MODE.Demo)
         {
             DAT_D28[param1, 5] = param2;
             DAT_D28[param1, 6] = param3;
             DAT_D28[param1, 7] = param4;
         }
+    }
+
+    public void FUN_15ADC(int param1, byte param2)
+    {
+        if (gameMode != _GAME_MODE.Demo)
+            DAT_D28[param1, 4] = param2;
     }
 
     public void FUN_2D278(VigObject param1, int param2)

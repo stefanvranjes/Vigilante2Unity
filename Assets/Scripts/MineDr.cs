@@ -43,7 +43,7 @@ public class MineDr : VigObject
                         return 0xffffffff;
 
                     vVar3 = Utilities.FUN_2CD78(this) as Vehicle;
-                    oVar10 = FUN_479DC(vVar3, 195, typeof(Bearhug));
+                    oVar10 = FUN_479DC(vVar3, 195, typeof(Brearhug));
                     iVar3 = Utilities.FUN_29E84(new Vector3Int(
                         oVar10.vCollider.reader.ReadInt32(16), 
                         oVar10.vCollider.reader.ReadInt32(20), 

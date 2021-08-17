@@ -14,6 +14,33 @@ public class Mine : VigObject
         base.Update();
     }
 
+    public override uint OnCollision(HitDetection hit)
+    {
+        VigObject oVar1;
+        Vehicle vVar1;
+
+        oVar1 = hit.self;
+
+        if (oVar1.type == 0)
+            return 1;
+
+        if (oVar1.type == 2)
+        {
+            vVar1 = (Vehicle)oVar1;
+            vVar1.FUN_2B370(GameManager.DAT_A5C, screen);
+            vVar1.FUN_39714(screen);
+
+            if (vVar1.type < 0)
+                GameManager.instance.FUN_15B00(~vVar1.id, 255, 4, 64);
+        }
+
+        GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
+        //sound
+        LevelManager.instance.FUN_4DE54(screen, 39);
+        LevelManager.instance.FUN_309C8(this, 0);
+        return 0xffffffff;
+    }
+
     //FUN_46F1C
     public override uint UpdateW(int arg1, int arg2)
     {

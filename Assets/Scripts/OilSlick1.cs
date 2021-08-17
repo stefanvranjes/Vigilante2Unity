@@ -1,4 +1,5 @@
-using System.Collections;
++'09876543q ASDFGJM,Ž
+ns;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,45 @@ public class OilSlick1 : VigObject
     protected override void Update()
     {
         base.Update();
+    }
+
+    public override uint OnCollision(HitDetection hit)
+    {
+        int iVar5;
+        int iVar8;
+
+        GameManager.instance.FUN_2F798(this, hit);
+        iVar5 = physics1.X * hit.normal1.x +
+                physics1.Y * hit.normal1.y +
+                physics1.Z * hit.normal1.z;
+
+        if (iVar5 < 0)
+            iVar5 += 2047;
+
+        iVar5 >>= 11;
+
+        if (-1 < iVar5)
+            return 0;
+
+        iVar8 = iVar5 * hit.normal1.x;
+
+        if (iVar8 < 0)
+            iVar8 += 4095;
+
+        physics1.X -= iVar8 >> 12;
+        iVar8 = iVar5 * hit.normal1.y;
+
+        if (iVar8 < 0)
+            iVar8 += 4095;
+
+        physics1.Y -= iVar8 >> 12;
+        iVar5 = iVar5 * hit.normal1.z;
+
+        if (iVar5 < 0)
+            iVar5 += 4095;
+
+        physics1.Z -= iVar5 >> 12;
+        return 0;
     }
 
     //FUN_48AF4

@@ -14,6 +14,29 @@ public class Flamewall2 : VigObject
         base.Update();
     }
 
+    public override uint OnCollision(HitDetection hit)
+    {
+        uint uVar1;
+        bool bVar2;
+
+        uVar1 = 0;
+
+        if (hit.self.type == 2)
+        {
+            bVar2 = LevelManager.instance.FUN_39AF8((Vehicle)hit.self);
+            uVar1 = 0;
+
+            if (bVar2)
+            {
+                //sound
+                //FUN_4E414
+                uVar1 = 0;
+            }
+        }
+
+        return uVar1;
+    }
+
     //FUN_485C4
     public override uint UpdateW(int arg1, int arg2)
     {

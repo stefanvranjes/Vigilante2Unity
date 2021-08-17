@@ -2888,6 +2888,7 @@ public class FixedSizedQueue<T>
 public class BufferedBinaryReader : IDisposable
 {
     public long Position { get { return bufferOffset; } }
+    public long Length { get { return bufferSize; } }
 
     private readonly Stream stream;
     private byte[] buffer;

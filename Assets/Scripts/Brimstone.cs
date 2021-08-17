@@ -14,6 +14,43 @@ public class Brimstone : VigObject
         base.Update();
     }
 
+    public override uint OnCollision(HitDetection hit)
+    {
+        uint uVar2;
+        bool bVar4;
+        VigObject oVar4;
+        Vehicle vVar4;
+
+        if (hit.object2.type == 3)
+            return 0;
+
+        oVar4 = hit.self;
+
+        if (oVar4.type == 2)
+        {
+            vVar4 = (Vehicle)oVar4;
+            vVar4.FUN_3A064(-200, vTransform.position, true);
+            //sound
+            bVar4 = LevelManager.instance.FUN_39AF8(vVar4);
+
+            if (!bVar4) goto LAB_48598;
+
+            LevelManager.instance.FUN_4DE54(vTransform.position, 35);
+            uVar2 = 0x8008080;
+        }
+        else
+        {
+            LevelManager.instance.FUN_4DE54(vTransform.position, 35);
+            //sound
+            uVar2 = 0x8000080;
+        }
+
+        //FUN_4E414
+        LAB_48598:
+        GameManager.instance.FUN_309A0(this);
+        return 0xffffffff;
+    }
+
     //FUN_48214
     public override uint UpdateW(int arg1, int arg2)
     {

@@ -2957,6 +2957,53 @@ public class Vehicle : VigObject
         }
     }
 
+    public bool FUN_39714(Vector3Int param1)
+    {
+        bool bVar1;
+        Vector3Int v3;
+        int iVar2;
+        Wheel ppcVar3;
+        Vector3Int local_10;
+
+        bVar1 = false;
+
+        if (wheelsType == _WHEELS.Ground)
+        {
+            local_10 = Utilities.FUN_24304(vTransform, param1);
+            iVar2 = 0 < local_10.x ? 1 : 0;
+
+            if (local_10.z < 0)
+                iVar2 |= 2;
+
+            ppcVar3 = wheels[iVar2];
+
+            if (ppcVar3.state == _WHEEL_TYPE.Unflatten)
+            {
+                ppcVar3 = wheels[iVar2 & 2];
+
+                if (ppcVar3.state == _WHEEL_TYPE.Unflatten)
+                    return false;
+            }
+
+            if ((ppcVar3.flags & 0x40000000) == 0)
+            {
+                ppcVar3.state = _WHEEL_TYPE.Flatten;
+                ppcVar3.flags |= 0x40000000;
+                ppcVar3.physics2.X -= 0xc00;
+                flags |= 0x20000;
+                GameManager.instance.FUN_30CB0(ppcVar3, 300);
+                v3 = GameManager.instance.FUN_2CE50(ppcVar3);
+                LevelManager.instance.FUN_4DE54(v3, 13);
+                //sound
+                bVar1 = true;
+            }
+            else
+                bVar1 = false;
+        }
+
+        return bVar1;
+    }
+
     public void FUN_38408()
     {
         sbyte sVar1;
@@ -3165,7 +3212,13 @@ public class Vehicle : VigObject
         }
     }
 
+    public int FUN_3A064(int param1, Vector3Int param2, bool param3)
+    {
+        Vector3Int auStack16;
 
+        auStack16 = Utilities.FUN_24304(vTransform, param2);
+        return FUN_3A020(param1, auStack16, param3);
+    }
 
     public int FUN_3A020(int param1, Vector3Int param2, bool param3)
     {

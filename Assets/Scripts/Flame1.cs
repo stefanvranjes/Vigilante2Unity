@@ -14,6 +14,33 @@ public class Flame1 : VigObject
         base.Update();
     }
 
+    public override uint OnCollision(HitDetection hit)
+    {
+        bool bVar3;
+
+        if (hit.object2.type == 3)
+            return 0;
+
+        if (hit.self.type == 2)
+        {
+            bVar3 = LevelManager.instance.FUN_39AF8((Vehicle)hit.self);
+
+            if (bVar3)
+            {
+                LevelManager.instance.FUN_4DE54(vTransform.position, 35);
+                //FUN_4E414
+            }
+        }
+        else
+        {
+            LevelManager.instance.FUN_4DE54(vTransform.position, 35);
+            //sound
+        }
+
+        GameManager.instance.FUN_309A0(this);
+        return 0xffffffff;
+    }
+
     //FUN_47EE4
     public override uint UpdateW(int arg1, int arg2)
     {

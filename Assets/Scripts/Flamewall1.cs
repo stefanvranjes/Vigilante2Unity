@@ -14,6 +14,36 @@ public class Flamewall1 : VigObject
         base.Update();
     }
 
+    public override uint OnCollision(HitDetection hit)
+    {
+        uint uVar3;
+        bool bVar7;
+        VigObject oVar7;
+        Vehicle vVar7;
+
+        oVar7 = hit.self;
+
+        if (oVar7.type == 2)
+        {
+            vVar7 = (Vehicle)oVar7;
+            vVar7.FUN_3A064(-200, vTransform.position, true);
+            //sound
+            bVar7 = LevelManager.instance.FUN_39AF8(vVar7);
+            LevelManager.instance.FUN_4DE54(vTransform.position, 35);
+            uVar3 = 0x8008080;
+        }
+        else
+        {
+            LevelManager.instance.FUN_4DE54(vTransform.position, 35);
+            //sound
+            uVar3 = 0x8000080;
+        }
+
+        //FUN_4E414
+        GameManager.instance.FUN_309A0(this);
+        return 0xffffffff;
+    }
+
     //FUN_48684
     public override uint UpdateW(int arg1, int arg2)
     {
