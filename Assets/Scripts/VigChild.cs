@@ -37,7 +37,7 @@ public class VigChild : VigObject
 
         ppcVar1 = Utilities.FUN_2CD78(this);
 
-        if (ppcVar1.GetType().IsSubclassOf(typeof(VigObject)))
+        if (!ppcVar1.GetType().IsSubclassOf(typeof(VigObject)))
             uVar2 = 0;
         else
             uVar2 = ppcVar1.UpdateW(arg1, arg2);
@@ -52,7 +52,7 @@ public class VigChild : VigObject
 
         ppcVar1 = Utilities.FUN_2CD78(this);
 
-        if (ppcVar1.GetType().IsSubclassOf(typeof(VigObject)))
+        if (!ppcVar1.GetType().IsSubclassOf(typeof(VigObject)))
             uVar2 = 0;
         else
             uVar2 = ppcVar1.UpdateW(arg1, arg2);

@@ -69,7 +69,10 @@ public class Missile : VigObject
         Particle1 e1Var2;
         Particle2 e2Var2;
         short sVar3;
+        int iVar4;
         long lVar4;
+        VigObject oVar4;
+        Particle1 pVar4;
         int iVar5;
         long lVar6;
         Vector3Int local_18;
@@ -97,10 +100,26 @@ public class Missile : VigObject
                         physics2.X = physics2.X * 3968 >> 12;
                     }
                 }
+                else
+                {
+                    if (arg1 == 4)
+                        DAT_84.flags &= 0xf7ffffff;
+                }
 
                 uVar2 = 0;
                 return uVar2;
             case _MISSILE_TYPE.Projectile:
+                if (3 < arg1)
+                {
+                    if (arg1 == 4)
+                    {
+                        if ((flags & 0x1000000) != 0)
+                            DAT_84.flags &= 0xf7ffffff;
+                    }
+
+                    return 0;
+                }
+
                 if (arg1 != 0)
                     return 0;
 
@@ -236,6 +255,108 @@ public class Missile : VigObject
                 LevelManager.instance.FUN_4DE54(screen, 37);
                 GameManager.instance.FUN_309A0(this);
                 return 0xffffffff;
+
+            case _MISSILE_TYPE.Halo:
+                if (arg1 < 4)
+                {
+                    if (arg1 != 0)
+                        return 0;
+
+                    iVar2 = vTransform.rotation.V02 * 0x3b9a;
+
+                    if (iVar2 < 0)
+                        iVar2 += 4095;
+
+                    iVar2 = (iVar2 >> 12) - physics1.Z;
+
+                    if (iVar2 < 0)
+                        iVar2 += 15;
+
+                    iVar4 = 0x100;
+
+                    if (iVar2 >> 4 < 0x100)
+                        iVar4 = iVar2 >> 4;
+
+                    iVar2 = -0x100;
+
+                    if (-0x100 < iVar4)
+                        iVar2 = iVar4;
+
+                    iVar2 = physics1.Z + iVar2;
+                    physics1.Z = iVar2;
+                    iVar4 = vTransform.rotation.V22 * 0x3b9a;
+                    screen.x += iVar2;
+
+                    if (iVar4 < 0)
+                        iVar4 += 4095;
+
+                    iVar2 = (iVar4 >> 12) - physics2.X;
+
+                    if (iVar2 < 0)
+                        iVar2 += 15;
+
+                    iVar4 = 0x100;
+
+                    if (iVar2 >> 4 < 0x100)
+                        iVar4 = iVar2 >> 4;
+
+                    iVar2 = -0x100;
+
+                    if (-0x100 < iVar4)
+                        iVar2 = iVar4;
+
+                    iVar2 = physics2.X + iVar2;
+                    physics2.X = iVar2;
+                    screen.z += iVar2;
+                    iVar2 = GameManager.instance.terrain.FUN_1B750((uint)screen.x, (uint)screen.z);
+
+                    if (iVar2 < screen.y)
+                    {
+                        //sound
+                        LevelManager.instance.FUN_4DE54(screen, 33);
+                        LevelManager.instance.FUN_309C8(this, 1);
+                        return 0xffffffff;
+                    }
+
+                    vTransform.position = screen;
+                    FUN_24700(0, 0x100, 0);
+
+                    if ((-DAT_19 & 31) == 0)
+                        vTransform.rotation = Utilities.MatrixNormal(vTransform.rotation);
+
+                    if ((physics2.M2 & 3) == 0)
+                    {
+                        pVar4 = LevelManager.instance.FUN_4DE54(screen, 21);
+                        pVar4.flags |= 0x400;
+                        pVar4.vr.z = physics2.M2 * 96;
+                        pVar4.ApplyTransformation();
+                    }
+
+                    oVar4 = DAT_84;
+
+                    if ((oVar4.flags & 0x4000000) == 0)
+                        oVar4.screen = screen;
+
+                    sVar1 = physics2.M2;
+                    physics2.M2--;
+
+                    if (sVar1 == 1)
+                    {
+                        //sound
+                        LevelManager.instance.FUN_4DE54(screen, 37);
+                        GameManager.instance.FUN_309A0(this);
+                        return 0xffffffff;
+                    }
+                }
+                else
+                {
+                    if (arg1 != 4)
+                        return 0;
+
+                    if ((flags & 0x1000000) != 0)
+                        DAT_84.flags &= 0xf7ffffff;
+                }
+                break;
         }
 
         return 0;
@@ -249,58 +370,41 @@ public class Missile : VigObject
         switch (state)
         {
             case _MISSILE_TYPE.Shell:
-                if (arg1 == 4)
-                    DAT_84.flags &= 0xf7ffffff;
+                if (arg1 != 5)
+                    return 0;
+
+                GameManager.instance.FUN_1FEB8(vMesh);
+                GameManager.instance.FUN_2C4B4(child2);
+                uVar2 = 186;
+
+                if ((flags & 0x1000000) != 0)
+                    uVar2 = 198;
+
+                FUN_2C344(vData, (ushort)uVar2, 8);
+                uVar1 = flags;
+                flags |= 0x84;
+
+                if ((uVar1 & 0x1000000) == 0)
+                    state = _MISSILE_TYPE.Projectile;
                 else
                 {
-                    if (arg1 != 5)
-                        return 0;
-
-                    GameManager.instance.FUN_1FEB8(vMesh);
-                    GameManager.instance.FUN_2C4B4(child2);
-                    uVar2 = 186;
-
-                    if ((flags & 0x1000000) != 0)
-                        uVar2 = 198;
-
-                    FUN_2C344(vData, (ushort)uVar2, 8);
-                    uVar1 = flags;
-                    flags |= 0x84;
-
-                    if ((uVar1 & 0x1000000) == 0)
-                        state = _MISSILE_TYPE.Projectile;
-                    else
-                    {
-                        state = _MISSILE_TYPE.Halo;
-                        DAT_84.flags |= 0x8000000;
-                    }
-
-                    physics2.M2 = 480;
+                    state = _MISSILE_TYPE.Halo;
+                    DAT_84.flags |= 0x8000000;
                 }
 
+                physics2.M2 = 480;
                 uVar2 = 0;
                 return uVar2;
+
             case _MISSILE_TYPE.Projectile:
-                if (3 < arg1)
-                {
-                    if (arg1 == 4)
-                    {
-                        if ((flags & 0x1000000) != 0)
-                            DAT_84.flags &= 0xf7ffffff;
-                    }
-                    else
-                    {
-                        if (arg1 != 10)
-                            return 0;
+                if (arg1 != 10)
+                    return 0;
 
-                        if (DAT_84 != arg2)
-                            return 0;
+                if (DAT_84 != arg2)
+                    return 0;
 
-                        DAT_84 = DAT_80;
-                    }
-                }
-
-                return 0;
+                DAT_84 = DAT_80;
+                break;
         }
 
         return 0;

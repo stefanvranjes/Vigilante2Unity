@@ -85,6 +85,7 @@ public class Brimstone : VigObject
                 }
 
                 pVar4 = LevelManager.instance.FUN_4E128(vTransform.position, 83, 40);
+                Utilities.ParentChildren2(pVar4, pVar4);
                 pVar4.FUN_2D114(pVar4.screen, ref pVar4.vTransform);
                 //sound
                 sVar1 = physics2.M3;

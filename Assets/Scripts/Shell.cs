@@ -65,6 +65,7 @@ public class Shell : VigObject
                 if (hit.self.type == 2 && (hit.self.flags & 0x10000000) != 0)
                 {
                     pVar3 = LevelManager.instance.FUN_4E128(screen, 53, 0);
+                    Utilities.ParentChildren(pVar3, pVar3);
                     pVar3.FUN_2D114(pVar3.screen, ref pVar3.vTransform);
                     pVar3.flags |= 0x10;
                     GameManager.instance.terrain.FUN_45B00(screen.x, screen.z, 0x20000, maxHalfHealth << 8);
@@ -72,7 +73,8 @@ public class Shell : VigObject
                     return uVar7;
                 }
 
-                LevelManager.instance.FUN_4E128(screen, 79, 200);
+                pVar3 = LevelManager.instance.FUN_4E128(screen, 79, 200);
+                Utilities.ParentChildren(pVar3, pVar3);
                 //sound
             }
             else
@@ -113,8 +115,10 @@ public class Shell : VigObject
         long lVar2;
         int iVar3;
         VigObject oVar3;
+        Particle1 pVar3;
         int iVar4;
         VigObject oVar4;
+        Particle2 pVar4;
         int iVar5;
         int iVar6;
         int iVar8;
@@ -137,8 +141,9 @@ public class Shell : VigObject
                 oVar3.vTransform.rotation.SetValue32(4, 0x1000);
                 oVar3.vTransform.position = new Vector3Int(0, 0, 0);
                 oVar3.flags |= 0x410;
-                //animation
+                oVar3.FUN_2FBC8((ushort)((short)GameManager.instance.timer * 2 - DAT_4A));
                 Utilities.FUN_2CC9C(this, oVar3);
+                oVar3.transform.parent = transform;
                 physics2.M2++;
             }
 
@@ -147,9 +152,9 @@ public class Shell : VigObject
 
             while (oVar4 != null)
             {
-                oVar3.vTransform.position.x -= physics1.Z;
-                oVar3.vTransform.position.y -= physics1.W;
-                oVar3.vTransform.position.z -= physics2.X;
+                oVar3.vTransform.position.x = oVar4.vTransform.position.x - physics1.Z;
+                oVar3.vTransform.position.y = oVar4.vTransform.position.y - physics1.W;
+                oVar3.vTransform.position.z = oVar4.vTransform.position.z - physics2.X;
                 oVar3 = oVar4;
                 oVar4 = oVar4.child;
             }
@@ -217,11 +222,17 @@ public class Shell : VigObject
                 return 0;
 
             sVar1 = tags;
-            iVar3 = screen.x;
 
             if (sVar1 == 2)
             {
-                //...
+                pVar4 = LevelManager.instance.FUN_4E128(screen, 53, maxHalfHealth);
+                Utilities.ParentChildren(pVar4, pVar4);
+                pVar4.flags |= 0x10;
+                //sound
+                GameManager.instance.terrain.FUN_45B00(screen.x, screen.z, 0x20000, maxHalfHealth << 7);
+                pVar3 = LevelManager.instance.FUN_4DE54(screen, 39);
+                Utilities.ParentChildren2(pVar3, pVar3);
+                //FUN_4E414
             }
             else
             {
@@ -236,7 +247,8 @@ public class Shell : VigObject
                         return 0;
                 }
 
-                LevelManager.instance.FUN_4DE54(screen, 39);
+                pVar3 = LevelManager.instance.FUN_4DE54(screen, 39);
+                Utilities.ParentChildren2(pVar3, pVar3);
                 //sound
             }
             

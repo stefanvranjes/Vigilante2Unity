@@ -237,6 +237,7 @@ public class FlameThrower : VigObject
                     pcVar11 = typeof(Flame1);
 
                 ppcVar10 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(111, pcVar11, 8);
+                Utilities.ParentChildren(ppcVar10, ppcVar10);
                 local_30 = new Vector3Int(0, 0, 0);
                 local_38 = new Vector3Int(0, 0, 0);
                 uVar4 = (ushort)GameManager.FUN_2AC5C();

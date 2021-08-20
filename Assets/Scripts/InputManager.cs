@@ -73,13 +73,20 @@ public class InputManager : MonoBehaviour
     public static InputManager instance;
     public static Controller[] controllers;
     public static PSXInput[,] inputs;
-    public static byte[,] axisData; 
+    public static byte[,] axisData;
+    public static int[] turnRadius; //0xCDB10
 
     public _CONTROLLER_ACTIONS[] controllerActions;
     public _CONTROLLER_STEERING[] controllerSteerings;
 
     private void Awake()
     {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        int iVar12;
+        int iVar13;
+
         if (instance == null)
         {
             instance = this;
@@ -95,6 +102,38 @@ public class InputManager : MonoBehaviour
             controllers[i].stick = new byte[4];
             controllers[i].DAT_14 = new byte[4];
         }
+
+        axisData = new byte[2, 1024];
+        iVar2 = 0;
+
+        do
+        {
+            iVar3 = 0;
+            iVar1 = iVar2 * 0x100;
+
+            do
+            {
+                axisData[0, iVar1] = (byte)iVar3;
+                axisData[1, iVar1] = (byte)iVar3;
+                iVar3++;
+                iVar1 = iVar3 + iVar2 * 0x100;
+            } while (iVar3 < 0x100);
+
+            iVar2++;
+            iVar1 = 0;
+        } while (iVar2 < 4);
+
+        turnRadius = new int[256];
+        iVar3 = -128;
+        iVar12 = 0;
+
+        do
+        {
+            iVar13 = iVar3 * iVar3 * iVar3;
+            iVar3++;
+            turnRadius[iVar12] = iVar13 / 0xc00;
+            iVar12++;
+        } while (iVar3 < 128);
     }
 
     // Start is called before the first frame update
@@ -109,7 +148,7 @@ public class InputManager : MonoBehaviour
         {
             string player = "P" + (i + 1) + "_";
             inputs[i, 0].DAT_00 = 0;
-            inputs[i, 0].DAT_01 = 65;
+            inputs[i, 0].DAT_01 = 115;
             inputs[i, 0].DAT_02 = 0xff;
             inputs[i, 0].DAT_03 = 0xff;
             inputs[i, 0].DAT_04 = 0x80;
@@ -135,22 +174,28 @@ public class InputManager : MonoBehaviour
             if (Input.GetButton(player + "L1"))
                 inputs[i, 0].DAT_03 &= 0xfb;
 
-            if (Input.GetButton(player + "R2"))
+            if (Input.GetButton(player + "R2") || 
+                Input.GetAxis(player + "TRIGGER_R") > 0)
                 inputs[i, 0].DAT_03 &= 0xfd;
 
-            if (Input.GetButton(player + "L2"))
+            if (Input.GetButton(player + "L2") || 
+                Input.GetAxis(player + "TRIGGER_L") > 0)
                 inputs[i, 0].DAT_03 &= 0xfe;
 
-            if (Input.GetButton(player + "UP"))
+            if (Input.GetButton(player + "UP") ||
+                Input.GetAxis(player + "DPAD_Y") > 0)
                 inputs[i, 0].DAT_02 &= 0xef;
 
-            if (Input.GetButton(player + "DOWN"))
+            if (Input.GetButton(player + "DOWN") ||
+                Input.GetAxis(player + "DPAD_Y") < 0)
                 inputs[i, 0].DAT_02 &= 0xbf;
 
-            if (Input.GetButton(player + "RIGHT"))
+            if (Input.GetButton(player + "RIGHT") ||
+                Input.GetAxis(player + "DPAD_X") > 0)
                 inputs[i, 0].DAT_02 &= 0xdf;
 
-            if (Input.GetButton(player + "LEFT"))
+            if (Input.GetButton(player + "LEFT") ||
+                Input.GetAxis(player + "DPAD_X") < 0)
                 inputs[i, 0].DAT_02 &= 0x7f;
 
             if (Input.GetButton(player + "START"))
@@ -159,10 +204,10 @@ public class InputManager : MonoBehaviour
             if (Input.GetButton(player + "SELECT"))
                 inputs[i, 0].DAT_02 &= 0xfe;
 
-            //inputs[i, 0].DAT_04 = (byte)((int)(Input.GetAxis(player + "ANALOG_RX") * 0x7f) + 0x7f);
-            //inputs[i, 0].DAT_05 = (byte)((int)(Input.GetAxis(player + "ANALOG_RY") * 0x7f) + 0x7f);
-            //inputs[i, 0].DAT_06 = (byte)((int)(Input.GetAxis(player + "ANALOG_LX") * 0x7f) + 0x7f);
-            //inputs[i, 0].DAT_07 = (byte)((int)(Input.GetAxis(player + "ANALOG_LY") * 0x7f) + 0x7f);
+            inputs[i, 0].DAT_04 = (byte)((int)(Input.GetAxis(player + "ANALOG_RX") * 0x7f) + 0x7f);
+            inputs[i, 0].DAT_05 = (byte)((int)(Input.GetAxis(player + "ANALOG_RY") * 0x7f) + 0x7f);
+            inputs[i, 0].DAT_06 = (byte)((int)(Input.GetAxis(player + "ANALOG_LX") * 0x7f) + 0x7f);
+            inputs[i, 0].DAT_07 = (byte)((int)(Input.GetAxis(player + "ANALOG_LY") * 0x7f) + 0x7f);
 
             for (int j = 1; j < 9; j++)
             {
@@ -275,22 +320,23 @@ public class InputManager : MonoBehaviour
                 uVar4 = 0;
 
                 if (inputs[i, pcVar7].DAT_06 - 128 < -96)
-                    uVar4 = (uint)((GameManager.instance.DAT_CF4[i] - 128 < -96 ? 1 : 0) ^ 1) << 31;
+                    uVar4 = (uint)((GameManager.instance.DAT_CF4[i, 0] - 128 < -96 ? 1 : 0) ^ 1) << 31;
 
                 if (96 < inputs[i, pcVar7].DAT_06 - 128)
-                    if (GameManager.instance.DAT_CF4[i] - 128 < 97)
+                    if (GameManager.instance.DAT_CF4[i, 0] - 128 < 97)
                         uVar4 |= 0x20000000;
 
                 if (inputs[i, pcVar7].DAT_07 - 128 < -96)
-                    if (-97 < GameManager.instance.DAT_CF5[i] - 128)
+                    if (-97 < GameManager.instance.DAT_CF4[i, 1] - 128)
                         uVar4 |= 0x10000000;
 
                 if (96 < inputs[i, pcVar7].DAT_07 - 128)
-                    if (GameManager.instance.DAT_CF5[i] - 128 < 97)
+                    if (GameManager.instance.DAT_CF4[i, 1] - 128 < 97)
                         uVar6 |= 0x40000000;
 
                 uVar6 |= uVar4;
-                GameManager.instance.DAT_CF4[i] = inputs[i, pcVar7].DAT_06;
+                GameManager.instance.DAT_CF4[i, 0] = inputs[i, pcVar7].DAT_06;
+                GameManager.instance.DAT_CF4[i, 1] = inputs[i, pcVar7].DAT_07;
             }
 
             if (uVar6 == 0)

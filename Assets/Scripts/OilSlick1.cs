@@ -1,5 +1,4 @@
-+'09876543q ASDFGJM,Ž
-ns;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -96,6 +95,7 @@ public class OilSlick1 : VigObject
                     if (local_10.y < -0xf33)
                     {
                         ppcVar2 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(218, typeof(OilSlick2), 8, typeof(VigChild));
+                        Utilities.ParentChildren(ppcVar2, ppcVar2);
                         FUN_2D114(vTransform.position, ref ppcVar2.vTransform);
                         //sound
                         ppcVar2.flags = 0x4;

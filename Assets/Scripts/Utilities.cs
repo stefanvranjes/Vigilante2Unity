@@ -842,21 +842,28 @@ public static class Utilities
 
     public static void FUN_2CC48(VigObject obj1, VigObject obj2)
     {
-        if (obj1.child2 != null)
-        {
-            obj1 = obj1.child2;
+        VigObject oVar1;
+        VigObject oVar2;
 
-            while (obj1.child != null)
-                obj1 = obj1.child;
+        oVar1 = obj1.child2;
 
-            obj1.child = obj2;
-            obj2.parent = obj1;
-        }
-        else
+        if (oVar1 != null)
         {
-            obj1.child2 = obj2;
-            obj2.parent = obj1;
+            oVar2 = oVar1.child;
+
+            while (oVar2 != null)
+            {
+                oVar1 = oVar1.child;
+                oVar2 = oVar1.child;
+            }
+
+            oVar1.child = obj2;
+            obj2.parent = oVar1;
+            return;
         }
+
+        obj1.child2 = obj2;
+        obj2.parent = obj1;
     }
 
     public static void ParentChildren(VigObject obj, VigObject parent)
@@ -875,6 +882,25 @@ public static class Utilities
         {
             child.transform.parent = parent.transform;
             ParentChildren(child, parent);
+        }
+    }
+
+    public static void ParentChildren2(VigObject obj, VigObject parent)
+    {
+        VigObject child2 = obj.child2;
+
+        if (child2 != null)
+        {
+            child2.transform.parent = obj.transform;
+            ParentChildren2(child2, obj);
+        }
+
+        VigObject child = obj.child;
+        
+        if (child != null)
+        {
+            child.transform.parent = parent.transform;
+            ParentChildren2(child, parent);
         }
     }
 
@@ -2093,8 +2119,8 @@ public static class Utilities
             V01 = sVar5,
             V20 = sVar4,
             V21 = sVar7,
-            V02 = sVar3,
-            V10 = sVar1,
+            V02 = sVar1,
+            V10 = sVar3,
             V11 = sVar6,
             V12 = sVar8,
             V22 = sVar9

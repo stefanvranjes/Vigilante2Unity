@@ -65,6 +65,7 @@ public class MineDr : VigObject
 
                         vVar3 = Utilities.FUN_2CD78(this) as Vehicle;
                         oVar10 = FUN_479DC(vVar3, 214, typeof(Hovermine));
+                        oVar10.child2.transform.parent = oVar10.transform;
                         iVar3 = Utilities.FUN_29E84(new Vector3Int(
                             oVar10.vCollider.reader.ReadInt32(16),
                             oVar10.vCollider.reader.ReadInt32(20),
@@ -91,7 +92,7 @@ public class MineDr : VigObject
                         if (maxHalfHealth < 6)
                             uVar8 = maxHalfHealth;
 
-                        maxHalfHealth = uVar8;
+                        oVar10.maxHalfHealth = uVar8;
                         sVar2 = (short)(maxHalfHealth - uVar8);
                     }
                 }
@@ -215,7 +216,7 @@ public class MineDr : VigObject
         puVar1 = LevelManager.instance.FUN_42408(param1, this, (ushort)param2, param3, null);
         uVar4 = 0x20000080;
 
-        if (vAnim != null)
+        if (puVar1.vAnim != null)
             uVar4 = 0x20000084;
 
         puVar1.flags = uVar4;

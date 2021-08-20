@@ -48,7 +48,7 @@ public class Brearhug : Mine
             local_18 = new Vector3Int(
                 vTransform.position.x - vVar2.vTransform.position.x,
                 vTransform.position.y - vVar2.vTransform.position.y - 0x5000,
-                vTransform.position.x - vVar2.vTransform.position.z);
+                vTransform.position.z - vVar2.vTransform.position.z);
             Utilities.FUN_29FC8(local_18, out local_8);
             vVar2.physics1.X += local_8.x * 8;
             vVar2.physics1.Y += local_8.y * 8;

@@ -79,6 +79,7 @@ public class Flamewall1 : VigObject
                     uVar3 = 29;
 
                 ppcVar2 = LevelManager.instance.xobfList[19].ini.FUN_2C17C((ushort)uVar3, typeof(Flamewall2), 8, typeof(VigChild));
+                Utilities.ParentChildren(ppcVar2, ppcVar2);
                 ppcVar2.type = 8;
                 ppcVar2.flags = 0x14;
                 ppcVar2.id = id;

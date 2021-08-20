@@ -43,7 +43,7 @@ public class Hovermine : Mine
     }
 
     //FUN_4692C
-    public override uint UpdateW(int arg1, VigObject arg2)
+    public override uint UpdateW(int arg1, int arg2)
     {
         VigTuple ppiVar2;
         List<VigTuple> ppiVar3;
@@ -163,6 +163,8 @@ public class Hovermine : Mine
                 physics2.M2 += 34;
                 return 0;
             }
+
+            return 0;
         }
 
         GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);

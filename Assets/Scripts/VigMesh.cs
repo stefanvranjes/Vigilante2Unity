@@ -22,22 +22,24 @@ public class VigMesh : MonoBehaviour
     public Dictionary<int, int> materialIDs;
     public Dictionary<int, Texture> mainT;
     public bool initAtStart;
+    public MeshTopology topology;
 
     private VigMesh instance;
     private Mesh mesh;
     private static Vector3[] newVertices = new Vector3[1023];
     private static Vector2[] newUVs = new Vector2[1023];
     private static Color32[] newColors = new Color32[1023];
-    private static int[][] newTriangles = new int[18][]
+    private static int[][] newTriangles = new int[24][]
     {
         new int[1023], new int[1023], new int[1023], new int[1023],
         new int[1023], new int[1023], new int[1023], new int[1023],
         new int[1023], new int[1023], new int[1023], new int[1023],
         new int[1023], new int[1023], new int[1023], new int[1023],
-        new int[1023], new int[1023]
+        new int[1023], new int[1023], new int[1023], new int[1023],
+        new int[1023], new int[1023], new int[1023], new int[1023]
     };
     private int index;
-    private int[] index2 = new int[18];
+    private int[] index2 = new int[24];
     private float scale;
     private BufferedBinaryReader brVar3;
     private BufferedBinaryReader brVar4;
@@ -148,14 +150,16 @@ public class VigMesh : MonoBehaviour
         for (int j = 0; j < index; j++)
             newVertices[j] = new Vector3(newVertices[j].x, -newVertices[j].y, newVertices[j].z) * scale;
         
-        mesh.subMeshCount = 18;
+        mesh.subMeshCount = 24;
 
         mesh.SetVertices(newVertices, 0, index);
         mesh.SetColors(newColors, 0, index);
         mesh.SetUVs(0, newUVs, 0, index);
 
+        /*for (int j = 0; j < mesh.subMeshCount; j++)
+            mesh.SetTriangles(newTriangles[j], 0, index2[j], j, false);*/
         for (int j = 0; j < mesh.subMeshCount; j++)
-            mesh.SetTriangles(newTriangles[j], 0, index2[j], j, false);
+            mesh.SetIndices(newTriangles[j], 0, index2[j], topology, j, false);
     }
 
     public void FUN_2D2A8(VigTransform param1)
@@ -174,6 +178,7 @@ public class VigMesh : MonoBehaviour
         if (iVar1 < DAT_18)
         {
             //...
+            FUN_21F70(param1); //FUN_21F40
         }
         else
             FUN_21F70(param1);
@@ -204,11 +209,11 @@ public class VigMesh : MonoBehaviour
         if (iVar1 < DAT_18)
         {
             auStack16 = Utilities.FUN_24238(MStack48.rotation, param2);
-            //FUN_21ECC
+            FUN_21F70(param1); //FUN_21ECC
         }
         else
         {
-            if (0 < iVar2)
+            //if (0 < iVar2) //tmp
                 FUN_21F70(param1);
         }
     }
@@ -461,7 +466,33 @@ public class VigMesh : MonoBehaviour
 
                     if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
                     {
-                        //...
+                        newColors[index] = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 40));
+                        newColors[index + 1] = new Color32
+                            (brVar13.ReadByte(24), brVar13.ReadByte(25), brVar13.ReadByte(26), brVar13.ReadByte(27));
+                        newColors[index + 2] = new Color32
+                            (brVar13.ReadByte(28), brVar13.ReadByte(29), brVar13.ReadByte(30), brVar13.ReadByte(31));
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        int materialID = materialIDs[DAT_1C[brVar13.ReadUInt16(22) & 0x3fff]];
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(12) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(13) / (mainT[materialID].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID].height - 1));
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
                         brVar13.Seek(32, SeekOrigin.Current);
                         iVar15 = 0x9000000;
                         goto LAB_22F08;
@@ -566,7 +597,20 @@ public class VigMesh : MonoBehaviour
                     }
 
                 case 0x8002260C:
-                    //...
+                    Color32 color32 = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 32));
+                    newColors[index] = color32;
+                    newColors[index + 1] = color32;
+                    newUVs[index] = new Vector2(0, 0);
+                    newUVs[index + 1] = new Vector2(0, 0);
+                    newVertices[index] = new Vector3
+                        (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                    newVertices[index + 1] = new Vector3
+                        (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                    newTriangles[0][index2[0]] = index;
+                    newTriangles[0][index2[0] + 1] = index + 1;
+                    index += 2;
+                    index2[0] += 2;
                     brVar13.Seek(12, SeekOrigin.Current);
                     break;
 
@@ -710,7 +754,50 @@ public class VigMesh : MonoBehaviour
 
                     if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
                     {
-                        //...
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        Coprocessor.colorCode.r = brVar13.ReadByte(0);
+                        Coprocessor.colorCode.g = brVar13.ReadByte(1);
+                        Coprocessor.colorCode.b = brVar13.ReadByte(2);
+                        Coprocessor.colorCode.code = (byte)(brVar13.ReadByte(3) + 8);
+                        puVar5 = brVar13.ReadInt16(10);
+                        puVar7 = brVar13.ReadInt16(12);
+                        puVar10 = brVar13.ReadInt16(14);
+                        Coprocessor.vector0.vx0 = brVar4.ReadInt16(puVar5);
+                        Coprocessor.vector0.vy0 = brVar4.ReadInt16(puVar5 + 2);
+                        Coprocessor.vector0.vz0 = brVar4.ReadInt16(puVar5 + 4);
+                        Coprocessor.vector1.vx1 = brVar4.ReadInt16(puVar7);
+                        Coprocessor.vector1.vy1 = brVar4.ReadInt16(puVar7 + 2);
+                        Coprocessor.vector1.vz1 = brVar4.ReadInt16(puVar7 + 4);
+                        Coprocessor.vector2.vx2 = brVar4.ReadInt16(puVar10);
+                        Coprocessor.vector2.vy2 = brVar4.ReadInt16(puVar10 + 2);
+                        Coprocessor.vector2.vz2 = brVar4.ReadInt16(puVar10 + 4);
+                        Coprocessor.ExecuteNCCT(12, true);
+                        newColors[index] = new Color32
+                            (Coprocessor.colorFIFO.r0, Coprocessor.colorFIFO.g0, Coprocessor.colorFIFO.b0, Coprocessor.colorFIFO.cd0);
+                        newColors[index + 1] = new Color32
+                            (Coprocessor.colorFIFO.r1, Coprocessor.colorFIFO.g1, Coprocessor.colorFIFO.b1, Coprocessor.colorFIFO.cd1);
+                        newColors[index + 2] = new Color32
+                            (Coprocessor.colorFIFO.r2, Coprocessor.colorFIFO.g2, Coprocessor.colorFIFO.b2, Coprocessor.colorFIFO.cd2);
+                        int materialID = materialIDs[DAT_1C[brVar13.ReadUInt16(26) & 0x3fff]];
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(24) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(25) / (mainT[materialID].height - 1));
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
                         brVar13.Seek(28, SeekOrigin.Current);
                         iVar15 = 0x9000000;
                         goto LAB_22F08;
@@ -808,7 +895,32 @@ public class VigMesh : MonoBehaviour
 
                     if (true) //(Coprocessor.mathsAccumulator.mac0 > 0)
                     {
-                        //...
+                        Color32 color = new Color32
+                            (brVar13.ReadByte(0), brVar13.ReadByte(1), brVar13.ReadByte(2), (byte)(brVar13.ReadByte(3) + 232));
+                        newColors[index] = color;
+                        newColors[index + 1] = color;
+                        newColors[index + 2] = color;
+                        newVertices[index] = new Vector3
+                            (Coprocessor.vector0.vx0, Coprocessor.vector0.vy0, Coprocessor.vector0.vz0) / tFactor;
+                        newVertices[index + 1] = new Vector3
+                            (Coprocessor.vector1.vx1, Coprocessor.vector1.vy1, Coprocessor.vector1.vz1) / tFactor;
+                        newVertices[index + 2] = new Vector3
+                            (Coprocessor.vector2.vx2, Coprocessor.vector2.vy2, Coprocessor.vector2.vz2) / tFactor;
+                        int materialID = materialIDs[DAT_1C[brVar13.ReadUInt16(22) & 0x3fff]];
+                        newUVs[index] = new Vector2
+                            ((float)brVar13.ReadByte(12) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(13) / (mainT[materialID].height - 1));
+                        newUVs[index + 1] = new Vector2
+                            ((float)brVar13.ReadByte(16) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(17) / (mainT[materialID].height - 1));
+                        newUVs[index + 2] = new Vector2
+                            ((float)brVar13.ReadByte(20) / (mainT[materialID].width - 1),
+                                1f - (float)brVar13.ReadByte(21) / (mainT[materialID].height - 1));
+                        newTriangles[materialID][index2[materialID]] = index;
+                        newTriangles[materialID][index2[materialID] + 1] = index + 1;
+                        newTriangles[materialID][index2[materialID] + 2] = index + 2;
+                        index += 3;
+                        index2[materialID] += 3;
                         brVar13.Seek(24, SeekOrigin.Current);
                         iVar15 = 0x7000000;
                         goto LAB_22F08;

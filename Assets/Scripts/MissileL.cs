@@ -49,7 +49,7 @@ public class MissileL : VigObject
                 if (vVar6.doubleDamage != 0)
                     uVar8 = 120;
 
-                maxHalfHealth = uVar8;
+                mVar5.maxHalfHealth = uVar8;
                 sVar1 = (short)(maxFullHealth - 1);
                 maxFullHealth = (ushort)sVar1;
 
@@ -74,6 +74,7 @@ public class MissileL : VigObject
                         ppcVar3.id = 120;
                         ccVar2 = FUN_2C5F4(0x8001);
                         Utilities.FUN_2CA94(this, ccVar2, ppcVar3);
+                        ppcVar3.transform.parent = transform;
                         ppcVar3.FUN_30B78();
                         ppcVar3.FUN_30BF0();
                         maxHalfHealth -= 2;

@@ -92,6 +92,7 @@ public class OilSlick2 : VigObject
                     {
                         FUN_2C124(220);
                         state = _OILSLICK_TYPE.Ballistic;
+                        Utilities.ParentChildren(this, this);
                         return 0xffffffff;
                     }
 

@@ -99,7 +99,7 @@ public class XOBF_DB : MonoBehaviour
             }
         }
 
-        ppcVar7.wheels = new VigObject[6];
+        ppcVar7.wheels = new Wheel[6];
 
         for (int i = 0; i < ppcVar7.wheels.Length; i++)
         {
@@ -116,7 +116,8 @@ public class XOBF_DB : MonoBehaviour
                     if ((GameManager.instance.DAT_40 & 1) == 0)
                         uVar10 = (ushort)param2.DAT_00[(i < 2 ? 1 : 0) ^ 1];
 
-                    pcVar16 = LevelManager.instance.xobfList[18].ini.FUN_2C17C((ushort)uVar10, typeof(VigObject), 8);
+                    pcVar16 = LevelManager.instance.xobfList[18].ini.FUN_2C17C((ushort)uVar10, typeof(Wheel), 8);
+                    Utilities.ParentChildren(pcVar16, pcVar16);
                     pcVar16.physics2.X = -LevelManager.instance.xobfList[18].ini.configContainers[(int)uVar10].v3_1.y;
                     sVar6 = (short)GameManager.FUN_2AC5C();
                     pcVar16.vr = new Vector3Int(sVar6, 0, (i & 1) << 11);
@@ -124,7 +125,8 @@ public class XOBF_DB : MonoBehaviour
                 else
                 {
                     sVar6 = (short)ini.FUN_2C73C(ccVar9);
-                    pcVar16 = ini.FUN_2C17C((ushort)sVar6, typeof(VigObject), 8);
+                    pcVar16 = ini.FUN_2C17C((ushort)sVar6, typeof(Wheel), 8);
+                    Utilities.ParentChildren(pcVar16, pcVar16);
                     pcVar16.physics2.X = -(ppcVar7.screen.y + ccVar8.v3_1.y + ccVar9.v3_1.y);
                 }
 
@@ -132,7 +134,7 @@ public class XOBF_DB : MonoBehaviour
                 pcVar16.id = pcVar16.DAT_1A;
                 pcVar16.screen = ccVar8.v3_1;
                 Utilities.FUN_2CC48(ppcVar7, pcVar16);
-                ppcVar7.wheels[i] = pcVar16;
+                ppcVar7.wheels[i] = (Wheel)pcVar16;
                 ccVar8 = ini.FUN_2C5CC(ccVar8, 0x8000);
                 pcVar16.type = 9;
 
@@ -237,6 +239,7 @@ public class XOBF_DB : MonoBehaviour
             r = new BufferedBinaryReader(animations);
 
         brVar2 = r;
+        brVar2.Seek(0, SeekOrigin.Begin);
         iVar3 = 0;
 
         if (brVar2.Length != 0)
@@ -629,6 +632,7 @@ public class XOBF_DB : MonoBehaviour
         pbVar6 = pbVar3;
         iVar5 = 0;
         pbVar3.DAT_1C = new int[16]; //not in the original code
+        pbVar3.topology = MeshTopology.Triangles;
 
         if (puVar7.DAT_19 != 0)
         {
@@ -676,6 +680,9 @@ public class XOBF_DB : MonoBehaviour
                         case 1:
                         case 5:
                             iVar5 = reader.ReadUInt16(22) & 0x3fff;
+                            break;
+                        case 6:
+                            pbVar3.topology = MeshTopology.Lines;
                             break;
                         case 9:
                             iVar5 = reader.ReadUInt16(26) & 0x3fff;

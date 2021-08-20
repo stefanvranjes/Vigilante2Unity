@@ -960,6 +960,7 @@ public class GameManager : MonoBehaviour
     public static ushort[] DAT_63F68 = { 2048, 0, 2048, 819, 655 };
 
     public static short[] DAT_63FA4 = { 9, 3, 4, 2, 0, 7, 8, 12, 10, 11, 14, 13, 15, 6, 20, 21, 22, 23 };
+    public static int[] DAT_63FC8 = { 211, 212, 213 };
 
     //0x80063A80
     public static VehicleData[] vehicleConfigs =
@@ -1220,8 +1221,7 @@ public class GameManager : MonoBehaviour
     public byte DAT_C6E; //gp+C6Eh
     public Color32[] DAT_CE0; //gp+CE0h
     public ushort[] DAT_CF0; //gp+CF0h
-    public byte[] DAT_CF4; //gp+CF4h
-    public byte[] DAT_CF5; //gp+CF5h
+    public byte[,] DAT_CF4; //gp+CF4h
     public byte DAT_CF8; //gp+CF8h
     public byte[] DAT_CFC; //gp+CFCh
     public byte DAT_D08; //gp+D08h
@@ -1503,11 +1503,11 @@ public class GameManager : MonoBehaviour
 
         while (true)
         {
+            if (i == ppiVar1.Count) return false;
+
             ppiVar2 = ppiVar1[i++];
 
             if (ppiVar2.vObject == param2) break;
-
-            if (i == ppiVar1.Count) return false;
         }
 
         ppiVar1.Remove(ppiVar2);
@@ -2353,7 +2353,7 @@ public class GameManager : MonoBehaviour
                                                 {
                                                     pivVar12.tags = 3;
                                                     pivVar12.DAT_F4 = 0;
-                                                    local_f8[iVar13] = new VigTuple(piVar12, uVar3);
+                                                    local_f8[iVar13++] = new VigTuple(piVar12, uVar3);
                                                 }
                                                 else
                                                 {
@@ -2363,7 +2363,7 @@ public class GameManager : MonoBehaviour
                                                         {
                                                             pivVar12.tags = 3;
                                                             pivVar12.DAT_F4 = 0;
-                                                            local_f8[iVar13] = new VigTuple(piVar12, uVar3);
+                                                            local_f8[iVar13++] = new VigTuple(piVar12, uVar3);
                                                         }
                                                         else
                                                         {
@@ -2415,7 +2415,7 @@ public class GameManager : MonoBehaviour
                                                                                pivVar12.body[1].maxHalfHealth);
 
                                                             if (pivVar12.maxFullHealth < (int)uVar8 * 3)
-                                                                local_f8[iVar13] = new VigTuple(piVar12, uVar3);
+                                                                local_f8[iVar13++] = new VigTuple(piVar12, uVar3);
                                                         }
                                                     }
                                                 }
@@ -3286,14 +3286,20 @@ public class GameManager : MonoBehaviour
             instance = this;
         }
 
+        DAT_08 = new ushort[,] { { 0, 0, 0, 0x321, 0x2100, 0x2143 }, 
+                                 { 0, 0, 0, 0x321, 0x2100, 0x2100 } }; //tmp
         gameMode = _GAME_MODE.Arcade;
         gravityFactor = 11520;
         vehicles = new byte[6];
         vehicles[2] = 0;
+        vehicles[3] = 6;
+        vehicles[4] = 13;
         playerObjects = new Vehicle[2];
         cameraObjects = new VigCamera[2];
         DAT_1030 = new sbyte[4];
         DAT_1030[0] = 1;
+        DAT_1030[1] = 1;
+        DAT_1030[2] = 1;
         DAT_1068 = new List<VigTuple>();
         DAT_1078 = new List<VigTuple>();
         DAT_1088 = new List<VigTuple>();
@@ -3311,6 +3317,7 @@ public class GameManager : MonoBehaviour
         DAT_D1B = new byte[2];
         DAT_D28 = new byte[2, 8];
         DAT_CF0 = new ushort[2];
+        DAT_CF4 = new byte[2, 2];
         DAT_CFC = new byte[4];
         DAT_1128 = new sbyte[6];
     }
@@ -4504,8 +4511,8 @@ public class GameManager : MonoBehaviour
         int iVar5;
         BufferedBinaryReader brVar6;
 
-        /*if (param1.gameObject.name == "Dummy" || 
-            param2.gameObject.name == "Dummy")
+        /*if (param1.gameObject.name == "Oil" || 
+            param2.gameObject.name == "Oil")
             Debug.Log("!");*/
 
         if (param1.vCollider != null)

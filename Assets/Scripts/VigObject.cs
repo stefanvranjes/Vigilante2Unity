@@ -14,6 +14,39 @@ public struct Matrix3x3
     public short V10, V11, V12;
     public short V20, V21, V22;
 
+    public Vector3 Scale
+    {
+        get
+        {
+            float fV00, fV01, fV02;
+
+            const int SHRT_MAX = 4096;
+            fV00 = (float)V00 / SHRT_MAX;
+            fV01 = (float)V01 / SHRT_MAX;
+            fV02 = (float)V02 / SHRT_MAX;
+
+            float sx = new Vector3(fV00, fV01, fV02).magnitude;
+
+            float fV10, fV11, fV12;
+
+            fV10 = (float)V10 / SHRT_MAX;
+            fV11 = (float)V11 / SHRT_MAX;
+            fV12 = (float)V12 / SHRT_MAX;
+
+            float sy = new Vector3(fV10, fV11, fV12).magnitude;
+
+            float fV20, fV21, fV22;
+
+            fV20 = (float)V20 / SHRT_MAX;
+            fV21 = (float)V21 / SHRT_MAX;
+            fV22 = (float)V22 / SHRT_MAX;
+
+            float sz = new Vector3(fV20, fV21, fV22).magnitude;
+
+            return new Vector3(sx, sy, sz);
+        }
+    }
+
     public Vector3 EulerXYZ
     {
         get
@@ -1209,7 +1242,7 @@ public class VigObject : MonoBehaviour
         {
             oVar1 = child;
 
-            if (oVar2 == this)
+            if (oVar2.child2 == this)
                 oVar2.child2 = oVar1;
             else
                 oVar2.child = oVar1;
@@ -1502,7 +1535,13 @@ public class VigObject : MonoBehaviour
             if (param1 - DAT_4A < vAnim.ReadUInt16(0))
                 return 0;
 
+            if (GetType() == typeof(Magnet1))
+            {
+                iVar13 = -1;
+            }
+
             iVar13 = -1;
+            iVar11 = 0; //not in the original code
             pcVar14 = vMesh;
             bVar4 = false;
 
@@ -1607,9 +1646,11 @@ public class VigObject : MonoBehaviour
 
             if (iVar13 != -1)
             {
+                iVar13 -= iVar11; //not in the original code
                 vTransform.rotation = Utilities.FUN_245AC(vTransform.rotation, 
                     new Vector3Int(vAnim.ReadInt16(iVar13), vAnim.ReadInt16(iVar13 + 2), vAnim.ReadInt16(iVar13 + 4)));
                 vTransform.padding = vAnim.ReadInt16(iVar13);
+                transform.localScale = vTransform.rotation.Scale;
             }
         }
 
@@ -2271,7 +2312,7 @@ public class VigObject : MonoBehaviour
 
         mVar1 = GameManager.instance.levelManager.xobfList[18].FUN_2CB74(gameObject, 93, true);
         mVar1.DAT_00 |= 8;
-        FUN_4C7E0(mVar1);
+        //FUN_4C7E0(mVar1);
     }
 
     public int FUN_4DCD8()
@@ -2954,7 +2995,7 @@ public class VigObject : MonoBehaviour
                         local_res0 = reader.ReadInt16(20);
                         local_res4 = reader.ReadInt16(24);
                         bVar6 = false;
-                        iVar5 = 14;
+                        iVar5 = 28;
                         reader.BaseStream.Seek(iVar5, SeekOrigin.Current);
                         sVar1 = reader.ReadInt16(0);
                         goto joined_r0x8004c820;

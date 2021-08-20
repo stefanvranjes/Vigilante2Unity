@@ -108,7 +108,7 @@ public class RocketL : VigObject
                             }
 
                             local_38[iVar14] = oVar12;
-                            rVar11 = FUN_4336C((Vehicle)oVar8, GameManager.DAT_63FA4[18 + iVar14 * 2]);
+                            rVar11 = FUN_4336C((Vehicle)oVar8, GameManager.DAT_63FC8[iVar14]);
                             rVar11.DAT_1A = 211;
                             rVar11.DAT_84 = oVar12;
                             rVar11.maxHalfHealth = (ushort)((uint)rVar11.maxHalfHealth >> 1);

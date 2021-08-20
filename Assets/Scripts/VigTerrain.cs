@@ -1925,7 +1925,7 @@ public class VigTerrain : MonoBehaviour
         uint uVar8;
         uint uVar9;
         uint uVar10;
-        ushort[] ppcVar11;
+        int ppcVar11;
         uint uVar12;
         int iVar13;
 
@@ -1958,7 +1958,7 @@ public class VigTerrain : MonoBehaviour
         ppcVar3.screen.x = param1;
         ppcVar3.screen.z = param2;
         iVar13 = (param3 >> 8) * (param3 >> 8);
-        ppcVar11 = ppcVar3.indices;
+        ppcVar11 = 0;
         ppcVar3.DAT_58 = param3;
 
         if (param4 < 0)
@@ -1982,20 +1982,21 @@ public class VigTerrain : MonoBehaviour
 
                         if (iVar5 <= iVar13)
                         {
-                            puVar7 = (chunks[(uVar9 >> 6) * 0x20 + (uVar10 >> 6)] * 4096 +
-                                    (int)(uVar9 & 63) * 128 + (int)(uVar10 & 63) * 2) / 2;
+                            puVar7 = (chunks[(uVar9 >> 6) * 0x20 + (uVar10 >> 6)] * 4096) +
+                                    ((int)(uVar9 & 63) * 128 + (int)(uVar10 & 63) * 2) / 2;
                             uVar1 = (ushort)(((iVar13 - iVar5) * (param4 >> 11)) / iVar13);
                             vertices[puVar7] += uVar1;
                             vertices[puVar7] &= 0x7ff;
-                            ppcVar11[uVar10] = uVar1;
+                            ppcVar3.indices[ppcVar11] = uVar1;
                         }
                         else
-                            ppcVar11[uVar10] = 0;
+                            ppcVar3.indices[ppcVar11] = 0;
                     }
                     else
-                        ppcVar11[uVar10] = 0;
+                        ppcVar3.indices[ppcVar11] = 0;
 
                     uVar10++;
+                    ppcVar11++;
                 } while (uVar10 <= uVar12);
             }
 
@@ -2067,8 +2068,8 @@ public class VigTerrain : MonoBehaviour
                     iVar3 += 0xffff;
 
                 param1.DAT_26[iVar7] =
-                    (short)(vertices[(chunks[((uint)(iVar2 >> 16) >> 6) * 0x20 + ((uint)(iVar3 >> 16) >> 6)] * 4096 +
-                    (iVar3 >> 16 & 63) * 2 + (iVar2 >> 16 & 63) * 128) / 2] >> 11 << 2);
+                    (short)(vertices[(chunks[((uint)(iVar2 >> 16) >> 6) * 0x20 + ((uint)(iVar3 >> 16) >> 6)] * 4096) +
+                    ((iVar3 >> 16 & 63) * 2 + (iVar2 >> 16 & 63) * 128) / 2] >> 11 << 2);
                 iVar3 = param1.pos.x + param1.DAT_28[iVar7].x * 0x100;
                 iVar2 = param1.pos.z + param1.DAT_28[iVar7].z * 0x100;
                 iVar1 = FUN_1B750((uint)iVar3, (uint)iVar2);
@@ -2084,8 +2085,9 @@ public class VigTerrain : MonoBehaviour
                     iVar2 += 0xffff;
 
                 param1.DAT_2E[iVar7] =
-                    (short)(vertices[(chunks[((uint)(iVar3 >> 16) >> 6) * 0x20 + ((uint)(iVar2 >> 16) >> 6)] * 4096 +
-                    (iVar2 >> 16 & 63) * 2 + (iVar3 >> 16 & 63) * 128) / 2] >> 11 << 2);
+                    (short)(vertices[(chunks[((uint)(iVar3 >> 16) >> 6) * 0x20 + ((uint)(iVar2 >> 16) >> 6)] * 4096) +
+                    ((iVar2 >> 16 & 63) * 2 + (iVar3 >> 16 & 63) * 128) / 2] >> 11 << 2);
+                iVar7++;
             } while (iVar7 <= param1.DAT_1C);
         }
     }

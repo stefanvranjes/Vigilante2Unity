@@ -17,11 +17,13 @@ public class MGun : VigObject
     //FUN_42A64
     public override uint UpdateW(int arg1, VigObject arg2)
     {
+        sbyte sbVar1;
         short sVar1;
         Ballistic ppcVar2;
         Bullet ppcVar3;
         ushort uVar4;
         int iVar5;
+        int iVar6;
         Vector3Int local_18;
 
         switch (arg1)
@@ -29,11 +31,25 @@ public class MGun : VigObject
             case 1:
                 maxHalfHealth = 1280;
                 return 0;
-            case 12:
-                sVar1 = (sbyte)(type - 1);
-                type = (byte)sVar1;
+            case 4:
+                iVar6 = maxHalfHealth - 64;
+                iVar5 = 0x500;
 
-                if (sVar1 != -1)
+                if (0x500 < iVar6)
+                    iVar5 = iVar6;
+
+                maxHalfHealth = (ushort)iVar5;
+                DAT_18 = 0;
+
+                if (tags != 0)
+                    tags--;
+
+                return 0;
+            case 12:
+                sbVar1 = (sbyte)(tags - 1);
+                tags = sbVar1;
+
+                if (sbVar1 != -1)
                     return 0;
 
                 ppcVar2 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(2, typeof(Ballistic), 8) as Ballistic;

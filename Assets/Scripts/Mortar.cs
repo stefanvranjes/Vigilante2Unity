@@ -195,7 +195,7 @@ public class Mortar : VigObject
         if (iVar4 < 0)
             iVar4 += 127;
 
-        iVar7 = ppcVar2.vTransform.rotation.V01 * iVar8;
+        iVar7 = ppcVar3.vTransform.rotation.V01 * iVar8;
 
         if (iVar7 < 0)
             iVar7 += 4095;

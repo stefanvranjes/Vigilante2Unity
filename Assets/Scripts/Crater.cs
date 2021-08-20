@@ -58,8 +58,8 @@ public class Crater : VigObject
                         if (uVar1 != 0)
                         {
                             indices[psVar7]--;
-                            terrain.vertices[(terrain.chunks[(uVar8 >> 6) * 0x20 + (uVar6 >> 6)] * 4096 +
-                                            (int)(uVar8 & 63) * 128 + (int)(uVar6 & 63) * 2) / 2]--;
+                            terrain.vertices[(terrain.chunks[(uVar8 >> 6) * 0x20 + (uVar6 >> 6)] * 4096) +
+                                            ((int)(uVar8 & 63) * 128 + (int)(uVar6 & 63) * 2) / 2]--;
                             bVar2 = true;
                         }
 

@@ -480,7 +480,7 @@ public class LevelManager : MonoBehaviour
         }
         else
             oVar3 = param2.vData.ini.FUN_2C17C(param3, param4, 8);
-
+        
         oVar3.DAT_80 = param1;
         oVar3.flags = 0x20000000;
         uVar1 = (ushort)param1.id;
@@ -498,7 +498,10 @@ public class LevelManager : MonoBehaviour
         oVar3.screen = oVar3.vTransform.position;
 
         if (param5 != null)
+        {
             Utilities.FUN_2CA94(param2, ccVar2, param5);
+            param5.transform.parent = param2.transform;
+        }
 
         return oVar3;
     }
