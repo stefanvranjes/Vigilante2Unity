@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: default
   m_Shader: {fileID: 4800000, guid: 94cb0d6305cd4a743b1d2ec684e277de, type: 3}
-  m_ShaderKeywords: BFC _DIFFMODEL_VERTEX _DRAWDIST_ON _SPECMODEL_GOURAUD _UNLIT_ON
+  m_ShaderKeywords: BFC _COLORONLY_ON _DIFFMODEL_VERTEX _EMISSION _SPECMODEL_GOURAUD
+    _UNLIT_ON
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -86,6 +87,7 @@ Material:
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2
     - _CameraNearFadeDistance: 1
+    - _ColorMode: 0
     - _ColorOnly: 1
     - _Cul: 2
     - _Cull: 2
@@ -105,7 +107,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _LODAmt: 0
-    - _LightingEnabled: 1
+    - _LightingEnabled: 0
     - _Metallic: 0
     - _Mode: 0
     - _NormalMapDepth: 1
@@ -130,6 +132,7 @@ Material:
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

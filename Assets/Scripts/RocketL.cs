@@ -176,6 +176,10 @@ public class RocketL : VigObject
 
         switch (arg1)
         {
+            case 0:
+                FUN_42330(arg2);
+                uVar9 = 0;
+                break;
             case 1:
                 maxHalfHealth = 10;
                 goto default;
@@ -222,6 +226,7 @@ public class RocketL : VigObject
         Rocket ppcVar1;
         int iVar2;
         Particle1 oVar2;
+        int iVar3;
         ushort uVar4;
 
         ppcVar1 = LevelManager.instance.FUN_42408(param1, this, (ushort)param2, typeof(Rocket), null) as Rocket;
@@ -260,7 +265,8 @@ public class RocketL : VigObject
 
         ppcVar1.physics2.X = (iVar2 >> 7) + ppcVar1.vTransform.rotation.V22 * 4;
         ppcVar1.physics2.M2 = 240;
-        //sound
+        iVar3 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E580(iVar3, GameManager.instance.DAT_C2C, 52, ppcVar1.screen);
         param1.FUN_2B1FC(GameManager.DAT_A30, screen);
         return ppcVar1;
     }

@@ -74,6 +74,7 @@ public class Rocket : VigObject
     //FUN_430F8
     public override uint UpdateW(int arg1, int arg2)
     {
+        int iVar1;
         uint uVar1;
         short sVar1;
         ushort uVar2;
@@ -122,7 +123,8 @@ public class Rocket : VigObject
 
                     if (iVar2 <= screen.y)
                     {
-                        //sound
+                        iVar3 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 63, screen);
                         LevelManager.instance.FUN_4DE54(screen, 33);
                         LevelManager.instance.FUN_309C8(this, 1);
                         return 0xffffffff;
@@ -199,7 +201,8 @@ public class Rocket : VigObject
                             uVar1 = 0;
                         else
                         {
-                            //sound
+                            iVar1 = GameManager.instance.FUN_1DD9C();
+                            GameManager.instance.FUN_1E628(iVar1, GameManager.instance.DAT_C2C, 63, screen);
                             LevelManager.instance.FUN_4DE54(screen, 33);
                             LevelManager.instance.FUN_309C8(this, 1);
                             uVar1 = 0xffffffff;
@@ -224,7 +227,8 @@ public class Rocket : VigObject
 
                     if (sVar1 == 1)
                     {
-                        //sound
+                        iVar3 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 63, screen);
                         LevelManager.instance.FUN_4DE54(vTransform.position, 34);
                         vVar2.FUN_3A020(-40, vTransform.position, true);
                         oVar3 = FUN_2CCBC();

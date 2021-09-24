@@ -22,6 +22,7 @@ public class Shell : VigObject
         Vehicle vVar3;
         Particle2 pVar3;
         int iVar5;
+        int iVar7;
         uint uVar7;
 
         if (hit.object2.type == 3)
@@ -32,7 +33,8 @@ public class Shell : VigObject
         if (sVar1 == 1)
         {
             LevelManager.instance.FUN_4DE54(screen, 140);
-            //sound
+            iVar7 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar7, GameManager.instance.DAT_C2C, 64, vTransform.position);
             oVar3 = hit.self;
 
             if (oVar3.type == 2)
@@ -75,7 +77,8 @@ public class Shell : VigObject
 
                 pVar3 = LevelManager.instance.FUN_4E128(screen, 79, 200);
                 Utilities.ParentChildren(pVar3, pVar3);
-                //sound
+                iVar7 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E580(iVar7, GameManager.instance.DAT_C2C, 66, screen);
             }
             else
             {
@@ -84,7 +87,8 @@ public class Shell : VigObject
 
                 LevelManager.instance.FUN_4DE54(screen, 141);
                 LevelManager.instance.FUN_4DE54(screen, 42);
-                //sound
+                iVar7 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar7, GameManager.instance.DAT_C2C, 64, vTransform.position);
                 oVar3 = hit.self;
 
                 if (oVar3.type == 2)
@@ -169,7 +173,7 @@ public class Shell : VigObject
 
             if ((uint)physics1.W + 56 < 56)
             {
-                //sound
+                GameManager.instance.FUN_1E580(DAT_18, GameManager.instance.DAT_C2C, 58, screen);
                 id = 0;
                 flags &= 0xffffffdf;
             }
@@ -228,10 +232,10 @@ public class Shell : VigObject
                 pVar4 = LevelManager.instance.FUN_4E128(screen, 53, maxHalfHealth);
                 Utilities.ParentChildren(pVar4, pVar4);
                 pVar4.flags |= 0x10;
-                //sound
+                GameManager.instance.FUN_1E628(DAT_18, GameManager.instance.DAT_C2C, 66, screen);
                 GameManager.instance.terrain.FUN_45B00(screen.x, screen.z, 0x20000, maxHalfHealth << 7);
                 pVar3 = LevelManager.instance.FUN_4DE54(screen, 39);
-                Utilities.ParentChildren2(pVar3, pVar3);
+                Utilities.ParentChildren(pVar3, pVar3);
                 //FUN_4E414
             }
             else
@@ -248,8 +252,8 @@ public class Shell : VigObject
                 }
 
                 pVar3 = LevelManager.instance.FUN_4DE54(screen, 39);
-                Utilities.ParentChildren2(pVar3, pVar3);
-                //sound
+                Utilities.ParentChildren(pVar3, pVar3);
+                GameManager.instance.FUN_1E628(DAT_18, GameManager.instance.DAT_C2C, 66, screen);
             }
             
             LevelManager.instance.FUN_309C8(this, 1);

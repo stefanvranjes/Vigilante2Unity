@@ -22,6 +22,7 @@ public class Cannonball : VigObject
         sbyte sVar4;
         int iVar5;
         VigObject oVar5;
+        int iVar6;
         uint uVar6;
         Ballistic ppcVar7;
         int iVar8;
@@ -47,7 +48,8 @@ public class Cannonball : VigObject
                 ppcVar7.screen = screen;
                 ppcVar7.FUN_3066C();
                 LevelManager.instance.FUN_4DE54(screen, 42);
-                //sound
+                iVar6 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar6, GameManager.instance.DAT_C2C, 64, vTransform.position);
                 oVar5 = hit.self;
 
                 if (oVar5.type == 2)
@@ -139,7 +141,8 @@ public class Cannonball : VigObject
 
                 if (-1 < iVar5)
                 {
-                    //sound
+                    iVar6 = GameManager.instance.FUN_1DD9C();
+                    GameManager.instance.FUN_1E628(iVar6, GameManager.instance.DAT_C2C, iVar5, vTransform.position);
                 }
 
                 id = hit.object2.id;
@@ -200,6 +203,7 @@ public class Cannonball : VigObject
     public override uint UpdateW(int arg1, int arg2)
     {
         int iVar5;
+        int iVar6;
         uint uVar6;
         int iVar12;
         Vector3Int v0;
@@ -208,7 +212,8 @@ public class Cannonball : VigObject
         if (arg1 == 2)
         {
             LevelManager.instance.FUN_4DE54(screen, 39);
-            //sound
+            iVar6 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar6, GameManager.instance.DAT_C2C, 66, screen);
             LevelManager.instance.FUN_309C8(this, 1);
             uVar6 = 0xffffffff;
         }
@@ -233,7 +238,8 @@ public class Cannonball : VigObject
                 {
                     screen.y = iVar5;
                     LevelManager.instance.FUN_4DE54(screen, 39);
-                    //sound
+                    iVar6 = GameManager.instance.FUN_1DD9C();
+                    GameManager.instance.FUN_1E628(iVar6, GameManager.instance.DAT_C2C, 66, screen);
                     LevelManager.instance.FUN_309C8(this, 1);
                     uVar6 = 0xffffffff;
                 }

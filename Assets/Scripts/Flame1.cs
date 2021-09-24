@@ -16,6 +16,7 @@ public class Flame1 : VigObject
 
     public override uint OnCollision(HitDetection hit)
     {
+        int iVar2;
         bool bVar3;
 
         if (hit.object2.type == 3)
@@ -34,7 +35,8 @@ public class Flame1 : VigObject
         else
         {
             LevelManager.instance.FUN_4DE54(vTransform.position, 35);
-            //sound
+            iVar2 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E580(iVar2, GameManager.instance.DAT_C2C, 69, vTransform.position);
         }
 
         GameManager.instance.FUN_309A0(this);
@@ -45,6 +47,7 @@ public class Flame1 : VigObject
     public override uint UpdateW(int arg1, int arg2)
     {
         bool bVar1;
+        int iVar2;
         int iVar4;
 
         if (arg1 != 3)
@@ -79,7 +82,8 @@ public class Flame1 : VigObject
                 if (tags != 0)
                 {
                     LevelManager.instance.FUN_4DE54(vTransform.position, 138);
-                    //sound
+                    iVar2 = GameManager.instance.FUN_1DD9C();
+                    GameManager.instance.FUN_1E14C(iVar2, GameManager.instance.DAT_C2C, 70);
                     LevelManager.instance.FUN_309C8(this, 1);
                     return 0xffffffff;
                 }

@@ -16,6 +16,7 @@ public class Flamewall2 : VigObject
 
     public override uint OnCollision(HitDetection hit)
     {
+        int iVar1;
         uint uVar1;
         bool bVar2;
 
@@ -28,7 +29,8 @@ public class Flamewall2 : VigObject
 
             if (bVar2)
             {
-                //sound
+                iVar1 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar1, GameManager.instance.DAT_C2C, 63, vTransform.position);
                 //FUN_4E414
                 uVar1 = 0;
             }

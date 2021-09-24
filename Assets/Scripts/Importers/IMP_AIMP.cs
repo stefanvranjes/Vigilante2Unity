@@ -18,7 +18,9 @@ public class IMP_AIMP
             while (reader.BaseStream.Position < reader.BaseStream.Length)
                 levelManager.aimpData[i++] = reader.ReadUInt16();
 
+#if UNITY_EDITOR
             EditorUtility.SetDirty(levelManager);
+#endif
         }
     }
 }

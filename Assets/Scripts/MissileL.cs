@@ -18,6 +18,7 @@ public class MissileL : VigObject
     public override uint UpdateW(int arg1, int arg2)
     {
         short sVar1;
+        int iVar2;
         Vehicle vVar2;
         ConfigContainer ccVar2;
         Afterburner ppcVar3;
@@ -42,7 +43,8 @@ public class MissileL : VigObject
             case 2:
                 vVar6 = Utilities.FUN_2CD78(this) as Vehicle;
                 mVar5 = FUN_445B0(vVar6, 188);
-                //sound
+                iVar2 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E580(iVar2, GameManager.instance.DAT_C2C, 51, mVar5.screen);
                 mVar5.flags |= 0x40000000;
                 uVar8 = 60;
 
@@ -78,7 +80,7 @@ public class MissileL : VigObject
                         ppcVar3.FUN_30B78();
                         ppcVar3.FUN_30BF0();
                         maxHalfHealth -= 2;
-                        //FUN_39B50
+                        pcVar4.FUN_39B50();
                         return 240;
                     }
                 }
@@ -93,7 +95,8 @@ public class MissileL : VigObject
                             mVar6 = FUN_445B0(vVar2, 199);
                             mVar6.DAT_84 = vVar2;
                             mVar6.flags |= 0x41000000;
-                            //sound
+                            iVar2 = GameManager.instance.FUN_1DD9C();
+                            GameManager.instance.FUN_1E580(iVar2, GameManager.instance.DAT_C2C, 67, mVar6.screen);
                             return 120;
                         }
                     }
@@ -124,6 +127,7 @@ public class MissileL : VigObject
 
     public override uint UpdateW(int arg1, VigObject arg2)
     {
+        int iVar2;
         int iVar6;
         VigObject oVar6;
         uint uVar7;
@@ -131,6 +135,10 @@ public class MissileL : VigObject
 
         switch (arg1)
         {
+            case 0:
+                FUN_42330(arg2);
+                uVar7 = 0;
+                break;
             case 1:
                 maxHalfHealth = 12;
                 flags |= 0x4000;
@@ -146,7 +154,8 @@ public class MissileL : VigObject
                     uVar8 = 120;
 
                 oVar6.maxHalfHealth = uVar8;
-                //sound
+                iVar2 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E580(iVar2, GameManager.instance.DAT_C2C, 51, oVar6.screen);
                 uVar7 = 90;
                 break;
             case 13:

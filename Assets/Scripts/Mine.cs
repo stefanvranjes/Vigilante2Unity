@@ -18,6 +18,7 @@ public class Mine : VigObject
     {
         VigObject oVar1;
         Vehicle vVar1;
+        int iVar3;
 
         oVar1 = hit.self;
 
@@ -35,7 +36,8 @@ public class Mine : VigObject
         }
 
         GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
-        //sound
+        iVar3 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 65, screen);
         LevelManager.instance.FUN_4DE54(screen, 39);
         LevelManager.instance.FUN_309C8(this, 0);
         return 0xffffffff;
@@ -109,6 +111,8 @@ public class Mine : VigObject
 
     public override uint UpdateW(int arg1, VigObject arg2)
     {
+        int iVar3;
+
         if (arg1 != 2)
         {
             if (2 < arg1)
@@ -119,7 +123,8 @@ public class Mine : VigObject
                         return 0;
 
                     GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
-                    //sound
+                    iVar3 = GameManager.instance.FUN_1DD9C();
+                    GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 65, screen);
                     LevelManager.instance.FUN_4DE54(screen, 39);
                     LevelManager.instance.FUN_309C8(this, 0);
                     return 0xffffffff;
@@ -135,6 +140,7 @@ public class Mine : VigObject
     {
         int iVar1;
         int iVar2;
+        uint uVar3;
         Vector3Int auStack8;
 
         screen.x += physics1.Z;
@@ -158,8 +164,11 @@ public class Mine : VigObject
 
         if (iVar1 < screen.y)
         {
+            uVar3 = GameManager.instance.FUN_1E478(screen);
             screen.y = iVar1;
-            //sound
+            iVar2 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E098(iVar2, GameManager.instance.DAT_C2C, 55,
+                                           uVar3 >> (physics2.M2 & 31) & (uint)(0x40004000 >> (physics2.M2 & 31)) - 0x10001);
             physics2.M2++;
             vTransform.rotation = Utilities.FUN_2A5EC(auStack8);
             iVar2 = 1;

@@ -16,6 +16,7 @@ public class Brearhug : Mine
 
     public override uint OnCollision(HitDetection hit)
     {
+        sbyte sVar1;
         VigObject oVar2;
         Vehicle vVar2;
         Magnet1 ppcVar3;
@@ -40,7 +41,9 @@ public class Brearhug : Mine
                 ppcVar3.screen = new Vector3Int(0, 0, 0);
                 Utilities.FUN_2CC48(this, ppcVar3);
                 ppcVar3.transform.parent = transform;
-                //sound
+                sVar1 = (sbyte)GameManager.instance.FUN_1DD9C();
+                DAT_18 = sVar1;
+                GameManager.instance.FUN_1E628(sVar1, GameManager.instance.DAT_C2C, 56, vTransform.position, true);
                 LevelManager.instance.DAT_117C++;
             }
 
@@ -127,7 +130,7 @@ public class Brearhug : Mine
             else
             {
                 if (arg1 == 4)
-                    ; //sound
+                    GameManager.instance.FUN_1DE78(DAT_18);
             }
         }
 

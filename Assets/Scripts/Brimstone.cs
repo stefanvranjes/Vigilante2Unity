@@ -30,18 +30,18 @@ public class Brimstone : VigObject
         {
             vVar4 = (Vehicle)oVar4;
             vVar4.FUN_3A064(-200, vTransform.position, true);
-            //sound
+            uVar2 = (uint)GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628((int)uVar2, GameManager.instance.DAT_C2C, 63, vTransform.position);
             bVar4 = LevelManager.instance.FUN_39AF8(vVar4);
-
             if (!bVar4) goto LAB_48598;
-
             LevelManager.instance.FUN_4DE54(vTransform.position, 35);
             uVar2 = 0x8008080;
         }
         else
         {
             LevelManager.instance.FUN_4DE54(vTransform.position, 35);
-            //sound
+            uVar2 = (uint)GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E580((int)uVar2, GameManager.instance.DAT_C2C, 63, vTransform.position);
             uVar2 = 0x8000080;
         }
 
@@ -55,6 +55,7 @@ public class Brimstone : VigObject
     public override uint UpdateW(int arg1, int arg2)
     {
         short sVar1;
+        int iVar2;
         Vector3Int v0;
         int iVar3;
         int iVar4;
@@ -85,9 +86,10 @@ public class Brimstone : VigObject
                 }
 
                 pVar4 = LevelManager.instance.FUN_4E128(vTransform.position, 83, 40);
-                Utilities.ParentChildren2(pVar4, pVar4);
+                Utilities.ParentChildren(pVar4, pVar4);
                 pVar4.FUN_2D114(pVar4.screen, ref pVar4.vTransform);
-                //sound
+                iVar2 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar2, GameManager.instance.DAT_C2C, 63, pVar4.vTransform.position);
                 sVar1 = physics2.M3;
                 physics2.M3 = (short)(sVar1 - 1);
 
@@ -135,7 +137,8 @@ public class Brimstone : VigObject
             }
 
             LevelManager.instance.FUN_4DE54(vTransform.position, 138);
-            //sound
+            iVar2 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E14C(iVar2, GameManager.instance.DAT_C2C, 70);
         }
 
         return 0;

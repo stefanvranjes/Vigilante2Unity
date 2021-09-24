@@ -99,12 +99,13 @@ public class JUNC_DB : MonoBehaviour
             else
             {
                 iVar5 = reader.ReadInt16BE();
-                DAT_0C = levelManager.xobfList[iVar5];
+                DAT_0C = levelManager.xobfList[iVar5 + 42];
                 sVar2 = reader.ReadInt16BE();
                 DAT_14 = sVar2;
                 sVar2 = reader.ReadInt16BE();
                 DAT_16 = sVar2;
                 pbVar8 = DAT_0C.FUN_2CB74(gameObject, (ushort)DAT_14, false);
+                pbVar8.xobf = DAT_0C;
                 pbVar8.initAtStart = true;
                 DAT_18 = pbVar8;
                 pbVar8.DAT_00 = (byte)(pbVar8.DAT_00 & 0xfe | 4);
@@ -149,6 +150,7 @@ public class JUNC_DB : MonoBehaviour
                                 reader2.BaseStream.Seek(2, SeekOrigin.Current);
                                 writer.Write((short)(iVar7 - DAT_00.y >> (int)(uVar14 & 31)));
                                 writer.Write(sVar12);
+                                writer.Write((short)0);
                             }
                         }
                     }
@@ -171,6 +173,17 @@ public class JUNC_DB : MonoBehaviour
         PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
 #endif
         return true;
+    }
+
+    void Update()
+    {
+        transform.localPosition = new Vector3(
+            (float)DAT_00.x / GameManager.instance.translateFactor,
+            (float)-DAT_00.y / GameManager.instance.translateFactor,
+            (float)DAT_00.z / GameManager.instance.translateFactor);
+
+        //transform.localRotation = vTransform.rotation.Matrix2Quaternion;
+        //transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, -transform.localEulerAngles.z);
     }
 
     //FUN_78CC (LOAD.DLL)
@@ -203,8 +216,7 @@ public class JUNC_DB : MonoBehaviour
             writer.Write(terrain.DAT_B9370[iVar1].g);
             writer.Write(terrain.DAT_B9370[iVar1].b);
         }
-
-        param1.Seek(param1_pos, SeekOrigin.Begin);
+        
         param2.Seek(param2_pos, SeekOrigin.Begin);
         param3.Seek(param3_pos, SeekOrigin.Begin);
         param4.Seek(param4_pos, SeekOrigin.Begin);

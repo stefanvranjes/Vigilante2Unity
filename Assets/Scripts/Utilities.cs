@@ -39,6 +39,51 @@ public static class Utilities
         }
     };
 
+    //0x800C6130
+    public static _VEHICLE_INIT[] vehicleComponents =
+    {
+        null, 
+        null, 
+        Biker.LoadDakota, 
+        null, 
+        null, 
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    };
+
+    public static Type[] vehicleSpecials =
+    {
+        null,
+        typeof(Revolver),
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    };
+
     public static sbyte[] DAT_106E8 =
     {
         -1, -1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 9
@@ -119,6 +164,36 @@ public static class Utilities
             return null;
     }
 
+    public static VigObject FUN_31D30_2(Type param1, XOBF_DB param2, short param3, uint param4)
+    {
+        if (param1.Equals(typeof(Revolver)))
+        {
+            if (param2 == null || param3 == -1)
+            {
+                GameObject obj = new GameObject();
+                VigObject comp = obj.AddComponent(param1) as VigObject;
+                comp.vData = param2;
+                return comp;
+            }
+            else
+                return param2.ini.FUN_2C17C((ushort)param3, param1, param4, typeof(Revolver2));
+        }
+        else if (param1.Equals(typeof(Empty)))
+        {
+            if (param2 == null || param3 == -1)
+            {
+                GameObject obj = new GameObject();
+                VigObject comp = obj.AddComponent(param1) as VigObject;
+                comp.vData = param2;
+                return comp;
+            }
+            else
+                return param2.ini.FUN_2C17C((ushort)param3, param1, param4);
+        }
+        else
+            return null;
+    }
+
     public static VigObject FUN_31D30(_VEHICLE_INIT param1, XOBF_DB param2, ushort param3, uint param4)
     {
         VigObject oVar1;
@@ -134,6 +209,25 @@ public static class Utilities
         }
 
         return null;
+    }
+
+    public static VigShadow FUN_4C44C(VigMesh param1, int param2, int param3, GameObject param4)
+    {
+        VigShadow puVar1;
+
+        puVar1 = param4.AddComponent<VigShadow>();
+        puVar1.vMesh = param1;
+
+        if (param2 < 0)
+            param2 += 15;
+
+        puVar1.DAT_24 = param2 >> 4;
+
+        if (param3 < 0)
+            param3 += 15;
+
+        puVar1.DAT_28 = param3 >> 4;
+        return puVar1;
     }
 
     public static int FUN_2E5B0(BoundingBox bbox, VigTransform t1, Radius radius, VigTransform t2)
@@ -565,9 +659,9 @@ public static class Utilities
         Vector3Int local_8;
 
         local_8 = new Vector3Int
-            (v1.x - v2.x,
-             v1.y - v2.y,
-             v1.z - v2.z);
+            (v2.x - v1.x,
+             v2.y - v1.y,
+             v2.z - v1.z);
         return FUN_29FC8(local_8, out vout);
     }
 
@@ -639,12 +733,21 @@ public static class Utilities
         int iVar5;
 
         lVar1 = SquareRoot(m33.V00 * m33.V00 + m33.V20 * m33.V20);
-        iVar4 = m33.V00 * (0x1000000 / (int)lVar1);
+
+        if (lVar1 != 0)
+        {
+            iVar4 = m33.V00 * (0x1000000 / (int)lVar1);
+            iVar5 = m33.V20 * (0x1000000 / (int)lVar1);
+        }
+        else
+        {
+            iVar4 = m33.V00 * -1;
+            iVar5 = m33.V20 * -1;
+        }
 
         if (iVar4 < 0)
             iVar4 += 4095;
-
-        iVar5 = m33.V20 * (0x1000000 / (int)lVar1);
+        
         iVar4 = iVar4 >> 12;
 
         if (iVar5 < 0)
@@ -840,6 +943,14 @@ public static class Utilities
         FUN_2CC48(obj1, obj2);
     }
 
+    public static void FUN_2CB04(VigObject obj1, ConfigContainer cont, VigObject obj2)
+    {
+        obj2.vr = cont.v3_2;
+        obj2.screen = cont.v3_1;
+        obj2.ApplyTransformation();
+        FUN_2CC9C(obj1, obj2);
+    }
+
     public static void FUN_2CC48(VigObject obj1, VigObject obj2)
     {
         VigObject oVar1;
@@ -866,7 +977,7 @@ public static class Utilities
         obj2.parent = obj1;
     }
 
-    public static void ParentChildren(VigObject obj, VigObject parent)
+    /*public static void ParentChildren(VigObject obj, VigObject parent)
     {
         VigObject child2 = obj.child2;
 
@@ -883,6 +994,17 @@ public static class Utilities
             child.transform.parent = parent.transform;
             ParentChildren(child, parent);
         }
+    }*/
+
+    public static void ParentChildren(VigObject obj, VigObject parent)
+    {
+        VigObject child2 = obj.child2;
+
+        if (child2 != null)
+        {
+            child2.transform.parent = obj.transform;
+            ParentChildren2(child2, obj);
+        }
     }
 
     public static void ParentChildren2(VigObject obj, VigObject parent)
@@ -896,7 +1018,7 @@ public static class Utilities
         }
 
         VigObject child = obj.child;
-        
+
         if (child != null)
         {
             child.transform.parent = parent.transform;
@@ -1060,7 +1182,7 @@ public static class Utilities
         Coprocessor.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.V0, _MVMVA_TRANSLATION_VECTOR.None, 12, false);
 
         Coprocessor.vector1.vx1 = m33.V01;
-        Coprocessor.vector1.vy1 = m33.V12;
+        Coprocessor.vector1.vy1 = m33.V11;
         Coprocessor.vector1.vz1 = m33.V21;
         short IR1_1 = Coprocessor.accumulator.ir1;
         short IR2_1 = Coprocessor.accumulator.ir2;
@@ -1069,7 +1191,7 @@ public static class Utilities
 
         Coprocessor.vector0.vx0 = m33.V02;
         Coprocessor.vector0.vy0 = m33.V12;
-        Coprocessor.vector0.vz0 = m33.V21;
+        Coprocessor.vector0.vz0 = m33.V22;
         short IR1_2 = Coprocessor.accumulator.ir1;
         short IR2_2 = Coprocessor.accumulator.ir2;
         short IR3_2 = Coprocessor.accumulator.ir3;
@@ -1287,6 +1409,41 @@ public static class Utilities
         int mac1_2 = Coprocessor.mathsAccumulator.mac1 + mac1_1;
         int mac2_2 = Coprocessor.mathsAccumulator.mac2 + mac2_1;
         int mac3_2 = Coprocessor.mathsAccumulator.mac3 + mac3_1;
+
+        return new Vector3Int(mac1_2, mac2_2, mac3_2);
+    }
+
+    public static Vector3Int FUN_24148_2(VigTransform transform, Vector3Int v)
+    {
+        Coprocessor2.rotationMatrix.rt11 = transform.rotation.V00;
+        Coprocessor2.rotationMatrix.rt12 = transform.rotation.V01;
+        Coprocessor2.rotationMatrix.rt13 = transform.rotation.V02;
+        Coprocessor2.rotationMatrix.rt21 = transform.rotation.V10;
+        Coprocessor2.rotationMatrix.rt22 = transform.rotation.V11;
+        Coprocessor2.rotationMatrix.rt23 = transform.rotation.V12;
+        Coprocessor2.rotationMatrix.rt31 = transform.rotation.V20;
+        Coprocessor2.rotationMatrix.rt32 = transform.rotation.V21;
+        Coprocessor2.rotationMatrix.rt33 = transform.rotation.V22;
+        Coprocessor2.accumulator.ir1 = (short)(v.x >> 15);
+        Coprocessor2.accumulator.ir2 = (short)(v.y >> 15);
+        Coprocessor2.accumulator.ir3 = (short)(v.z >> 15);
+        Coprocessor2.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.None, 0, false);
+
+        int mac1_1 = Coprocessor2.mathsAccumulator.mac1 << 3;
+        int mac2_1 = Coprocessor2.mathsAccumulator.mac2 << 3;
+        int mac3_1 = Coprocessor2.mathsAccumulator.mac3 << 3;
+
+        Coprocessor2.translationVector._trx = transform.position.x;
+        Coprocessor2.translationVector._try = transform.position.y;
+        Coprocessor2.translationVector._trz = transform.position.z;
+        Coprocessor2.accumulator.ir1 = (short)(v.x & 0x7fff);
+        Coprocessor2.accumulator.ir2 = (short)(v.y & 0x7fff);
+        Coprocessor2.accumulator.ir3 = (short)(v.z & 0x7fff);
+        Coprocessor2.ExecuteMVMVA(_MVMVA_MULTIPLY_MATRIX.Rotation, _MVMVA_MULTIPLY_VECTOR.IR, _MVMVA_TRANSLATION_VECTOR.TR, 12, false);
+
+        int mac1_2 = Coprocessor2.mathsAccumulator.mac1 + mac1_1;
+        int mac2_2 = Coprocessor2.mathsAccumulator.mac2 + mac2_1;
+        int mac3_2 = Coprocessor2.mathsAccumulator.mac3 + mac3_1;
 
         return new Vector3Int(mac1_2, mac2_2, mac3_2);
     }
@@ -2069,6 +2226,90 @@ public static class Utilities
         }
     }
 
+    public static void SetFogNearFar2(int a, int b, int h)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+
+        iVar2 = b - a;
+
+        if (99 < iVar2)
+        {
+            if (iVar2 == 0)
+                return; //exception 0x1c00
+
+            if (iVar2 == -1 && -a * b == -0x80000000)
+                return; //exception 0x1800
+
+            if (iVar2 == 0)
+                return; //exception 0x1c00
+
+            if (iVar2 == -1 && b << 12 == -0x80000000)
+                return; //exception 0x1800
+
+            iVar1 = (-a * b) / iVar2 << 8;
+            iVar3 = iVar1 / h;
+
+            if (h == 0)
+                return; //exception 0x1c00
+
+            if (h == -1 && iVar1 == -0x80000000)
+                return; //exception 0x1800
+
+            if (iVar3 < -0x8000)
+                iVar3 = -0x8000;
+
+            if (0x7fff < iVar3)
+                iVar3 = 0x7fff;
+
+            SetDQA2(iVar3);
+            SetDQB2((b << 12) / iVar2 << 12);
+        }
+    }
+
+    public static void SetFogNearFar3(int a, int b, int h)
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+
+        iVar2 = b - a;
+
+        if (99 < iVar2)
+        {
+            if (iVar2 == 0)
+                return; //exception 0x1c00
+
+            if (iVar2 == -1 && -a * b == -0x80000000)
+                return; //exception 0x1800
+
+            if (iVar2 == 0)
+                return; //exception 0x1c00
+
+            if (iVar2 == -1 && b << 12 == -0x80000000)
+                return; //exception 0x1800
+
+            iVar1 = (-a * b) / iVar2 << 8;
+            iVar3 = iVar1 / h;
+
+            if (h == 0)
+                return; //exception 0x1c00
+
+            if (h == -1 && iVar1 == -0x80000000)
+                return; //exception 0x1800
+
+            if (iVar3 < -0x8000)
+                iVar3 = -0x8000;
+
+            if (0x7fff < iVar3)
+                iVar3 = 0x7fff;
+
+            SetDQA3(iVar3);
+            SetDQB3((b << 12) / iVar2 << 12);
+        }
+    }
+
     //FUN_59D4C
     public static Matrix3x3 MulMatrix(Matrix3x3 m0, Matrix3x3 m1)
     {
@@ -2295,6 +2536,32 @@ public static class Utilities
         Coprocessor.rotationMatrix.rt33 = m.V22;
     }
 
+    public static void SetRotMatrix2(Matrix3x3 m)
+    {
+        Coprocessor2.rotationMatrix.rt11 = m.V00;
+        Coprocessor2.rotationMatrix.rt12 = m.V01;
+        Coprocessor2.rotationMatrix.rt13 = m.V02;
+        Coprocessor2.rotationMatrix.rt21 = m.V10;
+        Coprocessor2.rotationMatrix.rt22 = m.V11;
+        Coprocessor2.rotationMatrix.rt23 = m.V12;
+        Coprocessor2.rotationMatrix.rt31 = m.V20;
+        Coprocessor2.rotationMatrix.rt32 = m.V21;
+        Coprocessor2.rotationMatrix.rt33 = m.V22;
+    }
+
+    public static void SetRotMatrix3(Matrix3x3 m)
+    {
+        Coprocessor3.rotationMatrix.rt11 = m.V00;
+        Coprocessor3.rotationMatrix.rt12 = m.V01;
+        Coprocessor3.rotationMatrix.rt13 = m.V02;
+        Coprocessor3.rotationMatrix.rt21 = m.V10;
+        Coprocessor3.rotationMatrix.rt22 = m.V11;
+        Coprocessor3.rotationMatrix.rt23 = m.V12;
+        Coprocessor3.rotationMatrix.rt31 = m.V20;
+        Coprocessor3.rotationMatrix.rt32 = m.V21;
+        Coprocessor3.rotationMatrix.rt33 = m.V22;
+    }
+
     //FUN_5A04C
     public static void SetLightMatrix(Matrix3x3 m)
     {
@@ -2307,6 +2574,19 @@ public static class Utilities
         Coprocessor.lightMatrix.l31 = m.V20;
         Coprocessor.lightMatrix.l32 = m.V21;
         Coprocessor.lightMatrix.l33 = m.V22;
+    }
+
+    public static void SetLightMatrix3(Matrix3x3 m)
+    {
+        Coprocessor3.lightMatrix.l11 = m.V00;
+        Coprocessor3.lightMatrix.l12 = m.V01;
+        Coprocessor3.lightMatrix.l13 = m.V02;
+        Coprocessor3.lightMatrix.l21 = m.V10;
+        Coprocessor3.lightMatrix.l22 = m.V11;
+        Coprocessor3.lightMatrix.l23 = m.V12;
+        Coprocessor3.lightMatrix.l31 = m.V20;
+        Coprocessor3.lightMatrix.l32 = m.V21;
+        Coprocessor3.lightMatrix.l33 = m.V22;
     }
 
     //FUN_5A07C
@@ -2323,16 +2603,62 @@ public static class Utilities
         Coprocessor.lightColorMatrix.lb3 = m.V22;
     }
 
+    public static void SetColorMatrix2(Matrix3x3 m)
+    {
+        Coprocessor2.lightColorMatrix.lr1 = m.V00;
+        Coprocessor2.lightColorMatrix.lr2 = m.V01;
+        Coprocessor2.lightColorMatrix.lr3 = m.V02;
+        Coprocessor2.lightColorMatrix.lg1 = m.V10;
+        Coprocessor2.lightColorMatrix.lg2 = m.V11;
+        Coprocessor2.lightColorMatrix.lg3 = m.V12;
+        Coprocessor2.lightColorMatrix.lb1 = m.V20;
+        Coprocessor2.lightColorMatrix.lb2 = m.V21;
+        Coprocessor2.lightColorMatrix.lb3 = m.V22;
+    }
+
+    public static void SetColorMatrix3(Matrix3x3 m)
+    {
+        Coprocessor3.lightColorMatrix.lr1 = m.V00;
+        Coprocessor3.lightColorMatrix.lr2 = m.V01;
+        Coprocessor3.lightColorMatrix.lr3 = m.V02;
+        Coprocessor3.lightColorMatrix.lg1 = m.V10;
+        Coprocessor3.lightColorMatrix.lg2 = m.V11;
+        Coprocessor3.lightColorMatrix.lg3 = m.V12;
+        Coprocessor3.lightColorMatrix.lb1 = m.V20;
+        Coprocessor3.lightColorMatrix.lb2 = m.V21;
+        Coprocessor3.lightColorMatrix.lb3 = m.V22;
+    }
+
     //FUN_5A1A4
     public static void SetDQA(int param1)
     {
         Coprocessor.depthQueingA = (short)param1;
     }
 
+    public static void SetDQA2(int param1)
+    {
+        Coprocessor2.depthQueingA = (short)param1;
+    }
+
+    public static void SetDQA3(int param1)
+    {
+        Coprocessor3.depthQueingA = (short)param1;
+    }
+
     //FUN_5A1B0
     public static void SetDQB(int param1)
     {
         Coprocessor.depthQueingB = (uint)param1;
+    }
+
+    public static void SetDQB2(int param1)
+    {
+        Coprocessor2.depthQueingB = (uint)param1;
+    }
+
+    public static void SetDQB3(int param1)
+    {
+        Coprocessor3.depthQueingB = (uint)param1;
     }
 
     //FUN_5A1BC
@@ -2343,12 +2669,33 @@ public static class Utilities
         Coprocessor.backgroundColor._bbk = bbk << 4;
     }
 
+    public static void SetBackColor2(int rbk, int gbk, int bbk)
+    {
+        Coprocessor2.backgroundColor._rbk = rbk << 4;
+        Coprocessor2.backgroundColor._gbk = gbk << 4;
+        Coprocessor2.backgroundColor._bbk = bbk << 4;
+    }
+
+    public static void SetBackColor3(int rbk, int gbk, int bbk)
+    {
+        Coprocessor3.backgroundColor._rbk = rbk << 4;
+        Coprocessor3.backgroundColor._gbk = gbk << 4;
+        Coprocessor3.backgroundColor._bbk = bbk << 4;
+    }
+
     //FUN_5A1DC
     public static void SetFarColor(int rfc, int gfc, int bfc)
     {
         Coprocessor.farColor._rfc = rfc << 4;
         Coprocessor.farColor._gfc = gfc << 4;
         Coprocessor.farColor._bfc = bfc << 4;
+    }
+
+    public static void SetFarColor3(int rfc, int gfc, int bfc)
+    {
+        Coprocessor3.farColor._rfc = rfc << 4;
+        Coprocessor3.farColor._gfc = gfc << 4;
+        Coprocessor3.farColor._bfc = bfc << 4;
     }
 
     //FUN_5A1FC
@@ -2362,6 +2709,11 @@ public static class Utilities
     public static void SetProjectionPlane(int param1)
     {
         Coprocessor.projectionPlaneDistance = (ushort)param1;
+    }
+
+    public static void SetProjectionPlane3(int param1)
+    {
+        Coprocessor3.projectionPlaneDistance = (ushort)param1;
     }
 
     public static Color32 DpqColor(Color32 vin, long p)
@@ -2932,8 +3284,16 @@ public class BufferedBinaryReader : IDisposable
 
     public BufferedBinaryReader(byte[] buffer)
     {
-        bufferSize = buffer.Length;
-        this.buffer = buffer;
+        if (buffer != null)
+        {
+            bufferSize = buffer.Length;
+            this.buffer = buffer;
+        }
+        else
+        {
+            bufferSize = 0;
+            this.buffer = null;
+        }
     }
 
     public int NumBytesAvailable { get { return Math.Max(0, numBufferedBytes - bufferOffset); } }

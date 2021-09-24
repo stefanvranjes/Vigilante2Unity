@@ -18,6 +18,10 @@ public class Bullet : VigObject
     {
         short sVar2;
         Particle1 pVar3;
+        int iVar4;
+        int iVar5;
+        uint uVar5;
+        int iVar6;
         VigObject oVar7;
         Vehicle vVar7;
 
@@ -38,7 +42,36 @@ public class Bullet : VigObject
             if (vVar7.shield != 0) goto LAB_42A34;
         }
 
-        //sound
+        iVar4 = GameManager.instance.FUN_1DD9C();
+        uVar5 = GameManager.FUN_2AC5C();
+        iVar6 = 74;
+
+        if ((uVar5 & 3) != 0)
+        {
+            iVar6 = 72;
+
+            if (oVar7.type != 2)
+            {
+                iVar5 = oVar7.id;
+
+                if (iVar5 - 96 < 32)
+                    iVar6 = 72;
+                else
+                {
+                    if (iVar5 - 64 < 32)
+                        iVar6 = 73;
+                    else
+                    {
+                        iVar6 = 71;
+
+                        if (iVar5 - 129 < 31)
+                            iVar6 = 73;
+                    }
+                }
+            }
+        }
+
+        GameManager.instance.FUN_1E628(iVar4, GameManager.instance.DAT_C2C, iVar6, screen);
         LAB_42A34:
         GameManager.instance.FUN_309A0(this);
         return 0xffffffff;
@@ -51,7 +84,9 @@ public class Bullet : VigObject
         short sVar2;
         int iVar3;
         Particle1 pVar3;
+        int iVar4;
         uint uVar5;
+        int iVar6;
 
         if (arg1 == 0)
         {
@@ -76,10 +111,17 @@ public class Bullet : VigObject
             sVar2 = (short)GameManager.FUN_2AC5C();
             pVar3.vr.z = sVar2;
             pVar3.ApplyTransformation();
-            //sound
-        }
+            iVar4 = GameManager.instance.FUN_1DD9C();
+            uVar5 = GameManager.FUN_2AC5C();
+            iVar6 = 71;
 
-        //sound
+            if ((uVar5 & 3) == 0)
+                iVar6 = 74;
+        }
+        else
+            return 0;
+
+        GameManager.instance.FUN_1E628(iVar4, GameManager.instance.DAT_C2C, iVar6, screen);
         LAB_42A34:
         GameManager.instance.FUN_309A0(this);
         return 0xffffffff;

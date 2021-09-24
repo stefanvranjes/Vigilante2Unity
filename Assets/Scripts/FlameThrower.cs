@@ -31,6 +31,7 @@ public class FlameThrower : VigObject
         VigObject ppcVar10;
         Type pcVar11;
         VigObject ppcVar12;
+        int iVar13;
         ConfigContainer ccVar13;
         int iVar14;
         int iVar16;
@@ -74,7 +75,20 @@ public class FlameThrower : VigObject
                     Utilities.FUN_2CA94(this, ccVar16, ppcVar10);
                     ppcVar10.FUN_30BF0();
                     ppcVar12.vTransform.position = Utilities.FUN_24148(pMVar9, ccVar16.v3_1);
-                    //sound
+                    ppcVar12.vTransform.rotation = new Matrix3x3()
+                    {
+                        V00 = 0x1000,
+                        V01 = 0,
+                        V02 = 0,
+                        V10 = 0,
+                        V11 = 0x1000,
+                        V12 = 0,
+                        V20 = 0,
+                        V21 = 0,
+                        V22 = 0x1000
+                    };
+                    iVar13 = GameManager.instance.FUN_1DD9C();
+                    GameManager.instance.FUN_1E14C(iVar13, GameManager.instance.DAT_C2C, 60);
                     ppcVar12.flags = 0x60000694;
                     sVar5 = pcVar8.id;
                     ppcVar12.type = 8;
@@ -121,7 +135,8 @@ public class FlameThrower : VigObject
                         Utilities.FUN_2CA94(this, ccVar13, ppcVar10);
                         ppcVar10.FUN_30BF0();
                         GameManager.instance.FUN_2CF00(out local_20, this, ccVar13);
-                        //sound
+                        iVar13 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E14C(iVar13, GameManager.instance.DAT_C2C, 60);
 
                         while (true)
                         {
@@ -186,8 +201,10 @@ public class FlameThrower : VigObject
                     vVar16 = Utilities.FUN_2CD78(this) as Vehicle;
                     ccVar13 = FUN_2C5F4(0x8000);
                     ppcVar10 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(222, typeof(OilSlick1), 8);
+                    Utilities.ParentChildren(ppcVar10, ppcVar10);
                     ppcVar10.vTransform = GameManager.instance.FUN_2CEAC(this, ccVar13);
-                    //sound
+                    iVar13 = GameManager.instance.FUN_1DD9C();
+                    GameManager.instance.FUN_1E14C(iVar13, GameManager.instance.DAT_C2C, 60);
                     ppcVar10.flags = 0xAC;
                     sVar5 = vVar16.id;
                     ppcVar10.maxHalfHealth = 100;
@@ -336,13 +353,25 @@ public class FlameThrower : VigObject
 
         switch (arg1)
         {
+            case 0:
+                iVar16 = FUN_42330(arg2);
+
+                if (iVar16 < 1)
+                    return 0;
+
+                if (id != 0)
+                    return 0;
+
+                break;
             case 1:
                 maxHalfHealth = 20;
                 return 0;
             case 12:
                 if (DAT_18 == 0)
                 {
-                    //sound
+                    sVar3 = (sbyte)GameManager.instance.FUN_1DD9C();
+                    DAT_18 = sVar3;
+                    GameManager.instance.FUN_1E14C(sVar3, GameManager.instance.DAT_C2C, 59);
                 }
 
                 maxHalfHealth--;

@@ -17,6 +17,7 @@ public class CactusPatch : Mine
     public override uint OnCollision(HitDetection hit)
     {
         int iVar2;
+        int iVar3;
         Mine ppcVar4;
         int iVar5;
         uint uVar6;
@@ -29,7 +30,8 @@ public class CactusPatch : Mine
             LevelManager.instance.FUN_4DF20(vTransform.position, 13, 2048);
             //FUN_4E414
             iVar2 = 0;
-            //sound
+            iVar3 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E14C(iVar3, GameManager.instance.DAT_C2C, 0);
 
             if (maxHalfHealth != 0)
             {

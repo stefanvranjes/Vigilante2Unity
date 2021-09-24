@@ -165,11 +165,12 @@ public class PSXEffects : MonoBehaviour {
 				if (skipFrames < 1 || Time.frameCount % skipFrames == 0)
 					Graphics.Blit(src, rt);
 				Graphics.Blit(rt, dst, postProcessingMat);
+                
 			} else {
 				customRes.x = 2;
 				customRes.y = 2;
 			}
-		} else {
+        } else {
 			// Renders scene to downscaled render texture
 			if (src != null)
 				src.filterMode = FilterMode.Point;

@@ -30,7 +30,40 @@ public class PS1ShaderEditor : ShaderGUI
 	{
 		Add,
 		Subtract,
-		ReverseSubtract
+		ReverseSubtract, 
+        Min, 
+        Max, 
+        LogicalClear, 
+        LogicalSet, 
+        LogicalCopy, 
+        LogicalCopyInverted, 
+        LogicalNoop, 
+        LogicalInvert, 
+        LogicalAnd, 
+        LogicalNand, 
+        LogicalOr, 
+        LogicalNor, 
+        LogicalXor, 
+        LogicalEquiv, 
+        LogicalAndReverse, 
+        LogicalAndInverted, 
+        LogicalOrReverse, 
+        LogicalOrInverted, 
+        Multiply, 
+        Screen, 
+        Overlay, 
+        Darken, 
+        Lighten, 
+        ColorDodge, 
+        ColorBurn, 
+        HardLight, 
+        SoftLight, 
+        Difference, 
+        Exclusion, 
+        HSLHue, 
+        HSLSaturation, 
+        HSLColor, 
+        HSLLuminosity
 	}
 
 	public enum UVMapping
@@ -166,10 +199,9 @@ public class PS1ShaderEditor : ShaderGUI
 		materialEditor.TexturePropertySingleLine(Styles.emissionMapText, _Emission, _EmissionAmt);
 		materialEditor.TexturePropertySingleLine(Styles.cubeMapText, _Cube);
 		materialEditor.TexturePropertySingleLine(Styles.lodTexText, _LODTex, _LODAmt);
+        EditorGUILayout.Separator();
 
-		EditorGUILayout.Separator();
-
-		EditorGUI.BeginChangeCheck();
+        EditorGUI.BeginChangeCheck();
 		materialEditor.TextureScaleOffsetProperty(_MainTex);
 		if (EditorGUI.EndChangeCheck()) {
 			_Emission.textureScaleAndOffset = _MainTex.textureScaleAndOffset;

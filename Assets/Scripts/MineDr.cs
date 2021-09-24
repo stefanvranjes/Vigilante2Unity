@@ -127,6 +127,10 @@ public class MineDr : VigObject
 
         switch (arg1)
         {
+            case 0:
+                FUN_42330(arg2);
+                uVar7 = 0;
+                break;
             case 1:
                 maxHalfHealth = 6;
                 goto default;
@@ -210,6 +214,7 @@ public class MineDr : VigObject
         VigObject puVar1;
         int iVar2;
         ushort uVar3;
+        int iVar4;
         uint uVar4;
         int iVar5;
 
@@ -263,7 +268,8 @@ public class MineDr : VigObject
 
         puVar1.physics2.X = (iVar5 >> 7) - (iVar2 >> 2);
         param1.FUN_2B1FC(GameManager.DAT_A68, screen);
-        //sound
+        iVar4 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E580(iVar4, GameManager.instance.DAT_C2C, 54, puVar1.screen);
         return puVar1;
     }
 }

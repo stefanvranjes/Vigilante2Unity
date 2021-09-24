@@ -58,6 +58,7 @@ public class OilSlick1 : VigObject
     {
         short sVar1;
         VigObject ppcVar2;
+        int iVar3;
         uint uVar4;
         int iVar5;
         int iVar6;
@@ -97,7 +98,8 @@ public class OilSlick1 : VigObject
                         ppcVar2 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(218, typeof(OilSlick2), 8, typeof(VigChild));
                         Utilities.ParentChildren(ppcVar2, ppcVar2);
                         FUN_2D114(vTransform.position, ref ppcVar2.vTransform);
-                        //sound
+                        iVar3 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E14C(iVar3, GameManager.instance.DAT_C2C, 61);
                         ppcVar2.flags = 0x4;
                         sVar1 = id;
                         ppcVar2.type = 3;

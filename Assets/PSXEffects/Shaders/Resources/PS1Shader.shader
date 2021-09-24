@@ -38,7 +38,7 @@ Shader "PSXEffects/PS1Shader"
 	{
 		Tags { "Queue" = "Geometry" "RenderType" = "Opaque" }
 		LOD 100
-		Lighting On
+		Lighting Off
 		Offset [_Offset], 1
 		Cull[_Cul]
 		Blend[_SrcBlend][_DstBlend]
@@ -70,6 +70,7 @@ Shader "PSXEffects/PS1Shader"
 			#pragma shader_feature TRANSPARENT
 			#pragma shader_feature BFC
 			#pragma shader_feature DEPTH_WRITE
+			//#pragma multi_compile _ PIXELSNAP_ON
 
 			struct appdata {
 				float4 vertex : POSITION;
@@ -112,6 +113,7 @@ Shader "PSXEffects/PS1Shader"
 				worldPos.xyz += _WorldSpaceCameraPos.xyz * _CamPos;
 				worldPos.xyz += viewDir * 100 * _CamPos;
 				o.pos = UnityObjectToClipPos(v.vertex);
+				//o.pos = UnityPixelSnap(o.pos);
 				if (_VertexInaccuracy < 0) _VertexInaccuracy = _VertexSnappingDetail;
 				if (_WorldSpace == 1) {
 					_VertexInaccuracy /= 2048;
@@ -145,11 +147,15 @@ Shader "PSXEffects/PS1Shader"
 					
 
 				float3 worldNormal = UnityObjectToWorldNormal(v.normal);
-					
+				float4 worldPos2 = worldPos;
+				float3 camPos = _WorldSpaceCameraPos;
+				worldPos2.y = 0;
+				camPos.y = 0;
 				// Set cutoff value for vertex render distance
 				o.diff.a = (_DrawDistance > 0 && distance(worldPos, _WorldSpaceCameraPos) > _DrawDistance);
 				// Set value for LOD distance
-				o.uv.a = (distance(worldPos, _WorldSpaceCameraPos) > _LODAmt && _LODAmt > 0);
+				//o.uv.a = (distance(worldPos, _WorldSpaceCameraPos) > _LODAmt && _LODAmt > 0);
+				o.uv.a = clamp(distance(worldPos2, camPos), 0, _LODAmt) / _LODAmt;
 
 				// Various outputs needed for fragment
 				o.color = v.color;
@@ -215,17 +221,29 @@ Shader "PSXEffects/PS1Shader"
 				return o;
 			}
 
+			float4 _MainTex_TexelSize;
+			float4 _LODTex_TexelSize;
+			fixed _Cutoff;
+
 			fixed4 frag(v2f i) : SV_Target
 			{
 
 				float2 adjUv = PerformAffineMapping(i.uv, _MainTex_ST, _AffineMapping);
 				float2 adjUV1 = PerformAffineMapping(i.uv1, unity_LightmapST, _AffineMapping);
+				//float2 snappedUVs1 = (floor(i.uv.xy * _MainTex_TexelSize.zw) + 0.5) * _MainTex_TexelSize.xy;
+				//fixed4 c1 = tex2Dlod(_MainTex, float4(snappedUVs1, 0.0, 0.0));
 				float4 albedo = tex2D(_MainTex, adjUv);
+				//float4 albedo = c1;
 				// Lerp between main texture and LOD texture depending on LOD distance
+				//float2 snappedUVs2 = (floor(i.uv1.xy * _LODTex_TexelSize.zw) + 0.5) * _LODTex_TexelSize.xy;
+				//fixed4 c2 = tex2Dlod(_MainTex, float4(snappedUVs2, 0.0, 0.0));
 				float4 lod = tex2D(_LODTex, adjUv);
-				if (i.uv.a && lod.r + lod.g + lod.b < 3.0)
-					albedo = lod;
-				float4 col = float4(1,1,1,1);
+				//float4 lod = c2;
+				//if (i.uv.a && lod.r + lod.g + lod.b < 3.0)
+					//albedo = lod;
+				float4 col = albedo;
+				if (i.uv.a > 0)
+					col = lerp(albedo, lod, i.uv.a);
 
 				#if !UNITY_COLORSPACE_GAMMA
 					albedo.rgb = LinearToGammaSpace(albedo.rgb);
@@ -332,7 +350,7 @@ Shader "PSXEffects/PS1Shader"
 						col.rgb -= 1 - LIGHT_ATTENUATION(i);
 				} else {
 					// If material is unlit, just set color to albedo
-					col.rgb = albedo;
+					//col.rgb = albedo;
 					// Tint material
 					i.color.a = 1;
 					col *= i.color * _Color;
@@ -453,7 +471,7 @@ Shader "PSXEffects/PS1Shader"
 
 		// Pass for extra lights
 		// Most of the code here is from the first pass
-		Pass
+		/*Pass
 		{
 			Tags { "LightMode" = "ForwardAdd" }
 			Blend One One
@@ -612,7 +630,7 @@ Shader "PSXEffects/PS1Shader"
 			}
 
 			ENDCG
-		}
+		}*/
 	}
 	CustomEditor "PS1ShaderEditor"
 }

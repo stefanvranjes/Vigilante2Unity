@@ -45,21 +45,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timFarList:
   - {fileID: 2100000, guid: 3a663b49b65ba0248ba39b349fddacbb, type: 2}
-  - {fileID: 2100000, guid: 542333871752e28408baf4d3854d9047, type: 2}
-  - {fileID: 2100000, guid: a3ca4fdb7fa4dfb48b35a68f73302baa, type: 2}
-  - {fileID: 2100000, guid: 576d5900db4ca7b42a49cedf83326aa6, type: 2}
-  - {fileID: 2100000, guid: 11d3b2009930fbd4a904141e2ba2cb0f, type: 2}
-  - {fileID: 2100000, guid: 45e5402976a96774d8f711ee19cbc4f7, type: 2}
-  - {fileID: 2100000, guid: 106f2dce1499de24fa68269fc6298944, type: 2}
-  - {fileID: 2100000, guid: 260832a4cf53c6e4ab9ce3715fcc1cd5, type: 2}
-  - {fileID: 2100000, guid: 9a7b9b808469c3a418787c984eee6f8d, type: 2}
-  - {fileID: 2100000, guid: a306dc00229409c4bbe9d3f4cc840d9e, type: 2}
-  - {fileID: 2100000, guid: 315d0b34b42f7d647b3ca7ad1b54c3a6, type: 2}
-  - {fileID: 2100000, guid: 5533a4d633beb0044a5778d75236d31a, type: 2}
-  - {fileID: 2100000, guid: d9e76c0dbd5e2f948bbd0f360626ecce, type: 2}
-  - {fileID: 2100000, guid: 0d1ccf872ce1d774189dccb509335946, type: 2}
-  - {fileID: 2100000, guid: 51d0684764083dc4bb3f32c9047816fe, type: 2}
-  - {fileID: 2100000, guid: a9198b5e8d601f94ab87df0bfabb0dc3, type: 2}
   V3_DAT_0C: []
   C32_DAT_0C: []
   V3_DAT_10: []

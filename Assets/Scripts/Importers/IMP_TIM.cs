@@ -800,6 +800,9 @@ public static class IMP_TIM
 
         InitGlobals(reader);
 
+        if (FLAG == 0x12)
+            FLAG = 0x12;
+
         #region CLUT
         if (POS_CLUT_RECT != 0)
         {
@@ -858,7 +861,78 @@ public static class IMP_TIM
         #region Bitmap
         using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
         {
-            if ((FLAG & 1) == 0)
+            if (FLAG == 0x12)
+            {
+                writer.Write((short)0x4D42); //Signature
+                writer.Write(imageWidth * imageHeight * 4 + 56); //File Size
+                writer.Write((short)0); //Reserved1
+                writer.Write((short)0); //Reserved2
+                writer.Write(54); //File Offset to Pixel Array
+                writer.Write(40); //DIB Header Size
+                writer.Write((int)imageWidth); //Image Width
+                writer.Write((int)imageHeight); //Image Height
+                writer.Write(0x00200001); //Compression
+                writer.Write((long)0);
+                writer.Write(2834); //X Pixels Per Meter
+                writer.Write(2834); //Y Pixels Per Meter
+                writer.Write((long)0);
+
+                colors = new ushort[imageWidth * imageHeight];
+
+                for (int i = 0; i < indices.Length; i += 2)
+                    colors[i / 2] = (ushort)(indices[i + 1] << 8 | indices[i]);
+
+                ushort redMask = 0x7C00;
+                ushort greenMask = 0x3E0;
+                ushort blueMask = 0x1F;
+                RGB[] pixels = new RGB[imageWidth * imageHeight];
+
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    byte R5 = (byte)((colors[i] & redMask) >> 10);
+                    byte G5 = (byte)((colors[i] & greenMask) >> 5);
+                    byte B5 = (byte)(colors[i] & blueMask);
+
+                    byte R8 = (byte)(R5 << 3);
+                    byte G8 = (byte)(G5 << 3);
+                    byte B8 = (byte)(B5 << 3);
+
+                    byte A = 255;
+
+                    if (colors[i] >> 15 == 0)
+                    {
+                        if (R8 == 0 && G8 == 0 && B8 == 0)
+                            A = 0;
+                        else
+                            A = 255;
+                    }
+                    else
+                    {
+                        if (R8 == 0 && G8 == 0 && B8 == 0)
+                            A = 255;
+                        else
+                            A = 255;
+                    }
+
+                    /*pixels[i].r = A == 0 ? R8 : (byte)0;
+                    pixels[i].g = A == 0 ? G8 : (byte)0;
+                    pixels[i].b = A == 0 ? B8 : (byte)0;
+                    pixels[i].a = A;*/
+
+                    pixels[i].r = R8;
+                    pixels[i].g = G8;
+                    pixels[i].b = B8;
+                    pixels[i].a = A;
+
+                    writer.Write(pixels[i].r);
+                    writer.Write(pixels[i].g);
+                    writer.Write(pixels[i].b);
+                    writer.Write(pixels[i].a);
+                }
+
+                writer.Write((short)0);
+            }
+            else if ((FLAG & 1) == 0)
             {
                 writer.Write((short)0x4D42); //Signature
                 writer.Write(imageWidth * imageHeight * 16 + 56); //File Size

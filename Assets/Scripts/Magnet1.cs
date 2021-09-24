@@ -28,6 +28,7 @@ public class Magnet1 : VigObject
         sbyte sVar1;
         ushort uVar2;
         short sVar3;
+        int iVar4;
         BufferedBinaryReader brVar4;
         VigObject oVar5;
 
@@ -45,7 +46,8 @@ public class Magnet1 : VigObject
 
                 oVar5 = Utilities.FUN_2CD78(this);
                 LevelManager.instance.FUN_4DF20(oVar5.vTransform.position, 13, 0x800);
-                //sound
+                iVar4 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar4, GameManager.instance.DAT_C2C, 63, oVar5.vTransform.position);
                 GameManager.instance.FUN_309A0(oVar5);
                 return 0xffffffff;
             }

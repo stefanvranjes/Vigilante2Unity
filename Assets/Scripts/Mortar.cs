@@ -116,6 +116,10 @@ public class Mortar : VigObject
 
         switch (arg1)
         {
+            case 0:
+                FUN_42330(arg2);
+                uVar5 = 0;
+                break;
             case 1:
                 maxHalfHealth = 10;
                 flags |= 0x4000;

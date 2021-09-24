@@ -64,7 +64,9 @@ public class Fire1 : VigObject
 
                 if (DAT_18 != 0)
                 {
-                    //...
+                    uVar2 = GameManager.instance.FUN_1E478(ppcVar3.vTransform.position);
+                    GameManager.instance.FUN_1E2C8(DAT_18, uVar2);
+                    uVar2 = 0;
                 }
             }
         }
@@ -74,7 +76,7 @@ public class Fire1 : VigObject
             {
                 vVar6 = Utilities.FUN_2CDB0(this) as Vehicle;
                 vVar6.DAT_F6 &= 0xfff7;
-                //sound
+                GameManager.instance.FUN_1DE78(DAT_18);
                 oVar2 = FUN_2CCBC();
                 GameManager.instance.FUN_307CC(oVar2);
                 uVar2 = 0xffffffff;

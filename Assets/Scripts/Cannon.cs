@@ -252,6 +252,7 @@ public class Cannon : VigObject
 
     private Cannonball FUN_45218(VigObject param1, short param2, ushort param3)
     {
+        int iVar4;
         int iVar5;
         VigObject oVar6;
         Ballistic ppcVar2;
@@ -260,6 +261,7 @@ public class Cannon : VigObject
 
         oVar6 = child2;
         ppcVar2 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(3, typeof(Ballistic), 8) as Ballistic;
+        Utilities.ParentChildren(ppcVar2, ppcVar2);
         ppcVar3 = LevelManager.instance.FUN_42408(param1, oVar6, (ushort)param2, typeof(Cannonball), ppcVar2) as Cannonball;
         ppcVar3.flags = 0x20000094;
         ppcVar3.maxHalfHealth = param3;
@@ -286,7 +288,8 @@ public class Cannon : VigObject
         ppcVar2.FUN_30BF0();
         auStack32 = Utilities.FUN_24094(oVar6.vTransform.rotation, GameManager.DAT_A3C);
         param1.FUN_2B1FC(auStack32, screen);
-        //sound
+        iVar4 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E580(iVar4, GameManager.instance.DAT_C2C, 53, ppcVar3.screen);
         maxHalfHealth--;
 
         if (maxHalfHealth == 0)

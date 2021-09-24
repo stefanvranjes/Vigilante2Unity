@@ -18,6 +18,9 @@ public class Route66 : VigObject
         switch (arg1)
         {
             case 1:
+                GameManager.instance.offsetFactor = 2.5f;
+                GameManager.instance.offsetStart = 0;
+                GameManager.instance.angleOffset = 0.4f;
                 GameManager.instance.DAT_1000 |= 1;
                 //...
                 oVar5 = GameManager.instance.FUN_30250(GameManager.instance.DAT_1078, 0x100);

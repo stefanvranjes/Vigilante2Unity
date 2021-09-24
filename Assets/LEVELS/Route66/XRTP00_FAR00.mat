@@ -49,7 +49,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LODTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a19395a69fcfdad469acd3aa9f2084f6, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -81,6 +81,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _Blend: 0
     - _BlendOp: 0
     - _BumpScale: 1
     - _ColorOnly: 0
@@ -94,7 +95,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _LODAmt: 0
+    - _LODAmt: 400
     - _Metallic: 0
     - _Mode: 0
     - _NormalMapDepth: 1

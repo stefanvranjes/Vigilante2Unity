@@ -362,7 +362,7 @@ public class VigConfig : MonoBehaviour
         return obj[currentID];
     }*/
 
-    private VigObject FUN_2BF44(ConfigContainer container, Type component)
+    public VigObject FUN_2BF44(ConfigContainer container, Type component)
     {
         ushort uVar2;
         VigObject oVar3;
@@ -386,8 +386,6 @@ public class VigConfig : MonoBehaviour
         {
             VigCollider vCollider = xobf.cbbList[container.colliderID];
             oVar3.vCollider = new VigCollider(vCollider.buffer);
-            oVar3.vCollider.reader = new BufferedBinaryReader(new MemoryStream(vCollider.buffer), vCollider.buffer.Length);
-            oVar3.vCollider.reader.FillBuffer();
         }
 
         return oVar3;

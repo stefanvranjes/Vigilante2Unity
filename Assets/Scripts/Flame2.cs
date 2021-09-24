@@ -25,7 +25,7 @@ public class Flame2 : VigObject
             vTransform.position.x += physics1.Z;
             vTransform.position.y += physics1.W;
             vTransform.position.z += physics2.X;
-            iVar2 = physics2.Z * 31;
+            iVar2 = physics1.Z * 31;
 
             if (iVar2 < 0)
                 iVar2 += 31;

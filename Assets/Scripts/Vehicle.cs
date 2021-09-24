@@ -36,9 +36,16 @@ public enum _VEHICLE
 
 public enum _CAR_VIEW
 {
-    Defualt,
+    NoHUD,
     Far,
     Close
+}
+
+public enum _VEHICLE_TYPE
+{
+    Vehicle, //FUN_3C118
+    Chasis, //FUN_384A4
+    Wrecked //FUN_38CA4
 }
 
 public class Vehicle : VigObject
@@ -131,6 +138,11 @@ public class Vehicle : VigObject
             return DAT_00;
         }
 
+        public void FUN_51CC0()
+        {
+            DAT_04 = null;
+        }
+
         public short DAT_00; //0x00
         public short DAT_02; //0x02
         public short[] DAT_04; //0x04
@@ -151,6 +163,12 @@ public class Vehicle : VigObject
     public ushort DAT_B4; //0xB4
     public short DAT_B6; //0xB6
     public short ignition; //0xB8
+    public byte DAT_BA; //0xBA
+    public sbyte DAT_BB; //0xBB
+    public byte DAT_BC; //0xBC
+    public byte DAT_BD; //0xBD
+    public byte DAT_BE; //0xBE
+    public byte DAT_BF; //0xBF
     public byte DAT_C0; //0xC0
     public sbyte breaking; //0xC1
     public byte DAT_C2; //0xC2
@@ -158,6 +176,7 @@ public class Vehicle : VigObject
     public byte DAT_C4; //0xC4
     public byte DAT_C5; //0xC5
     public short DAT_C6; //0xC6
+    public short DAT_C8; //0xC8
     public AI ai; //0xCC;
     public _VEHICLE vehicle; //0xDC
     public _CAR_VIEW view; //0xDD
@@ -180,6 +199,7 @@ public class Vehicle : VigObject
     public ushort doubleDamage; //0x12E
     public ushort shield; //0x130
     public ushort jammer; //0x132
+    public _VEHICLE_TYPE state;
 
     private VigConfig config;
 
@@ -202,162 +222,362 @@ public class Vehicle : VigObject
         base.Update();
     }
 
-    public override uint OnCollision(HitDetection param1)
+    public override uint OnCollision(HitDetection hit)
     {
+        HitDetection hVar2;
         int iVar4;
         uint uVar6;
         VigObject ppcVar8;
 
-        ppcVar8 = param1.object1;
-        uVar6 = 0;
-
-        if (ppcVar8 != this && !ppcVar8.GetType().IsSubclassOf(typeof(VigObject)))
+        switch (state)
         {
-            iVar4 = (int)ppcVar8.OnCollision(param1);
-            uVar6 = (uint)(iVar4 != 0 ? 1 : 0);
+            case _VEHICLE_TYPE.Vehicle:
+                ppcVar8 = hit.object1;
+                uVar6 = 0;
+
+                if (ppcVar8 != this && !ppcVar8.GetType().IsSubclassOf(typeof(VigObject)))
+                {
+                    iVar4 = (int)ppcVar8.OnCollision(hit);
+                    uVar6 = (uint)(iVar4 != 0 ? 1 : 0);
+                }
+
+                if (uVar6 != 0)
+                    return uVar6;
+
+                uVar6 = (uint)FUN_3B424(this, hit);
+                return uVar6;
+
+            case _VEHICLE_TYPE.Chasis:
+                hVar2 = GameManager.instance.FUN_2F798(this, hit);
+                FUN_2B834(hVar2);
+                break;
+
+            case _VEHICLE_TYPE.Wrecked:
+                return (uint)FUN_3B424(this, hit);
         }
 
-        if (uVar6 != 0)
-            return uVar6;
-
-        uVar6 = (uint)FUN_3B424(this, param1);
-        return uVar6;
+        return 0;
     }
 
     public override uint UpdateW(int arg1, int arg2)
     {
+        int iVar1;
         uint uVar1;
         _WHEELS eVar1;
+        Pickup pVar1;
+        Smoke3 sVar1;
+        TileData tVar1;
         int iVar2;
         short sVar2;
+        VigCollider cVar2;
+        TileData tVar2;
         ushort uVar3;
+        Throwaway ppcVar3;
+        short sVar4;
+        int iVar5;
+        uint uVar5;
         uint uVar7;
+        Vector3Int local_20;
 
-        if (arg1 == 1)
+        switch (state)
         {
-            uVar7 = flags;
-            flags = uVar7 & 0xffff | 0x16088;
-            iVar2 = screen.y;
-            screen.y = iVar2 - 0x8000;
-            vTransform.position.y = iVar2 - 0x8000;
-            target = GameManager.instance.playerObjects[0];
-
-            if (body[0] == null)
-                uVar3 = maxHalfHealth;
-            else
-                uVar3 = (ushort)(body[0].maxHalfHealth + body[1].maxHalfHealth);
-
-            maxFullHealth = uVar3;
-            FUN_3A500(uVar7 | 0x1000000);
-
-            if ((uVar7 & 0x1840000) != 0)
-            {
-                eVar1 = _WHEELS.Air;
-
-                if ((uVar7 & 0x800000) == 0)
+            case _VEHICLE_TYPE.Vehicle:
+                if (arg1 == 1)
                 {
-                    uVar1 = 0x40000;
+                    uVar7 = flags;
+                    flags = uVar7 & 0xffff | 0x16088;
+                    iVar2 = screen.y;
+                    screen.y = iVar2 - 0x8000;
+                    vTransform.position.y = iVar2 - 0x8000;
+                    target = GameManager.instance.playerObjects[0];
 
-                    if ((uVar7 & 0x1000000) != 0)
-                        eVar1 = _WHEELS.Sea;
+                    if (body[0] == null)
+                        uVar3 = maxHalfHealth;
+                    else
+                        uVar3 = (ushort)(body[0].maxHalfHealth + body[1].maxHalfHealth);
+
+                    maxFullHealth = uVar3;
+                    FUN_3A500(uVar7 | 0x1000000);
+
+                    if ((uVar7 & 0x1840000) != 0)
+                    {
+                        eVar1 = _WHEELS.Air;
+
+                        if ((uVar7 & 0x800000) == 0)
+                        {
+                            uVar1 = 0x40000;
+
+                            if ((uVar7 & 0x1000000) != 0)
+                                eVar1 = _WHEELS.Sea;
+                        }
+
+                        FUN_3E32C(eVar1, 500);
+                    }
+
+                    //...
+                    uVar1 = 0;
+                    return uVar1;
                 }
 
-                FUN_3E32C(eVar1, 500);
-            }
+                if (arg1 == 2) goto LAB_3C380;
 
-            //...
-            uVar1 = 0;
-            return uVar1;
-        }
+                if (arg1 != 0) return 0;
 
-        if (arg1 == 2) goto LAB_3C380;
-
-        if (arg1 != 0) return 0;
-
-        if (id < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
-        {
-            TileData tile = GameManager.instance.terrain.GetTileByPosition
-                ((uint)vTransform.position.x, (uint)vTransform.position.z);
-
-            if (tile.DAT_10[3] == 7)
-                FUN_3BFC0();
-
-            if ((flags & 0x20000000) == 0)
-            {
-                if (DAT_DF != 0)
+                if (id < 0 && GameManager.instance.gameMode != _GAME_MODE.Demo)
                 {
-                    //sound effect FUN_1DE78
-                    DAT_DE = 0;
-                    DAT_DF = 0;
-                }
-            }
-            else
-            {
-                if (tile.DAT_10[4] != DAT_DE)
-                {
-                    //sound effect FUN_1DE78
-                    DAT_DE = (byte)tile.DAT_10[4];
+                    TileData tile = GameManager.instance.terrain.GetTileByPosition
+                        ((uint)vTransform.position.x, (uint)vTransform.position.z);
 
-                    if ((byte)tile.DAT_10[4] == 0)
-                        DAT_DF = 0;
+                    if (tile.DAT_10[3] == 7)
+                        FUN_3BFC0();
+
+                    if ((flags & 0x20000000) == 0)
+                    {
+                        if (DAT_DF != 0)
+                        {
+                            GameManager.instance.FUN_1DE78(DAT_DF);
+                            DAT_DE = 0;
+                            DAT_DF = 0;
+                        }
+                    }
                     else
                     {
-                        //function call by register
+                        if (tile.DAT_10[4] != DAT_DE)
+                        {
+                            GameManager.instance.FUN_1DE78(DAT_DF);
+                            DAT_DE = (byte)tile.DAT_10[4];
+
+                            if ((byte)tile.DAT_10[4] == 0)
+                                DAT_DF = 0;
+                            else
+                            {
+                                //function call by register
+                            }
+                        }
                     }
-                }
-            }
 
-            FUN_3D424(InputManager.controllers[~id]);
-            FUN_3AC84(InputManager.controllers[~id]);
+                    FUN_3D424(InputManager.controllers[~id]);
+                    FUN_3AC84(InputManager.controllers[~id]);
 
-            if (arg2 != 0)
-                FUN_3A844();
-        }
-        else
-        {
-            sVar2 = ignition;
-
-            if (sVar2 == 0)
-                FUN_34728();
-            else
-            {
-                ignition--;
-
-                if (sVar2 == 1)
-                {
-                    //sound
+                    if (arg2 != 0)
+                        FUN_3A844();
                 }
                 else
                 {
-                    if (arg2 == 0) goto LAB_3C32C;
-                    //sound
+                    sVar2 = ignition;
+
+                    if (sVar2 == 0)
+                        FUN_34728();
+                    else
+                    {
+                        ignition--;
+
+                        if (sVar2 == 1)
+                        {
+                            GameManager.instance.FUN_1E580(DAT_18, GameManager.instance.DAT_C2C, 32, vTransform.position);
+                            DAT_18 = 0;
+                            DAT_F6 &= 0xffef;
+                        }
+                        else
+                        {
+                            if (arg2 == 0) goto LAB_3C32C;
+                            uVar5 = GameManager.instance.FUN_1E478(vTransform.position);
+                            GameManager.instance.FUN_1E2C8(DAT_18, uVar5);
+                        }
+                    }
+
+                    if (arg2 != 0 && id < 0)
+                        FUN_3A844();
                 }
-            }
 
-            if (arg2 != 0 && id < 0)
-                FUN_3A844();
+                LAB_3C32C:
+                FUN_3B344();
+
+                if (arg2 != 0)
+                {
+                    uVar7 = flags & 0xfeff7fff;
+
+                    if ((flags & 0x1000000) != 0)
+                        uVar7 |= 0x8000;
+
+                    flags = uVar7;
+                }
+
+                if (id != 0)
+                {
+                    GameManager.instance.FUN_30CB0(this, 0);
+                    return 0;
+                }
+
+                LAB_3C380:
+                FUN_41AE8();
+                return 0;
+
+            case _VEHICLE_TYPE.Chasis:
+                if (arg1 == 2)
+                {
+                    cVar2 = vCollider;
+
+                    if ((flags & 0x40000) != 0)
+                    {
+                        iVar1 = (int)GameManager.FUN_2AC5C();
+                        local_20 = new Vector3Int();
+                        local_20.x = (iVar1 * 3051 >> 15) - 1525;
+                        local_20.y = -4577;
+                        iVar1 = (int)GameManager.FUN_2AC5C();
+                        local_20.z = (iVar1 * 3051 >> 15) - 1525;
+                        pVar1 = LevelManager.instance.FUN_4AA24((ushort)GameManager.DAT_63FA4[14 + GameManager.instance.DAT_1004],
+                                                                vTransform.position, local_20);
+                        pVar1.flags |= 0x2040000;
+                    }
+
+                    iVar1 = 0;
+
+                    do
+                    {
+                        if (wheels[iVar1] != null)
+                            ppcVar3 = wheels[iVar1].FUN_4ECA0();
+
+                        iVar1++;
+                    } while (iVar1 < 6);
+
+                    if (mgun != null)
+                        ppcVar3 = mgun.FUN_4ECA0();
+
+                    iVar1 = 0;
+
+                    do
+                    {
+                        if (weapons[iVar1] != null)
+                        {
+                            ppcVar3 = weapons[iVar1].FUN_4ECA0();
+
+                            if (ppcVar3.maxHalfHealth != 0 && ppcVar3.tags != 7)
+                                ppcVar3.state = _THROWAWAY_TYPE.Spawnable;
+                        }
+
+                        iVar1++;
+                    } while (iVar1 < 3);
+
+                    for (int i = 0; i < weapons.Length; i++)
+                        weapons[i] = null;
+
+                    iVar1 = (int)FUN_4DC20();
+
+                    if (iVar1 != 0)
+                        FUN_4D8A8(vData, (ushort)iVar1, null);
+
+                    vCollider = cVar2;
+                    flags &= 0xffff7fdf;
+                    sVar1 = LevelManager.instance.xobfList[19].FUN_4F730(21, GameManager.DAT_9C4);
+                    sVar1.flags |= 0x2000000;
+                    Utilities.FUN_2CC9C(this, sVar1);
+                    sVar1.transform.parent = transform;
+                    sVar1.FUN_30B78();
+                    sVar1.FUN_30BF0();
+                    GameManager.instance.FUN_30CB0(sVar1, 480);
+                    return 0;
+                }
+                
+                if (arg1 < 3)
+                {
+                    if (arg1 != 0)
+                        return 0;
+
+                    if (id < 0)
+                    {
+                        tVar1 = GameManager.instance.terrain.GetTileByPosition((uint)vTransform.position.x, (uint)vTransform.position.z);
+
+                        if (tVar1.DAT_10[3] == 7)
+                        {
+                            physics1.X = -physics1.X;
+                            physics1.Z = -physics1.Z;
+                            physics1.Y = -physics1.Y;
+                        }
+                    }
+
+                    if ((flags & 0x8000) != 0)
+                    {
+                        FUN_41AE8();
+                        return 0;
+                    }
+
+                    vCollider.reader.Seek(4, SeekOrigin.Current);
+                    FUN_2B4F8(vCollider.reader);
+                    vCollider.reader.Seek(-4, SeekOrigin.Current);
+                    screen = vTransform.position;
+                    iVar5 = id;
+                    sVar4 = (short)(DAT_C8 + 1);
+                    DAT_C8 = sVar4;
+
+                    if (iVar5 < 0 && GameManager.instance.gameMode < _GAME_MODE.Unk2)
+                        return 0;
+
+                    if (sVar4 == 540)
+                    {
+                        if (iVar5 < 0)
+                        {
+                            GameManager.instance.FUN_307CC(GameManager.instance.playerObjects[~iVar5].vCamera);
+                            GameManager.instance.playerObjects[~id] = null;
+                        }
+
+                        iVar2 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E580(iVar2, GameManager.instance.DAT_C2C, 66, vTransform.position);
+                        LevelManager.instance.FUN_4DE54(vTransform.position, 39);
+                        GameManager.instance.FUN_309A0(this);
+                        return 0xffffffff;
+                    }
+                }
+
+                break;
+
+            case _VEHICLE_TYPE.Wrecked:
+                if (arg1 == 2)
+                {
+                    FUN_38C40();
+                    uVar1 = 0;
+                }
+                else
+                {
+                    if (arg1 < 3)
+                    {
+                        uVar1 = 0;
+
+                        if (arg1 == 0)
+                        {
+                            if (id < 0)
+                            {
+                                tVar2 = GameManager.instance.terrain.GetTileByPosition((uint)vTransform.position.x, (uint)vTransform.position.z);
+
+                                if (tVar2.DAT_10[3] == 7)
+                                {
+                                    physics1.X = -physics1.X;
+                                    physics1.Z = -physics1.Z;
+                                    physics1.Y = -physics1.Y;
+                                }
+                            }
+
+                            FUN_41AE8();
+                            uVar1 = GameManager.instance.FUN_1E478(vTransform.position);
+                            GameManager.instance.FUN_1E2C8(DAT_18, uVar1);
+                            uVar1 = 0;
+                        }
+                    }
+                    else
+                    {
+                        uVar1 = 0;
+
+                        if (arg1 == 4)
+                        {
+                            FUN_38484();
+                            uVar1 = 0;
+                        }
+                    }
+                }
+
+                return uVar1;
         }
 
-        LAB_3C32C:
-        //FUN_3B344
-        if (arg2 != 0)
-        {
-            uVar7 = flags & 0xfeff7fff;
-
-            if ((flags & 0x1000000) != 0)
-                uVar7 |= 0x8000;
-
-            flags = uVar7;
-        }
-
-        if (id != 0)
-        {
-            GameManager.instance.FUN_30CB0(this, 0);
-            return 0;
-        }
-
-        LAB_3C380:
-        FUN_41AE8();
         return 0;
     }
 
@@ -369,9 +589,14 @@ public class Vehicle : VigObject
     private void FUN_41B0C()
     {
         byte bVar1;
+        VigObject oVar2;
         int iVar3;
+        VigObject oVar3;
         int iVar4;
+        VigObject oVar4;
         int iVar5;
+        VigObject oVar5;
+        ConfigContainer ccVar5;
         short sVar6;
 
         sVar6 = 84;
@@ -389,9 +614,58 @@ public class Vehicle : VigObject
             }
         }
 
-        if (body[1] != null)
+        oVar4 = body[1];
+
+        if (oVar4 != null)
         {
-            //...
+            oVar5 = oVar4.PDAT_74;
+
+            if (oVar5 != null && (sVar6 == 0 || oVar5.DAT_1A != sVar6))
+            {
+                oVar2 = oVar5.FUN_2CCBC();
+                GameManager.instance.FUN_2C4B4(oVar2);
+                oVar4.PDAT_74 = null;
+            }
+
+            oVar5 = oVar4.PDAT_78;
+
+            if (oVar5 != null && (sVar6 == 0 || oVar5.DAT_1A != sVar6))
+            {
+                oVar2 = oVar5.FUN_2CCBC();
+                GameManager.instance.FUN_2C4B4(oVar2);
+                oVar4.PDAT_78 = null;
+            }
+
+            if (sVar6 != 0)
+            {
+                if (oVar4.PDAT_74 == null)
+                {
+                    ccVar5 = oVar4.FUN_2C5F4(0x8042);
+
+                    if (ccVar5 != null)
+                    {
+                        oVar3 = LevelManager.instance.xobfList[18].ini.FUN_2C17C((ushort)sVar6, typeof(VigObject), 0);
+                        oVar4.PDAT_74 = oVar3;
+                        Utilities.FUN_2CB04(oVar4, ccVar5, oVar3);
+                        Utilities.ParentChildren(oVar4, oVar4);
+                        oVar3.vMesh.DAT_02 = -1;
+                    }
+                }
+
+                if (sVar6 != 0 && oVar4.PDAT_78 == null)
+                {
+                    ccVar5 = oVar4.FUN_2C5F4(0x8043);
+
+                    if (ccVar5 != null)
+                    {
+                        oVar3 = LevelManager.instance.xobfList[18].ini.FUN_2C17C((ushort)sVar6, typeof(VigObject), 0);
+                        oVar4.PDAT_78 = oVar3;
+                        Utilities.FUN_2CB04(oVar4, ccVar5, oVar3);
+                        Utilities.ParentChildren(oVar4, oVar4);
+                        oVar3.vMesh.DAT_02 = -1;
+                    }
+                }
+            }
         }
 
         flags &= 0x8fffffff;
@@ -459,7 +733,7 @@ public class Vehicle : VigObject
         }
         else
         {
-            //FUN_3E774
+            FUN_3E774();
             FUN_3E8C0();
         }
 
@@ -524,7 +798,7 @@ public class Vehicle : VigObject
 
                 iVar5 = screen.z;
                 screen.y += iVar4 >> 5;
-                iVar4 = screen.z - iVar5;
+                iVar4 = vTransform.position.z - iVar5;
 
                 if (iVar4 < 0)
                     iVar4 += 31;
@@ -542,6 +816,7 @@ public class Vehicle : VigObject
         short sVar1;
         long lVar2;
         byte bVar3;
+        short sVar4;
         int uVar5;
         uint uVar6;
         uint uVar8;
@@ -554,6 +829,7 @@ public class Vehicle : VigObject
         int iVar14;
         int uVar15;
         int iVar16;
+        Particle1 pVar16;
         uint uVar19;
         VigTransform auStack224;
         Vector3Int auStack144;
@@ -725,7 +1001,7 @@ public class Vehicle : VigObject
                             if (physics1.W <= iVar12)
                                 goto LAB_41360;
 
-                            //FUN_38EF4
+                            LevelManager.instance.FUN_38EF4(local_a0.x, local_a0.z);
                         }
 
                         iVar9 = 4096;
@@ -941,7 +1217,16 @@ public class Vehicle : VigObject
 
                                 if (tile.DAT_10[4] == 2)
                                 {
-                                    //...
+                                    iVar16 = (int)GameManager.FUN_2AC5C();
+
+                                    if (iVar16 < physics1.W)
+                                    {
+                                        pVar16 = LevelManager.instance.FUN_4DE54(local_a0, 12);
+                                        pVar16.flags |= 0x400;
+                                        sVar4 = (short)GameManager.FUN_2AC5C();
+                                        pVar16.vr.z = sVar4;
+                                        pVar16.ApplyTransformation();
+                                    }
                                 }
                             }
                         }
@@ -973,12 +1258,13 @@ public class Vehicle : VigObject
             }
 
             for (int i = 0; i < 6; i++)
-                wheels[i].ApplyTransformation();
+                if (wheels[i] != null)
+                    wheels[i].ApplyTransformation();
 
             local_f0 = Utilities.FUN_24094(vTransform.rotation, local_f0);
             iVar14 = physics1.W * lightness;
             local_f0.x -= (int)((ulong)((long)physics1.X * iVar14) >> 32);
-            local_f0.y = (local_f0.y + 11520) -
+            local_f0.y = (local_f0.y + GameManager.instance.gravityFactor) -
                          (int)((ulong)((long)physics1.Y * iVar14) >> 32);
             lVar2 = (long)physics1.Z * iVar14;
             local_20 = (uint)lVar2;
@@ -1018,6 +1304,7 @@ public class Vehicle : VigObject
         short sVar4;
         int iVar5;
         int iVar6;
+        VigObject oVar6;
         uint uVar7;
         int iVar8;
         int iVar9;
@@ -1025,7 +1312,6 @@ public class Vehicle : VigObject
         int iVar12;
         int local_1c;
         int local_20;
-        VigTransform local_24;
         TileData local_28;
         Vector3Int local_40;
         Vector3Int local_60;
@@ -1047,7 +1333,7 @@ public class Vehicle : VigObject
 
         VigTransform auStack144 = FUN_2AE18();
         Vector3Int local_b0 = new Vector3Int(0, 0, 0);
-        Vector3Int local_a0 = new Vector3Int(0, 11520, 0);
+        Vector3Int local_a0 = new Vector3Int(0, GameManager.instance.gravityFactor, 0);
         iVar5 = vTransform.rotation.V11;
         iVar12 = 0;
 
@@ -1084,7 +1370,6 @@ public class Vehicle : VigObject
 
         LAB_406D4:
         bVar3 = false;
-        local_24 = vTransform;
         iVar5 = 3;
         uVar10 = 0;
 
@@ -1094,25 +1379,27 @@ public class Vehicle : VigObject
 
             if (wheels[iVar5] != null)
             {
-                if (1 < uVar10)
+                if (1 < (int)uVar10)
                 {
+                    oVar6 = wheels[iVar5].child2;
+
                     if ((uVar10 & 1) == 0)
                         sVar4 = (short)(-turning / 2);
                     else
-                        sVar4 = (short)(2048 - (((int)((uint)turning << 16) >> 16) -
-                                                ((int)((uint)turning << 16) >> 31) >> 1));
+                        sVar4 = (short)(2048 - (((int)((uint)(ushort)turning << 16) >> 16) -
+                                                ((int)((uint)(ushort)turning << 16) >> 31) >> 1));
 
-                    child2.vr.y = sVar4;
-                    child2.ApplyTransformation();
-                    child2.child2.vr.z += iVar12 * 3;
-                    child2.child2.ApplyTransformation();
+                    oVar6.vr.y = sVar4;
+                    oVar6.ApplyTransformation();
+                    oVar6.child2.vr.z += iVar12 * 3;
+                    oVar6.child2.ApplyTransformation();
                 }
 
                 local_70 = new Vector3Int(
                     wheels[iVar5].screen.x,
                     wheels[iVar5].screen.y + wheels[iVar5].IDAT_78,
                     wheels[iVar5].screen.z);
-                local_60 = Utilities.FUN_24148(local_24, local_70);
+                local_60 = Utilities.FUN_24148(vTransform, local_70);
                 iVar6 = FUN_2CFBC(local_60, ref auStack48, out local_28);
                 auStack80 = Utilities.FUN_24148(auStack144, local_70);
 
@@ -1141,11 +1428,11 @@ public class Vehicle : VigObject
 
                             local_40.z = local_40.z >> 6;
                             local_40.y = 0;
-                            local_40 = Utilities.FUN_24094(local_24.rotation, local_40);
+                            local_40 = Utilities.FUN_24094(vTransform.rotation, local_40);
                             iVar9 = (int)GameManager.FUN_2AC5C();
 
                             if (iVar9 < physics1.W)
-                                ; //FUN_38F38
+                                LevelManager.instance.FUN_38F38(local_60.x, local_60.z);
                         }
 
                         iVar9 = (iVar6 - local_60.y) * 16;
@@ -1176,7 +1463,7 @@ public class Vehicle : VigObject
                                 {
                                     if ((wheels[iVar5].flags & 0x8000000) == 0)
                                     {
-                                        //FUN_38EF4
+                                        LevelManager.instance.FUN_38EF4(local_60.x, local_60.z);
                                         wheels[iVar5].flags |= 0x8000000;
                                         goto LAB_409F0;
                                     }
@@ -1185,7 +1472,7 @@ public class Vehicle : VigObject
 
                                     if (iVar6 < physics1.W)
                                     {
-                                        //FUN_38EF4
+                                        LevelManager.instance.FUN_38EF4(local_60.x, local_60.z);
                                         wheels[iVar5].flags |= 0x8000000;
                                     }
 
@@ -1266,7 +1553,7 @@ public class Vehicle : VigObject
                     DAT_C2 = (byte)(bVar1 + 1);
 
                     if (60 < bVar1)
-                        ; //FUN_3E32C
+                        FUN_3E32C(_WHEELS.Ground, 0);
                 }
 
                 local_b0 = Utilities.FUN_2426C(
@@ -1310,7 +1597,7 @@ public class Vehicle : VigObject
                     if (0 < 4096 - iVar9)
                         iVar12 = 4096 - iVar9;
 
-                    iVar12 = (iVar5 >> 5) * iVar12;
+                    iVar12 = (iVar6 >> 5) * iVar12;
 
                     if (iVar12 < 0)
                         iVar12 += 4095;
@@ -1477,7 +1764,7 @@ public class Vehicle : VigObject
                         iVar7 = (int)GameManager.FUN_2AC5C();
 
                         if (iVar7 << 1 < physics1.W)
-                            ; //FUN_38EF4
+                            LevelManager.instance.FUN_38EF4(local_48.x, local_48.z);
                     }
                 }
 
@@ -1859,7 +2146,7 @@ public class Vehicle : VigObject
                         }
                     }
 
-                    //FUN_39B50
+                    FUN_39B50();
                 }
             }
 
@@ -1928,7 +2215,7 @@ public class Vehicle : VigObject
                             iVar9 = (int)GameManager.FUN_2AC5C();
 
                             if (iVar9 < physics1.W)
-                                ; //FUN_38EF4
+                                LevelManager.instance.FUN_38EF4(local_98.x, local_98.z);
                         }
                     }
 
@@ -2015,7 +2302,11 @@ public class Vehicle : VigObject
                                 flags |= 0x40000000;
                             }
 
-                            local_b8.y = ((iVar7 - iVar9) * sVar3 * 128) / local_60.y + local_b8.y;
+                            if (local_60.y != 0)
+                                local_b8.y = ((iVar7 - iVar9) * sVar3 * 128) / local_60.y + local_b8.y;
+                            else
+                                local_b8.y = -1 + local_b8.y;
+
                             wheels[i].screen.y = local_88.y;
 
                             if ((wheels[i].flags & 0x4000000) == 0)
@@ -2300,7 +2591,7 @@ public class Vehicle : VigObject
         }
     }
 
-    public void FUN_3CCD4(int param1)
+    public void FUN_3CCD4(bool param1)
     {
         sbyte sVar1;
         int ppiVar2;
@@ -2311,6 +2602,7 @@ public class Vehicle : VigObject
         int iVar7;
         VigObject oVar7;
         int iVar8;
+        VigObject ppcVar9;
         VigObject oVar10;
         VigObject oVar11;
         uint uVar12;
@@ -2420,11 +2712,14 @@ public class Vehicle : VigObject
         if (oVar11 == null)
             oVar11 = oVar13;
 
-        if (oVar11 != target && (oVar11 != null || param1 != 0))
+        if (oVar11 != target && (oVar11 != null || param1))
         {
             target = oVar11;
             DAT_C6 = 0;
-            //weapon stuff...
+            ppcVar9 = weapons[weaponSlot];
+
+            if (ppcVar9 != null && ppcVar9.GetType().IsSubclassOf(typeof(VigObject)))
+                ppcVar9.UpdateW(11, 0);
         }
     }
 
@@ -2468,6 +2763,8 @@ public class Vehicle : VigObject
     {
         sbyte sVar1;
         uint uVar2;
+        int iVar4;
+        int iVar5;
         int iVar7;
         int pcVar7;
         uint uVar8;
@@ -2476,6 +2773,8 @@ public class Vehicle : VigObject
         int iVar13;
         ulong uVar14;
         Vector3Int local_70;
+        Vector3Int local_60;
+        Vector3Int local_50;
         int local_30;
         int local_38;
 
@@ -2496,7 +2795,7 @@ public class Vehicle : VigObject
 
                 if (shield != 0)
                 {
-                    //FUN_393F8
+                    FUN_393F8();
                     return 0;
                 }
 
@@ -2509,25 +2808,153 @@ public class Vehicle : VigObject
                         return 0;
                     }
 
-                    //...
+                    iVar4 = FUN_3B078(ppcVar11.DAT_80, (ushort)ppcVar11.DAT_1A, -ppcVar11.maxHalfHealth, ppcVar11.flags >> 30 & 1);
+                    ((Vehicle)param1).FUN_39DCC(iVar4, param2.position, true);
                 }
                 else
                 {
-                    //...
+                    if (param1.GetType().IsSubclassOf(typeof(VigObject)))
+                    {
+                        param1.UpdateW(8, ppcVar11.maxHalfHealth);
+                        return 0;
+                    }
                 }
             }
             else
             {
                 if (sVar1 == 7)
                 {
-                    //...
+                    if ((ppcVar11.flags & 0x1000000) == 0)
+                    {
+                        iVar13 = Utilities.FUN_29E84(new Vector3Int(ppcVar11.physics1.Z, ppcVar11.physics1.W, ppcVar11.physics2.X));
+                        iVar5 = ppcVar11.DAT_58;
+
+                        if (iVar5 < 0)
+                            iVar5 += 255;
+
+                        iVar13 *= iVar5 >> 8;
+                    }
+                    else
+                    {
+                        iVar5 = ppcVar11.DAT_58;
+
+                        if (iVar5 < 0)
+                            iVar5 += 255;
+
+                        iVar13 = ppcVar11.physics1.Y * iVar5 >> 8;
+                    }
+
+                    if (iVar13 < 0)
+                        iVar13 += 4095;
+
+                    uVar8 = (uint)maxHalfHealth >> 2;
+
+                    if (iVar13 >> 12 < (int)uVar8)
+                        uVar8 = (uint)(iVar13 >> 12);
+
+                    ppcVar11.flags |= 0x20;
+
+                    if (param1.type == 2)
+                    {
+                        ((Vehicle)param1).FUN_3A020(-(int)uVar8, param2.position, false);
+                        return 0;
+                    }
+
+                    if (param1.GetType().IsSubclassOf(typeof(VigObject)))
+                    {
+                        param1.UpdateW(8, -(int)uVar8);
+                        return 0;
+                    }
                 }
                 else
                 {
                     if (sVar1 == 2)
                     {
-                        //...
-                        return 0;
+                        local_60 = new Vector3Int();
+                        local_60.x = param1.physics1.X * (int)((uint)(ushort)param1.DAT_A6 >> 6) -
+                                     ppcVar11.physics1.X * (int)((uint)(ushort)ppcVar11.DAT_A6 >> 6);
+                        local_60.y = param1.physics1.Y * (int)((uint)(ushort)param1.DAT_A6 >> 6) -
+                                     ppcVar11.physics1.Y * (int)((uint)(ushort)ppcVar11.DAT_A6 >> 6);
+                        local_60.z = param1.physics1.Z * (int)((uint)(ushort)param1.DAT_A6 >> 6) -
+                                     ppcVar11.physics1.Z * (int)((uint)(ushort)ppcVar11.DAT_A6 >> 6);
+                        uVar14 = (ulong)Utilities.FUN_2AD3C(local_60, param2.normal1);
+                        uVar8 = (uint)uVar14 >> 13 | (uint)(uVar14 >> 32) << 19;
+
+                        if ((int)uVar8 < 0)
+                        {
+                            iVar13 = (int)uVar8 / (int)((uint)(ushort)param1.DAT_A6 >> 6);
+                            local_70 = Utilities.FUN_24210(param1.vTransform.rotation, param2.normal1);
+                            uVar2 = (uint)-(param2.distance * 2 + iVar13);
+                            iVar9 = (int)uVar2 >> 31;
+                            local_30 = local_70.x * iVar9;
+                            local_38 = local_70.z * iVar9;
+                            local_70.x = (int)((uint)((ulong)(uint)local_70.x * uVar2) >> 12 |
+                                              (uint)((int)((ulong)(uint)local_70.x * uVar2 >> 32) + local_30 +
+                                              (int)uVar2 * (local_70.x >> 31)) * 0x100000);
+                            local_70.y = (int)((uint)((ulong)(uint)local_70.y * uVar2) >> 12 |
+                                              (uint)((int)((ulong)(uint)local_70.y * uVar2 >> 32) + local_70.y * iVar9 +
+                                              (int)uVar2 * (local_70.y >> 31)) * 0x100000);
+                            local_70.z = (int)((uint)((ulong)(uint)local_70.z * uVar2) >> 12 |
+                                              (uint)((int)((ulong)(uint)local_70.z * uVar2 >> 32) + local_38 +
+                                              (int)uVar2 * (local_70.z >> 31)) * 0x100000);
+                            param1.FUN_2B1FC(local_70, param2.position);
+
+                            if (iVar13 < 0)
+                                iVar13 += 0x1fff;
+
+                            iVar13 >>= 13;
+
+                            if (iVar13 < -8)
+                            {
+                                if (param1.type == 2)
+                                    ((Vehicle)param1).FUN_3A020(iVar13, param2.position, true);
+                                else
+                                {
+                                    if (param1.GetType().IsSubclassOf(typeof(VigObject)))
+                                        param1.UpdateW(8, -iVar13);
+                                }
+
+                                if (id < 0)
+                                    GameManager.instance.FUN_15AA8(~id, 10, 192, 0, 64);
+                            }
+
+                            param2.position = Utilities.FUN_24148(param1.vTransform, param2.position);
+                            param2.position = Utilities.FUN_24304(ppcVar11.vTransform, param2.position);
+                            iVar13 = (int)uVar8 / (int)((uint)(ushort)ppcVar11.DAT_A6 >> 6);
+                            local_70 = Utilities.FUN_24210(ppcVar11.vTransform.rotation, param2.normal1);
+                            uVar8 = (uint)(param2.distance * 2 + iVar13);
+                            iVar9 = (int)uVar8 >> 31;
+                            local_30 = local_70.x * iVar9;
+                            local_70.x = (int)((uint)((ulong)(uint)local_70.x * uVar8) >> 12 |
+                                              (uint)((int)((ulong)(uint)local_70.x * uVar8 >> 32) + local_30 +
+                                              (int)uVar8 * (local_70.x >> 31)) * 0x100000);
+                            local_70.y = (int)((uint)((ulong)(uint)local_70.y * uVar8) >> 12 |
+                                              (uint)((int)((ulong)(uint)local_70.y * uVar8 >> 32) + local_70.y * iVar9 +
+                                              (int)uVar8 * (local_70.y >> 31)) * 0x100000);
+                            local_70.z = (int)((uint)((ulong)(uint)local_70.z * uVar8) >> 12 |
+                                              (uint)((int)((ulong)(uint)local_70.z * uVar8 >> 32) + local_70.z * iVar9 +
+                                              (int)uVar8 * (local_70.z >> 31)) * 0x100000);
+                            ppcVar11.FUN_2B1FC(local_70, param2.position);
+
+                            if (iVar13 < 0)
+                                iVar13 += 0x1fff;
+
+                            if (iVar13 >> 13 < -8)
+                            {
+                                ((Vehicle)ppcVar11).FUN_3A020(iVar13 >> 13, param2.position, true);
+
+                                if (ppcVar11.id < 0)
+                                    GameManager.instance.FUN_15AA8(~ppcVar11.id, 10, 192, 0, 64);
+                            }
+
+                            if ((flags & 0x8000) == 0 && 457 < physics1.W)
+                            {
+                                //sound
+                            }
+                        }
+
+                        flags |= 0x1008000;
+                        return 1;
                     }
 
                     if ((PDAT_74 == ppcVar11 || PDAT_78 == ppcVar11)
@@ -2553,7 +2980,7 @@ public class Vehicle : VigObject
                         iVar13 = 0;
 
                         if (ppcVar11.GetType().IsSubclassOf(typeof(VigObject)))
-                            ; //...
+                            iVar13 = (int)ppcVar11.UpdateW(8, iVar9 >> 12);
 
                         if (iVar13 == 0)
                         {
@@ -2582,10 +3009,12 @@ public class Vehicle : VigObject
                                     iVar9 = iVar7;
 
                                 if (param1.type == 2)
-                                    ; //FUN_3A020
+                                    ((Vehicle)param1).FUN_3A020(iVar9, param2.position, false);
                                 else
+                                {
                                     if (param1.GetType().IsSubclassOf(typeof(VigObject)))
-                                    ; //...
+                                        param1.UpdateW(8, -iVar9);
+                                }
 
                                 if (id < 0)
                                     GameManager.instance.FUN_15B00(~id, 0xff, 0, 0x40);
@@ -2608,7 +3037,12 @@ public class Vehicle : VigObject
 
                                 if (1525 < param1.physics1.W && -32 < iVar9 / param1.physics1.W)
                                 {
-                                    //particles
+                                    ppcVar11 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(46, typeof(Ballistic), 8);
+                                    local_50 = Utilities.FUN_24148(param1.vTransform, param2.position);
+                                    ppcVar11.type = 4;
+                                    ppcVar11.flags = 0xA4;
+                                    ppcVar11.screen = local_50;
+                                    ppcVar11.FUN_3066C();
                                 }
                             }
 
@@ -2623,6 +3057,169 @@ public class Vehicle : VigObject
         }
 
         return 0;
+    }
+
+    public void FUN_3B344()
+    {
+        byte bVar1;
+
+        bVar1 = DAT_BA;
+
+        if (bVar1 != 0)
+        {
+            DAT_BA = (byte)(bVar1 - 1);
+
+            if (bVar1 == 1 && DAT_BD != 0)
+            {
+                if (id < 0)
+                {
+                    //printf
+                    //sound
+                }
+
+                bVar1 = DAT_BD;
+                DAT_BA = 30;
+                DAT_BD = 0;
+                DAT_BE += bVar1;
+            }
+        }
+    }
+
+    public int FUN_3B078(VigObject param1, uint param2, int param3, uint param4)
+    {
+        uint uVar1;
+        byte bVar2;
+        byte bVar4;
+        uint uVar5;
+        int iVar6;
+        Vehicle vVar6;
+        int iVar7;
+        bool bVar8;
+        int iVar8;
+        Vector3Int local_28;
+
+        iVar7 = param1.id;
+
+        if ((flags & 0x4000) == 0)
+            param3 = 0;
+        else
+        {
+            if (iVar7 < 0)
+                param3 = (param3 << (GameManager.instance.DAT_C80[~iVar7] & 31)) >> 1;
+
+            vVar6 = (Vehicle)param1;
+
+            if (iVar7 == -2 && (int)GameManager.instance.gameMode - 6 < 2)
+            {
+                param2 ^= 128;
+                vVar6 = GameManager.instance.playerObjects[0];
+            }
+
+            if (vVar6.DAT_BA == 0 || id != vVar6.DAT_BB || param2 == vVar6.DAT_BC)
+            {
+                bVar4 = 30;
+
+                if (vVar6.DAT_BD != 0)
+                    bVar4 = 1;
+
+                vVar6.DAT_BA = bVar4;
+                bVar4 = (byte)id;
+                vVar6.DAT_BC = (byte)param2;
+                vVar6.DAT_BB = (sbyte)bVar4;
+            }
+            else
+            {
+                vVar6.DAT_BC = (byte)param2;
+                bVar2 = (byte)(vVar6.DAT_BD + 1);
+                vVar6.DAT_BD = bVar2;
+                uVar5 = (uint)bVar2 + 1;
+                vVar6.DAT_BA = 30;
+                uVar1 = 10;
+
+                if (uVar5 < 10)
+                    uVar1 = uVar5;
+
+                iVar8 = param3 * (int)uVar1;
+                param3 = -0xffff;
+
+                if (-0xffff < iVar8)
+                    param3 = iVar8;
+            }
+
+            if (maxHalfHealth == 0 && param4 != 0)
+            {
+                if (iVar7 < 0)
+                {
+                    //printf
+                }
+
+                FUN_38870();
+                //FUN_4E414
+                physics2.Y = 50000;
+                physics1.Y -= 0xee680;
+                //sound
+                vVar6.DAT_BF += 1;
+                iVar6 = 0;
+
+                if (GameManager.instance.gameMode == _GAME_MODE.Survival)
+                {
+                    iVar6 = (int)GameManager.FUN_2AC5C();
+                    local_28 = new Vector3Int();
+                    local_28.x = (iVar6 * 3051 >> 15) - 1525;
+                    local_28.y = -4577;
+                    iVar6 = (int)GameManager.FUN_2AC5C();
+                    local_28.z = (iVar6 * 3051 >> 15) - 1525;
+                    LevelManager.instance.FUN_4AA24(0, vTransform.position, local_28);
+                }
+                else
+                {
+                    do
+                    {
+                        bVar8 = FUN_38A38(false);
+                        iVar6++;
+
+                        if (!bVar8)
+                            return param3;
+                    } while (iVar6 < 3);
+                }
+            }
+        }
+
+        return param3;
+    }
+
+    public VigObject FUN_4AE94(int param1)
+    {
+        ConfigContainer ccVar1;
+        Type pcVar2;
+        VigObject ppcVar3;
+
+        if (param1 == 7)
+        {
+            ccVar1 = FUN_2C5F4(0x801f);
+            pcVar2 = Utilities.vehicleSpecials[(int)vehicle];
+
+            if (pcVar2 == null)
+                pcVar2 = typeof(Empty);
+
+            if (ccVar1 == null)
+                return null;
+
+            ppcVar3 = Utilities.FUN_31D30_2(pcVar2, vData, (short)ccVar1.next, 8);
+        }
+        else
+            ppcVar3 = Utilities.FUN_31D30(Utilities.weaponTypes[param1].Value, LevelManager.instance.xobfList[19],
+                                         (short)Utilities.weaponTypes[param1].Key, 8);
+
+        ppcVar3.id = 0;
+        ppcVar3.tags = (sbyte)param1;
+        ppcVar3.flags |= 0x20;
+        Utilities.ParentChildren(ppcVar3, ppcVar3);
+
+        if (ppcVar3.GetType().IsSubclassOf(typeof(VigObject)))
+            ppcVar3.UpdateW(1, this);
+
+        return ppcVar3;
     }
 
     public void FUN_3A500(uint param1)
@@ -2814,6 +3411,7 @@ public class Vehicle : VigObject
                 uVar1 = (ushort)((int)uVar6 + param1);
 
             maxHalfHealth = uVar1;
+            return;
         }
 
         iVar5 = 0;
@@ -2863,7 +3461,7 @@ public class Vehicle : VigObject
                 if (-param1 < uVar2)
                     transformation = (ushort)(uVar2 + param1);
                 else
-                    ; //FUN_3E32C
+                    FUN_3E32C(_WHEELS.Ground, 0);
             }
 
             if (body[0] == null)
@@ -2874,11 +3472,11 @@ public class Vehicle : VigObject
                     {
                         if (param1 < -20)
                         {
-                            //FUN_38C40
+                            FUN_38C40();
                             return true;
                         }
 
-                        //FUN_38DA8
+                        FUN_38DA8();
                         return false;
                     }
                 }
@@ -2898,14 +3496,14 @@ public class Vehicle : VigObject
                     if ((oVar3.maxHalfHealth * oVar3.tags + (int)uVar6) / (int)uVar4 
                         != (param1 * oVar3.tags + (int)uVar6) / (int)uVar4)
                     {
-                        //FUN_4DC94
+                        oVar3.FUN_4DC94();
                         oVar3.IDAT_78 = 0;
                         oVar3.IDAT_74 = 0;
                         oVar3.PDAT_78 = null;
                         oVar3.PDAT_74 = null;
 
                         if (oVar3 == body[0] && (DAT_F6 & 0x80) != 0)
-                            ; //FUN_36634
+                            FUN_36634();
                     }
 
                     if (-1 < param1)
@@ -2924,11 +3522,11 @@ public class Vehicle : VigObject
                         {
                             if (param1 < -20)
                             {
-                                //FUN_38C40
+                                FUN_38C40();
                                 return true;
                             }
 
-                            //FUN_38DA8
+                            FUN_38DA8();
                             return false;
                         }
 
@@ -2937,6 +3535,63 @@ public class Vehicle : VigObject
 
                     oVar3 = body[(int)uVar5];
                 }
+            }
+        }
+
+        return false;
+    }
+
+    public void FUN_36634()
+    {
+        ConfigContainer ccVar1;
+        VigObject oVar2;
+        VigObject oVar3;
+
+        oVar3 = body[0];
+
+        if (oVar3 != null)
+        {
+            ccVar1 = oVar3.FUN_2C5F4(0x8040);
+
+            if (ccVar1 != null)
+            {
+                oVar2 = LevelManager.instance.xobfList[18].ini.FUN_2C17C(87, typeof(VigObject), 8);
+                oVar3.PDAT_74 = oVar2;
+                Utilities.FUN_2CB04(oVar3, ccVar1, oVar2);
+                Utilities.ParentChildren(oVar3, oVar3);
+                oVar2.vMesh.DAT_02 = -1;
+            }
+
+            ccVar1 = oVar3.FUN_2C5F4(0x8041);
+
+            if (ccVar1 != null)
+            {
+                oVar2 = LevelManager.instance.xobfList[18].ini.FUN_2C17C(87, typeof(VigObject), 8);
+                oVar3.PDAT_78 = oVar2;
+                Utilities.FUN_2CB04(oVar3, ccVar1, oVar2);
+                Utilities.ParentChildren(oVar3, oVar3);
+                oVar2.vMesh.DAT_02 = -1;
+            }
+        }
+    }
+
+    public bool FUN_39B50()
+    {
+        VigObject ppcVar1;
+
+        if ((DAT_F6 & 8) != 0)
+        {
+            ppcVar1 = child2;
+
+            while(ppcVar1 != null)
+            {
+                if (ppcVar1.GetType() == typeof(Fire1))
+                {
+                    GameManager.instance.FUN_30CB0(ppcVar1, 0);
+                    return true;
+                }
+
+                ppcVar1 = ppcVar1.child;
             }
         }
 
@@ -3006,23 +3661,328 @@ public class Vehicle : VigObject
         return bVar1;
     }
 
+    public void FUN_38C40()
+    {
+        if (GameManager.instance.gameMode != _GAME_MODE.Survival)
+            FUN_38A38(true);
+
+        //sound
+        //printf
+        FUN_38870();
+    }
+
+    public void FUN_38DA8()
+    {
+        Smoke oVar3;
+        ConfigContainer ccVar4;
+
+        GameManager.instance.FUN_30CB0(this, 300);
+        state = _VEHICLE_TYPE.Wrecked;
+        maxHalfHealth = 0;
+        acceleration = 0;
+        direction = 0;
+        //sound
+
+        if (0 < id || GameManager.instance.gameMode == _GAME_MODE.Versus || _GAME_MODE.Unk1 < GameManager.instance.gameMode)
+        {
+            //printf
+        }
+
+        ccVar4 = FUN_2C5F4(0x8101);
+
+        if (ccVar4 != null)
+        {
+            oVar3 = LevelManager.instance.xobfList[19].FUN_4F438(5, GameManager.DAT_9C4);
+            oVar3.flags |= 0x2000000;
+            Utilities.FUN_2CA94(this, ccVar4, oVar3);
+            oVar3.transform.parent = transform;
+            oVar3.FUN_30B78();
+            oVar3.FUN_30BF0();
+        }
+    }
+
+    private bool FUN_38A38(bool param1)
+    {
+        int iVar1;
+        Pickup pVar1;
+        bool bVar3;
+        uint uVar5;
+        uint uVar7;
+        Vector3Int local_10;
+
+        iVar1 = (int)GameManager.FUN_2AC5C();
+        local_10 = new Vector3Int();
+        local_10.x = (iVar1 * 3051 >> 15) - 1525;
+        local_10.y = -4577;
+        iVar1 = (int)GameManager.FUN_2AC5C();
+        local_10.z = (iVar1 * 3051 >> 15) - 1525;
+        uVar5 = 1;
+
+        //*************tmp*****************//
+        uVar7 = DAT_C0;
+
+        if (param1)
+        {
+            uVar5 = GameManager.FUN_2AC5C();
+            uVar7 = (uint)((int)uVar7 >> ((GameManager.DAT_63F60[uVar5 & 7] & 15) << 1));
+        }
+
+        uVar7 &= 3;
+        uVar5 = (uint)(((sbyte)GameManager.instance.DAT_C6E + 1) * (GameManager.instance.DAT_C80[0] + 1) + 1);
+        //**************tmp****************//
+
+        bVar3 = false;
+
+        if (uVar5 != 0)
+        {
+            pVar1 = LevelManager.instance.FUN_4AA24((ushort)GameManager.DAT_63F58[uVar7], vTransform.position, local_10);
+            bVar3 = (uVar5 & 0xffff) != 0;
+            pVar1.maxHalfHealth = (ushort)uVar5;
+        }
+
+        return bVar3;
+    }
+
+    private void FUN_38870()
+    {
+        bool bVar1;
+        int iVar2;
+        ConfigContainer ccVar2;
+        Vehicle vVar4;
+        short sVar5;
+        Vehicle[] piVar6;
+        VigTransform auStack40;
+
+        iVar2 = (int)FUN_4DC20();
+
+        if (iVar2 == 0)
+            sVar5 = 0;
+        else
+        {
+            ccVar2 = vData.ini.configContainers[iVar2];
+            auStack40 = GameManager.instance.FUN_2CEAC(this, ccVar2);
+            vData.FUN_4D498(ccVar2.next, auStack40, id);
+            sVar5 = 0;
+
+            if (ccVar2.objID != 0xaaaa)
+                sVar5 = (short)ccVar2.objID;
+        }
+
+        iVar2 = 0;
+        GameManager.instance.FUN_30CB0(this, sVar5);
+        state = _VEHICLE_TYPE.Chasis;
+        maxHalfHealth = 0;
+        acceleration = 0;
+        DAT_C8 = 0;
+        flags = flags & 0xffffbfff | 0x8000;
+        //sound
+        ai.FUN_51CC0();
+        piVar6 = GameManager.instance.playerObjects;
+        target = null;
+
+        do
+        {
+            vVar4 = piVar6[iVar2];
+
+            if (vVar4 != null && vVar4.target == this)
+            {
+                vVar4.DAT_F6 &= 0xffdf;
+                piVar6[iVar2].FUN_3CCD4(true);
+            }
+
+            iVar2++;
+        } while (iVar2 < 2);
+
+        if (0 < id || _GAME_MODE.Unk1 < GameManager.instance.gameMode || GameManager.instance.gameMode == _GAME_MODE.Versus)
+            GameManager.instance.DAT_CC4++;
+
+        if (id < 1)
+        {
+            bVar1 = GameManager.instance.gameMode < _GAME_MODE.Unk2;
+            vCamera.flags |= 0x2000000;
+
+            if (bVar1)
+                GameManager.instance.DAT_C74 = 1;
+        }
+        else
+            id = 0;
+    }
+
+    public void FUN_38484()
+    {
+        ai.FUN_51CC0();
+    }
+
     public void FUN_38408()
     {
         sbyte sVar1;
-
+        sbyte sVar2;
+        List<AudioClip> aVar3;
         int iVar4;
 
         if (DAT_18 == 0)
         {
-            //sounds
+            sVar2 = (sbyte)GameManager.instance.FUN_1DD9C();
+            DAT_18 = sVar2;
         }
 
         if (wheelsType == _WHEELS.Ground)
         {
-            //sounds
+            iVar4 = 0;
+            sVar1 = DAT_18;
+            aVar3 = vData.sndList;
+        }
+        else
+        {
+            sVar1 = DAT_18;
+            iVar4 = (int)wheelsType + 20;
+            aVar3 = GameManager.instance.DAT_C2C;
         }
 
-        //sounds
+        GameManager.instance.FUN_1E098(sVar1, aVar3, iVar4, 0, true);
+    }
+
+    private void FUN_3E4A8(uint param1)
+    {
+        VigObject oVar2;
+        ConfigContainer ccVar3;
+        ConfigContainer ccVar4;
+        int iVar5;
+        Wheel wVar6;
+        XOBF_DB dbVar7;
+        VigConfig cVar7;
+        ConfigContainer ccVar7;
+        XOBF_DB dbVar8;
+        _WHEELS eVar9;
+
+        wVar6 = wheels[param1];
+        oVar2 = Utilities.FUN_2CD78(wVar6);
+        dbVar7 = vData;
+        eVar9 = wheelsType;
+
+        if (wVar6.vMesh != null)
+            wVar6.vMesh.ClearMeshData();
+
+        GameManager.instance.FUN_1FEB8(wVar6.vMesh);
+
+        if (wVar6.vLOD != null && wVar6.vLOD != wVar6.vMesh)
+        {
+            wVar6.vLOD.ClearMeshData();
+            GameManager.instance.FUN_1FEB8(wVar6.vLOD);
+        }
+
+        MeshFilter meshFilter = wVar6.GetComponent<MeshFilter>();
+        MeshRenderer meshRenderer = wVar6.GetComponent<MeshRenderer>();
+
+        if (meshFilter != null)
+            DestroyImmediate(meshFilter, false);
+
+        if (meshRenderer != null)
+            DestroyImmediate(meshRenderer, false);
+
+        GameManager.instance.FUN_2C4B4(wVar6.child2);
+        ccVar3 = dbVar7.ini.FUN_2C590(DAT_1A, (int)(param1 - 0x8000 & 0xffff));
+        ccVar4 = dbVar7.ini.FUN_2C6D0(ccVar3, (int)eVar9);
+        dbVar8 = LevelManager.instance.xobfList[18];
+
+        if (ccVar4 == null)
+        {
+            if (eVar9 == _WHEELS.Ground)
+            {
+                iVar5 = wVar6.id;
+                wVar6.vr = new Vector3Int(0, 0, (int)(param1 & 1) << 11);
+            }
+            else
+            {
+                iVar5 = GameManager.DAT_63F74[(param1 * 2 + (int)eVar9 * 12) / 2];
+                cVar7 = LevelManager.instance.xobfList[18].ini;
+                wVar6.tags = 0;
+                ccVar7 = cVar7.configContainers[iVar5];
+                wVar6.vr = ccVar7.v3_2;
+                wVar6.IDAT_78 = -ccVar7.v3_1.y;
+                oVar2.screen.y = DAT_E4 - wVar6.physics2.X;
+            }
+        }
+        else
+        {
+            iVar5 = dbVar7.ini.FUN_2C73C(ccVar4);
+            wVar6.vr = ccVar4.v3_2;
+            oVar2.screen.y = wVar6.physics1.Y + ccVar4.v3_1.y;
+            dbVar8 = dbVar7;
+        }
+
+        //salvage points stuff...
+
+        wVar6.FUN_2C344(dbVar8, (ushort)iVar5, 8);
+        wVar6.FUN_2C7D0();
+
+        if (wVar6.vAnim == null)
+            wVar6.FUN_30C20();
+        else
+        {
+            if ((wVar6.flags & 4) == 0)
+                wVar6.FUN_30BF0();
+        }
+
+        wVar6.screen = new Vector3Int(0, 0, 0);
+        wVar6.ApplyTransformation();
+        Utilities.ParentChildren(wVar6, wVar6);
+    }
+
+    private void FUN_3E774()
+    {
+        short sVar1;
+        ushort uVar2;
+        VigObject oVar3;
+        int iVar4;
+        Wheel wVar4;
+        uint uVar7;
+
+        uVar7 = 0;
+        uVar2 = (ushort)(DAT_B4 - 1);
+        DAT_B4 = uVar2;
+        iVar4 = uVar2 - 16;
+
+        if (iVar4 < 0)
+            iVar4 = -iVar4;
+
+        sVar1 = (short)(16 - iVar4);
+
+        do
+        {
+            wVar4 = wheels[uVar7];
+
+            if (wVar4 != null)
+            {
+                if (DAT_B4 == 16)
+                    FUN_3E4A8(uVar7);
+                else
+                {
+                    oVar3 = Utilities.FUN_2CD78(wVar4);
+
+                    if (DAT_B4 == 0)
+                    {
+                        wVar4.screen = oVar3.screen;
+                        wVar4.vTransform.position = wVar4.screen;
+                        oVar3.FUN_2CCBC();
+                        wVar4.transform.parent = transform;
+                        Destroy(oVar3.gameObject);
+                        Utilities.FUN_2CC9C(this, wVar4);
+                    }
+                    else
+                    {
+                        oVar3.vr.z = sVar1 * 64;
+
+                        if ((uVar7 & 1) == 0)
+                            oVar3.vr.z = sVar1 * -64;
+
+                        oVar3.ApplyTransformation();
+                    }
+                }
+            }
+
+            uVar7++;
+        } while ((int)uVar7 < 6);
     }
 
     private void FUN_3E8C0()
@@ -3126,7 +4086,7 @@ public class Vehicle : VigObject
                 physics2.Z = iVar3 - (iVar2 >> 5);
 
                 if ((flags & 0x40000000) != 0)
-                    ; //FUN_3A020(-(physics1.Y / 19456), 0, 0 < id); //tmp
+                    FUN_3A020(-(physics1.Y / 19456), GameManager.DAT_9C4, 0 < id);
 
                 return;
             }
@@ -3214,7 +4174,7 @@ public class Vehicle : VigObject
         }
     }
 
-    public int FUN_3A064(int param1, Vector3Int param2, bool param3)
+    public bool FUN_3A064(int param1, Vector3Int param2, bool param3)
     {
         Vector3Int auStack16;
 
@@ -3222,19 +4182,19 @@ public class Vehicle : VigObject
         return FUN_3A020(param1, auStack16, param3);
     }
 
-    public int FUN_3A020(int param1, Vector3Int param2, bool param3)
+    public bool FUN_3A020(int param1, Vector3Int param2, bool param3)
     {
-        int iVar1;
+        bool bVar1;
 
         if (shield == 0)
-            iVar1=0;//iVar1 = FUN_39DCC(pInt1, pInt2, isPlayer);
+            bVar1 = FUN_39DCC(param1, param2, param3);
         else
         {
             FUN_393F8();
-            iVar1 = 0;
+            bVar1 = false;
         }
 
-        return iVar1;
+        return bVar1;
     }
 
     private void FUN_33AF8()
@@ -3821,6 +4781,144 @@ public class Vehicle : VigObject
         ppcVar11.UpdateW((int)uVar7, this);
     }
 
+    private void FUN_2B834(HitDetection hit)
+    {
+        uint uVar1;
+        uint uVar2;
+        uint uVar3;
+        int iVar4;
+        ulong lVar5;
+        Vector3Int local_18;
+
+        lVar5 = (ulong)Utilities.FUN_2AD3C(new Vector3Int(physics1.X, physics1.Y, physics1.Z), hit.normal1);
+        uVar2 = (uint)lVar5 >> 15 | (uint)(lVar5 >> 32) << 17;
+
+        if ((int)uVar2 < 0)
+        {
+            local_18 = Utilities.FUN_24210(vTransform.rotation, hit.normal1);
+            uVar1 = (uint)-hit.distance;
+            uVar3 = (uint)((int)uVar1 + (int)uVar2 * -2);
+            iVar4 = (((int)uVar1 >> 31) - ((int)(uVar2 * 2) >> 31)) - (uVar1 < uVar2 * 2 ? 1 : 0);
+            local_18.x = (int)((uint)((ulong)(uint)local_18.x * uVar3) >> 12 |
+                               (uint)((int)((ulong)(uint)local_18.x * uVar3 >> 32) + local_18.x * iVar4 +
+                               (int)uVar3 * (local_18.x >> 31)) * 0x100000);
+            local_18.y = (int)((uint)((ulong)(uint)local_18.y * uVar3) >> 12 |
+                               (uint)((int)((ulong)(uint)local_18.y * uVar3 >> 32) + local_18.y * iVar4 +
+                               (int)uVar3 * (local_18.y >> 31)) * 0x100000);
+            local_18.z = (int)((uint)((ulong)(uint)local_18.z * uVar3) >> 12 |
+                               (uint)((int)((ulong)(uint)local_18.z * uVar3 >> 32) + local_18.z * iVar4 +
+                               (int)uVar3 * (local_18.z >> 31)) * 0x100000);
+            FUN_2B1FC(local_18, hit.position);
+        }
+    }
+
+    private void FUN_2B4F8(BufferedBinaryReader reader)
+    {
+        uint uVar1;
+        int iVar2;
+        uint uVar3;
+        Vector3Int local_58;
+        Vector3Int local_48;
+        Vector3Int local_30;
+        Vector3Int local_20;
+        Vector3Int auStack56;
+
+        uVar3 = 0;
+        local_48 = new Vector3Int(0, 0x2d00, 0);
+        local_58 = new Vector3Int(0, 0, 0);
+        local_30 = new Vector3Int();
+        uVar1 = 0;
+
+        do
+        {
+            if (uVar1 == 0)
+                local_30.x = reader.ReadInt32(12);
+            else
+                local_30.x = reader.ReadInt32(0);
+
+            if ((uVar3 & 2) == 0)
+                local_30.y = reader.ReadInt32(16);
+            else
+                local_30.y = reader.ReadInt32(4);
+
+            if ((uVar3 & 4) == 0)
+                local_30.z = reader.ReadInt32(20);
+            else
+                local_30.z = reader.ReadInt32(8);
+
+            local_20 = new Vector3Int(0, 0, 0);
+            local_30 = Utilities.FUN_24148(vTransform, local_30);
+            auStack56 = new Vector3Int();
+            iVar2 = FUN_2CFBC(local_30, ref auStack56);
+
+            if (0 < local_30.y - iVar2)
+            {
+                local_20.x = -physics1.X;
+
+                if (0 < physics1.X)
+                    local_20.x += 3;
+
+                local_20.x >>= 2;
+
+                if (2880 < local_20.x)
+                    local_20.x = 2880;
+
+                if (local_20.x < -2880)
+                    local_20.x = -2880;
+
+                local_20.z = -physics1.Z;
+
+                if (0 < physics1.Z)
+                    local_20.z += 3;
+
+                local_20.z >>= 2;
+
+                if (2880 < local_20.z)
+                    local_20.z = 2880;
+
+                local_20.y = -(local_30.y - iVar2);
+
+                if (local_20.z < -2880)
+                    local_20.z = -2880;
+
+                if (0 < physics1.Y)
+                    local_20.y -= physics1.Y >> 3;
+
+                int cop2r32 = local_30.x - vTransform.position.x >> 4;
+                int cop2r34 = local_30.y - vTransform.position.y >> 4;
+                int cop2r36 = local_30.z - vTransform.position.z >> 4;
+                Coprocessor.rotationMatrix.rt11 = (short)cop2r32;
+                Coprocessor.rotationMatrix.rt12 = (short)(cop2r32 >> 16);
+                Coprocessor.rotationMatrix.rt22 = (short)cop2r34;
+                Coprocessor.rotationMatrix.rt23 = (short)(cop2r34 >> 16);
+                Coprocessor.rotationMatrix.rt33 = (short)cop2r36;
+                Coprocessor.accumulator.ir1 = (short)(local_20.x >> 3);
+                Coprocessor.accumulator.ir2 = (short)(local_20.y >> 3);
+                Coprocessor.accumulator.ir3 = (short)(local_20.z >> 3);
+                Coprocessor.ExecuteOP(12, false);
+                local_48.x += local_20.x;
+                local_48.y += local_20.y;
+                local_48.z += local_20.z;
+                iVar2 = Coprocessor.mathsAccumulator.mac1;
+                local_58.x += iVar2 * 2;
+                iVar2 = Coprocessor.mathsAccumulator.mac2;
+                local_58.y += iVar2 * 2;
+                iVar2 = Coprocessor.mathsAccumulator.mac3;
+                local_58.z += iVar2 * 2;
+            }
+
+            uVar3++;
+            uVar1 = uVar3 & 1;
+        } while ((int)uVar3 < 8);
+
+        local_58 = Utilities.FUN_2426C(vTransform.rotation, 
+            new Matrix2x4(local_58.x, local_58.y, local_58.z, 0));
+        FUN_2AFF8(local_48, local_58);
+        physics2.X = physics2.X * 3968 >> 12;
+        physics2.Y = physics2.Y * 3968 >> 12;
+        physics2.Z = physics2.Z * 3968 >> 12;
+    }
+
     private void FUN_34728()
     {
         switch (tags)
@@ -3840,9 +4938,113 @@ public class Vehicle : VigObject
         }
     }
 
+    private void FUN_3928C(int param1)
+    {
+        short sVar1;
+        Wheel wVar2;
+        Particle1 pVar2;
+        int iVar3;
+        Vector3Int local_20;
+
+        if (GameManager.instance.DAT_36)
+        {
+            iVar3 = 0;
+
+            do
+            {
+                wVar2 = wheels[iVar3];
+
+                if (wVar2 != null && (GameManager.instance.DAT_28 + iVar3 & 3) == 0 &&
+                    (param1 == 0 || (wVar2.flags & 0x1000000) != 0))
+                {
+                    local_20 = new Vector3Int
+                        (wVar2.screen.x, wVar2.screen.y + wVar2.physics2.X, wVar2.screen.z);
+                    local_20 = Utilities.FUN_24148(vTransform, local_20);
+                    pVar2 = LevelManager.instance.FUN_4DE54(local_20, 7);
+                    pVar2.flags |= 0x400;
+                    sVar1 = (short)GameManager.FUN_2AC5C();
+                    pVar2.vr.z = sVar1;
+                    pVar2.ApplyTransformation();
+                }
+
+                iVar3++;
+            } while (iVar3 < 6);
+        }
+    }
+
     private void FUN_393F8()
     {
+        Shield ppcVar1;
+        int iVar3;
+        BufferedBinaryReader brVar4;
+        int iVar5;
+        VigObject oVar5;
 
+        if ((DAT_F6 & 1) == 0)
+        {
+            brVar4 = vCollider.reader;
+            ppcVar1 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(205, typeof(Shield), 8) as Shield;
+            ppcVar1.vTransform.position.x = (brVar4.ReadInt32(4) + brVar4.ReadInt32(16)) / 2;
+            ppcVar1.vTransform.position.y = brVar4.ReadInt32(20);
+            iVar5 = brVar4.ReadInt32(12);
+            iVar3 = brVar4.ReadInt32(24);
+            ppcVar1.vTransform.rotation = new Matrix3x3()
+            {
+                V00 = 0,
+                V01 = 0,
+                V02 = 0,
+                V10 = 0,
+                V11 = 0,
+                V12 = 0,
+                V20 = 0,
+                V21 = 0,
+                V22 = 0
+            };
+            ppcVar1.vTransform.position.z = (iVar5 + iVar3) / 2;
+            iVar5 = brVar4.ReadInt32(16) - brVar4.ReadInt32(4);
+
+            if (iVar5 < 0)
+                iVar5 += 7;
+
+            ppcVar1.vTransform.rotation.V00 = (short)(iVar5 >> 3);
+            iVar5 = brVar4.ReadInt32(20) - brVar4.ReadInt32(8);
+
+            if (iVar5 < 0)
+                iVar5 += 3;
+
+            ppcVar1.vTransform.rotation.V11 = (short)(iVar5 >> 2);
+            iVar5 = brVar4.ReadInt32(24) - brVar4.ReadInt32(12);
+
+            if (iVar5 < 0)
+                iVar5 += 7;
+
+            ppcVar1.vTransform.rotation.V22 = (short)(iVar5 >> 3);
+            Utilities.FUN_2CC9C(this, ppcVar1);
+            ppcVar1.transform.parent = transform;
+            DAT_F6 |= 1;
+
+            if ((flags & 4) == 0)
+                ppcVar1.FUN_30BF0();
+
+            //sound
+        }
+        else
+        {
+            oVar5 = child2;
+
+            if (oVar5 != null)
+            {
+                do
+                {
+                    if (oVar5.DAT_1A == 205 && oVar5.vData == LevelManager.instance.xobfList[19]) break;
+
+                    oVar5 = oVar5.child;
+                } while (oVar5 != null);
+
+                if (oVar5 != null)
+                    oVar5.FUN_2C05C();
+            }
+        }
     }
 
     private void FUN_39CEC(uint param1)
@@ -3886,9 +5088,11 @@ public class Vehicle : VigObject
         byte bVar2;
         byte uVar3;
         uint uVar4;
+        int iVar5;
         int iVar6;
         int iVar7;
         uint uVar8;
+        int iVar9;
         uint unaff_s1;
 
         if ((DAT_F6 & 16) == 0)
@@ -3949,7 +5153,7 @@ public class Vehicle : VigObject
 
             iVar7 = DAT_E0 + iVar7;
             DAT_E0 = (short)iVar7;
-            //sound effect
+            GameManager.instance.FUN_1E30C(DAT_18, iVar7 * 0x10000 >> 16);
             Controller playerController = InputManager.controllers[~id];
             if (((playerController.DAT_B << 24 | playerController.DAT_A << 16 | 
                 playerController.steering << 8 | playerController.actions) & 0x100) == 0)
@@ -3993,11 +5197,18 @@ public class Vehicle : VigObject
             cVar1 = DAT_18;
         }
 
-        //FUN_1E2C8
+        GameManager.instance.FUN_1E2C8(cVar1, uVar4);
 
         if ((flags & 0x40000000) != 0)
         {
-            //...
+            iVar5 = GameManager.instance.FUN_1DD9C();
+            iVar9 = 31;
+
+            if (0 < vTransform.rotation.V11)
+                iVar9 = 30;
+
+            GameManager.instance.FUN_1E628(iVar5, GameManager.instance.DAT_C2C, iVar9, vTransform.position);
+            GameManager.instance.FUN_15B00(~id, 192, 0, 64);
         }
 
         if (wheelsType== _WHEELS.Ground && (flags & 0x10000000) != 0 && 3051 < physics1.W)
@@ -4016,10 +5227,17 @@ public class Vehicle : VigObject
                 if ((DAT_F6 & 4) == 0)
                 {
                     DAT_F6 |= 4;
-                    //...
+                    iVar5 = GameManager.instance.FUN_1DD9C();
+                    uVar4 = GameManager.FUN_2AC5C();
+                    iVar9 = 27;
+
+                    if ((uVar4 & 1) != 0)
+                        iVar9 = 26;
+
+                    GameManager.instance.FUN_1E628(iVar5, GameManager.instance.DAT_C2C, iVar9, vTransform.position);
                 }
 
-                //FUN_3928C
+                FUN_3928C(0);
                 goto LAB_3ABC8;
             }
         }
@@ -4057,7 +5275,7 @@ public class Vehicle : VigObject
         bool bVar2;
         int iVar2;
         VigObject oVar2;
-        Vehicle vVar2;
+        VigCamera cVar2;
         int iVar3;
         VigObject ppcVar4;
         uint uVar5;
@@ -4072,16 +5290,16 @@ public class Vehicle : VigObject
         {
             if ((DAT_F6 & 64) != (uVar8 & 64))
             {
-                vVar2 = GameManager.instance.playerObjects[~id];
-                DAT_F6 ^= DAT_F6;
+                cVar2 = GameManager.instance.cameraObjects[~id];
+                DAT_F6 ^= 0x40;
 
                 if ((uVar8 & 64) == 0)
-                    vVar2.physics2.M1 = 0;
+                    cVar2.DAT_92 = 0;
                 else
-                    vVar2.physics2.M1 = 2048;
+                    cVar2.DAT_92 = 2048;
 
-                closeViewer.vr.y = physics2.M1;
-                DAT_A0.x = -DAT_A0.x;
+                closeViewer.vr.y = cVar2.DAT_92;
+                cVar2.DAT_A0_1 = -cVar2.DAT_A0_1;
                 closeViewer.ApplyRotationMatrix();
             }
         }
@@ -4111,7 +5329,7 @@ public class Vehicle : VigObject
 
         if ((DAT_F6 & 0x20) == 0 &&
             (GameManager.instance.DAT_28 - DAT_19 & 0x3f) == 0)
-            FUN_3CCD4(0);
+            FUN_3CCD4(false);
 
         if ((uVar8 & 0x200000) != 0)
         {
@@ -4427,12 +5645,13 @@ public class Vehicle : VigObject
         if (oVar12 == null)
             oVar12 = oVar14;
 
-        return oVar14;
+        return oVar12;
     }
 
     public void FUN_3E32C(_WHEELS param1, ushort param2)
     {
         VigObject oVar1;
+        int iVar2;
         VigObject oVar4;
         int iVar5;
         int iVar6;
@@ -4469,6 +5688,7 @@ public class Vehicle : VigObject
                     Utilities.FUN_2CC9C(oVar1, oVar4);
                     Utilities.FUN_2CC9C(this, oVar1);
                     oVar1.transform.parent = transform;
+                    oVar4.transform.parent = oVar1.transform;
                 }
 
                 iVar6++;
@@ -4478,7 +5698,9 @@ public class Vehicle : VigObject
             wheelsType = param1;
             DAT_B4 = 32;
             physics1.Y -= 195200;
-            //sound
+            iVar2 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar2, GameManager.instance.DAT_C2C, 62, vTransform.position);
+            FUN_38408();
 
             if (param1 == _WHEELS.Ground)
             {
@@ -4504,6 +5726,7 @@ public class Vehicle : VigObject
         sbyte cVar2;
         int iVar3;
         int iVar4;
+        uint uVar6;
         int iVar8;
 
         if (wheelsType == _WHEELS.Air)
@@ -4604,7 +5827,8 @@ public class Vehicle : VigObject
                         DAT_B0 = -39;
                     }
 
-                    //...
+                    //sound
+                    FUN_3928C(0);
                 }
 
                 LAB_3D36C:
@@ -4621,7 +5845,17 @@ public class Vehicle : VigObject
                 if (breaking == 0)
                     return;
 
-                //...
+                uVar6 = GameManager.FUN_2AC5C();
+
+                if ((uVar6 & 3) != 0)
+                    return;
+
+                FUN_3928C(1);
+
+                if ((uVar6 & 28) != 0)
+                    return;
+
+                //sound
                 return;
             }
 

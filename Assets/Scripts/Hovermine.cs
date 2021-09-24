@@ -16,6 +16,7 @@ public class Hovermine : Mine
 
     public override uint OnCollision(HitDetection hit)
     {
+        int iVar7;
         VigObject oVar9;
         Vehicle vVar9;
         Vector3Int local_30;
@@ -36,7 +37,8 @@ public class Hovermine : Mine
         }
 
         GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
-        //sound
+        iVar7 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E628(iVar7, GameManager.instance.DAT_C2C, 65, vTransform.position);
         LevelManager.instance.FUN_4DE54(screen, 39);
         LevelManager.instance.FUN_309C8(this, 0);
         return 0xffffffff;
@@ -50,6 +52,7 @@ public class Hovermine : Mine
         byte bVar4;
         short sVar5;
         int iVar6;
+        int iVar7;
         VigObject oVar8;
         int iVar9;
         VigObject oVar9;
@@ -168,7 +171,8 @@ public class Hovermine : Mine
         }
 
         GameManager.instance.FUN_300B8(GameManager.instance.DAT_10C8, this);
-        //sound
+        iVar7 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E628(iVar7, GameManager.instance.DAT_C2C, 65, vTransform.position);
         LevelManager.instance.FUN_4DE54(screen, 39);
         LevelManager.instance.FUN_309C8(this, 0);
         return 0xffffffff;

@@ -86,7 +86,16 @@ public class MGun : VigObject
                 if ((arg2.flags & 4) == 0)
                     ppcVar2.FUN_30BF0();
 
-                //sound
+                iVar5 = DAT_18;
+
+                if (iVar5 == 0)
+                {
+                    sbVar1 = (sbyte)GameManager.instance.FUN_1DD9C();
+                    DAT_18 = sbVar1;
+                    iVar5 = sbVar1;
+                }
+
+                GameManager.instance.FUN_1E580(iVar5, GameManager.instance.DAT_C2C, 41, ppcVar3.screen);
                 tags = (sbyte)(maxHalfHealth >> 8);
                 maxHalfHealth += 32;
                 break;

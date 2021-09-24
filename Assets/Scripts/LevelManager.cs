@@ -58,10 +58,10 @@ public class LevelManager : MonoBehaviour
     public int aimpSize; //gp+1018h
     public ushort[] aimpData; //gp+1020h
     public VigObject level; //gp+1024h
+    public AudioSource music;
     public List<Junction> roadList = new List<Junction>(); //gp+1190h
     public List<XRTP_DB> xrtpList = new List<XRTP_DB>(); //gp+1194h
     public List<JUNC_DB> juncList = new List<JUNC_DB>(); //gp+1198h
-    public KeyValuePair<string, Type>[][] components; //0xC6130
     public List<XOBF_DB> xobfList = new List<XOBF_DB>(); //0xC6178
     public Navigation ainav; //0xC6278
     public List<VigTuple> levelObjs; //ffffa718 (LOAD.DLL)
@@ -75,18 +75,24 @@ public class LevelManager : MonoBehaviour
             instance = this;
         }
 
-        components = new KeyValuePair<string, Type>[18][];
         ainav = new Navigation();
+        music.mute = !GameManager.instance.playMusic;
+
+        for (int i = 0; i < xobfList.Count; i++)
+            if (xobfList[i] != null)
+                xobfList[i].SetAtlas();
     }
 
     // Start is called before the first frame update
     // FUN_3F10 (LOAD.DLL)
     void Start()
     {
+        VigMesh pbVar2;
         VigTuple ppiVar4;
         int iVar5;
         int iVar6;
         int iVar8;
+        uint uVar14;
         int iVar21;
         BSP cVar22;
         Vector3Int local_310;
@@ -123,6 +129,25 @@ public class LevelManager : MonoBehaviour
             DAT_C18[4] = 0;
 
         LoadData();
+
+        GameManager.DAT_63970[0].y = DAT_63972;
+        GameManager.DAT_63970[1].y = DAT_6397A;
+        GameManager.DAT_63970[2].y = DAT_63982;
+        GameManager.DAT_63970[3].y = DAT_6398A;
+        GameManager.DAT_63970[4].y = DAT_63992;
+        GameManager.DAT_63970[5].y = DAT_6399A;
+
+        iVar5 = 0;
+
+        do
+        {
+            pbVar2 = xobfList[18].FUN_2CB74_2(gameObject, GameManager.DAT_63A7C[iVar5]);
+            GameManager.instance.DAT_1150[iVar5] = pbVar2;
+            pbVar2.topology = MeshTopology.Lines;
+            iVar5++;
+        } while (iVar5 < 4);
+
+        GameManager.instance.targetHUD = new Material(Shader.Find("PSXEffects/PS1Screen"));
 
         iVar6 = 1;
 
@@ -204,10 +229,21 @@ public class LevelManager : MonoBehaviour
 
             if (GameManager.instance.playerObjects[0] != null)
             {
-                if (GameManager.instance.gameMode == _GAME_MODE.Demo)
+                iVar5 = 1;
+                GameManager.instance.playerObjects[0].flags =
+                    GameManager.instance.playerObjects[0].flags & 0x1ffffff | 0x80000000;
+
+                do
                 {
-                    //...
-                }
+                    do
+                    {
+                        iVar6 = (int)GameManager.FUN_2AC5C();
+                        uVar14 = 0x1000000U << ((iVar6 * 7 >> 15) + 1 & 31);
+                    } while ((GameManager.instance.playerObjects[0].flags & uVar14) != 0);
+
+                    GameManager.instance.playerObjects[0].flags |= uVar14;
+                    iVar5++;
+                } while (iVar5 < 3);
 
                 GameManager.instance.playerObjects[0].FUN_3066C();
             }
@@ -293,7 +329,7 @@ public class LevelManager : MonoBehaviour
                         dbVar1 = dbVar5.DAT_1C[j];
 
                         if (dbVar5 == dbVar1.DAT_00[0] && (dbVar1.DAT_0C & 0x10) == 0 &&
-                            xrtpList[dbVar1.DAT_0A].timFarList != null)
+                            xrtpList[dbVar1.DAT_0A].timFarList.Count > 0)
                             FUN_719C(dbVar1);
                     }
                 }
@@ -412,6 +448,24 @@ public class LevelManager : MonoBehaviour
                   param3, 0, 0, 0, 0x800, aimpData);
     }
 
+    public void FUN_38EF4(int param1, int param2)
+    {
+        Particle1 pVar1;
+        Vector3Int local_8 = new Vector3Int(param1, GameManager.instance.DAT_DB0, param2);
+
+        pVar1 = FUN_4DE54(local_8, 147);
+        pVar1.flags &= 0xffffffef;
+    }
+
+    public void FUN_38F38(int param1, int param2)
+    {
+        Particle1 pVar1;
+        Vector3Int local_8 = new Vector3Int(param1, GameManager.instance.DAT_DA0, param2);
+
+        pVar1 = FUN_4DE54(local_8, 146);
+        pVar1.flags &= 0xffffffef;
+    }
+
     public Fire1 FUN_399FC(Vehicle param1, XOBF_DB param2, short param3)
     {
         Fire1 ppcVar1;
@@ -450,12 +504,14 @@ public class LevelManager : MonoBehaviour
     public bool FUN_39AF8(Vehicle param1)
     {
         Fire1 fVar1;
+        int iVar1;
 
         fVar1 = FUN_399FC(param1, xobfList[19], 22);
 
         if (fVar1 != null)
         {
-            //sound
+            iVar1 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar1, GameManager.instance.DAT_C2C, 68, param1.vTransform.position);
         }
 
         return fVar1 != null;
@@ -528,6 +584,21 @@ public class LevelManager : MonoBehaviour
         return param3;
     }
 
+    public Pickup FUN_4AA24(ushort param1, Vector3Int param2, Vector3Int param3)
+    {
+        Pickup ppcVar1;
+
+        ppcVar1 = DAT_1178.ini.FUN_2C17C(param1, typeof(Pickup), 0) as Pickup;
+        ppcVar1.state = _PICKUP_TYPE.Type2;
+        ppcVar1.screen = param2;
+        ppcVar1.physics1.Z = param3.x;
+        ppcVar1.physics1.W = param3.y;
+        ppcVar1.physics2.X = param3.z;
+        ppcVar1.DAT_87 = 2;
+        ppcVar1.FUN_3066C();
+        return ppcVar1;
+    }
+
     public Pickup FUN_4AD24(short param1)
     {
         Pickup ppcVar1;
@@ -555,6 +626,7 @@ public class LevelManager : MonoBehaviour
         VigTuple pcVar3;
 
         ppcVar1 = xobfList[19].ini.FUN_2C17C(param2, typeof(Particle1), 8) as Particle1;
+        Utilities.ParentChildren(ppcVar1, ppcVar1);
         ppcVar1.type = 7;
         ppcVar1.flags = 0x34;
         ppcVar1.screen = param1;
@@ -575,6 +647,125 @@ public class LevelManager : MonoBehaviour
         return ppcVar1;
     }
 
+    public void FUN_4D16C(XOBF_DB param1, ushort param2, VigTransform param3)
+    {
+        ushort uVar1;
+        Particle5 ppcVar2;
+        uint uVar3;
+        int iVar4;
+        VigCollider uVar4;
+        uint uVar8;
+        ConfigContainer puVar9;
+
+        puVar9 = param1.ini.configContainers[param2];
+        uVar1 = puVar9.flag;
+        uVar8 = uVar1;
+        uVar3 = (uint)((int)uVar8 >> 12);
+
+        if (uVar3 == 9)
+        {
+            iVar4 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar4, GameManager.instance.DAT_C2C,
+                GameManager.DAT_BC0[GameManager.DAT_640C8[(uVar1 >> 6 & 0x3c) / 4] + (uVar8 & 0xff)], param3.position);
+        }
+        else
+        {
+            if (uVar3 < 10)
+            {
+                if (uVar3 == 8)
+                {
+                    if (uVar8 - 0x8400 < 61)
+                    {
+                        if (GameManager.DAT_63FE4[uVar8-0x8400] != -1)
+                        {
+                            if (puVar9.colliderID < 0)
+                                uVar4 = null;
+                            else
+                            {
+                                uVar4 = param1.cbbList[puVar9.colliderID];
+                                uVar4.GetReader();
+                            }
+
+                            FUN_4DF74(param3.position, GameManager.DAT_63FE4[uVar8 - 0x8400], uVar4);
+                        }
+                    }
+                    else
+                    {
+                        uVar3 = uVar8 - 0x8500;
+
+                        if (uVar3 < 0x15)
+                        {
+                            if (uVar8 < 0x850a)
+                                FUN_4E56C(param3, GameManager.DAT_6405C[uVar3]);
+                            else
+                                FUN_4E8C8(param3.position, GameManager.DAT_6405C[uVar3]);
+                        }
+                        else
+                        {
+                            if (uVar8 - 0x8700 < 21)
+                            {
+                                FUN_4E128(param3.position, (ushort)GameManager.DAT_64084[uVar8 - 0x8700], 100);
+                            }
+                            else
+                            {
+                                if (uVar8 - 0x8800 < 8)
+                                    ; //FUN_4E414
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (uVar3 == 14)
+                {
+                    puVar9.flag = (ushort)(uVar1 & 0xfff);
+                    ppcVar2 = param1.ini.FUN_2C17C((ushort)(param2 & 0xffff), typeof(Particle5), 0) as Particle5;
+                    puVar9.flag |= 0xe000;
+                    ppcVar2.type = 7;
+                    ppcVar2.flags |= 0x1000080;
+                    ppcVar2.vTransform = param3;
+                    ppcVar2.vr.y = 12;
+                    ppcVar2.FUN_2D1DC();
+                    ppcVar2.FUN_305FC();
+                }
+            }
+        }
+
+        if (puVar9.next != 0xffff)
+            param1.FUN_4D498(puVar9.next, param3, 0);
+    }
+
+    public void FUN_4DF74(Vector3Int param1, int param2, VigCollider param3)
+    {
+        Particle1 pVar1;
+        VigCollider psVar2;
+        int iVar3;
+        int iVar4;
+        Vector3Int local_8;
+
+        pVar1 = FUN_4DE54(param1, (ushort)param2);
+
+        if (param3 != null && param3.reader.ReadUInt16(0) == 1)
+        {
+            psVar2 = pVar1.vCollider;
+
+            if (psVar2 != null && psVar2.reader.ReadUInt16(0) == 1)
+            {
+                iVar4 = ((param3.reader.ReadInt32(16) - param3.reader.ReadInt32(4)) * 0x1000) /
+                        (psVar2.reader.ReadInt32(16) - psVar2.reader.ReadInt32(4));
+                iVar3 = 0x7fff;
+
+                if (iVar4 < 0x7fff)
+                    iVar3 = iVar4;
+
+                local_8 = new Vector3Int(iVar3, iVar3, iVar3);
+                pVar1.vTransform.rotation = Utilities.FUN_245AC(pVar1.vTransform.rotation, local_8);
+                pVar1.vTransform.padding = (short)iVar3;
+            }
+        }
+    }
+
     public Particle2 FUN_4E128(Vector3Int param1, ushort param2, int param3)
     {
         Particle2 ppcVar1;
@@ -582,6 +773,7 @@ public class LevelManager : MonoBehaviour
         BufferedBinaryReader brVar3;
 
         ppcVar1 = xobfList[19].ini.FUN_2C17C(param2, typeof(Particle2), 8) as Particle2;
+        Utilities.ParentChildren(ppcVar1, ppcVar1);
         ppcVar1.type = 8;
 
         if (param3 == 0)
@@ -595,6 +787,102 @@ public class LevelManager : MonoBehaviour
         ppcVar1.FUN_3066C();
         brVar3 = ppcVar1.vCollider.reader;
         ppcVar1.DAT_58 = brVar3.ReadInt32(16);
+        return ppcVar1;
+    }
+
+    public Particle3 FUN_4E56C(VigTransform param1, int param2)
+    {
+        uint uVar1;
+        ushort uVar2;
+        Particle3 ppcVar3;
+        int iVar4;
+        VigObject oVar5;
+        VigConfig cVar5;
+        int iVar6;
+        Vector3Int v0;
+
+        GameObject obj = new GameObject();
+        ppcVar3 = obj.AddComponent<Particle3>();
+        cVar5 = xobfList[19].ini;
+        ppcVar3.flags |= 0xA0;
+        ppcVar3.screen = param1.position;
+        ppcVar3.DAT_58 = 0x10000;
+        ppcVar3.ApplyTransformation();
+        Utilities.SetRotMatrix(param1.rotation);
+        uVar2 = cVar5.configContainers[param2].next;
+        uVar1 = uVar2;
+
+        while(uVar1 != 0xffff)
+        {
+            oVar5 = xobfList[19].ini.FUN_2C17C((ushort)uVar1, typeof(VigObject), 0);
+            v0 = Utilities.FUN_23F7C(oVar5.screen);
+            oVar5.physics1.Z = v0.x;
+            oVar5.physics1.W = v0.y;
+            oVar5.physics2.X = v0.z;
+            iVar4 = oVar5.physics1.Z;
+
+            if (iVar4 < 0)
+                iVar4 += 3;
+
+            iVar6 = oVar5.physics1.W;
+            oVar5.physics1.Z = iVar4 >> 2;
+
+            if (iVar6 < 0)
+                iVar6 += 3;
+
+            iVar4 = oVar5.physics2.X;
+            oVar5.physics1.W = iVar6 >> 2;
+
+            if (iVar4 < 0)
+                iVar4 += 3;
+
+            oVar5.physics2.X = iVar4 >> 2;
+            uVar2 = (ushort)GameManager.FUN_2AC5C();
+            oVar5.physics1.M0 = (short)(uVar2 & 31);
+            uVar2 = (ushort)GameManager.FUN_2AC5C();
+            oVar5.physics1.M1 = (short)(uVar2 & 31);
+            uVar2 = (ushort)GameManager.FUN_2AC5C();
+            oVar5.physics1.M2 = (short)(uVar2 & 31);
+            oVar5.screen = new Vector3Int(0, 0, 0);
+            oVar5.ApplyTransformation();
+            iVar4 = (int)GameManager.FUN_2AC5C();
+            oVar5.physics2.Y = (iVar4 * 30 >> 15) + 30;
+            Utilities.FUN_2CC48(ppcVar3, oVar5);
+            oVar5.transform.parent = ppcVar3.transform;
+            uVar2 = xobfList[19].ini.configContainers[(int)uVar1].previous;
+            uVar1 = uVar2;
+        }
+
+        ppcVar3.FUN_3066C();
+        return ppcVar3;
+    }
+
+    public Particle4 FUN_4E8C8(Vector3Int param1, short param2)
+    {
+        Particle4 ppcVar1;
+
+        GameObject obj = new GameObject();
+        ppcVar1 = obj.AddComponent<Particle4>();
+        ppcVar1.flags = 0xA4;
+        ppcVar1.DAT_1A = param2;
+        ppcVar1.screen = param1;
+        ppcVar1.FUN_3066C();
+        return ppcVar1;
+    }
+
+    public Particle9 FUN_4EAE8(Vector3Int param1, Vector3Int param2, short param3)
+    {
+        Particle9 ppcVar1;
+
+        GameObject obj = new GameObject();
+        ppcVar1 = obj.AddComponent<Particle9>();
+        ppcVar1.type = 8;
+        ppcVar1.flags = 0xA4;
+        ppcVar1.DAT_1A = param3;
+        ppcVar1.screen = param1;
+        ppcVar1.maxHalfHealth = 0x1000;
+        ppcVar1.FUN_3066C();
+        ppcVar1.vTransform.rotation = Utilities.FUN_2A5EC(param2);
         return ppcVar1;
     }
 
@@ -882,7 +1170,7 @@ public class LevelManager : MonoBehaviour
         VigObject oVar3;
         ConfigContainer ccVar4;
 
-        param1.FUN_3CCD4(1);
+        param1.FUN_3CCD4(true);
         cVar1 = GameManager.instance.FUN_4B914(param1, 256, defaultCamera);
         terrain.vCamera = cVar1;
         param1.vCamera = cVar1;
@@ -1531,14 +1819,17 @@ public class LevelManager : MonoBehaviour
 
         if (iVar3 < 0x100000)
         {
-            if (param2.DAT_28 != 0) //tmp
-            {
+            //if (param2.DAT_28 != 0) //tmp
+            //{
                 jVar4 = FUN_5850(param1, param2, param3);
                 counter++;
                 roadList.Add(jVar4);
-            }
-            else
+            //}
+            /*else
+            {
+                Debug.Log("!");
                 counter++;
+            }*/
         }
         else
         {

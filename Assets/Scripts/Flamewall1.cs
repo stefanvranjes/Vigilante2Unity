@@ -16,6 +16,7 @@ public class Flamewall1 : VigObject
 
     public override uint OnCollision(HitDetection hit)
     {
+        int iVar3;
         uint uVar3;
         bool bVar7;
         VigObject oVar7;
@@ -27,7 +28,8 @@ public class Flamewall1 : VigObject
         {
             vVar7 = (Vehicle)oVar7;
             vVar7.FUN_3A064(-200, vTransform.position, true);
-            //sound
+            iVar3 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 63, vTransform.position);
             bVar7 = LevelManager.instance.FUN_39AF8(vVar7);
             LevelManager.instance.FUN_4DE54(vTransform.position, 35);
             uVar3 = 0x8008080;
@@ -35,7 +37,8 @@ public class Flamewall1 : VigObject
         else
         {
             LevelManager.instance.FUN_4DE54(vTransform.position, 35);
-            //sound
+            iVar3 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E580(iVar3, GameManager.instance.DAT_C2C, 63, vTransform.position);
             uVar3 = 0x8000080;
         }
 
@@ -49,6 +52,7 @@ public class Flamewall1 : VigObject
     {
         uint uVar1;
         VigObject ppcVar2;
+        int iVar3;
         uint uVar3;
         int iVar6;
 
@@ -63,7 +67,8 @@ public class Flamewall1 : VigObject
             if (vTransform.position.z < iVar6 && GameManager.instance.DAT_DB0 < vTransform.position.y)
             {
                 LevelManager.instance.FUN_4DE54(vTransform.position, 138);
-                //sound
+                iVar3 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E14C(iVar3, GameManager.instance.DAT_C2C, 70);
             }
             else
             {
@@ -87,7 +92,8 @@ public class Flamewall1 : VigObject
                 ppcVar2.maxHalfHealth = 1;
                 ppcVar2.FUN_3066C();
                 GameManager.instance.FUN_30CB0(ppcVar2, 60);
-                //sound
+                iVar3 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 68, ppcVar2.screen);
             }
         }
         else

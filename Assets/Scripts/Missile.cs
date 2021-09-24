@@ -27,6 +27,7 @@ public class Missile : VigObject
     {
         uint uVar2;
         Particle2 pVar2;
+        int iVar3;
         uint uVar3;
 
         switch (state)
@@ -44,8 +45,9 @@ public class Missile : VigObject
                 pVar2 = LevelManager.instance.FUN_4E128(screen, 79, 40);
                 pVar2.vr = new Vector3Int(0x800, 0, 0);
                 pVar2.ApplyTransformation();
-                pVar2.vTransform.rotation = Utilities.MulMatrix(vTransform.rotation, pVar2.vTransform.rotation);
-                //sound
+                pVar2.vTransform.rotation = Utilities.MulMatrix(vTransform.rotation, pVar2.vTransform.rotation); //MulMatrix2 ?
+                iVar3 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 63, screen);
                 GameManager.instance.FUN_309A0(this);
                 return 0xffffffff;
             case _MISSILE_TYPE.Halo:
@@ -69,6 +71,7 @@ public class Missile : VigObject
         Particle1 e1Var2;
         Particle2 e2Var2;
         short sVar3;
+        int iVar3;
         int iVar4;
         long lVar4;
         VigObject oVar4;
@@ -187,14 +190,16 @@ public class Missile : VigObject
                 {
                     if ((GameManager.instance.DAT_40 & 0x400) == 0)
                     {
-                        //sound
+                        iVar3 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 64, screen);
                         LevelManager.instance.FUN_4DE54(screen, 33);
                     }
                     else
                     {
                         e2Var2 = LevelManager.instance.FUN_4E128(screen, 79, 40);
                         e2Var2.FUN_2D114(e2Var2.screen, ref e2Var2.vTransform);
-                        //sound
+                        iVar3 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 63, screen);
                     }
 
                     LevelManager.instance.FUN_309C8(this, 1);
@@ -251,7 +256,8 @@ public class Missile : VigObject
                 if (sVar1 != 1)
                     return 0;
 
-                //sound
+                iVar3 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 64, screen);
                 LevelManager.instance.FUN_4DE54(screen, 37);
                 GameManager.instance.FUN_309A0(this);
                 return 0xffffffff;
@@ -312,7 +318,8 @@ public class Missile : VigObject
 
                     if (iVar2 < screen.y)
                     {
-                        //sound
+                        iVar3 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 64, screen);
                         LevelManager.instance.FUN_4DE54(screen, 33);
                         LevelManager.instance.FUN_309C8(this, 1);
                         return 0xffffffff;
@@ -342,7 +349,8 @@ public class Missile : VigObject
 
                     if (sVar1 == 1)
                     {
-                        //sound
+                        iVar3 = GameManager.instance.FUN_1DD9C();
+                        GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 64, screen);
                         LevelManager.instance.FUN_4DE54(screen, 37);
                         GameManager.instance.FUN_309A0(this);
                         return 0xffffffff;

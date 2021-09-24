@@ -7,6 +7,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+public enum _MATERIAL
+{
+    Cutout, 
+    Additive, 
+    Billboard, 
+    Lines,
+    Mirror,
+    CutAdd,
+    Subtractive,
+    Lines2, 
+    Billboard2
+}
+
 public class XOBF_DB : MonoBehaviour
 {
     [Serializable]
@@ -26,13 +39,22 @@ public class XOBF_DB : MonoBehaviour
     
     public List<TMD> tmdList = new List<TMD>();
     public List<VigCollider> cbbList = new List<VigCollider>();
-    public List<Material> timList = new List<Material>();
+    public List<Texture2D> timList = new List<Texture2D>();
     public VigConfig ini;
     public byte[] animations; //0x08
+    public List<AudioClip> sndList = new List<AudioClip>();
+    public List<_MATERIAL> materialList = new List<_MATERIAL>();
 
     private string prefabPath;
     private string prefabName;
     private BufferedBinaryReader r;
+    private Texture2D atlas;
+    private Material matAtlas;
+    private Material additive;
+    private Material billboard;
+    private Material subtractive;
+    private Material billboard2;
+    private Rect[] rects;
 
     private void Reset()
     {
@@ -42,6 +64,332 @@ public class XOBF_DB : MonoBehaviour
             + Path.GetDirectoryName(AssetDatabase.GetAssetPath(gameObject));
         prefabPath = prefabPath.Replace("\\", "/");
 #endif
+    }
+
+    public void SetAtlas()
+    {
+        Texture2D[] atlasTextures = new Texture2D[timList.Count];
+
+        for (int i = 0; i < atlasTextures.Length; i++)
+            atlasTextures[i] = timList[i];
+
+        atlas = new Texture2D(1024, 1024);
+        rects = atlas.PackTextures(atlasTextures, 0, 1024);
+        atlas.wrapMode = TextureWrapMode.Clamp;
+        atlas.filterMode = FilterMode.Point;
+        atlas.alphaIsTransparency = true;
+        matAtlas = new Material(Shader.Find("PSXEffects/PS1Shader"));
+        matAtlas.mainTexture = atlas;
+        matAtlas.SetFloat("_ColorOnly", 0);
+        matAtlas.SetFloat("_Unlit", 1);
+        matAtlas.SetFloat("_OffsetFactor", 0.5f);
+        matAtlas.SetFloat("_OffsetUnits", 0.5f);
+        matAtlas.SetFloat("_RenderMode", 2);
+        matAtlas.SetFloat("_Cul", 1);
+        matAtlas.SetFloat("_DrawDist", 0);
+        additive = new Material(Shader.Find("PSXEffects/PS1Additive"));
+        additive.mainTexture = atlas;
+        additive.SetFloat("_ColorOnly", 0);
+        additive.SetFloat("_Unlit", 1);
+        additive.SetFloat("_OffsetFactor", -2);
+        additive.SetFloat("_OffsetUnits", -2);
+        additive.SetFloat("_RenderMode", 2);
+        additive.SetFloat("_Cul", 2);
+        additive.SetFloat("_DrawDist", 0);
+        billboard = new Material(Shader.Find("PSXEffects/PS1Billboard"));
+        billboard.mainTexture = atlas;
+        billboard.SetFloat("_ColorOnly", 0);
+        billboard.SetFloat("_Unlit", 1);
+        billboard.SetFloat("_OffsetFactor", -2);
+        billboard.SetFloat("_OffsetUnits", -2);
+        billboard.SetFloat("_RenderMode", 2);
+        billboard.SetFloat("_Cul", 1);
+        billboard.SetFloat("_DrawDist", 0);
+        subtractive = new Material(Shader.Find("PSXEffects/PS1Subtractive"));
+        subtractive.mainTexture = atlas;
+        subtractive.SetFloat("_ColorOnly", 0);
+        subtractive.SetFloat("_Unlit", 1);
+        subtractive.SetFloat("_OffsetFactor", -2);
+        subtractive.SetFloat("_OffsetUnits", -2);
+        subtractive.SetFloat("_RenderMode", 2);
+        subtractive.SetFloat("_Cul", 1);
+        subtractive.SetFloat("_DrawDist", 0);
+        billboard2 = new Material(Shader.Find("PSXEffects/PS1Billboard2"));
+        billboard2.mainTexture = atlas;
+        billboard2.SetFloat("_ColorOnly", 0);
+        billboard2.SetFloat("_Unlit", 1);
+        billboard2.SetFloat("_OffsetFactor", -2);
+        billboard2.SetFloat("_OffsetUnits", -2);
+        billboard2.SetFloat("_RenderMode", 2);
+        billboard2.SetFloat("_Cul", 1);
+        billboard2.SetFloat("_DrawDist", 0);
+    }
+
+    public Material[] GetMaterialList(VigMesh mesh, int tmdID)
+    {
+        List<Material> materialList = new List<Material>();
+        materialList.Add(LevelManager.instance.defaultMaterial);
+        mesh.subMeshCount = 2;
+
+        switch (this.materialList[tmdID])
+        {
+            case _MATERIAL.Cutout:
+                materialList.Add(matAtlas);
+                break;
+            case _MATERIAL.Additive:
+                materialList.Add(additive);
+                break;
+            case _MATERIAL.Billboard:
+                materialList.Add(billboard);
+                break;
+            case _MATERIAL.Lines:
+                mesh.topology = MeshTopology.Lines;
+                mesh.subMeshCount = 1;
+                break;
+            case _MATERIAL.Mirror:
+                materialList.Add(additive);
+                mesh.mirror = true;
+                break;
+            case _MATERIAL.CutAdd:
+                materialList.Add(matAtlas);
+                materialList.Add(additive);
+                mesh.subMeshCount = 3;
+                break;
+            case _MATERIAL.Subtractive:
+                materialList.Add(subtractive);
+                break;
+            case _MATERIAL.Lines2:
+                mesh.topology = MeshTopology.Lines;
+                materialList.Add(matAtlas);
+                materialList.Add(LevelManager.instance.defaultMaterial);
+                mesh.subMeshCount = 3;
+                break;
+            case _MATERIAL.Billboard2:
+                materialList.Add(billboard2);
+                break;
+        }
+        
+        mesh.mainT = rects;
+        mesh.atlas = atlas;
+
+        return materialList.ToArray();
+    }
+
+    public Smoke3 FUN_4F730(short param1, Vector3Int param2)
+    {
+        Smoke3 ppcVar1;
+
+        GameObject obj = new GameObject();
+        ppcVar1 = obj.AddComponent<Smoke3>();
+        ppcVar1.flags = 0x20;
+        ppcVar1.screen = param2;
+        ppcVar1.DAT_58 = 0x10000;
+        ppcVar1.ApplyTransformation();
+        ppcVar1.physics1.M1 = 4;
+        ppcVar1.physics1.Y = 0x200;
+        ppcVar1.DAT_98 = this;
+        ppcVar1.physics2.M3 = param1;
+        ppcVar1.physics1.Z = -0x600;
+        ppcVar1.physics1.W = 0;
+        return ppcVar1;
+    }
+
+    public Smoke FUN_4F438(short param1, Vector3Int param2)
+    {
+        Smoke ppcVar1;
+
+        GameObject obj = new GameObject();
+        ppcVar1 = obj.AddComponent<Smoke>();
+        ppcVar1.flags = 0x20;
+        ppcVar1.screen = param2;
+        ppcVar1.DAT_58 = 0x10000;
+        ppcVar1.ApplyTransformation();
+        ppcVar1.physics1.M1 = 7;
+        ppcVar1.DAT_98 = this;
+        ppcVar1.physics2.M3 = param1;
+        ppcVar1.physics1.Y = 0x100;
+        ppcVar1.physics1.Z = -0x200;
+        ppcVar1.physics1.W = 0;
+        ppcVar1.physics2.X = 0x400000;
+        ppcVar1.physics2.M2 = 0x20;
+        return ppcVar1;
+    }
+
+    public Particle8 FUN_4EC2C(short param1, sbyte param2)
+    {
+        Particle8 ppcVar1;
+
+        GameObject obj = new GameObject();
+        ppcVar1 = obj.AddComponent<Particle8>();
+        ppcVar1.vData = this;
+        ppcVar1.DAT_1A = param1;
+        ppcVar1.tags = param2;
+        GameManager.instance.FUN_30CB0(ppcVar1, 0);
+        return ppcVar1;
+    }
+
+    public VigObject FUN_4D498(ushort param1, VigTransform param2, int param3)
+    {
+        ushort uVar1;
+        Particle6 ppcVar2;
+        ConfigContainer ccVar3;
+        Particle8 pVar4;
+        VigObject ppcVar5;
+        byte bVar6;
+        uint uVar7;
+        uint uVar8;
+        ConfigContainer puVar9;
+        VigObject ppcVar10;
+        VigTransform local_38;
+        
+        ppcVar10 = null;
+        ppcVar5 = ppcVar10;
+
+        if (param1 != 0xffff)
+        {
+            do
+            {
+                puVar9 = ini.configContainers[param1];
+                local_38 = Utilities.FUN_2C77C(puVar9);
+                local_38 = Utilities.CompMatrixLV(param2, local_38);
+                ppcVar10 = ppcVar5;
+
+                if ((puVar9.flag & 0x7ff) == 0x7ff && param3 != 0)
+                {
+                    ppcVar2 = ini.FUN_2C17C(param1, typeof(Particle6), 8) as Particle6;
+
+                    if (ppcVar2 != null)
+                    {
+                        ppcVar2.ApplyTransformation();
+
+                        if (ppcVar2.vAnim != null)
+                            ppcVar2.state = _PARTICLE6_TYPE.Type1;
+
+                        ppcVar10 = ppcVar2;
+
+                        if (ppcVar5 != null)
+                        {
+                            ppcVar2.child = ppcVar5;
+                            ppcVar5.parent = ppcVar2;
+                        }
+                    }
+
+                    goto LAB_CASE_1;
+                }
+
+                switch ((uint)puVar9.flag >> 12)
+                {
+                    case 0:
+                        if (param3 != 0 && puVar9.objID != 0xaaaa)
+                        {
+                            ppcVar2 = ini.FUN_2C17C(param1, typeof(Particle6), 8) as Particle6;
+                            ppcVar2.ApplyTransformation();
+
+                            if (puVar9.objID == 0)
+                                if (ppcVar2.vAnim != null)
+                                    ppcVar2.state = _PARTICLE6_TYPE.Type1;
+
+                            ppcVar10 = ppcVar2;
+
+                            if (ppcVar5 != null)
+                            {
+                                ppcVar2.child = ppcVar5;
+                                ppcVar5.parent = ppcVar2;
+                            }
+
+                            goto LAB_CASE_1;
+                        }
+
+                        ppcVar5 = ini.FUN_2BF44(puVar9, typeof(Throwaway));
+                        LAB_4D658:
+                        uVar1 = (ushort)GameManager.FUN_2AC5C();
+                        ppcVar5.physics1.M0 = (short)(uVar1 & 0xff);
+                        uVar1 = (ushort)GameManager.FUN_2AC5C();
+                        ppcVar5.physics1.M1 = (short)(uVar1 & 0xff);
+                        uVar1 = (ushort)GameManager.FUN_2AC5C();
+                        ppcVar5.physics1.M2 = (short)(uVar1 & 0xff);
+                        goto LAB_4D680;
+                    case 8:
+                    case 9:
+                    case 14:
+                        if (puVar9.objID == 0xaaaa || puVar9.objID == 0)
+                            LevelManager.instance.FUN_4D16C(this, param1, local_38);
+                        else
+                        {
+                            GameObject obj = new GameObject();
+                            ppcVar5 = obj.AddComponent<Particle7>();
+                            ppcVar5.vTransform = local_38;
+                            ppcVar5.vData = this;
+                            ppcVar5.DAT_1A = (short)param1;
+                            GameManager.instance.FUN_30CB0(ppcVar5, puVar9.objID);
+                        }
+
+                        break;
+                    case 13:
+                        ppcVar5 = ini.FUN_2BF44(puVar9, typeof(Throwaway));
+
+                        if (puVar9.objID != 0) goto LAB_4D658;
+
+                        ppcVar5.physics1.M0 = 0;
+                        ppcVar5.physics1.M1 = 0;
+                        ppcVar5.physics1.M2 = 0;
+                        LAB_4D680:
+                        uVar8 = 0x180;
+                        ppcVar5.type = 7;
+
+                        if (ppcVar5.vAnim != null)
+                            uVar8 = 0x184;
+
+                        uVar7 = ppcVar5.flags;
+
+                        if (ppcVar5.vCollider == null)
+                            uVar7 |= 0x20;
+
+                        ppcVar5.flags = uVar7 | uVar8;
+                        ppcVar5.id = (short)param3;
+
+                        if ((uVar7 & 0x10) == 0)
+                            ((Throwaway)ppcVar5).state = _THROWAWAY_TYPE.Unspawnable;
+                        else
+                            ((Throwaway)ppcVar5).state = _THROWAWAY_TYPE.Type3;
+
+                        ppcVar5.physics1.Z = puVar9.v3_1.x << 8 >> 12;
+                        ppcVar5.physics1.W = puVar9.v3_1.y << 8 >> 12;
+                        ppcVar5.physics2.X = puVar9.v3_1.z << 8 >> 12;
+                        Vector3Int v0 = Utilities.FUN_24094(param2.rotation,
+                            new Vector3Int(ppcVar5.physics1.Z, ppcVar5.physics1.W, ppcVar5.physics2.X));
+                        ppcVar5.vTransform = local_38;
+                        ppcVar5.FUN_305FC();
+                        bVar6 = 3;
+
+                        if (0x27ff < ppcVar5.DAT_58)
+                        {
+                            bVar6 = 1;
+
+                            if (ppcVar5.DAT_58 < 0x7800)
+                                bVar6 = 2;
+                        }
+
+                        ((Throwaway)ppcVar5).DAT_87 = bVar6;
+                        ccVar3 = ini.FUN_2C5CC(puVar9, 0x8622);
+
+                        if (ccVar3 != null)
+                        {
+                            pVar4 = LevelManager.instance.xobfList[19].FUN_4EC2C(109, 8);
+                            Utilities.FUN_2CA94(ppcVar5, ccVar3, pVar4);
+                            pVar4.transform.parent = ppcVar5.transform;
+                        }
+
+                        break;
+                }
+
+                LAB_CASE_1:
+                param1 = puVar9.previous;
+                ppcVar5 = ppcVar10;
+            } while (param1 != 0xffff);
+        }
+
+        return ppcVar10;
     }
 
     public Vehicle FUN_3C464(ushort param1, VehicleData param2)
@@ -84,6 +432,7 @@ public class XOBF_DB : MonoBehaviour
         ppcVar7.DAT_E4 = -ppcVar7.screen.y;
         pcVar16 = ppcVar7.child2;
         ppcVar7.body = new VigObject[2];
+        Utilities.ParentChildren(ppcVar7, ppcVar7);
 
         for (pcVar4 = pcVar16; pcVar4 != null; pcVar4 = pcVar16)
         {
@@ -92,7 +441,6 @@ public class XOBF_DB : MonoBehaviour
             if (pcVar4.id < 4)
             {
                 ppcVar7.body[pcVar4.id] = pcVar4;
-                pcVar4.transform.parent = ppcVar7.transform;
                 sVar5 = (sbyte)pcVar4.FUN_4DCD8();
                 pcVar4.tags = (sbyte)(sVar5 + 1);
                 pcVar4.maxHalfHealth = param2.maxHalfHealth;
@@ -229,6 +577,11 @@ public class XOBF_DB : MonoBehaviour
         return FUN_1FD18(param1, (ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU, init);
     }
 
+    public VigMesh FUN_2CB74_2(GameObject param1, uint param2)
+    {
+        return FUN_1FD18_2(param1, (ushort)ini.configContainers[(int)(param2 & 0xffff)].flag & 0x7ffU);
+    }
+
     public BufferedBinaryReader FUN_2CBB0(int param1)
     {
         int iVar1;
@@ -283,6 +636,8 @@ public class XOBF_DB : MonoBehaviour
                                 PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
 #endif
                             }
+                            else if (identifier == "SND ")
+                                LoadSND(reader);
                             break;
                         }
                         else
@@ -485,17 +840,16 @@ public class XOBF_DB : MonoBehaviour
                 long elementPosition = reader.BaseStream.Seek(timPosition + elementOffset, SeekOrigin.Begin);
                 string bmpApsolute = prefabPath + "/Textures/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".bmp";
                 string bmpRelative = relativePath + "/Textures/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".bmp";
-                string matPath = relativePath + "/Materials/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".mat";
                 reader.ReadInt32();
                 IMP_TIM.LoadTIM(reader, bmpApsolute);
-                Material newMaterial = null;
+                //Material newMaterial = null;
 #if UNITY_EDITOR
                 AssetDatabase.Refresh();
-                newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
-                newMaterial.mainTexture = AssetDatabase.LoadAssetAtPath(bmpRelative, typeof(Texture2D)) as Texture2D;
-                Utilities.SaveObjectToFile(newMaterial, matPath);
+                //newMaterial = new Material(AssetDatabase.LoadAssetAtPath(relativePath + "/default.mat", typeof(Material)) as Material);
+                //newMaterial.mainTexture = AssetDatabase.LoadAssetAtPath(bmpRelative, typeof(Texture2D)) as Texture2D;
+                //Utilities.SaveObjectToFile(newMaterial, matPath);
+                timList.Add(AssetDatabase.LoadAssetAtPath(bmpRelative, typeof(Texture2D)) as Texture2D);
 #endif
-                timList.Add(newMaterial);
             }
         }
 
@@ -520,6 +874,147 @@ public class XOBF_DB : MonoBehaviour
                 newContainer.next = reader.ReadUInt16();
                 newConfig.configContainers.Add(newContainer);
             }
+        }
+
+#if UNITY_EDITOR
+        EditorUtility.SetDirty(gameObject);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
+#endif
+    }
+
+    private void LoadSND(BinaryReader reader)
+    {
+        long startPosition = reader.BaseStream.Position;
+        int elementsCount = reader.ReadUInt16();
+        int eof = reader.ReadUInt16() * 8;
+        long elementsPosition = reader.BaseStream.Position + elementsCount * 4;
+        double[,] f = { {   0.0, 0.0 },
+                        {  60.0 / 64.0, 0.0 },
+                        { 115.0 / 64.0, -52.0 / 64.0 },
+                        {  98.0 / 64.0, -55.0 / 64.0 },
+                        { 122.0 / 64.0, -60.0 / 64.0 } };
+        double[] samples = new double[28];
+        prefabName = name;
+        prefabPath = Application.dataPath.Remove(Application.dataPath.Length - 6, 6)
+            + Path.GetDirectoryName(AssetDatabase.GetAssetPath(gameObject));
+        prefabPath = prefabPath.Replace("\\", "/");
+        string relativePath = prefabPath;
+
+        if (prefabPath.StartsWith(Application.dataPath))
+            relativePath = "Assets" + prefabPath.Substring(Application.dataPath.Length);
+
+        for (int i = 0; i < elementsCount; i++)
+        {
+            int samplesCount = 0;
+            int loopBegin = 0;
+            int loopEnd = 0;
+            double s_1 = 0.0;
+            double s_2 = 0.0;
+            string wavApsolute = prefabPath + "/Sounds/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".wav";
+            string wavRelative = relativePath + "/Sounds/" + prefabName + "_" + i.ToString().PadLeft(4, '0') + ".wav";
+
+            using (BinaryWriter writer = new BinaryWriter(File.Open(wavApsolute, FileMode.Create)))
+            {
+                reader.BaseStream.Seek(startPosition, SeekOrigin.Begin);
+                reader.BaseStream.Seek(i * 4 + 4, SeekOrigin.Current);
+                int elementOffset = reader.ReadUInt16() * 8;
+                uint samp_freq = reader.ReadUInt16() * 11U;
+                int nextOffset = reader.ReadUInt16() * 8;
+                if (i == elementsCount - 1) nextOffset = eof;
+                reader.BaseStream.Seek(elementsPosition + elementOffset, SeekOrigin.Begin);
+                //reader.BaseStream.Seek(16, SeekOrigin.Current); //vag name?
+                writer.Write(0x46464952); //RIFF
+                writer.Write(0); //skip file size for now
+                writer.Write(0x45564157); //WAVE
+                writer.Write(0x20746D66); //fmt
+                writer.Write(0x10);
+                writer.Write((short)1);
+                writer.Write((short)1);
+                writer.Write((byte)samp_freq);
+                writer.Write((byte)(samp_freq >> 8));
+                writer.Write((short)0);
+                writer.Write(samp_freq * 2);
+                writer.Write((short)2);
+                writer.Write((short)16);
+                writer.Write(0x6C706D73); //smpl
+                writer.Write(60);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(60);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(1);
+                writer.Write(0);
+                writer.Write(1);
+                writer.Write(1);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0x61746164); //data
+                writer.Write(0); //skip SubChunk2Size for now
+
+                while (reader.BaseStream.Position < elementsPosition + nextOffset)
+                {
+                    int predict_nr = reader.ReadByte();
+                    int shift_factor = predict_nr & 0xf;
+                    predict_nr >>= 4;
+                    int flags = reader.ReadByte();
+
+                    if (flags == 7)
+                        break;
+                    else if (flags == 6)
+                        loopBegin = samplesCount;
+                    else if (flags == 3)
+                        loopEnd = samplesCount + 28;
+
+                    for (int j = 0; j < 28; j += 2)
+                    {
+                        int d = reader.ReadByte();
+                        int s = (d & 0xf) << 12;
+
+                        if ((s & 0x8000) != 0)
+                            s |= -0x10000;
+
+                        samples[j] = s >> shift_factor;
+                        s = (d & 0xf0) << 8;
+
+                        if ((s & 0x8000) != 0)
+                            s |= -0x10000;
+
+                        samples[j + 1] = s >> shift_factor;
+                    }
+
+                    for (int j = 0; j < 28; j++)
+                    {
+                        samplesCount++;
+                        samples[j] = samples[j] + s_1 * f[predict_nr, 0] + s_2 * f[predict_nr, 1];
+                        s_2 = s_1;
+                        s_1 = samples[j];
+                        int d = (int)(samples[j] + 0.5);
+                        writer.Write((short)d);
+                    }
+                }
+
+                if (loopEnd == 0)
+                    loopEnd = samplesCount;
+
+                long sz = writer.BaseStream.Length;
+                writer.BaseStream.Seek(4, SeekOrigin.Begin);
+                writer.Write((int)(sz - 8));
+                writer.BaseStream.Seek(108, SeekOrigin.Begin);
+                writer.Write((int)(sz - 44));
+                writer.BaseStream.Seek(88, SeekOrigin.Begin);
+                writer.Write(loopBegin);
+                writer.Write(loopEnd);
+            }
+
+#if UNITY_EDITOR
+            AssetDatabase.Refresh();
+            sndList.Add(AssetDatabase.LoadAssetAtPath(wavRelative, typeof(AudioClip)) as AudioClip);
+#endif
         }
 
 #if UNITY_EDITOR
@@ -585,7 +1080,7 @@ public class XOBF_DB : MonoBehaviour
         }
     }
 
-    public Material FUN_1F288(uint param1)
+    /*public Material FUN_1F288(uint param1)
     {
         Material pcVar2;
 
@@ -593,7 +1088,7 @@ public class XOBF_DB : MonoBehaviour
         //...
 
         return pcVar2;
-    }
+    }*/
 
     public VigMesh FUN_1FD18(GameObject param1, uint param2, bool init)
     {
@@ -614,25 +1109,66 @@ public class XOBF_DB : MonoBehaviour
 
         puVar7 = tmdList[(int)(param2 & 0xffff)];
         pbVar3 = param1.AddComponent<VigMesh>();
+        pbVar3.tmdID = param2;
+        pbVar3.topology = MeshTopology.Triangles;
         MeshFilter meshFilter = param1.GetComponent<MeshFilter>();
         MeshRenderer meshRenderer = param1.GetComponent<MeshRenderer>();
         List<Material> materialList;
+        pbVar3.subMeshCount = 2;
 
         if (meshFilter == null)
         {
             meshFilter = param1.AddComponent<MeshFilter>();
             meshFilter.mesh = new Mesh();
             meshRenderer = param1.AddComponent<MeshRenderer>();
-            materialList = new List<Material>();
-            materialList.Add(levelManager.defaultMaterial);
+            meshRenderer.receiveShadows = false;
+            meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
-        else
-            materialList = meshRenderer.sharedMaterials.ToList();
+
+        materialList = new List<Material>();
+        materialList.Add(levelManager.defaultMaterial);
+
+        switch (this.materialList[(int)param2])
+        {
+            case _MATERIAL.Cutout:
+                materialList.Add(matAtlas);
+                break;
+            case _MATERIAL.Additive:
+                materialList.Add(additive);
+                break;
+            case _MATERIAL.Billboard:
+                materialList.Add(billboard);
+                break;
+            case _MATERIAL.Lines:
+                pbVar3.topology = MeshTopology.Lines;
+                pbVar3.subMeshCount = 1;
+                break;
+            case _MATERIAL.Mirror:
+                materialList.Add(additive);
+                pbVar3.mirror = true;
+                break;
+            case _MATERIAL.CutAdd:
+                materialList.Add(matAtlas);
+                materialList.Add(additive);
+                pbVar3.subMeshCount = 3;
+                break;
+            case _MATERIAL.Subtractive:
+                materialList.Add(subtractive);
+                break;
+            case _MATERIAL.Lines2:
+                pbVar3.topology = MeshTopology.Lines;
+                materialList.Add(matAtlas);
+                materialList.Add(levelManager.defaultMaterial);
+                pbVar3.subMeshCount = 3;
+                break;
+            case _MATERIAL.Billboard2:
+                materialList.Add(billboard2);
+                break;
+        }
 
         pbVar6 = pbVar3;
         iVar5 = 0;
         pbVar3.DAT_1C = new int[16]; //not in the original code
-        pbVar3.topology = MeshTopology.Triangles;
 
         if (puVar7.DAT_19 != 0)
         {
@@ -680,9 +1216,6 @@ public class XOBF_DB : MonoBehaviour
                         case 1:
                         case 5:
                             iVar5 = reader.ReadUInt16(22) & 0x3fff;
-                            break;
-                        case 6:
-                            pbVar3.topology = MeshTopology.Lines;
                             break;
                         case 9:
                             iVar5 = reader.ReadUInt16(26) & 0x3fff;
@@ -737,36 +1270,90 @@ public class XOBF_DB : MonoBehaviour
             }
         }
 
-        pbVar3.mainT = new Dictionary<int, Texture>();
-        pbVar3.materialIDs = new Dictionary<int, int>();
-
-        for (int i = 0; i < materialIDs.Count; i++)
+        if (init)
         {
-            if (materialIDs[i] == 0xffff ||
-                materialIDs[i] == 0x3fff)
+            pbVar3.materialIDs = new Dictionary<int, int>();
+
+            if (pbVar3.mainT != rects)
             {
-                materialList.Add(levelManager.DAT_E48);
-                pbVar3.mainT.Add(materialList.Count - 1, levelManager.DAT_E48.mainTexture);
-                pbVar3.materialIDs.Add(materialIDs[i], materialList.Count - 1);
+                pbVar3.mainT = rects;
+                pbVar3.atlas = atlas;
             }
-            else if (materialIDs[i] == 0x3ffe)
+
+            /*for (int i = 0; i < materialIDs.Count; i++)
             {
-                materialList.Add(levelManager.DAT_E58);
-                pbVar3.mainT.Add(materialList.Count - 1, levelManager.DAT_E58.mainTexture);
-                pbVar3.materialIDs.Add(materialIDs[i], materialList.Count - 1);
-            }
-            else
+                if (materialIDs[i] == 0xffff ||
+                    materialIDs[i] == 0x3fff)
+                {
+                    materialList.Add(levelManager.DAT_E48);
+                    pbVar3.materialIDs.Add(materialIDs[i], materialList.Count - 1);
+                }
+                else if (materialIDs[i] == 0x3ffe)
+                {
+                    materialList.Add(levelManager.DAT_E58);
+                    pbVar3.materialIDs.Add(materialIDs[i], materialList.Count - 1);
+                }
+            }*/
+
+            meshRenderer.sharedMaterials = materialList.ToArray();
+            pbVar3.Initialize();
+        }
+        return pbVar3;
+    }
+
+    public VigMesh FUN_1FD18_2(GameObject param1, uint param2)
+    {
+        byte bVar1;
+        ushort uVar2;
+        VigMesh pbVar3;
+        VigMesh pbVar6;
+        TMD puVar7;
+        LevelManager levelManager = LevelManager.instance;
+        List<int> materialIDs = new List<int>();
+
+        if (levelManager == null)
+            levelManager = GameObject.FindObjectOfType<LevelManager>();
+
+        puVar7 = tmdList[(int)(param2 & 0xffff)];
+        pbVar3 = param1.AddComponent<VigMesh>();
+        pbVar3.tmdID = param2;
+        pbVar3.topology = MeshTopology.Triangles;
+        pbVar3.subMeshCount = 1;
+
+        pbVar6 = pbVar3;
+        pbVar3.DAT_1C = new int[16]; //not in the original code
+
+        if (puVar7.DAT_19 != 0)
+        {
+            //pbVar3.DAT_1C = new int[puVar7.DAT_19];
+
+            for (int i = 0; i < puVar7.DAT_19; i++)
             {
-                materialList.Add(timList[materialIDs[i]]);
-                pbVar3.mainT.Add(materialList.Count - 1, timList[materialIDs[i]].mainTexture);
-                pbVar3.materialIDs.Add(materialIDs[i], materialList.Count - 1);
+                pbVar3.DAT_1C[i] = 0;
+
+                if (!materialIDs.Contains(pbVar3.DAT_1C[i]))
+                    materialIDs.Add(pbVar3.DAT_1C[i]);
             }
         }
-        
-        meshRenderer.sharedMaterials = materialList.ToArray();
 
-        if (init)
-            pbVar3.Initialize();
+        pbVar3.DAT_00 = (byte)(((uint)(short)puVar7.flag >> 15) & 1);
+        pbVar3.vertices = (ushort)puVar7.vertices;
+        pbVar3.vertexStream = puVar7.vertexStream;
+        pbVar3.normalStream = puVar7.normalStream;
+        pbVar3.faces = (ushort)puVar7.faces;
+        pbVar3.faceStream = puVar7.faceStream;
+        bVar1 = puVar7.DAT_18;
+        pbVar3.DAT_02 = 0;
+        pbVar3.DAT_01 = bVar1;
+        uVar2 = puVar7.DAT_1A;
+        bVar1 = puVar7.DAT_18;
+        pbVar3.DAT_14 = null;
+        pbVar3.DAT_18 = (uint)uVar2 << (16 - bVar1 & 31);
+
+        if ((puVar7.flag & 0x4000) == 0)
+            FUN_1F6AC(puVar7);
+    
+        pbVar3.Initialize2();
 
         return pbVar3;
     }

@@ -31,4 +31,13 @@ public class MenuItems
 
         EXP_XOB.ExtractXOB(file, save);
     }
+
+    [MenuItem("Tools/Export SND")]
+    private static void ExportSND()
+    {
+        string file = EditorUtility.OpenFilePanel("Open .snd file to extract asset", "", "snd");
+        string save = EditorUtility.SaveFolderPanel("Save location", "", "");
+
+        EXP_SND.ExtractSND(file, save);
+    }
 }

@@ -49,5 +49,12 @@ public class VigCollider
     public VigCollider(byte[] b)
     {
         buffer = b;
+        reader = new BufferedBinaryReader(buffer);
+    }
+
+    public void GetReader()
+    {
+        if (reader == null)
+            reader = new BufferedBinaryReader(buffer);
     }
 }
