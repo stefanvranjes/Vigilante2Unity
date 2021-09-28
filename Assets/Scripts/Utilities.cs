@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-
 public static class Utilities
 {
     public static ushort DAT_10390 = 0;
@@ -64,24 +63,30 @@ public static class Utilities
 
     public static Type[] vehicleSpecials =
     {
-        null,
+        typeof(Tantrum),
         typeof(Revolver),
+        typeof(GloryRockets),
         null,
         null,
         null,
+        typeof(MegaCollider),
+        typeof(LemmingL),
+        typeof(SmogPipe),
         null,
         null,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        typeof(Collector),
+        typeof(Collector2),
+        typeof(Freezer),
         null,
         null,
         null
+    };
+
+    public static Dictionary<Type, _SPECIAL_INIT> specialInits = new Dictionary<Type, _SPECIAL_INIT>()
+    {
+        { typeof(Revolver), Revolver.OnInitialize },
+        { typeof(Collector), Collector.OnInitialize }
     };
 
     public static sbyte[] DAT_106E8 =
@@ -166,32 +171,28 @@ public static class Utilities
 
     public static VigObject FUN_31D30_2(Type param1, XOBF_DB param2, short param3, uint param4)
     {
-        if (param1.Equals(typeof(Revolver)))
+        VigObject oVar1;
+        _SPECIAL_INIT dVar2;
+
+        specialInits.TryGetValue(param1, out dVar2);
+        
+        if (dVar2 != null)
         {
-            if (param2 == null || param3 == -1)
-            {
-                GameObject obj = new GameObject();
-                VigObject comp = obj.AddComponent(param1) as VigObject;
-                comp.vData = param2;
-                return comp;
-            }
-            else
-                return param2.ini.FUN_2C17C((ushort)param3, param1, param4, typeof(Revolver2));
+            oVar1 = dVar2(param2, param3);
+
+            if (oVar1 != null)
+                return oVar1;
         }
-        else if (param1.Equals(typeof(Empty)))
+
+        if (param2 == null || param3 == -1)
         {
-            if (param2 == null || param3 == -1)
-            {
-                GameObject obj = new GameObject();
-                VigObject comp = obj.AddComponent(param1) as VigObject;
-                comp.vData = param2;
-                return comp;
-            }
-            else
-                return param2.ini.FUN_2C17C((ushort)param3, param1, param4);
+            GameObject obj = new GameObject();
+            VigObject comp = obj.AddComponent(param1) as VigObject;
+            comp.vData = param2;
+            return comp;
         }
         else
-            return null;
+            return param2.ini.FUN_2C17C((ushort)param3, param1, param4);
     }
 
     public static VigObject FUN_31D30(_VEHICLE_INIT param1, XOBF_DB param2, ushort param3, uint param4)
@@ -1318,6 +1319,12 @@ public static class Utilities
             V21 = (short)((int)((uint)m33.V21 * (uint)v3.y) >> 12),
             V22 = (short)((int)((uint)m33.V22 * (uint)v3.z) >> 12)
         };
+    }
+
+    public static void FUN_248C4(Matrix3x3 m1, Matrix3x3 m2, out Matrix3x3 m3)
+    {
+        FUN_243B4(m1);
+        m3 = FUN_247F4(m2);
     }
 
     public static void FUN_243B4(Matrix3x3 m33)

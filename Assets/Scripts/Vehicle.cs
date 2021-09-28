@@ -45,7 +45,8 @@ public enum _VEHICLE_TYPE
 {
     Vehicle, //FUN_3C118
     Chasis, //FUN_384A4
-    Wrecked //FUN_38CA4
+    Wrecked, //FUN_38CA4
+    Collector //FUN_230 (GRBLDER.DLL)
 }
 
 public class Vehicle : VigObject
@@ -203,6 +204,34 @@ public class Vehicle : VigObject
 
     private VigConfig config;
 
+    public ushort GetPowerup(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                return doubleDamage;
+            case 1:
+                return shield;
+            default:
+                return jammer;
+        }
+    }
+
+    public void SetPowerup(int index, ushort value)
+    {
+        switch (index)
+        {
+            case 0:
+                doubleDamage = value;
+                break;
+            case 1:
+                shield = value;
+                break;
+            default:
+                jammer = value;
+                break;
+        }
+    }
     
     void Awake()
     {
@@ -235,7 +264,7 @@ public class Vehicle : VigObject
                 ppcVar8 = hit.object1;
                 uVar6 = 0;
 
-                if (ppcVar8 != this && !ppcVar8.GetType().IsSubclassOf(typeof(VigObject)))
+                if (ppcVar8 != this && ppcVar8.GetType().IsSubclassOf(typeof(VigObject)))
                 {
                     iVar4 = (int)ppcVar8.OnCollision(hit);
                     uVar6 = (uint)(iVar4 != 0 ? 1 : 0);
@@ -576,6 +605,15 @@ public class Vehicle : VigObject
                 }
 
                 return uVar1;
+
+            case _VEHICLE_TYPE.Collector:
+                if (arg1 == 4)
+                {
+                    PDAT_74.PDAT_74 = null;
+                    FUN_38484();
+                }
+
+                break;
         }
 
         return 0;
@@ -2723,6 +2761,28 @@ public class Vehicle : VigObject
         }
     }
 
+    public void FUN_41FEC()
+    {
+        uint uVar1;
+
+        uVar1 = flags;
+        flags = (uVar1 & 0xfbffffff);
+        tags = 1;
+
+        if ((uVar1 & 0x4000) == 0)
+            state = _VEHICLE_TYPE.Chasis;
+        else
+        {
+            if (maxHalfHealth == 0)
+            {
+                FUN_38C40();
+                return;
+            }
+
+            state = _VEHICLE_TYPE.Vehicle;
+        }
+    }
+
     public void FUN_3C9C4(int param1)
     {
         ushort uVar1;
@@ -2949,7 +3009,8 @@ public class Vehicle : VigObject
 
                             if ((flags & 0x8000) == 0 && 457 < physics1.W)
                             {
-                                //sound
+                                iVar4 = GameManager.instance.FUN_1DD9C();
+                                GameManager.instance.FUN_1E628(iVar4, GameManager.instance.DAT_C2C, 31, ppcVar11.screen);
                             }
                         }
 
@@ -3031,7 +3092,8 @@ public class Vehicle : VigObject
 
                                     if (sVar1 != -1)
                                     {
-                                        //sounds
+                                        iVar4 = GameManager.instance.FUN_1DD9C();
+                                        GameManager.instance.FUN_1E628(iVar4, GameManager.instance.DAT_C2C, sVar1, ppcVar11.screen);
                                     }
                                 }
 
@@ -3074,7 +3136,7 @@ public class Vehicle : VigObject
                 if (id < 0)
                 {
                     //printf
-                    //sound
+                    FUN_3AC4C();
                 }
 
                 bVar1 = DAT_BD;
@@ -3157,7 +3219,7 @@ public class Vehicle : VigObject
                 //FUN_4E414
                 physics2.Y = 50000;
                 physics1.Y -= 0xee680;
-                //sound
+                param1.FUN_3AC4C();
                 vVar6.DAT_BF += 1;
                 iVar6 = 0;
 
@@ -3352,6 +3414,7 @@ public class Vehicle : VigObject
     private void FUN_3A148(int param1)
     {
         Throwaway ppcVar1;
+        int iVar2;
         VigObject oVar3;
         int iVar3;
 
@@ -3379,7 +3442,8 @@ public class Vehicle : VigObject
                 iVar3 += 127;
 
             ppcVar1.physics2.X += iVar3 >> 7;
-            //sound
+            iVar2 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar2, GameManager.instance.DAT_C2C, 46, ppcVar1.vTransform.position);
 
             if (ppcVar1.maxHalfHealth != 0 && ppcVar1.tags != 7)
                 ppcVar1.state = _THROWAWAY_TYPE.Spawnable;
@@ -3434,6 +3498,36 @@ public class Vehicle : VigObject
                 param1 -= (int)(uVar2 - uVar4);
                 iVar5++;
             } while (param1 != 0);
+        }
+    }
+
+    public void FUN_39BC4()
+    {
+        sbyte sVar1;
+        int iVar2;
+        int iVar3;
+
+        if ((DAT_F6 & 0x10) == 0)
+        {
+            DAT_F6 |= 0x10;
+            iVar2 = (int)GameManager.FUN_2AC5C();
+            iVar3 = DAT_18;
+            ignition = (short)((iVar2 * 180 >> 15) + 180);
+            acceleration = -120;
+
+            if (iVar3 == 0)
+                iVar3 = GameManager.instance.FUN_1DD9C();
+
+            GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 33, vTransform.position);
+
+            if (id < 0)
+                DAT_18 = 0;
+            else
+            {
+                sVar1 = (sbyte)GameManager.instance.FUN_1DD9C();
+                DAT_18 = sVar1;
+                GameManager.instance.FUN_1E098(sVar1, GameManager.instance.DAT_C2C, 34, 0, true);
+            }
         }
     }
 
@@ -3617,6 +3711,7 @@ public class Vehicle : VigObject
     public bool FUN_39714(Vector3Int param1)
     {
         bool bVar1;
+        int iVar1;
         Vector3Int v3;
         int iVar2;
         Wheel ppcVar3;
@@ -3651,7 +3746,8 @@ public class Vehicle : VigObject
                 GameManager.instance.FUN_30CB0(ppcVar3, 300);
                 v3 = GameManager.instance.FUN_2CE50(ppcVar3);
                 LevelManager.instance.FUN_4DE54(v3, 13);
-                //sound
+                iVar1 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar1, GameManager.instance.DAT_C2C, 40, vTransform.position);
                 bVar1 = true;
             }
             else
@@ -3665,15 +3761,16 @@ public class Vehicle : VigObject
     {
         if (GameManager.instance.gameMode != _GAME_MODE.Survival)
             FUN_38A38(true);
-
-        //sound
+        
         //printf
         FUN_38870();
     }
 
     public void FUN_38DA8()
     {
+        sbyte sVar1;
         Smoke oVar3;
+        int iVar4;
         ConfigContainer ccVar4;
 
         GameManager.instance.FUN_30CB0(this, 300);
@@ -3681,7 +3778,17 @@ public class Vehicle : VigObject
         maxHalfHealth = 0;
         acceleration = 0;
         direction = 0;
-        //sound
+        GameManager.instance.FUN_1DE78(DAT_DF);
+        iVar4 = DAT_18;
+
+        if (iVar4 == 0)
+        {
+            sVar1 = (sbyte)GameManager.instance.FUN_1DD9C();
+            DAT_18 = sVar1;
+            iVar4 = sVar1;
+        }
+
+        GameManager.instance.FUN_1E628(iVar4, GameManager.instance.DAT_C2C, 35, vTransform.position, true);
 
         if (0 < id || GameManager.instance.gameMode == _GAME_MODE.Versus || _GAME_MODE.Unk1 < GameManager.instance.gameMode)
         {
@@ -3775,7 +3882,8 @@ public class Vehicle : VigObject
         acceleration = 0;
         DAT_C8 = 0;
         flags = flags & 0xffffbfff | 0x8000;
-        //sound
+        GameManager.instance.FUN_1DE78(DAT_18);
+        GameManager.instance.FUN_1DE78(DAT_DF);
         ai.FUN_51CC0();
         piVar6 = GameManager.instance.playerObjects;
         target = null;
@@ -3811,6 +3919,19 @@ public class Vehicle : VigObject
     public void FUN_38484()
     {
         ai.FUN_51CC0();
+    }
+
+    public void FUN_39C94()
+    {
+        int iVar1;
+
+        if ((DAT_F6 & 0x10) != 0)
+        {
+            DAT_F6 &= 0xffef;
+            FUN_38408();
+            iVar1 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E580(iVar1, GameManager.instance.DAT_C2C, 32, vTransform.position);
+        }
     }
 
     public void FUN_38408()
@@ -4975,6 +5096,7 @@ public class Vehicle : VigObject
     private void FUN_393F8()
     {
         Shield ppcVar1;
+        int iVar2;
         int iVar3;
         BufferedBinaryReader brVar4;
         int iVar5;
@@ -5026,7 +5148,8 @@ public class Vehicle : VigObject
             if ((flags & 4) == 0)
                 ppcVar1.FUN_30BF0();
 
-            //sound
+            iVar2 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar2, GameManager.instance.DAT_C2C, 50, vTransform.position);
         }
         else
         {
@@ -5049,13 +5172,15 @@ public class Vehicle : VigObject
 
     private void FUN_39CEC(uint param1)
     {
+        sbyte sVar1;
         short sVar2;
         int iVar3;
         short uVar4;
 
         if ((param1 & 0xffff) == 0)
         {
-            //sound effect
+            GameManager.instance.FUN_1DE78(DAT_18);
+            DAT_18 = 0;
         }
         else
         {
@@ -5064,7 +5189,7 @@ public class Vehicle : VigObject
             ignition = sVar2;
 
             if (sVar2 == -1)
-                ; //sound effect
+                FUN_39C94();
             else
             {
                 if ((param1 & 0xffff0000) != 0)
@@ -5076,7 +5201,16 @@ public class Vehicle : VigObject
                         uVar4 = 90;
 
                     ignition = uVar4;
-                    //...
+                    iVar3 = DAT_18;
+
+                    if (iVar3 == 0)
+                    {
+                        sVar1 = (sbyte)GameManager.instance.FUN_1DD9C();
+                        DAT_18 = sVar1;
+                        iVar3 = sVar1;
+                    }
+
+                    GameManager.instance.FUN_1E098(iVar3, GameManager.instance.DAT_C2C, 34, 0, true);
                 }
             }
         }
@@ -5278,8 +5412,10 @@ public class Vehicle : VigObject
         VigCamera cVar2;
         int iVar3;
         VigObject ppcVar4;
+        int iVar5;
         uint uVar5;
         VigObject oVar5;
+        int iVar6;
         int iVar7;
         uint uVar8;
 
@@ -5313,7 +5449,8 @@ public class Vehicle : VigObject
 
             bVar2 = FUN_3A734((int)uVar5);
             DAT_F6 &= 0xffdf;
-            //sound
+            iVar5 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E14C(iVar5, GameManager.instance.DAT_C2C, !bVar2 ? 1 : 0);
 
             if (bVar2)
             {
@@ -5342,7 +5479,8 @@ public class Vehicle : VigObject
             target = oVar5;
             DAT_C6 = 0;
             DAT_F6 |= 0x20;
-            //sound
+            iVar5 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E14C(iVar5, GameManager.instance.DAT_C2C, 0);
         }
 
         if ((uVar8 & 0x4000) == 0) goto LAB_3AF04;
@@ -5360,7 +5498,8 @@ public class Vehicle : VigObject
             }
         }
 
-        //sound
+        iVar5 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E14C(iVar5, GameManager.instance.DAT_C2C, 1);
         LAB_3AF04:
         FUN_3A5FC((int)(uVar8 & 4));
 
@@ -5392,7 +5531,13 @@ public class Vehicle : VigObject
 
                             if (iVar7 != 0)
                             {
-                                //sound
+                                iVar5 = GameManager.instance.FUN_1DD9C();
+                                iVar6 = 47;
+
+                                if (iVar7 < 0)
+                                    iVar6 = 1;
+
+                                GameManager.instance.FUN_1E580(iVar5, GameManager.instance.DAT_C2C, iVar6, vTransform.position);
 
                                 if (0 < iVar7)
                                     DAT_B6 = (short)iVar7;
@@ -5726,7 +5871,9 @@ public class Vehicle : VigObject
         sbyte cVar2;
         int iVar3;
         int iVar4;
+        int iVar5;
         uint uVar6;
+        int iVar7;
         int iVar8;
 
         if (wheelsType == _WHEELS.Air)
@@ -5827,7 +5974,14 @@ public class Vehicle : VigObject
                         DAT_B0 = -39;
                     }
 
-                    //sound
+                    iVar5 = GameManager.instance.FUN_1DD9C();
+                    uVar6 = GameManager.FUN_2AC5C();
+                    iVar7 = 28;
+
+                    if ((uVar6 & 1) != 0)
+                        iVar7 = 29;
+
+                    GameManager.instance.FUN_1E628(iVar5, GameManager.instance.DAT_C2C, iVar7, vTransform.position);
                     FUN_3928C(0);
                 }
 
@@ -5855,7 +6009,8 @@ public class Vehicle : VigObject
                 if ((uVar6 & 28) != 0)
                     return;
 
-                //sound
+                iVar5 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E628(iVar5, GameManager.instance.DAT_C2C, 28, vTransform.position);
                 return;
             }
 

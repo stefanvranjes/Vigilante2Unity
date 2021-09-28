@@ -27,69 +27,6 @@ public class VigConfig : MonoBehaviour
     [HideInInspector]
     public XOBF_DB xobf;
 
-    /*public VigObject FUN_2C17C(ushort param1, Type param2, uint param3)
-    {
-        int containerID = ((((param1 & 0xFFFF) << 3) - (param1 & 0xFFFF)) << 2) / 0x1C;
-        VigObject vObject;
-
-        if (configContainers[containerID].flag < 0 || (0xFF < configContainers[containerID].objID && (param3 & 0x20) != 0))
-        {
-            if ((param3 & 1) == 0 || configContainers[containerID].previous == -1)
-                vObject=null; //no need to return null
-            else
-                vObject=FUN_2C17C(configContainers[containerID].previous, 128, param3);
-        }
-        else
-        {
-            vObject=FUN_2BF44(containerID, param2);
-            currentID++;
-            vObject.DAT_1A = (short)param1;
-            vObject.id = configContainers[containerID].objID;
-
-            if ((param3 & 8) == 0)
-                vObject.DAT_64 = 0;
-            else
-            {
-                int iVar = 0;
-
-                if (pointerUnk1 != 0)
-                {
-                    //...
-                }
-
-                vObject.DAT_64 = iVar;
-            }
-
-            vObject.unk4 = GameManager.instance.timer;
-
-            if ((param3 & 1) != 0 && configContainers[containerID].previous != -1)
-            {
-                VigObject previous = FUN_2C17C(configContainers[containerID].previous, 128, param3);
-                vObject.child = previous;
-
-                if (previous != null)
-                {
-                    previous.parent = vObject;
-                    vObject.child.ApplyTransformation();
-                }
-            }
-
-            if ((param3 & 2) == 0 && configContainers[containerID].next != -1)
-            {
-                VigObject next = FUN_2C17C(configContainers[containerID].next, 128, param3 | 33);
-                vObject.child2 = next;
-
-                if (next != null)
-                {
-                    next.parent = vObject;
-                    vObject.child2.ApplyTransformation();
-                }
-            }
-        }
-
-        return vObject;
-    }*/
-
     public VigObject FUN_2C17C(ushort param1, Type param2, uint param3)
     {
         VigObject oVar1;
@@ -227,6 +164,81 @@ public class VigConfig : MonoBehaviour
             if ((param3 & 2) == 0 && (short)psVar5.next != -1)
             {
                 oVar3 = FUN_2C17C(psVar5.next, param4, param3 | 33);
+                oVar1.child2 = oVar3;
+
+                if (oVar3 != null)
+                {
+                    oVar3.parent = oVar1;
+                    oVar1.child2.ApplyTransformation();
+                }
+            }
+        }
+
+        return oVar1;
+    }
+
+    public VigObject FUN_2C17C_2(ushort param1, Type param2, uint param3)
+    {
+        VigObject oVar1;
+        int iVar2;
+        VigObject oVar3;
+        byte[] aVar3;
+        BufferedBinaryReader brVar4;
+        ConfigContainer psVar5;
+
+        psVar5 = configContainers[param1];
+
+        if ((short)psVar5.flag < 0 || (255 < (short)psVar5.objID && (param3 & 0x20) != 0))
+        {
+            if ((param3 & 1) == 0 || (short)psVar5.previous == -1)
+                oVar1 = null;
+            else
+                oVar1 = FUN_2C17C_2(psVar5.previous, typeof(Body), param3);
+        }
+        else
+        {
+            oVar1 = FUN_2BF44(psVar5, param2);
+            oVar1.DAT_1A = (short)param1;
+            oVar1.id = (short)psVar5.objID;
+
+            if ((param3 & 8) == 0)
+                oVar1.vAnim = null;
+            else
+            {
+                aVar3 = xobf.animations;
+                brVar4 = null;
+
+                if (aVar3.Length > 0)
+                {
+                    brVar4 = new BufferedBinaryReader(aVar3);
+                    iVar2 = brVar4.ReadInt32(param1 * 4 + 4);
+
+                    if (iVar2 != 0)
+                        brVar4.Seek(iVar2, SeekOrigin.Begin);
+                    else
+                        brVar4 = null;
+                }
+
+                oVar1.vAnim = brVar4;
+            }
+
+            oVar1.DAT_4A = GameManager.instance.timer;
+
+            if ((param3 & 1) != 0 && (short)psVar5.previous != -1)
+            {
+                oVar3 = FUN_2C17C_2(psVar5.previous, param2, param3);
+                oVar1.child = oVar3;
+
+                if (oVar3 != null)
+                {
+                    oVar3.parent = oVar1;
+                    oVar1.child.ApplyTransformation();
+                }
+            }
+
+            if ((param3 & 2) == 0 && (short)psVar5.next != -1)
+            {
+                oVar3 = FUN_2C17C_2(psVar5.next, param2, param3 | 33);
                 oVar1.child2 = oVar3;
 
                 if (oVar3 != null)

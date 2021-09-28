@@ -136,6 +136,7 @@ public class Revolver3 : VigObject
         else
         {
             puVar1 = vData.ini.FUN_2C17C(1, typeof(Ballistic), 8, typeof(VigChild)) as Ballistic;
+            Utilities.ParentChildren(puVar1, puVar1);
             puVar1.flags = 0x34;
             puVar1.screen = vTransform.position;
             puVar1.FUN_3066C();

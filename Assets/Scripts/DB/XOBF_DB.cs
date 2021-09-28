@@ -17,7 +17,8 @@ public enum _MATERIAL
     CutAdd,
     Subtractive,
     Lines2, 
-    Billboard2
+    Billboard2, 
+    Subtractive2
 }
 
 public class XOBF_DB : MonoBehaviour
@@ -54,6 +55,7 @@ public class XOBF_DB : MonoBehaviour
     private Material billboard;
     private Material subtractive;
     private Material billboard2;
+    private Material subtractive2;
     private Rect[] rects;
 
     private void Reset()
@@ -123,6 +125,15 @@ public class XOBF_DB : MonoBehaviour
         billboard2.SetFloat("_RenderMode", 2);
         billboard2.SetFloat("_Cul", 1);
         billboard2.SetFloat("_DrawDist", 0);
+        subtractive2 = new Material(Shader.Find("PSXEffects/PS1SubtractiveBB"));
+        subtractive2.mainTexture = atlas;
+        subtractive2.SetFloat("_ColorOnly", 0);
+        subtractive2.SetFloat("_Unlit", 1);
+        subtractive2.SetFloat("_OffsetFactor", -2);
+        subtractive2.SetFloat("_OffsetUnits", -2);
+        subtractive2.SetFloat("_RenderMode", 2);
+        subtractive2.SetFloat("_Cul", 1);
+        subtractive2.SetFloat("_DrawDist", 0);
     }
 
     public Material[] GetMaterialList(VigMesh mesh, int tmdID)
@@ -392,7 +403,7 @@ public class XOBF_DB : MonoBehaviour
         return ppcVar10;
     }
 
-    public Vehicle FUN_3C464(ushort param1, VehicleData param2)
+    public Vehicle FUN_3C464(ushort param1, VehicleData param2, bool bodyParts = false)
     {
         _VEHICLE eVar1;
         byte bVar2;
@@ -412,7 +423,12 @@ public class XOBF_DB : MonoBehaviour
         byte[] local_28;
 
         local_20 = param1;
-        ppcVar7 = ini.FUN_2C17C(param1, typeof(Vehicle), (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
+
+        if (!bodyParts)
+            ppcVar7 = ini.FUN_2C17C(param1, typeof(Vehicle), (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
+        else
+            ppcVar7 = ini.FUN_2C17C_2(param1, typeof(Vehicle), (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
+
         uVar11 = param2.DAT_0C;
 
         if ((param2.DAT_0C & 240) == 0)
@@ -1163,6 +1179,9 @@ public class XOBF_DB : MonoBehaviour
                 break;
             case _MATERIAL.Billboard2:
                 materialList.Add(billboard2);
+                break;
+            case _MATERIAL.Subtractive2:
+                materialList.Add(subtractive2);
                 break;
         }
 

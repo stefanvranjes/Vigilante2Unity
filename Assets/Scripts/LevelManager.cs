@@ -584,6 +584,14 @@ public class LevelManager : MonoBehaviour
         return param3;
     }
 
+    public void FUN_4AAC0(uint param1, Vector3Int param2, Vector3Int param3)
+    {
+        int iVar1;
+
+        iVar1 = (int)GameManager.instance.FUN_4A970(param1, 0);
+        FUN_4AA24((ushort)GameManager.DAT_63FA4[iVar1], param2, param3);
+    }
+
     public Pickup FUN_4AA24(ushort param1, Vector3Int param2, Vector3Int param3)
     {
         Pickup ppcVar1;

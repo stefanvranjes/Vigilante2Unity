@@ -12,6 +12,7 @@ using Unity.Collections;
 using Unity.Burst;
 
 public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2); //needs parameters
+public delegate VigObject _SPECIAL_INIT(XOBF_DB param1, int param2);
 
 public struct VehicleData
 {
@@ -1472,6 +1473,7 @@ public class GameManager : MonoBehaviour
     public KeyValuePair<string, Type>[][] DAT_1050; //gp+1050h
     public List<VigTuple> DAT_1068; //gp+1068h
     public List<VigTuple> DAT_1078; //gp+1078h
+    public int DAT_1084; //gp+1084h
     public List<VigTuple> DAT_1088; //gp+1088h
     public List<VigTuple> DAT_1098; //gp+1098h
     public List<VigTuple> DAT_10A8; //gp+10A8h
@@ -1759,6 +1761,14 @@ public class GameManager : MonoBehaviour
         FUN_1E098(param1, param2, param3, uVar1, param5);
     }
 
+    public void FUN_1E5D4(int param1, List<AudioClip> param2, int param3, Vector3Int param4, bool param5 = false)
+    {
+        uint uVar1;
+
+        uVar1 = FUN_1E478(param4);
+        FUN_1E098(param1, param2, param3, uVar1 << 1, param5);
+    }
+
     public static void SpuSetVoicePitch(int vNum, int sampleRate)
     {
         voices[vNum].pitch = (float)sampleRate / 4096;
@@ -1948,6 +1958,16 @@ public class GameManager : MonoBehaviour
         DAT_FA8.SetValue16(iVar1, param3.r << 4);
         DAT_FA8.SetValue16(iVar1 + 3, param3.g << 4);
         DAT_FA8.SetValue16(iVar1 + 6, param3.b << 4);
+    }
+
+    public void FUN_2FB70(VigObject param1, HitDetection param2, HitDetection param3)
+    {
+        param3.self = param1;
+        param3.collider1 = param2.collider2;
+        param3.collider2 = param2.collider1;
+        param3.object1 = param2.object2;
+        param3.object2 = param2.object1;
+        FUN_2F798(param2.self, param3);
     }
 
     public int FUN_2FE58(VigObject param1, ushort param2)
@@ -4645,6 +4665,41 @@ public class GameManager : MonoBehaviour
         FUN_2E0E8(tVar1, param2);
     }
 
+    public void FUN_2DFF0(VigTransform param1)
+    {
+        VigTransform local_20;
+        Vector3Int local_40;
+        Vector3Int local_3c;
+        Vector3Int local_34;
+
+        local_20 = new VigTransform();
+        local_20.rotation.V00 = (short)DAT_ED8;
+        local_20.rotation.V02 = (short)(-DAT_EDC + (int)((uint)-DAT_EDC >> 31) >> 1);
+        local_20.rotation.V10 = (short)-local_20.rotation.V00;
+        local_20.rotation.V12 = local_20.rotation.V02;
+        local_20.rotation.V21 = (short)-local_20.rotation.V00;
+        local_20.rotation.V22 = (short)(-DAT_F20 + (int)((uint)-DAT_F20 >> 31) >> 1);
+        local_40 = new Vector3Int(local_20.rotation.V00, local_20.rotation.V01, local_20.rotation.V02);
+        local_3c = new Vector3Int(local_20.rotation.V10, local_20.rotation.V11, local_20.rotation.V12);
+        local_34 = new Vector3Int(local_20.rotation.V20, local_20.rotation.V21, local_20.rotation.V22);
+        local_40 = Utilities.VectorNormal(local_40);
+        local_3c = Utilities.VectorNormal(local_3c);
+        local_34 = Utilities.VectorNormal(local_34);
+        local_20.rotation = new Matrix3x3()
+        {
+            V00 = (short)local_40.x,
+            V01 = (short)local_40.y,
+            V02 = (short)local_40.z,
+            V10 = (short)local_3c.x,
+            V11 = (short)local_3c.y,
+            V12 = (short)local_3c.z,
+            V20 = (short)local_34.x,
+            V21 = (short)local_34.y,
+            V22 = (short)local_34.z
+        };
+        DAT_FD8 = Utilities.FUN_247C4(local_20.rotation, param1.rotation);
+    }
+
     public HitDetection FUN_2F798(VigObject obj, HitDetection hit)
     {
         VigTransform t;
@@ -5036,7 +5091,7 @@ public class GameManager : MonoBehaviour
         Utilities.SetProjectionPlane(param2);
         Utilities.SetProjectionPlane3(param2);
         DAT_F48 = Utilities.FUN_247C4(DAT_F68, param1.rotation);
-        //FUN_2DFF0
+        FUN_2DFF0(DAT_F00);
         DAT_EE0 = DAT_F00;
         DAT_EE0.rotation = Utilities.FUN_2A4A4(DAT_EE0.rotation);
     }
@@ -5957,7 +6012,7 @@ public class GameManager : MonoBehaviour
 
     public static Vehicle LoadLoader(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[13]);
+        return param1.FUN_3C464(0, vehicleConfigs[13], true);
     }
 
     public static Vehicle LoadStinger(XOBF_DB param1, int param2)

@@ -30,7 +30,7 @@ public class Destructible : VigObject
         return 0;
     }
 
-    private bool FUN_32CF0(HitDetection param1)
+    public bool FUN_32CF0(HitDetection param1)
     {
         bool bVar1;
         bool bVar2;

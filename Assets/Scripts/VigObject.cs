@@ -1919,6 +1919,14 @@ public class VigObject : MonoBehaviour
         }
     }
 
+    public void FUN_3AC4C()
+    {
+        int iVar1;
+
+        iVar1 = GameManager.instance.FUN_1DD9C();
+        GameManager.instance.FUN_1E188(iVar1, vData.sndList, 1);
+    }
+
     public void FUN_3BFC0()
     {
         int iVar1;
@@ -1979,6 +1987,7 @@ public class VigObject : MonoBehaviour
         int iVar3;
         Vehicle vVar4;
         int iVar5;
+        Vector3Int v3Var6;
         VigObject ppcVar7;
         int iVar8;
 
@@ -2017,7 +2026,9 @@ public class VigObject : MonoBehaviour
 
             if (sVar2 == 0)
             {
-                //sound
+                iVar3 = GameManager.instance.FUN_1DD9C();
+                v3Var6 = GameManager.instance.FUN_2CE50(this);
+                GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 45, v3Var6);
                 oVar3 = FUN_2CCBC();
                 GameManager.instance.FUN_307CC(oVar3);
                 iVar3 = -1;
@@ -2106,6 +2117,8 @@ public class VigObject : MonoBehaviour
     {
         int iVar1;
         ConfigContainer ccVar1;
+        int iVar2;
+        Vector3Int v3Var3;
 
         iVar1 = 1;
 
@@ -2115,7 +2128,9 @@ public class VigObject : MonoBehaviour
 
             if (param1 < 0 || 0 < iVar1)
             {
-                //sound
+                iVar2 = GameManager.instance.FUN_1DD9C();
+                v3Var3 = GameManager.instance.FUN_2CE50(this);
+                GameManager.instance.FUN_1E628(iVar2, GameManager.instance.DAT_C2C, 49, v3Var3);
                 ccVar1 = CCDAT_74;
                 flags &= 0xfeffffff;
                 screen = ccVar1.v3_1;
@@ -2132,6 +2147,8 @@ public class VigObject : MonoBehaviour
     {
         int iVar1;
         ConfigContainer ccVar1;
+        int iVar2;
+        Vector3Int v3Var3;
 
         iVar1 = 1;
 
@@ -2141,7 +2158,9 @@ public class VigObject : MonoBehaviour
 
             if (param1 != null || 0 < iVar1)
             {
-                //sound
+                iVar2 = GameManager.instance.FUN_1DD9C();
+                v3Var3 = GameManager.instance.FUN_2CE50(this);
+                GameManager.instance.FUN_1E628(iVar2, GameManager.instance.DAT_C2C, 49, v3Var3);
                 ccVar1 = CCDAT_74;
                 flags &= 0xfeffffff;
                 screen = ccVar1.v3_1;
@@ -2157,6 +2176,7 @@ public class VigObject : MonoBehaviour
     public uint FUN_42638(HitDetection param1, short param2, int param3)
     {
         int iVar1;
+        int iVar2;
         VigObject oVar3;
         Vehicle vVar3;
         int iVar4;
@@ -2226,7 +2246,8 @@ public class VigObject : MonoBehaviour
 
         if (-1 < iVar1 >> 16)
         {
-            //sound
+            iVar2 = GameManager.instance.FUN_1DD9C();
+            GameManager.instance.FUN_1E628(iVar2, GameManager.instance.DAT_C2C, iVar1 >> 16, vTransform.position);
         }
 
         LevelManager.instance.FUN_4DE54(vTransform.position, (ushort)param2);

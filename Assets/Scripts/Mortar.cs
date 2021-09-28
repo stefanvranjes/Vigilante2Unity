@@ -159,6 +159,7 @@ public class Mortar : VigObject
 
     private Shell FUN_46480(Vehicle param1, ushort param2, short param3, ushort param4)
     {
+        sbyte sVar1;
         Ballistic ppcVar2;
         Shell ppcVar3;
         int iVar4;
@@ -232,6 +233,9 @@ public class Mortar : VigObject
         ppcVar2.FUN_30BF0();
         auStack48 = Utilities.FUN_24094(oVar6.vTransform.rotation, GameManager.DAT_A4C);
         param1.FUN_2B1FC(auStack48, screen);
+        sVar1 = (sbyte)GameManager.instance.FUN_1DD9C();
+        ppcVar3.DAT_18 = sVar1;
+        GameManager.instance.FUN_1E580(sVar1, GameManager.instance.DAT_C2C, 57, ppcVar3.screen);
         return ppcVar3;
     }
 }

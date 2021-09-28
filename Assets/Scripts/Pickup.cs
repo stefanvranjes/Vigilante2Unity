@@ -89,9 +89,14 @@ public class Pickup : VigObject
 
                             vVar8 = (Vehicle)oVar8;
                             vVar8.FUN_3A0C0(iVar3);
+                            iVar1 = GameManager.instance.FUN_1DD9C();
+                            iVar5 = 44;
+                            goto LAB_49EE4;
                             LAB_49ED0:
                             iVar1 = GameManager.instance.FUN_1DD9C();
-                            GameManager.instance.FUN_1E628(iVar1, GameManager.instance.DAT_C2C, 43, vTransform.position);
+                            iVar5 = 43;
+                            LAB_49EE4:
+                            GameManager.instance.FUN_1E628(iVar1, GameManager.instance.DAT_C2C, iVar5, vTransform.position);
                             //flash
                             if ((flags & 0x1000000) != 0)
                                 GameManager.instance.DAT_10F0--;

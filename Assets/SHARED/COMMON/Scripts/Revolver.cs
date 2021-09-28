@@ -14,6 +14,11 @@ public class Revolver : VigObject
         base.Update();
     }
 
+    public static VigObject OnInitialize(XOBF_DB arg1, int arg2)
+    {
+        return arg1.ini.FUN_2C17C((ushort)arg2, typeof(Revolver), 8, typeof(Revolver2));
+    }
+
     //FUN_4E0 (TBOLT.DLL)
     public override uint UpdateW(int arg1, int arg2)
     {
