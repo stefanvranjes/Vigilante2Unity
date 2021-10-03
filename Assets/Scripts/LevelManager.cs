@@ -76,7 +76,6 @@ public class LevelManager : MonoBehaviour
         }
 
         ainav = new Navigation();
-        music.mute = !GameManager.instance.playMusic;
 
         for (int i = 0; i < xobfList.Count; i++)
             if (xobfList[i] != null)

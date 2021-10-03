@@ -35,10 +35,10 @@ public class Junction : MonoBehaviour
 
     private Mesh mesh;
     private Texture mainT;
-    private NativeArray<Vector3Int> _DAT_20;
-    private NativeArray<short> _DAT_26;
-    private NativeArray<Vector3Int> _DAT_28;
-    private NativeArray<short> _DAT_2E;
+    public NativeArray<Vector3Int> _DAT_20;
+    public NativeArray<short> _DAT_26;
+    public NativeArray<Vector3Int> _DAT_28;
+    public NativeArray<short> _DAT_2E;
     private int VertexCount;
     private NativeArray<int> indicies;
     private NativeArray<ushort> indexBuffer;

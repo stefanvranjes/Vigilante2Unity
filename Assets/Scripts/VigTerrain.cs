@@ -2099,13 +2099,13 @@ public class VigTerrain : MonoBehaviour
 
             do
             {
-                iVar2 = param1.pos.x + param1.DAT_20[iVar7].x * 0x100;
-                iVar3 = param1.pos.z + param1.DAT_20[iVar7].z * 0x100;
+                iVar2 = param1.pos.x + param1._DAT_20[iVar7].x * 0x100;
+                iVar3 = param1.pos.z + param1._DAT_20[iVar7].z * 0x100;
                 iVar1 = FUN_1B750((uint)iVar2, (uint)iVar3);
-                param1.DAT_20[iVar7] = new Vector3Int(
-                    param1.DAT_20[iVar7].x,
+                param1._DAT_20[iVar7] = new Vector3Int(
+                    param1._DAT_20[iVar7].x,
                     iVar1 - param1.pos.y >> 8,
-                    param1.DAT_20[iVar7].z);
+                    param1._DAT_20[iVar7].z);
 
                 if (iVar2 < 0)
                     iVar2 += 0xffff;
@@ -2113,16 +2113,16 @@ public class VigTerrain : MonoBehaviour
                 if (iVar3 < 0)
                     iVar3 += 0xffff;
 
-                param1.DAT_26[iVar7] =
+                param1._DAT_26[iVar7] =
                     (short)(vertices[(chunks[((uint)(iVar2 >> 16) >> 6) * 0x20 + ((uint)(iVar3 >> 16) >> 6)] * 4096) +
                     ((iVar3 >> 16 & 63) * 2 + (iVar2 >> 16 & 63) * 128) / 2] >> 11 << 2);
-                iVar3 = param1.pos.x + param1.DAT_28[iVar7].x * 0x100;
-                iVar2 = param1.pos.z + param1.DAT_28[iVar7].z * 0x100;
+                iVar3 = param1.pos.x + param1._DAT_28[iVar7].x * 0x100;
+                iVar2 = param1.pos.z + param1._DAT_28[iVar7].z * 0x100;
                 iVar1 = FUN_1B750((uint)iVar3, (uint)iVar2);
-                param1.DAT_28[iVar7] = new Vector3Int(
-                    param1.DAT_28[iVar7].x,
+                param1._DAT_28[iVar7] = new Vector3Int(
+                    param1._DAT_28[iVar7].x,
                     iVar1 - param1.pos.y >> 8,
-                    param1.DAT_28[iVar7].z);
+                    param1._DAT_28[iVar7].z);
 
                 if (iVar3 < 0)
                     iVar3 += 0xffff;
@@ -2130,7 +2130,7 @@ public class VigTerrain : MonoBehaviour
                 if (iVar2 < 0)
                     iVar2 += 0xffff;
 
-                param1.DAT_2E[iVar7] =
+                param1._DAT_2E[iVar7] =
                     (short)(vertices[(chunks[((uint)(iVar3 >> 16) >> 6) * 0x20 + ((uint)(iVar2 >> 16) >> 6)] * 4096) +
                     ((iVar2 >> 16 & 63) * 2 + (iVar3 >> 16 & 63) * 128) / 2] >> 11 << 2);
                 iVar7++;

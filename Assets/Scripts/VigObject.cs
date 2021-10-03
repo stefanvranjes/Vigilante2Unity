@@ -862,6 +862,50 @@ public class VigObject : MonoBehaviour
         return output;
     }
 
+    public void FUN_2AF20()
+    {
+        int iVar1;
+        int iVar2;
+        int iVar3;
+        Matrix3x3 m;
+
+        iVar1 = physics2.X;
+
+        if (iVar1 < 0)
+            iVar1 += 127;
+
+        iVar2 = physics2.Y;
+
+        if (iVar2 < 0)
+            iVar2 += 127;
+
+        iVar3 = physics2.Z;
+
+        if (iVar3 < 0)
+            iVar3 += 127;
+
+        FUN_24700((short)(iVar1 >> 7), (short)(iVar2 >> 7), (short)(iVar3 >> 7));
+        iVar1 = physics1.X;
+
+        if (iVar1 < 0)
+            iVar1 += 127;
+
+        iVar2 = physics1.Y;
+        vTransform.position.x += iVar1 >> 7;
+
+        if (iVar2 < 0)
+            iVar2 += 127;
+
+        iVar1 = physics1.Z;
+        vTransform.position.y += iVar2 >> 7;
+
+        if (iVar1 < 0)
+            iVar1 += 127;
+
+        vTransform.position.z += iVar1 >> 7;
+        vTransform.rotation = Utilities.MatrixNormal(vTransform.rotation);
+    }
+
     public void FUN_2AFF8(Vector3Int v1, Vector3Int v2)
     {
         physics1.X = physics1.X + v1.x;
@@ -1568,7 +1612,7 @@ public class VigObject : MonoBehaviour
 
         if (vAnim != null)
         {
-            if (param1 - DAT_4A < vAnim.ReadUInt16(0))
+            if ((uint)param1 - DAT_4A < vAnim.ReadUInt16(0))
                 return 0;
 
             iVar13 = -1;
@@ -1774,6 +1818,21 @@ public class VigObject : MonoBehaviour
         {
             flags &= 0xfffffffb;
             bVar1 = GameManager.instance.FUN_300B8(GameManager.instance.DAT_10A8, this);
+        }
+
+        return bVar1;
+    }
+
+    public bool FUN_30C68()
+    {
+        bool bVar1;
+
+        if ((flags & 1) == 0)
+            bVar1 = false;
+        else
+        {
+            flags &= 0xfffffffe;
+            bVar1 = GameManager.instance.FUN_300B8(GameManager.instance.DAT_1110, this);
         }
 
         return bVar1;

@@ -38,6 +38,16 @@ public static class Utilities
         }
     };
 
+    //gp+1050h
+    public static KeyValuePair<string, Type>[][] levelTypes =
+    {
+        new KeyValuePair<string, Type>[]
+        {
+            new KeyValuePair<string, Type>("Police", typeof(Police)),
+            new KeyValuePair<string, Type>("Sign_SpeedLimit", typeof(SpeedLimit))
+        }
+    };
+
     //0x800C6130
     public static _VEHICLE_INIT[] vehicleComponents =
     {
@@ -87,6 +97,12 @@ public static class Utilities
     {
         { typeof(Revolver), Revolver.OnInitialize },
         { typeof(Collector), Collector.OnInitialize }
+    };
+
+    public static Dictionary<Type, _OBJECT_INIT> objectInits = new Dictionary<Type, _OBJECT_INIT>()
+    {
+        { typeof(Police), Police.OnInitialize },
+        { typeof(Ant), Ant.OnInitialize }
     };
 
     public static sbyte[] DAT_106E8 =
@@ -149,24 +165,28 @@ public static class Utilities
 
     public static VigObject FUN_31D30(Type param1, XOBF_DB param2, short param3, uint param4)
     {
-        if (param1.Equals(typeof(Destructible)) || param1.Equals(typeof(Pickup))
-            || param1.Equals(typeof(RocketL)) || param1.Equals(typeof(MissileL)) 
-            || param1.Equals(typeof(Cannon)) || param1.Equals(typeof(Mortar)) 
-            || param1.Equals(typeof(MineDr)) || param1.Equals(typeof(FlameThrower))
-            || param1.Equals(typeof(MGun)))
+        VigObject oVar1;
+        _OBJECT_INIT dVar2;
+
+        objectInits.TryGetValue(param1, out dVar2);
+
+        if (dVar2 != null)
         {
-            if (param2 == null || param3 == -1)
-            {
-                GameObject obj = new GameObject();
-                VigObject comp = obj.AddComponent(param1) as VigObject;
-                comp.vData = param2;
-                return comp;
-            }
-            else
-                return param2.ini.FUN_2C17C((ushort)param3, param1, param4);
+            oVar1 = dVar2(param2, param3, param4);
+
+            if (oVar1 != null)
+                return oVar1;
+        }
+
+        if (param2 == null || param3 == -1)
+        {
+            GameObject obj = new GameObject();
+            VigObject comp = obj.AddComponent(param1) as VigObject;
+            comp.vData = param2;
+            return comp;
         }
         else
-            return null;
+            return param2.ini.FUN_2C17C((ushort)param3, param1, param4);
     }
 
     public static VigObject FUN_31D30_2(Type param1, XOBF_DB param2, short param3, uint param4)
@@ -666,6 +686,11 @@ public static class Utilities
         return FUN_29FC8(local_8, out vout);
     }
 
+    public static Vector2Int FUN_2A1C0(Vector3Int v3)
+    {
+        return FUN_2ACD0(v3, v3);
+    }
+
     public static long FUN_2AD3C(Vector3Int v3, Vector3Int sv3)
     {
         long lVar1;
@@ -796,6 +821,23 @@ public static class Utilities
         tout.position.y = -tout.position.y;
 
         return tout;
+    }
+
+    public static Vector3Int FUN_2A1E0(Vector3Int v1, Vector3Int v2)
+    {
+        Coprocessor.rotationMatrix.rt11 = (short)v1.x;
+        Coprocessor.rotationMatrix.rt12 = (short)(v1.x >> 16);
+        Coprocessor.rotationMatrix.rt22 = (short)v1.y;
+        Coprocessor.rotationMatrix.rt23 = (short)(v1.y >> 16);
+        Coprocessor.rotationMatrix.rt33 = (short)v1.z;
+        Coprocessor.accumulator.ir1 = (short)v2.x;
+        Coprocessor.accumulator.ir2 = (short)v2.y;
+        Coprocessor.accumulator.ir3 = (short)v2.z;
+        Coprocessor.ExecuteOP(12, false);
+        return new Vector3Int
+            (Coprocessor.mathsAccumulator.mac1,
+             Coprocessor.mathsAccumulator.mac2,
+             Coprocessor.mathsAccumulator.mac3);
     }
 
     public static short FUN_2A248(Matrix3x3 m33)

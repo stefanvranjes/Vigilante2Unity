@@ -11,7 +11,7 @@ public class Biker : VigObject
         Vehicle vVar2;
         ConfigContainer ccVar2;
 
-        vVar2 = param1.FUN_3C464(0, GameManager.vehicleConfigs[2]);
+        vVar2 = param1.FUN_3C464(0, GameManager.vehicleConfigs[2], typeof(Vehicle));
         puVar1 = vVar2.vData.ini.FUN_2C17C(1, typeof(Biker), 8);
         Utilities.ParentChildren(puVar1, puVar1);
         puVar1.flags |= 4;

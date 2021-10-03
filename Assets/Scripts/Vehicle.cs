@@ -31,7 +31,8 @@ public enum _VEHICLE
     Stinger,
     Vertigo,
     Goliath,
-    Wapiti
+    Wapiti, 
+    NONE //0xFF
 };
 
 public enum _CAR_VIEW
@@ -3342,7 +3343,7 @@ public class Vehicle : VigObject
             LAB_3A5C8:
             uVar6++;
 
-            if (7 < (int)uVar6)
+            if (6 < (int)uVar6) //in orignial it's 7
                 return;
         } while (true);
     }

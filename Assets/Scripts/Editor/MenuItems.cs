@@ -14,6 +14,16 @@ public class MenuItems
         IMP_TIM.LoadAsset(file, save);
     }
 
+    [MenuItem("Tools/Import CAR")]
+    private static void ImportCAR()
+    {
+        string file = EditorUtility.OpenFilePanel("Open .car file to load asset", "", "car");
+        string name = Path.GetFileNameWithoutExtension(file);
+        string save = EditorUtility.SaveFilePanel("Save location for .bmp files", "", name, "bmp");
+
+        IMP_CAR.LoadAsset(file, save);
+    }
+
     [MenuItem("Tools/Export EXP")]
     private static void ExportEXP()
     {

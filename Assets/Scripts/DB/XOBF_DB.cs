@@ -79,7 +79,6 @@ public class XOBF_DB : MonoBehaviour
         rects = atlas.PackTextures(atlasTextures, 0, 1024);
         atlas.wrapMode = TextureWrapMode.Clamp;
         atlas.filterMode = FilterMode.Point;
-        atlas.alphaIsTransparency = true;
         matAtlas = new Material(Shader.Find("PSXEffects/PS1Shader"));
         matAtlas.mainTexture = atlas;
         matAtlas.SetFloat("_ColorOnly", 0);
@@ -403,7 +402,7 @@ public class XOBF_DB : MonoBehaviour
         return ppcVar10;
     }
 
-    public Vehicle FUN_3C464(ushort param1, VehicleData param2, bool bodyParts = false)
+    public Vehicle FUN_3C464(ushort param1, VehicleData param2, Type param3, bool bodyParts = false)
     {
         _VEHICLE eVar1;
         byte bVar2;
@@ -425,9 +424,9 @@ public class XOBF_DB : MonoBehaviour
         local_20 = param1;
 
         if (!bodyParts)
-            ppcVar7 = ini.FUN_2C17C(param1, typeof(Vehicle), (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
+            ppcVar7 = ini.FUN_2C17C(param1, param3, (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
         else
-            ppcVar7 = ini.FUN_2C17C_2(param1, typeof(Vehicle), (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
+            ppcVar7 = ini.FUN_2C17C_2(param1, param3, (uint)(animations.Length > 0 ? 1 : 0) << 3) as Vehicle;
 
         uVar11 = param2.DAT_0C;
 
@@ -447,14 +446,14 @@ public class XOBF_DB : MonoBehaviour
 
         ppcVar7.DAT_E4 = -ppcVar7.screen.y;
         pcVar16 = ppcVar7.child2;
-        ppcVar7.body = new VigObject[2];
+        ppcVar7.body = new VigObject[4];
         Utilities.ParentChildren(ppcVar7, ppcVar7);
 
         for (pcVar4 = pcVar16; pcVar4 != null; pcVar4 = pcVar16)
         {
             pcVar16 = pcVar4.child;
 
-            if (pcVar4.id < 4)
+            if ((ushort)pcVar4.id < 4)
             {
                 ppcVar7.body[pcVar4.id] = pcVar4;
                 sVar5 = (sbyte)pcVar4.FUN_4DCD8();
@@ -900,6 +899,7 @@ public class XOBF_DB : MonoBehaviour
 
     private void LoadSND(BinaryReader reader)
     {
+#if UNITY_EDITOR
         long startPosition = reader.BaseStream.Position;
         int elementsCount = reader.ReadUInt16();
         int eof = reader.ReadUInt16() * 8;
@@ -1027,13 +1027,9 @@ public class XOBF_DB : MonoBehaviour
                 writer.Write(loopEnd);
             }
 
-#if UNITY_EDITOR
             AssetDatabase.Refresh();
             sndList.Add(AssetDatabase.LoadAssetAtPath(wavRelative, typeof(AudioClip)) as AudioClip);
-#endif
         }
-
-#if UNITY_EDITOR
         EditorUtility.SetDirty(gameObject);
         PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
 #endif

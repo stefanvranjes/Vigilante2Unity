@@ -119,10 +119,10 @@ public class IMP_OBJ
 
         if (pcVar10 is null)
         {
-            if (GameManager.instance.DAT_1050 == null)
+            if (Utilities.levelTypes == null)
                 pcVar10 = null;
             else
-                pcVar10 = Utilities.FUN_14DAC(GameManager.instance.DAT_1050[0], auStack112); //improvised
+                pcVar10 = Utilities.FUN_14DAC(Utilities.levelTypes[0], auStack112); //improvised
 
             if (pcVar10 == null)
                 pcVar10 = typeof(Destructible);

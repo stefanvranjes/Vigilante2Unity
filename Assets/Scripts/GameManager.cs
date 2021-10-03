@@ -13,6 +13,7 @@ using Unity.Burst;
 
 public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2); //needs parameters
 public delegate VigObject _SPECIAL_INIT(XOBF_DB param1, int param2);
+public delegate VigObject _OBJECT_INIT(XOBF_DB param1, int param2, uint param3);
 
 public struct VehicleData
 {
@@ -1470,7 +1471,6 @@ public class GameManager : MonoBehaviour
     public int DAT_1028; //gp+1028h
     public sbyte[] DAT_1030; //gp+1030h
     public int DAT_1038; //gp+1038h
-    public KeyValuePair<string, Type>[][] DAT_1050; //gp+1050h
     public List<VigTuple> DAT_1068; //gp+1068h
     public List<VigTuple> DAT_1078; //gp+1078h
     public int DAT_1084; //gp+1084h
@@ -1522,7 +1522,6 @@ public class GameManager : MonoBehaviour
     public Toggle drawTerrainToggle;
     public Toggle drawRoadsToggle;
     public Toggle[] spawnEnemiesToggle;
-    public Toggle playMusicToggle;
     public List<int> playable;
 
     #region DEBUG_MENU
@@ -1610,11 +1609,6 @@ public class GameManager : MonoBehaviour
         DAT_1030[index] = (sbyte)(spawnEnemiesToggle[index].isOn ? 1 : 0);
     }
 
-    public void SetPlayMusic()
-    {
-        playMusic = playMusicToggle.isOn;
-    }
-
     public void LoadLevel()
     {
         SetDriver();
@@ -1624,7 +1618,6 @@ public class GameManager : MonoBehaviour
         SetDrawObjects();
         SetDrawTerrain();
         SetDrawRoads();
-        SetPlayMusic();
 
         for (int i = 0; i < 4; i++)
         {
@@ -2074,6 +2067,39 @@ public class GameManager : MonoBehaviour
         return FUN_30180(param1, param2, null);
     }
 
+    public VigTuple FUN_301FC(List<VigTuple> param1, Type param2)
+    {
+        List<VigTuple> ppiVar1;
+        VigTuple ppiVar2;
+
+        ppiVar1 = param1;
+        ppiVar2 = null;
+
+        for (int i = 0; i < ppiVar1.Count; i++)
+        {
+            ppiVar2 = ppiVar1[i];
+
+            if (ppiVar2.vObject.GetType() == param2)
+                break;
+        }
+
+        return ppiVar2;
+    }
+
+    public VigObject FUN_302A8(List<VigTuple> param1, Type param2)
+    {
+        VigTuple tVar1;
+        VigObject oVar2;
+
+        tVar1 = FUN_301FC(param1, param2);
+        oVar2 = null;
+
+        if (tVar1 != null)
+            oVar2 = tVar1.vObject;
+
+        return oVar2;
+    }
+
     public VigObject FUN_302D4(List<VigTuple> param1, uint param2, int param3)
     {
         List<VigTuple> ppiVar1;
@@ -2318,6 +2344,25 @@ public class GameManager : MonoBehaviour
         return tVar1;
     }
 
+    public VigObject FUN_311DC(BSP param1, Type param2)
+    {
+        VigObject oVar1;
+
+        while (true)
+        {
+            if (param1.DAT_00 == 0)
+            {
+                return FUN_302A8(param1.LDAT_04, param2);
+            }
+
+            oVar1 = FUN_311DC(param1.DAT_08, param2);
+
+            if (oVar1 != null) return oVar1;
+
+            param1 = param1.DAT_0C;
+        }
+    }
+
     public void FUN_3150C()
     {
         int iVar1;
@@ -2512,6 +2557,18 @@ public class GameManager : MonoBehaviour
             return FUN_310F4(bspTree, param1);
 
         return tVar1;
+    }
+
+    public VigObject FUN_31994(Type param1)
+    {
+        VigObject oVar1;
+
+        oVar1 = FUN_302A8(worldObjs, param1);
+
+        if (oVar1 == null)
+            oVar1 = FUN_311DC(bspTree, param1);
+
+        return oVar1;
     }
 
     public VigObject FUN_31F1C(Vector3Int param1)
@@ -4630,6 +4687,90 @@ public class GameManager : MonoBehaviour
         return uVar4;
     }
 
+    public int FUN_1E67C(Vector3Int param1)
+    {
+        int iVar1;
+        int iVar2;
+
+        iVar2 = Utilities.FUN_29E84(param1);
+
+        if (0x200000 - iVar2 < 0)
+            iVar1 = 0;
+        else
+        {
+            iVar1 = (0x200000 - iVar2 >> 12) * DAT_E1C;
+
+            if (iVar1 < 0)
+                iVar1 += 511;
+
+            iVar1 = (iVar1 << 7) >> 16;
+        }
+
+        return iVar1;
+    }
+
+    public uint FUN_1E6D8(Vector3Int param1)
+    {
+        uint uVar1;
+        int iVar2;
+        int iVar3;
+        int iVar4;
+        int iVar5;
+
+        iVar5 = Utilities.FUN_29E84(param1);
+        uVar1 = 0;
+
+        if (iVar5 < 0x200000)
+        {
+            iVar2 = -iVar5 + 0x200000;
+
+            if (iVar2 < 0)
+                iVar2 = -iVar5 + 0x200fff;
+
+            iVar2 = (iVar2 >> 12) * DAT_E1C;
+
+            if (iVar2 < 0)
+                iVar2 += 511;
+
+            if (iVar5 == 0)
+                iVar3 = 0;
+            else
+                iVar3 = (param1.x << 12) / iVar5;
+
+            iVar4 = (0x1000 - iVar3) * (iVar2 >> 9);
+
+            if (iVar2 < 0)
+                iVar2 += 0x1fff;
+
+            uVar1 = (uint)(iVar4 >> 13 | (iVar2 >> 13) << 16);
+        }
+
+        return uVar1;
+    }
+
+    public uint FUN_1E7A8(Vector3Int param1)
+    {
+        short sVar1;
+        uint uVar2;
+        int iVar3;
+        Vector3Int auStack24;
+        Vector3Int auStack8;
+
+        auStack24 = Utilities.FUN_24148(DAT_F00, param1);
+
+        if (screenMode == _SCREEN_MODE.Whole)
+            uVar2 = FUN_1E6D8(auStack24);
+        else
+        {
+            auStack8 = Utilities.FUN_24148(terrain.DAT_BDFF0[0], param1);
+            iVar3 = FUN_1E67C(auStack24);
+            sVar1 = (short)FUN_1E67C(auStack8);
+            uVar2 = (uint)(iVar3 << 16 | (int)sVar1);
+        }
+
+        return uVar2;
+    }
+
     public void FUN_15B00(int param1, byte param2, byte param3, byte param4)
     {
         if (gameMode != _GAME_MODE.Demo)
@@ -5947,91 +6088,91 @@ public class GameManager : MonoBehaviour
 
     public static Vehicle LoadWonderwagon(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[0]);
+        return param1.FUN_3C464(0, vehicleConfigs[0], typeof(Vehicle));
     }
 
     public static Vehicle LoadThunderbolt(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[1]);
+        return param1.FUN_3C464(0, vehicleConfigs[1], typeof(Vehicle));
     }
 
     public static Vehicle LoadDakota(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[2]);
+        return param1.FUN_3C464(0, vehicleConfigs[2], typeof(Vehicle));
     }
 
     public static Vehicle LoadSamson(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[3]);
+        return param1.FUN_3C464(0, vehicleConfigs[3], typeof(Vehicle));
     }
 
     public static Vehicle LoadLivingston(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[4]);
+        return param1.FUN_3C464(0, vehicleConfigs[4], typeof(Vehicle));
     }
 
     public static Vehicle LoadXanadu(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[5]);
+        return param1.FUN_3C464(0, vehicleConfigs[5], typeof(Vehicle));
     }
 
     public static Vehicle LoadPalomino(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[6]);
+        return param1.FUN_3C464(0, vehicleConfigs[6], typeof(Vehicle));
     }
 
     public static Vehicle LoadGuerrero(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[7]);
+        return param1.FUN_3C464(0, vehicleConfigs[7], typeof(Vehicle));
     }
 
     public static Vehicle LoadBurro(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[8]);
+        return param1.FUN_3C464(0, vehicleConfigs[8], typeof(Vehicle));
     }
 
     public static Vehicle LoadExcelsior(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[9]);
+        return param1.FUN_3C464(0, vehicleConfigs[9], typeof(Vehicle));
     }
 
     public static Vehicle LoadTsunami(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[10]);
+        return param1.FUN_3C464(0, vehicleConfigs[10], typeof(Vehicle));
     }
 
     public static Vehicle LoadMarathon(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[11]);
+        return param1.FUN_3C464(0, vehicleConfigs[11], typeof(Vehicle));
     }
 
     public static Vehicle LoadTrekker(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[12]);
+        return param1.FUN_3C464(0, vehicleConfigs[12], typeof(Vehicle));
     }
 
     public static Vehicle LoadLoader(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[13], true);
+        return param1.FUN_3C464(0, vehicleConfigs[13], typeof(Vehicle), true);
     }
 
     public static Vehicle LoadStinger(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[14]);
+        return param1.FUN_3C464(0, vehicleConfigs[14], typeof(Vehicle));
     }
 
     public static Vehicle LoadVertigo(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[15]);
+        return param1.FUN_3C464(0, vehicleConfigs[15], typeof(Vehicle));
     }
 
     public static Vehicle LoadGoliath(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[16]);
+        return param1.FUN_3C464(0, vehicleConfigs[16], typeof(Vehicle));
     }
 
     public static Vehicle LoadWapiti(XOBF_DB param1, int param2)
     {
-        return param1.FUN_3C464(0, vehicleConfigs[17]);
+        return param1.FUN_3C464(0, vehicleConfigs[17], typeof(Vehicle));
     }
 }
