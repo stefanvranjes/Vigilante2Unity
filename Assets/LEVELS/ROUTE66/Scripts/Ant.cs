@@ -37,7 +37,7 @@ public class Ant : VigObject
 
         oVar4 = hit.self;
 
-        if (oVar4.type == 2)
+           if (oVar4.type == 2)
         {
             vVar4 = (Vehicle)oVar4;
             Utilities.FUN_2A168(out local_40, vTransform.position, vVar4.vTransform.position);
@@ -112,8 +112,8 @@ public class Ant : VigObject
 
                     sVar3 = (short)(iVar4 >> 4);
                     oVar6.vTransform.rotation.V22 = sVar3;
-                    oVar6.vTransform.rotation.V00 = sVar3;
                     oVar6.vTransform.rotation.V11 = sVar3;
+                    oVar6.vTransform.rotation.V00 = sVar3;
                 }
 
                 if (arg2 != 0)
@@ -185,10 +185,10 @@ public class Ant : VigObject
                 if (sVar1 != 0)
                     return 0;
 
-                iVar4 = physics1.Y - vTransform.position.x;
-                iVar6 = physics1.W - vTransform.position.z;
+                iVar4 = physics2.Y - vTransform.position.x;
+                iVar6 = physics2.W - vTransform.position.z;
                 FUN_1CC8(iVar4, iVar6);
-                FUN_1F60(new Vector3Int(physics1.Y, physics1.Z, physics1.W));
+                FUN_1F60(new Vector3Int(physics2.Y, physics2.Z, physics2.W));
 
                 if (iVar4 < 0)
                     iVar4 = -iVar4;
@@ -270,6 +270,7 @@ public class Ant : VigObject
 
                     tags++;
                     iVar4 = (int)GameManager.FUN_2AC5C();
+                    iVar4 = iVar4 * 36 >> 15;
 
                     if (tags == 4)
                         iVar4 += 240;
@@ -309,7 +310,8 @@ public class Ant : VigObject
                 oVar4.physics1.Z = 50;
                 iVar5 = GameManager.instance.FUN_1DD9C();
                 GameManager.instance.FUN_1E580(iVar5, oVar4.vData.sndList, 3, oVar4.vTransform.position);
-                oVar4.FUN_2C124(17);
+                oVar4.FUN_2C124_2(17);
+                Utilities.ParentChildren(oVar4, oVar4);
                 oVar4.flags |= 0x1000000;
                 oVar6 = oVar4.child2.child2.child2;
 
@@ -359,7 +361,7 @@ public class Ant : VigObject
         return 0;
     }
 
-    private Ant2 FUN_134C()
+    public static Ant2 FUN_134C()
     {
         Ant2 ppcVar1;
         int iVar2;
@@ -514,7 +516,7 @@ public class Ant : VigObject
         if ((flags & 0x1000000) == 0)
         {
             iVar2 = Utilities.Ratan2(param1, param2);
-            iVar3 = (int)((iVar2 - (ushort)vr.y) * 0x100000) >> 20;
+            iVar3 = ((iVar2 - (ushort)vr.y) * 0x100000) >> 20;
             iVar2 = iVar3;
 
             if (iVar3 < 0)
@@ -619,7 +621,7 @@ public class Ant : VigObject
                 iVar2 = iVar4;
         }
 
-        iVar6 = sVar1 - vr.y;
+        iVar6 = sVar1 - oVar7.vr.y;
         iVar4 = iVar6;
 
         if (iVar6 < 0)

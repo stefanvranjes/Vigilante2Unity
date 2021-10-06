@@ -47,7 +47,9 @@ public enum _VEHICLE_TYPE
     Vehicle, //FUN_3C118
     Chasis, //FUN_384A4
     Wrecked, //FUN_38CA4
-    Collector //FUN_230 (GRBLDER.DLL)
+    Collector, //FUN_230 (GRBLDER.DLL)
+    Observatory, //FUN_E1C (ROUTE66.DLL)
+    Observatory2 //FUN_1070 (ROUTE66.DLL)
 }
 
 public class Vehicle : VigObject
@@ -615,6 +617,244 @@ public class Vehicle : VigObject
                 }
 
                 break;
+
+            case _VEHICLE_TYPE.Observatory:
+                return FUN_E1C(arg1, arg2);
+
+            case _VEHICLE_TYPE.Observatory2:
+                return FUN_1070(arg1, arg2);
+        }
+
+        return 0;
+    }
+
+    //FUN_E1C (ROUTE66.DLL)
+    private uint FUN_E1C(int arg1, int arg2)
+    {
+        short shVar1;
+        int iVar2;
+        VigCamera camVar2;
+        VigObject oVar2;
+        int iVar3;
+        VigCamera cVar3;
+        int iVar4;
+        VigCamera cVar4;
+
+        if (arg1 == 2)
+        {
+            shVar1 = tags;
+            tags = (sbyte)(shVar1 + 1);
+
+            if (shVar1 == 1)
+            {
+                physics1.X = 0;
+                flags &= 0xffffffdd;
+                physics1.Y = 0;
+                physics1.Z = 0;
+                iVar4 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E580(iVar4, GameManager.instance.DAT_C2C, 37, vTransform.position);
+                FUN_30B78();
+                GameManager.instance.FUN_30CB0(this, 31);
+            }
+            else
+            {
+                if (shVar1 < 2)
+                {
+                    if (shVar1 == 0)
+                    {
+                        ApplyTransformation();
+                        camVar2 = vCamera;
+
+                        if (camVar2 != null)
+                        {
+                            camVar2.flags &= 0xfbffffff;
+                            oVar2 = PDAT_74;
+
+                            if (oVar2 == null)
+                                vCamera.FUN_4BC0C();
+                            else
+                            {
+                                oVar2.tags = 60;
+                                oVar2.maxHalfHealth = 0x100;
+                                GameManager.instance.FUN_30CB0(vCamera, oVar2.tags);
+                                cVar3 = vCamera;
+                                cVar3.screen = oVar2.screen;
+                                cVar4 = LevelManager.instance.FUN_4B984(this, oVar2);
+                                vCamera = cVar4;
+                                Camera.main.transform.SetParent(cVar4.transform, false);
+                                cVar4.FUN_30B78();
+                            }
+                        }
+
+                        FUN_30BA8();
+                        GameManager.instance.FUN_30CB0(this, 2);
+                    }
+                }
+                else
+                {
+                    if (shVar1 == 2)
+                    {
+                        flags &= 0xfdffffff;
+                        FUN_41FEC();
+                        FUN_3E32C(_WHEELS.Air, 500);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (arg1 < 3)
+            {
+                if (arg1 == 0)
+                {
+                    iVar2 = physics1.X;
+
+                    if (iVar2 < 0)
+                        iVar2 += 127;
+
+                    iVar3 = physics1.Y;
+                    vTransform.position.x += iVar2 >> 7;
+
+                    if (iVar3 < 0)
+                        iVar3 += 127;
+
+                    iVar2 = physics1.Z;
+                    vTransform.position.y += iVar3 >> 7;
+
+                    if (iVar2 < 0)
+                        iVar2 += 127;
+
+                    vTransform.position.z += iVar2 >> 7;
+                }
+            }
+            else
+            {
+                if (arg1 == 4)
+                    FUN_38484();
+            }
+        }
+
+        return 0;
+    }
+
+    //FUN_1070 (ROUTE66.DLL)
+    private uint FUN_1070(int arg1, int arg2)
+    {
+        short sVar1;
+        int iVar2;
+        VigObject oVar2;
+        VigCamera cVar2;
+        int iVar3;
+        VigCamera cVar3;
+        VigCamera cVar4;
+        int iVar4;
+
+        if (arg1 == 2)
+        {
+            sVar1 = tags;
+            tags = (sbyte)(sVar1 + 1);
+
+            if (sVar1 == 1)
+            {
+                iVar2 = vTransform.rotation.V02 * 7629;
+                flags &= 0xfffffffd;
+
+                if (iVar2 < 0)
+                    iVar2 += 31;
+
+                physics1.X = iVar2 >> 5;
+                iVar2 = vTransform.rotation.V12 * 7629;
+
+                if (iVar2 < 0)
+                    iVar2 += 31;
+
+                physics1.Y = iVar2 >> 5;
+                iVar2 = vTransform.rotation.V22 * 7629;
+
+                if (iVar2 < 0)
+                    iVar2 += 31;
+
+                physics1.Z = iVar2 >> 5;
+                iVar4 = GameManager.instance.FUN_1DD9C();
+                GameManager.instance.FUN_1E580(iVar4, GameManager.instance.DAT_C2C, 37, vTransform.position);
+                FUN_30B78();
+                GameManager.instance.FUN_30CB0(this, 61);
+            }
+            else
+            {
+                if (sVar1 < 2)
+                {
+                    if (sVar1 == 0)
+                    {
+                        ApplyTransformation();
+                        cVar2 = vCamera;
+
+                        if (cVar2 != null)
+                        {
+                            cVar2.flags &= 0xfbffffff;
+                            oVar2 = PDAT_74;
+
+                            if (oVar2 != null)
+                            {
+                                oVar2.tags = 90;
+                                oVar2.maxHalfHealth = 0x100;
+                                cVar3 = vCamera;
+                                cVar3.screen = oVar2.screen;
+                                GameManager.instance.FUN_30CB0(vCamera, oVar2.tags);
+                                cVar4 = LevelManager.instance.FUN_4B984(this, oVar2);
+                                vCamera = cVar4;
+                                Camera.main.transform.SetParent(cVar4.transform, false);
+                                cVar4.FUN_30B78();
+                            }
+                        }
+
+                        flags |= 2;
+                        FUN_30BA8();
+                        GameManager.instance.FUN_30CB0(this, 30);
+                    }
+                }
+                else
+                {
+                    if (sVar1 == 2)
+                    {
+                        tags = 0;
+                        flags &= 0xfdffffdf;
+                        FUN_41FEC();
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (arg1 < 3)
+            {
+                if (arg1 == 0)
+                {
+                    iVar2 = physics1.X;
+
+                    if (iVar2 < 0)
+                        iVar2 += 127;
+
+                    iVar3 = physics1.Y;
+                    vTransform.position.x += iVar2 >> 7;
+
+                    if (iVar3 < 0)
+                        iVar3 += 127;
+
+                    iVar2 = physics1.Z;
+                    vTransform.position.y += iVar3 >> 7;
+
+                    if (iVar2 < 0)
+                        iVar2 += 127;
+
+                    vTransform.position.z += iVar2 >> 7;
+                }
+            }
+            else
+            {
+                if (arg1 == 4)
+                    FUN_38484();
+            }
         }
 
         return 0;

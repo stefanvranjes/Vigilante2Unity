@@ -142,6 +142,7 @@ public class Laser : VigObject
                             ppcVar5.physics2.X = physics2.X;
                             ppcVar5.DAT_80 = DAT_80;
                             ppcVar5.vTransform = vTransform;
+                            ppcVar5.vTransform.position = local_88;
                             uVar3 = 0;
                         }
                         else

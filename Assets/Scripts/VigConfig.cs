@@ -226,7 +226,7 @@ public class VigConfig : MonoBehaviour
 
             if ((param3 & 1) != 0 && (short)psVar5.previous != -1)
             {
-                oVar3 = FUN_2C17C_2(psVar5.previous, param2, param3);
+                oVar3 = FUN_2C17C_2(psVar5.previous, typeof(Body), param3);
                 oVar1.child = oVar3;
 
                 if (oVar3 != null)
@@ -238,7 +238,7 @@ public class VigConfig : MonoBehaviour
 
             if ((param3 & 2) == 0 && (short)psVar5.next != -1)
             {
-                oVar3 = FUN_2C17C_2(psVar5.next, param2, param3 | 33);
+                oVar3 = FUN_2C17C_2(psVar5.next, typeof(Body), param3 | 33);
                 oVar1.child2 = oVar3;
 
                 if (oVar3 != null)

@@ -1088,6 +1088,29 @@ public class VigObject : MonoBehaviour
         physics2.Z += iVar2 >> 7;
     }
 
+    public void FUN_2C01C()
+    {
+        int iVar1;
+        int iVar2;
+        BufferedBinaryReader brVar3;
+
+        brVar3 = new BufferedBinaryReader(vData.animations);
+
+        if (brVar3.GetBuffer() != null)
+        {
+            iVar2 = brVar3.ReadInt32((ushort)DAT_1A * 4 + 4);
+
+            if (iVar2 != 0)
+                brVar3.Seek(iVar2, SeekOrigin.Begin);
+
+            vAnim = brVar3;
+        }
+        else
+            vAnim = null;
+
+        DAT_4A = 0;
+    }
+
     public void FUN_2C05C()
     {
         ushort uVar1;
@@ -1118,6 +1141,14 @@ public class VigObject : MonoBehaviour
         GameManager.instance.FUN_307CC(child2);
         child2 = null;
         FUN_2C344(vData, param1, 8);
+    }
+
+    public void FUN_2C124_2(ushort param1)
+    {
+        GameManager.instance.FUN_1FEB8(vMesh);
+        GameManager.instance.FUN_307CC(child2);
+        child2 = null;
+        FUN_2C344_2(vData, param1, 8);
     }
 
     public VigObject FUN_2C344(XOBF_DB param1, ushort param2, uint param3)
@@ -1190,6 +1221,90 @@ public class VigObject : MonoBehaviour
         if ((param3 & 2) == 0 && puVar5.next != 0xffff)
         {
             oVar3 = param1.ini.FUN_2C17C(puVar5.next, typeof(VigObject), param3 | 0x21);
+            child2 = oVar3;
+
+            if (oVar3 != null)
+            {
+                oVar3.ApplyTransformation();
+                child2.parent = this;
+            }
+        }
+        else
+            child2 = null;
+
+        return this;
+    }
+
+    public VigObject FUN_2C344_2(XOBF_DB param1, ushort param2, uint param3)
+    {
+        VigMesh mVar1;
+        int iVar2;
+        VigObject oVar3;
+        BufferedBinaryReader brVar4;
+        ConfigContainer puVar5;
+
+        puVar5 = param1.ini.configContainers[param2];
+
+        if ((puVar5.flag & 0x7ff) == 0x7ff)
+            vMesh = null;
+        else
+        {
+            mVar1 = param1.FUN_1FD18(gameObject, puVar5.flag, true);
+            vMesh = mVar1;
+        }
+
+        if (puVar5.colliderID < 0)
+            vCollider = null;
+        else
+        {
+            VigCollider collider = param1.cbbList[puVar5.colliderID];
+            vCollider = new VigCollider(collider.buffer);
+        }
+
+        vData = param1;
+        DAT_1A = (short)param2;
+
+        if ((param3 & 8) == 0)
+            vAnim = null;
+        else
+        {
+            brVar4 = vAnim;
+
+            if (brVar4 == null)
+            {
+                brVar4 = new BufferedBinaryReader(param1.animations);
+
+                if (brVar4.GetBuffer() != null)
+                {
+                    iVar2 = brVar4.ReadInt32(param2 * 4 + 4);
+
+                    if (iVar2 != 0)
+                        brVar4.Seek(iVar2, SeekOrigin.Begin);
+                    else
+                        brVar4 = null;
+                }
+                else
+                    brVar4 = null;
+            }
+            else
+            {
+                brVar4.Seek(0, SeekOrigin.Begin);
+                iVar2 = brVar4.ReadInt32(param2 * 4 + 4);
+
+                if (iVar2 != 0)
+                    brVar4.Seek(iVar2, SeekOrigin.Begin);
+                else
+                    brVar4 = null;
+            }
+
+            vAnim = brVar4;
+        }
+
+        DAT_4A = GameManager.instance.timer;
+
+        if ((param3 & 2) == 0 && puVar5.next != 0xffff)
+        {
+            oVar3 = param1.ini.FUN_2C17C_2(puVar5.next, typeof(Body), param3 | 0x21);
             child2 = oVar3;
 
             if (oVar3 != null)
@@ -2840,6 +2955,13 @@ public class VigObject : MonoBehaviour
         }
 
         return container;
+    }
+
+    public VigObject FUN_2CD04()
+    {
+        FUN_306FC();
+        vTransform = GameManager.instance.FUN_2CDF4(this);
+        return FUN_2CCBC();
     }
 
     private int FUN_2F16C(VigTransform param1, int param2, Vector3Int param3, ref Vector3Int param4)

@@ -11,7 +11,7 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Burst;
 
-public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2); //needs parameters
+public delegate VigObject _VEHICLE_INIT(XOBF_DB param1, int param2, uint param3); //needs parameters
 public delegate VigObject _SPECIAL_INIT(XOBF_DB param1, int param2);
 public delegate VigObject _OBJECT_INIT(XOBF_DB param1, int param2, uint param3);
 
@@ -2086,6 +2086,20 @@ public class GameManager : MonoBehaviour
         return ppiVar2;
     }
 
+    public VigObject FUN_3027C(List<VigTuple> param1, int param2, VigObject param3)
+    {
+        VigTuple tVar1;
+        VigObject oVar2;
+
+        tVar1 = FUN_30180(param1, param2, param3);
+        oVar2 = null;
+
+        if (tVar1 != null)
+            oVar2 = tVar1.vObject;
+
+        return oVar2;
+    }
+
     public VigObject FUN_302A8(List<VigTuple> param1, Type param2)
     {
         VigTuple tVar1;
@@ -2344,6 +2358,23 @@ public class GameManager : MonoBehaviour
         return tVar1;
     }
 
+    public VigObject FUN_31160(BSP param1, int param2, VigObject param3)
+    {
+        VigObject oVar1;
+
+        while (true)
+        {
+            if (param1.DAT_00 == 0)
+                return FUN_3027C(param1.LDAT_04, param2, param3);
+
+            oVar1 = FUN_31160(param1.DAT_08, param2, param3);
+
+            if (oVar1 != null) return oVar1;
+
+            param1 = param1.DAT_0C;
+        }
+    }
+
     public VigObject FUN_311DC(BSP param1, Type param2)
     {
         VigObject oVar1;
@@ -2557,6 +2588,18 @@ public class GameManager : MonoBehaviour
             return FUN_310F4(bspTree, param1);
 
         return tVar1;
+    }
+
+    public VigObject FUN_31950(int param1)
+    {
+        VigObject oVar1;
+
+        oVar1 = FUN_3027C(worldObjs, param1, null);
+
+        if (oVar1 == null)
+            oVar1 = FUN_31160(bspTree, param1, null);
+
+        return oVar1;
     }
 
     public VigObject FUN_31994(Type param1)
@@ -6086,92 +6129,92 @@ public class GameManager : MonoBehaviour
         return uVar3 & 0x7FFF;
     }
 
-    public static Vehicle LoadWonderwagon(XOBF_DB param1, int param2)
+    public static Vehicle LoadWonderwagon(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[0], typeof(Vehicle));
     }
 
-    public static Vehicle LoadThunderbolt(XOBF_DB param1, int param2)
+    public static Vehicle LoadThunderbolt(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[1], typeof(Vehicle));
     }
 
-    public static Vehicle LoadDakota(XOBF_DB param1, int param2)
+    public static Vehicle LoadDakota(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[2], typeof(Vehicle));
     }
 
-    public static Vehicle LoadSamson(XOBF_DB param1, int param2)
+    public static Vehicle LoadSamson(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[3], typeof(Vehicle));
     }
 
-    public static Vehicle LoadLivingston(XOBF_DB param1, int param2)
+    public static Vehicle LoadLivingston(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[4], typeof(Vehicle));
     }
 
-    public static Vehicle LoadXanadu(XOBF_DB param1, int param2)
+    public static Vehicle LoadXanadu(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[5], typeof(Vehicle));
     }
 
-    public static Vehicle LoadPalomino(XOBF_DB param1, int param2)
+    public static Vehicle LoadPalomino(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[6], typeof(Vehicle));
     }
 
-    public static Vehicle LoadGuerrero(XOBF_DB param1, int param2)
+    public static Vehicle LoadGuerrero(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[7], typeof(Vehicle));
     }
 
-    public static Vehicle LoadBurro(XOBF_DB param1, int param2)
+    public static Vehicle LoadBurro(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[8], typeof(Vehicle));
     }
 
-    public static Vehicle LoadExcelsior(XOBF_DB param1, int param2)
+    public static Vehicle LoadExcelsior(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[9], typeof(Vehicle));
     }
 
-    public static Vehicle LoadTsunami(XOBF_DB param1, int param2)
+    public static Vehicle LoadTsunami(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[10], typeof(Vehicle));
     }
 
-    public static Vehicle LoadMarathon(XOBF_DB param1, int param2)
+    public static Vehicle LoadMarathon(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[11], typeof(Vehicle));
     }
 
-    public static Vehicle LoadTrekker(XOBF_DB param1, int param2)
+    public static Vehicle LoadTrekker(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[12], typeof(Vehicle));
     }
 
-    public static Vehicle LoadLoader(XOBF_DB param1, int param2)
+    public static Vehicle LoadLoader(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[13], typeof(Vehicle), true);
     }
 
-    public static Vehicle LoadStinger(XOBF_DB param1, int param2)
+    public static Vehicle LoadStinger(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[14], typeof(Vehicle));
     }
 
-    public static Vehicle LoadVertigo(XOBF_DB param1, int param2)
+    public static Vehicle LoadVertigo(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[15], typeof(Vehicle));
     }
 
-    public static Vehicle LoadGoliath(XOBF_DB param1, int param2)
+    public static Vehicle LoadGoliath(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[16], typeof(Vehicle));
     }
 
-    public static Vehicle LoadWapiti(XOBF_DB param1, int param2)
+    public static Vehicle LoadWapiti(XOBF_DB param1, int param2, uint param3 = 0)
     {
         return param1.FUN_3C464(0, vehicleConfigs[17], typeof(Vehicle));
     }

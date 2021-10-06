@@ -615,6 +615,26 @@ public class LevelManager : MonoBehaviour
         return ppcVar1;
     }
 
+    public VigCamera FUN_4B984(VigObject param1, VigObject param2)
+    {
+        VigCamera ppcVar2;
+
+        GameObject obj = new GameObject();
+        ppcVar2 = obj.AddComponent<VigCamera>();
+        ppcVar2.DAT_80 = param1;
+        ppcVar2.id = param2.id;
+        ppcVar2.screen = param2.screen;
+        ppcVar2.vr = param2.vr;
+        ppcVar2.state = _CAMERA_TYPE.Teleport;
+        ppcVar2.maxHalfHealth = param2.maxHalfHealth;
+        ppcVar2.ApplyTransformation();
+
+        if (param1.type == 2)
+            param1.flags = param1.flags & 0xfffffffd | 0x2000000;
+
+        return ppcVar2;
+    }
+
     public void FUN_4DF20(Vector3Int param1, ushort param2, short param3)
     {
         Particle1 oVar1;
@@ -1179,7 +1199,6 @@ public class LevelManager : MonoBehaviour
 
         param1.FUN_3CCD4(true);
         cVar1 = GameManager.instance.FUN_4B914(param1, 256, defaultCamera);
-        terrain.vCamera = cVar1;
         param1.vCamera = cVar1;
         GameManager.instance.cameraObjects[~param1.id] = cVar1;
 

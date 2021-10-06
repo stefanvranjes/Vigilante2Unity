@@ -41,7 +41,7 @@ public class SpeedLimit : VigObject
             return 0;
         }
 
-        if (oVar2.type == 8)
+        if (oVar2.type != 8)
             return 0;
 
         if (hit.object1 != this)

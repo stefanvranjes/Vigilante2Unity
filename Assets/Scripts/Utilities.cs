@@ -44,7 +44,14 @@ public static class Utilities
         new KeyValuePair<string, Type>[]
         {
             new KeyValuePair<string, Type>("Police", typeof(Police)),
-            new KeyValuePair<string, Type>("Sign_SpeedLimit", typeof(SpeedLimit))
+            new KeyValuePair<string, Type>("Sign_SpeedLimit", typeof(SpeedLimit)),
+            new KeyValuePair<string, Type>("Ant", typeof(Ant)),
+            new KeyValuePair<string, Type>("Observatory", typeof(Observatory)), 
+            new KeyValuePair<string, Type>("MineEntry", typeof(MineEntry)), 
+            new KeyValuePair<string, Type>("Billboard", typeof(Billboard)), 
+            new KeyValuePair<string, Type>("ServiceStation", typeof(ServiceStation)), 
+            new KeyValuePair<string, Type>("DonutShop", typeof(DonutShop)), 
+            new KeyValuePair<string, Type>("Projectionbooth", typeof(ProjectionBooth))
         }
     };
 
@@ -221,7 +228,7 @@ public static class Utilities
 
         if (param1 != null)
         {
-            oVar1 = param1(param2, param3);
+            oVar1 = param1(param2, param3, param4);
 
             if (oVar1 != null)
                 return oVar1;
@@ -853,6 +860,20 @@ public static class Utilities
     public static int FUN_2A2AC(Matrix3x3 m33)
     {
         return -Ratan2(m33.V10, m33.V11) << 16 >> 16;
+    }
+
+    public static Vector3Int FUN_2A2E0(Matrix3x3 m33)
+    {
+        short sVar1;
+        short sVar2;
+        short sVar3;
+
+        sVar1 = FUN_2A27C(m33);
+        m33 = RotMatrixY(-sVar1, m33);
+        sVar2 = FUN_2A248(m33);
+        m33 = RotMatrixX(-sVar2, m33);
+        sVar3 = (short)FUN_2A2AC(m33);
+        return new Vector3Int(sVar1, sVar2, sVar3);
     }
 
     public static Matrix3x3 FUN_2A5EC(Vector3Int sv)

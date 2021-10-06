@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class Route66 : VigObject
 {
-    private Vector3Int[] DAT_5268 = new Vector3Int[32];
+    public static Meteorite DAT_5304; //0x5304 (ROUTE66.DLL)
+    public static Vector3Int[] DAT_5268 = new Vector3Int[32];
 
     //FUN_250 (ROUTE66.DLL)
     public override uint UpdateW(int arg1, int arg2)
     {
         VigTuple ppiVar2;
+        Meteorite puVar3;
         List<VigTuple> ppiVar4;
         VigObject oVar5;
         VigObject oVar6;
@@ -22,7 +24,10 @@ public class Route66 : VigObject
                 GameManager.instance.offsetStart = 0;
                 GameManager.instance.angleOffset = 0.4f;
                 GameManager.instance.DAT_1000 |= 1;
-                //...
+                GameObject obj = new GameObject();
+                DAT_5304 = obj.AddComponent<Meteorite>();
+                DAT_5304.id = 0;
+                GameManager.instance.FUN_30CB0(DAT_5304, 900);
                 oVar5 = GameManager.instance.FUN_30250(GameManager.instance.DAT_1078, 0x100);
                 oVar6 = GameManager.instance.FUN_4AC1C(0xfe000000, oVar5);
                 GameManager.instance.DAT_1038 = oVar6 != null ? 1 : 0;

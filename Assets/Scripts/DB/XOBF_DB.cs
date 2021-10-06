@@ -368,6 +368,9 @@ public class XOBF_DB : MonoBehaviour
                         ppcVar5.physics2.X = puVar9.v3_1.z << 8 >> 12;
                         Vector3Int v0 = Utilities.FUN_24094(param2.rotation,
                             new Vector3Int(ppcVar5.physics1.Z, ppcVar5.physics1.W, ppcVar5.physics2.X));
+                        ppcVar5.physics1.Z = v0.x;
+                        ppcVar5.physics1.W = v0.y;
+                        ppcVar5.physics2.X = v0.z;
                         ppcVar5.vTransform = local_38;
                         ppcVar5.FUN_305FC();
                         bVar6 = 3;

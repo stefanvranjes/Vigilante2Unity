@@ -5,7 +5,7 @@ using UnityEngine;
 public class Biker : VigObject
 {
     //FUN_294 (STNTBIKE.DLL)
-    public static Vehicle LoadDakota(XOBF_DB param1, int param2)
+    public static Vehicle LoadDakota(XOBF_DB param1, int param2, uint param3 = 0)
     {
         VigObject puVar1;
         Vehicle vVar2;

@@ -105,14 +105,15 @@ public class Body : VigObject
                             return 0xfffffffe;
                         }
 
-                        oVar2.FUN_2C124(16);
+                        oVar2.FUN_2C124_2(16);
+                        Utilities.ParentChildren(oVar2, oVar2);
                         oVar4 = oVar2.child2.child2.child2;
 
                         while (oVar4 != null && oVar4.id != 1)
                             oVar4 = oVar4.child;
 
                         ((Ant)oVar2).DAT_8C = oVar4;
-                        ((Body)oVar4).state = _BODY_TYPE.Ant;
+                        ((Body)oVar4.child2).state = _BODY_TYPE.Ant;
                         iVar4 = oVar2.physics1.X;
 
                         if (0xffff < iVar4)

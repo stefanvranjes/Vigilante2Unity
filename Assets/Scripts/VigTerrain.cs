@@ -69,7 +69,6 @@ public class VigTerrain : MonoBehaviour
     public Color32[] DAT_B9370 = new Color32[32];
     public static Color32[] DAT_BA4F0 = new Color32[32];
     public VigTransform[] DAT_BDFF0 = new VigTransform[2];
-    public VigCamera vCamera;
 
     private static Vector3[] terrainWorld = new Vector3[40];
     private static Vector3Int[] terrainVertices = new Vector3Int[4];
@@ -559,8 +558,8 @@ public class VigTerrain : MonoBehaviour
 
     public void FUN_1C910()
     {
-        float angleX = vCamera.transform.localEulerAngles.x;
-        float angleY = vCamera.transform.localEulerAngles.y;
+        float angleX = Camera.main.transform.eulerAngles.x;
+        float angleY = Camera.main.transform.eulerAngles.y;
         float offsetX = (angleY / 180) * GameManager.instance.offsetFactor;
         skyboxMat.mainTextureOffset = new Vector2(offsetX + GameManager.instance.offsetStart, 0);
         if (angleX > 180) angleX = angleX - 360f;
