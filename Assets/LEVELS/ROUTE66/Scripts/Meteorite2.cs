@@ -50,6 +50,18 @@ public class Meteorite2 : Destructible
                     if (sVar1 == 0)
                     {
                         puVar5 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(109, typeof(Ballistic), 8) as Ballistic;
+                        puVar5.vTransform.rotation = new Matrix3x3()
+                        {
+                            V00 = 0x1000,
+                            V01 = 0,
+                            V02 = 0,
+                            V10 = 0,
+                            V11 = 0x1000,
+                            V12 = 0,
+                            V20 = 0,
+                            V21 = 0,
+                            V22 = 0x1000
+                        };
                         uVar6 = GameManager.FUN_2AC5C();
                         DAT_19 = (byte)((sbyte)(uVar6 & 3) + 5);
                         puVar5.flags = 0x434;

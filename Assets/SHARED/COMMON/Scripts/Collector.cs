@@ -62,7 +62,7 @@ public class Collector : VigObject
             {
                 uVar5 = GameManager.FUN_2AC5C();
                 IDAT_78 = (int)(uVar5 & 31) + 15;
-                //FUN_4E414
+                UIManager.instance.FUN_4E414(asStack64.position, new Color32(0x80, 0x80, 0x80, 8));
 
                 if ((uVar5 & 0x1c0) == 0)
                 {
@@ -263,8 +263,9 @@ public class Collector : VigObject
                 }
                 else
                 {
-                    iVar8 = GameManager.instance.FUN_1DD9C();
-                    GameManager.instance.FUN_1E14C(iVar8, GameManager.instance.DAT_C2C, 1);
+                    //iVar8 = GameManager.instance.FUN_1DD9C();
+                    //GameManager.instance.FUN_1E14C(iVar8, GameManager.instance.DAT_C2C, 1);
+                    return 0;
                 }
 
                 uVar8 = 900;

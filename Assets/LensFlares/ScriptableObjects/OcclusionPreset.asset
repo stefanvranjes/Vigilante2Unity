@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2fb700cb454e584c941556a98f025e2, type: 3}
+  m_Name: OcclusionPreset
+  m_EditorClassIdentifier: 
+  _presets:
+  - size: 20
+    clipNear: -1400
+    clipFar: 0.01
+    offset: {x: 0, y: 0, z: 0}
+  - size: 2
+    clipNear: -2
+    clipFar: 70
+    offset: {x: 0, y: 0, z: 3}
+  - size: 4
+    clipNear: -2
+    clipFar: 600
+    offset: {x: 0, y: 0, z: 0}
+  - size: 2
+    clipNear: -2
+    clipFar: 1000
+    offset: {x: 0, y: 0, z: 0}
+  - size: 8
+    clipNear: -2
+    clipFar: 1000
+    offset: {x: 0, y: 0, z: 0}
+  - size: 8
+    clipNear: -2
+    clipFar: 1000
+    offset: {x: 0, y: 0, z: 0}

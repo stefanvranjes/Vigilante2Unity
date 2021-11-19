@@ -47,6 +47,9 @@ Shader "PSXEffects/PS1Billboard2"
 			//Blend One One
 			//SetTexture[_MainTex]{ combine texture }
 			CGPROGRAM
+
+			float _ColorOnly;
+
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
@@ -97,7 +100,11 @@ Shader "PSXEffects/PS1Billboard2"
                 fixed4 col = tex2D(_MainTex, i.texcoord);
 				i.color.a = 1;
 				col *= i.color;
-				col *= 2;
+
+				if (!_ColorOnly) {
+					col *= 2;
+				}
+
 				col.rgb = saturate(col.rgb);
 
 #if !UNITY_COLORSPACE_GAMMA

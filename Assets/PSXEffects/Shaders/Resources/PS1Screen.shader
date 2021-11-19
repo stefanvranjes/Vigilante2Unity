@@ -35,7 +35,7 @@ Shader "PSXEffects/PS1Screen"
 
 	SubShader
 	{
-		Tags { "Queue"="Transparent" "DisableBatching" = "True" }
+		Tags { "Queue"="Overlay" "DisableBatching" = "True" "IgnoreProjector" = "True" }
 		LOD 100
 		Cull Off // render backfaces as well
 		ZWrite Off // don't write into the Z-buffer, this effect shouldn't block objects

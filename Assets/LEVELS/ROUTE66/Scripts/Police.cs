@@ -352,7 +352,7 @@ public class Police : Vehicle
                     if (id != 97)
                         return 0;
 
-                    oVar8 = FUN_31DDC(OnInitialize);
+                    oVar8 = FUN_31DDC();
                     oVar8.FUN_3066C();
                     return 0;
                 }

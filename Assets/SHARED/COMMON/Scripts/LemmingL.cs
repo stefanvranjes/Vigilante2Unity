@@ -124,8 +124,9 @@ public class LemmingL : VigObject
                 }
                 else
                 {
-                    iVar4 = GameManager.instance.FUN_1DD9C();
-                    GameManager.instance.FUN_1E14C(iVar4, GameManager.instance.DAT_C2C, 1);
+                    //iVar4 = GameManager.instance.FUN_1DD9C();
+                    //GameManager.instance.FUN_1E14C(iVar4, GameManager.instance.DAT_C2C, 1);
+                    return 0;
                 }
 
                 if (-1 < arg2.id)

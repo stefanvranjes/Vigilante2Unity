@@ -8,14 +8,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: XRTP00_FAR15
-  m_Shader: {fileID: 4800000, guid: 94cb0d6305cd4a743b1d2ec684e277de, type: 3}
-  m_ShaderKeywords: BFC _DIFFMODEL_VERTEX _SPECMODEL_GOURAUD _UNLIT_ON
+  m_Shader: {fileID: 4800000, guid: a2a2cf9ff50af8241863303f1b9aba14, type: 3}
+  m_ShaderKeywords: BFC TRANSPARENT _ALPHABLEND_ON _DIFFMODEL_VERTEX _SPECMODEL_GOURAUD
+    _UNLIT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
-  stringTagMap:
-    RenderType: Opaque
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -89,7 +89,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DiffModel: 0
     - _DrawDist: 0
-    - _DstBlend: 0
+    - _DstBlend: 10
     - _EmissionAmt: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -99,20 +99,20 @@ Material:
     - _Mode: 0
     - _NormalMapDepth: 1
     - _OcclusionStrength: 1
-    - _OffsetFactor: -1
-    - _OffsetUnits: -1
+    - _OffsetFactor: 1
+    - _OffsetUnits: 1
     - _Parallax: 0.02
-    - _RenderMode: 2
+    - _RenderMode: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecModel: 0
     - _Specular: 0
     - _SpecularHighlights: 1
-    - _SrcBlend: 1
+    - _SrcBlend: 5
     - _UVSec: 0
     - _Unlit: 1
     - _VertexInaccuracy: -1
-    - _ZWrite: 1
+    - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

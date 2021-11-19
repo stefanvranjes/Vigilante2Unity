@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 204e8c9565f977f46b249d6d40802a8f, type: 3}
+  m_Name: LensFlaresPreset
+  m_EditorClassIdentifier: 
+  _presets:
+  - sprite: {fileID: 21300000, guid: 489dd4207328bfb4f8d95476963513a6, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 0.7254902}
+    size: 1.5
+    position: 0
+    align: 0
+    startAngle: 0
+  - sprite: {fileID: 21300002, guid: 489dd4207328bfb4f8d95476963513a6, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 0.7607843}
+    size: 1.5
+    position: 0.05
+    align: 0
+    startAngle: 0
+  - sprite: {fileID: 21300004, guid: 489dd4207328bfb4f8d95476963513a6, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 0.5254902}
+    size: 0.46
+    position: 0.43
+    align: 0
+    startAngle: 0
+  - sprite: {fileID: 21300006, guid: 489dd4207328bfb4f8d95476963513a6, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 0.627451}
+    size: 0.98
+    position: 0.63
+    align: 0
+    startAngle: 0
+  - sprite: {fileID: 21300004, guid: 489dd4207328bfb4f8d95476963513a6, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 0.39215687}
+    size: 1.3
+    position: 1
+    align: 0
+    startAngle: 0
+  - sprite: {fileID: 21300008, guid: 489dd4207328bfb4f8d95476963513a6, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 0.22352941}
+    size: 1.8
+    position: 1.05
+    align: 0
+    startAngle: 0
+  - sprite: {fileID: 21300006, guid: 489dd4207328bfb4f8d95476963513a6, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 0.3764706}
+    size: 0.7
+    position: 1
+    align: 0
+    startAngle: 90

@@ -88,7 +88,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DiffModel: 0
-    - _DrawDist: 1
+    - _DrawDist: 0
     - _DstBlend: 0
     - _EmissionAmt: 0
     - _GlossMapScale: 1

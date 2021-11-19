@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,6 +44,10 @@ public class Freezer2 : VigObject
         byte bVar1;
         sbyte sVar2;
         uint uVar4;
+        uint uVar5;
+        Color32 cVar5;
+        uint uVar6;
+        uint uVar7;
         int iVar8;
         Particle1 pVar8;
         VigObject oVar9;
@@ -81,7 +86,7 @@ public class Freezer2 : VigObject
                         return 0;
 
                     local_48 = new Vector3Int(DAT_A4, DAT_A4, DAT_A4);
-                    vTransform.rotation = Utilities.FUN_2449C(DAT_84_2.rotation, local_48);
+                    Utilities.FUN_2449C(DAT_84_2.rotation, local_48, ref vTransform.rotation);
                     DAT_A4 += 122;
                 }
                 else
@@ -93,14 +98,36 @@ public class Freezer2 : VigObject
 
                     if (DAT_C0.Count == 0 && 2 < DAT_19)
                     {
-                        //FUN_4E338
+                        UIManager.instance.FUN_4E338(new Color32(0x80, 0x80, 0x80, 4));
                         GameManager.instance.FUN_309A0(this);
                         return 0;
                     }
 
                     if (arg2 != 0)
                     {
-                        //...
+                        uVar5 = ((Color32)UIManager.instance.flash.color).b + 0x40U;
+                        uVar7 = 0x80;
+
+                        if (uVar5 < 0x80)
+                            uVar7 = uVar5;
+
+                        uVar6 = ((Color32)UIManager.instance.flash.color).g + 0x40U;
+                        uVar5 = 0x80;
+
+                        if (uVar6 < 0x80)
+                            uVar5 = uVar6;
+
+                        cVar5 = new Color32();
+                        cVar5.b = (byte)uVar7;
+                        cVar5.g = (byte)uVar5;
+                        uVar7 = ((Color32)UIManager.instance.flash.color).r + 0x40U;
+                        cVar5.r = 0x80;
+
+                        if (uVar7 < 0x80)
+                            cVar5.r = (byte)uVar7;
+
+                        cVar5.a = 0xff;
+                        UIManager.instance.flash.color = cVar5;
                     }
                 }
                 goto default;
@@ -143,7 +170,7 @@ public class Freezer2 : VigObject
                     transform.parent = null;
                     vTransform = local_28;
                     GameManager.instance.FUN_30080(GameManager.instance.worldObjs, this);
-                    //FUN_4E414
+                    UIManager.instance.FUN_4E414(vTransform.position, new Color32(0x00, 0x40, 0x00, 8));
                     pVar8 = LevelManager.instance.FUN_4DE54(vTransform.position, 138);
 
                     if (pVar8 != null)
@@ -204,6 +231,7 @@ public class Freezer2 : VigObject
         Particle1 pVar4;
         Ballistic puVar5;
         VigChild puVar6;
+        Dictionary<int, Type> dict = new Dictionary<int, Type>();
 
         iVar3 = GameManager.instance.FUN_1DD9C();
         GameManager.instance.FUN_1E628(iVar3, DAT_80.vData.sndList, 5, vTransform.position);
@@ -215,7 +243,10 @@ public class Freezer2 : VigObject
         if (pVar4 != null)
             pVar4.id = id;
 
-        puVar5 = DAT_80.vData.ini.FUN_2C17C(2, typeof(Ballistic), 8, typeof(VigChild)) as Ballistic;
+        dict.Add(79, typeof(VigChild));
+        dict.Add(81, typeof(FreezerChild));
+        dict.Add(95, typeof(VigChild));
+        puVar5 = DAT_80.vData.ini.FUN_2C17C(2, typeof(Ballistic), 8, dict) as Ballistic;
 
         if (puVar5 != null)
         {
@@ -233,7 +264,7 @@ public class Freezer2 : VigObject
         GameManager.instance.FUN_30CB0(this, 90);
         FUN_47C();
         GameManager.instance.FUN_30080(GameManager.instance.DAT_1068, this);
-        //FUN_4E414
+        UIManager.instance.FUN_4E414(vTransform.position, new Color32(0x80, 0x80, 0x80, 8));
     }
 
     //FUN_570 (STINGER.DLL)

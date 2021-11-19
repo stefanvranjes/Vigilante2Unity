@@ -22,6 +22,9 @@ public class MegaCollider : VigObject
             case 0:
                 FUN_42330(arg2);
                 return 0;
+            case 4:
+                GameManager.instance.DAT_1084--;
+                break;
         }
 
         return 0;
@@ -55,9 +58,10 @@ public class MegaCollider : VigObject
             case 12:
                 if (DAT_19 != 0 && maxHalfHealth != 0)
                 {
-                    iVar2 = GameManager.instance.FUN_1DD9C();
-                    GameManager.instance.FUN_1E14C(iVar2, GameManager.instance.DAT_C2C, 1);
-                    return 360;
+                    //iVar2 = GameManager.instance.FUN_1DD9C();
+                    //GameManager.instance.FUN_1E14C(iVar2, GameManager.instance.DAT_C2C, 1);
+                    //return 360;
+                    return 0;
                 }
 
                 puVar3 = arg2.vData.ini.FUN_2C17C(3, typeof(Beam), 8) as Beam;
@@ -90,8 +94,9 @@ public class MegaCollider : VigObject
                         {
                             puVar6.flags = 0x60000006;
                             uVar1 = (ushort)arg2.id;
-                            puVar6.type = 8;
+                            puVar6.type = 3;
                             puVar6.DAT_80 = arg2;
+                            puVar6.DAT_A0 = (ushort)((15 - uVar10) * 4);
                             puVar6.maxHalfHealth = 4;
                             puVar6.id = (short)uVar1;
                             puVar6.vTransform = local_48;

@@ -57,7 +57,7 @@ public class Revolver3 : VigObject
                 }
                 else
                 {
-                    //FUN_4E414
+                    UIManager.instance.FUN_4E414(vTransform.position, new Color32(0xff, 0xff, 0xff, 8));
                     vVar1.physics2.Z <<= 4;
                     vVar1.physics2.X <<= 4;
                 }
@@ -135,7 +135,7 @@ public class Revolver3 : VigObject
         }
         else
         {
-            puVar1 = vData.ini.FUN_2C17C(1, typeof(Ballistic), 8, typeof(VigChild)) as Ballistic;
+            puVar1 = vData.ini.FUN_2C17C(1, typeof(RevolverBallistic), 8, typeof(VigChild)) as Ballistic;
             Utilities.ParentChildren(puVar1, puVar1);
             puVar1.flags = 0x34;
             puVar1.screen = vTransform.position;

@@ -19,6 +19,8 @@ public class GloryRocket : VigObject
     private static int DAT_34 = 0x10000;
     //0x1510 (STNTBIKE.DLL)
     public static int[] DAT_1510 = new int[] { 171, 170, 169, 157, 166, 154, 162, 160, 164 };
+    public static Color32[] DAT_1534 = { new Color32(0x7f, 0x7f, 0x7f, 8), new Color32(0x7f, 0x00, 0x00, 8),
+                                         new Color32(0x00, 0x00, 0x7f, 8) };
 
     public override uint OnCollision(HitDetection hit)
     {
@@ -360,6 +362,7 @@ public class GloryRocket : VigObject
             iVar6 += 15;
         } while (iVar5 < 3);
 
+        UIManager.instance.FUN_4E414(vTransform.position, DAT_1534[DAT_19]);
         iVar3 = GameManager.instance.FUN_1DD9C();
         GameManager.instance.FUN_1E5D4(iVar3, vData.sndList, 4, vTransform.position);
         iVar5 = (int)GameManager.FUN_2AC5C();

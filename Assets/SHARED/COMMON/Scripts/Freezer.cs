@@ -176,9 +176,10 @@ public class Freezer : VigObject
             case 12:
                 if (DAT_19 != 0 && maxHalfHealth != 0)
                 {
-                    iVar4 = GameManager.instance.FUN_1DD9C();
-                    GameManager.instance.FUN_1E14C(iVar4, GameManager.instance.DAT_C2C, 1);
-                    return 720;
+                    //iVar4 = GameManager.instance.FUN_1DD9C();
+                    //GameManager.instance.FUN_1E14C(iVar4, GameManager.instance.DAT_C2C, 1);
+                    //return 720;
+                    return 0;
                 }
 
                 puVar5 = arg2.vData.ini.FUN_2C17C(1, typeof(Freezer2), 8) as Freezer2;
@@ -225,7 +226,7 @@ public class Freezer : VigObject
                 Utilities.FUN_2CA94(this, ccVar4, puVar5);
                 Utilities.ParentChildren(this, this);
                 puVar5.DAT_84_2 = puVar5.vTransform;
-                puVar5.vTransform.rotation = Utilities.FUN_2449C(puVar5.vTransform.rotation, local_10);
+                Utilities.FUN_2449C(puVar5.vTransform.rotation, local_10, ref puVar5.vTransform.rotation);
                 maxHalfHealth--;
                 iVar4 = GameManager.instance.FUN_1DD9C();
                 GameManager.instance.FUN_1E14C(iVar4, arg2.vData.sndList, 4);

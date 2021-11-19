@@ -34,8 +34,8 @@ public class Laser : VigObject
         GameManager.instance.FUN_2FB70(this, hit, auStack88);
         local_88 = new Vector3Int
             (auStack88.position.x / 2, auStack88.position.y / 2, auStack88.position.z / 2);
-        iVar3 = GameManager.instance.FUN_1DD9C();
-        GameManager.instance.FUN_1E580(iVar3, vData.sndList, 2, vTransform.position);
+        //iVar3 = GameManager.instance.FUN_1DD9C();
+        //GameManager.instance.FUN_1E580(iVar3, vData.sndList, 2, vTransform.position);
         LevelManager.instance.FUN_4DE54(local_88, 144);
         flags |= 0x20;
         uVar3 = 0;
@@ -51,7 +51,7 @@ public class Laser : VigObject
             local_20.z = tVar6.rotation.V22 << 6;
             local_88 = Utilities.FUN_24148(vVar4.vTransform, local_88);
             vVar4.FUN_2B370(local_20, local_88);
-            //FUN_4E414
+            UIManager.instance.FUN_4E414(hit.self.vTransform.position, new Color32(0x00, 0x80, 0x00, 8));
             vVar4.vTransform.position.y -= 0x1400;
 
             do
