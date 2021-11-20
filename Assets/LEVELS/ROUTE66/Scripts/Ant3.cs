@@ -15,6 +15,7 @@ public class Ant3 : VigObject
     }
 
     public VigCamera[] DAT_8C = new VigCamera[2];
+    public short[] cameraDefault = new short[2];
 
     //FUN_2914 (ROUTE66.DLL)
     public override uint UpdateW(int arg1, int arg2)
@@ -41,6 +42,11 @@ public class Ant3 : VigObject
                 if (iVar2 < 1)
                 {
                     GameManager.instance.FUN_307CC(this);
+
+                    for (int i = 0; i < DAT_8C.Length; i++)
+                        if (DAT_8C[i] != null)
+                            DAT_8C[i].DAT_94 = cameraDefault[i];
+
                     return 0xffffffff;
                 }
 
@@ -73,8 +79,9 @@ public class Ant3 : VigObject
                         if (cVar4 != null)
                             cVar4.DAT_94 -= physics1.M1;
 
-                        vVar5.vCamera.DAT_94 += physics1.M3;
                         DAT_8C[iVar7] = vVar5.vCamera;
+                        cameraDefault[iVar7] = DAT_8C[iVar7].DAT_94;
+                        vVar5.vCamera.DAT_94 += physics1.M3;
                     }
                 }
 

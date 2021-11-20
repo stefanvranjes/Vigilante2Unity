@@ -115,8 +115,9 @@ public class GloryRockets : VigObject
                 }
                 else
                 {
-                    iVar3 = GameManager.instance.FUN_1DD9C();
-                    GameManager.instance.FUN_1E14C(iVar3, GameManager.instance.DAT_C2C, 1);
+                    //iVar3 = GameManager.instance.FUN_1DD9C();
+                    //GameManager.instance.FUN_1E14C(iVar3, GameManager.instance.DAT_C2C, 1);
+                    return 0;
                 }
 
                 uVar4 = 780;

@@ -103,7 +103,7 @@ Material:
     - _OffsetFactor: 1
     - _OffsetUnits: 1
     - _Parallax: 0.02
-    - _RenderMode: 0
+    - _RenderMode: 2
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecModel: 0

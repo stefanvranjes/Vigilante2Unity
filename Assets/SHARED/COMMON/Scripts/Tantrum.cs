@@ -126,6 +126,7 @@ public class Tantrum : VigObject
             case 12:
                 oVar6 = child2;
                 puVar3 = LevelManager.instance.xobfList[19].ini.FUN_2C17C(9, typeof(Ballistic), 8) as Ballistic;
+                Utilities.ParentChildren(puVar3, puVar3);
                 puVar4 = LevelManager.instance.FUN_42408(arg2, oVar6, 2, typeof(Tantrum2), puVar3) as Tantrum2;
                 puVar5 = vData.ini.FUN_2C17C(1, typeof(Throwaway), 0) as Throwaway;
                 uVar7 = 0x280;

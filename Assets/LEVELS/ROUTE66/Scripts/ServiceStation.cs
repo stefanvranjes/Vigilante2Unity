@@ -113,7 +113,7 @@ public class ServiceStation : Destructible
                     vVar4.FUN_3A0C0(60);
                     iVar3 = GameManager.instance.FUN_1DD9C();
                     GameManager.instance.FUN_1E628(iVar3, GameManager.instance.DAT_C2C, 44, vTransform.position);
-                    //FUN_4E414
+                    UIManager.instance.FUN_4E414(vTransform.position, new Color32(0x00, 0x80, 0x00, 8));
                     PDAT_74 = null;
                     sVar2 = (sbyte)(tags + 1);
                     tags = sVar2;

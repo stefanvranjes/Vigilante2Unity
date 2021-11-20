@@ -5,21 +5,25 @@ using UnityEngine;
 public class Biker : VigObject
 {
     //FUN_294 (STNTBIKE.DLL)
-    public static Vehicle LoadDakota(XOBF_DB param1, int param2, uint param3 = 0)
+    public static uint LoadDakota(Vehicle param1, int param2, int param3)
     {
         VigObject puVar1;
         Vehicle vVar2;
         ConfigContainer ccVar2;
 
-        vVar2 = param1.FUN_3C464(0, GameManager.vehicleConfigs[2], typeof(Vehicle));
-        puVar1 = vVar2.vData.ini.FUN_2C17C(1, typeof(Biker), 8);
-        Utilities.ParentChildren(puVar1, puVar1);
-        puVar1.flags |= 4;
-        ccVar2 = vVar2.FUN_2C5F4(0x8102);
-        Utilities.FUN_2CA94(vVar2, ccVar2, puVar1);
-        Utilities.ParentChildren(vVar2, puVar1);
-        puVar1.FUN_30B78();
-        return vVar2;
+        if (param2 == 1)
+        {
+            puVar1 = param1.vData.ini.FUN_2C17C(1, typeof(Biker), 8);
+            Utilities.ParentChildren(puVar1, puVar1);
+            puVar1.flags |= 4;
+            ccVar2 = param1.FUN_2C5F4(0x8102);
+            Utilities.FUN_2CA94(param1, ccVar2, puVar1);
+            Utilities.ParentChildren(param1, puVar1);
+            puVar1.FUN_30B78();
+            return param1.FUN_367A4(param2, param3);
+        }
+
+        return 0;
     }
 
     protected override void Start()

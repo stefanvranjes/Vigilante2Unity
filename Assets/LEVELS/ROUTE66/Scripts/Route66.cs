@@ -49,7 +49,7 @@ public class Route66 : VigObject
 
             case 2:
                 GameManager.instance.FUN_34B34();
-                GameManager.instance.FUN_30CB0(this, 0xf0);
+                GameManager.instance.FUN_30CB0(this, 240);
                 break;
         }
 

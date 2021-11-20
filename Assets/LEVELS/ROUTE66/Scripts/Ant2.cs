@@ -115,7 +115,7 @@ public class Ant2 : Destructible
                                 iVar4 = GameManager.instance.FUN_1DD9C();
                                 GameManager.instance.FUN_1E188(iVar4, GameManager.instance.DAT_C2C, 63);
                                 GameManager.instance.FUN_1E30C(iVar4, 0xe3d);
-                                //FUN_4E338
+                                UIManager.instance.FUN_4E338(new Color32(0xff, 0x00, 0x00, 4));
                                 GameObject obj = new GameObject();
                                 ppcVar5 = obj.AddComponent<Ant3>();
                                 ppcVar5.physics1.Y = 0x150000;

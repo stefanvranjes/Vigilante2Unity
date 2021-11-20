@@ -358,6 +358,7 @@ Shader "PSXEffects/PS1Shader"
 					if (!_ColorOnly) {
 						col *= 2;
 					}
+					
 					col.a = albedo.a * i.color.a * _Color.a;
 				}
 

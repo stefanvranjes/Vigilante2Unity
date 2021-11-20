@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 76709745da2750346b02db991f7119fb
+timeCreated: 1533741333
+licenseType: Free
+ShaderImporter:
+  defaultTextures:
+  - _OcclusionMap: {fileID: 8400000, guid: 4dc1024a3865a7e4d9b3b6723cf4b247, type: 2}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

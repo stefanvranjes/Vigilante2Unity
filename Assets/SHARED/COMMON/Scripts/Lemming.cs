@@ -306,7 +306,7 @@ public class Lemming : VigObject
                     puVar5.maxHalfHealth = 4;
                     puVar5.DAT_80 = DAT_80;
                     puVar5.FUN_2D114(puVar5.screen, ref puVar5.vTransform);
-                    //FUN_4E414
+                    UIManager.instance.FUN_4E414(puVar5.screen, new Color32(0xff, 0xff, 0xff, 8));
                     iVar15 = GameManager.instance.FUN_1DD9C();
                     GameManager.instance.FUN_1E580(iVar15, GameManager.instance.DAT_C2C, 65, puVar5.screen);
                     puVar5.FUN_305FC();

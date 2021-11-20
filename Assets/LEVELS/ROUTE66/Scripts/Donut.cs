@@ -53,7 +53,7 @@ public class Donut : VigObject
                 iVar8 = 24;
 
             GameManager.instance.FUN_1E5D4(iVar5, GameManager.instance.DAT_C2C, iVar8, auStack72);
-            //FUN_4E414
+            UIManager.instance.FUN_4E414(auStack72, new Color32(0x80, 0x80, 0x80, 8));
             LevelManager.instance.FUN_4DE54(auStack72, 142);
             vVar3.FUN_3A064(-3, auStack72, true);
             return 0;

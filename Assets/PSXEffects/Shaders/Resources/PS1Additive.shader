@@ -90,7 +90,7 @@ Shader "PSXEffects/PS1Additive"
                 fixed4 col = tex2D(_MainTex, i.texcoord);
 				i.color.a = 1;
 				col *= i.color;
-				col *= 1.5;
+				col *= 2;
 				col.rgb = saturate(col.rgb);
 
 #if !UNITY_COLORSPACE_GAMMA
